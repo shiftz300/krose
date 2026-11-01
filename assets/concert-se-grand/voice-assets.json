@@ -1,0 +1,64 @@
+{
+  "firmware_sha256": "3005f0eca3f3772bcb810c526ceebb15562747d3cdcdf5d20faae4a539520c54",
+  "tables": [
+    {
+      "name": "kEgTime",
+      "firmware_offset": 4183460,
+      "elements": 100,
+      "sha256": "a2885c3bd2a6666395cbb9a1f10845714b38bf825acdefb953b0ea8382a129e5"
+    },
+    {
+      "name": "kEgShort",
+      "firmware_offset": 4183860,
+      "elements": 7040,
+      "sha256": "dac9f04908660a91989094ff7fa2bd754cafbfc48c6c0cbc7c55f19beff4865f"
+    },
+    {
+      "name": "kEgMedium",
+      "firmware_offset": 4212020,
+      "elements": 1001,
+      "sha256": "e71a03ef3b17f83360eca4a196aab59b1c7fa6bdadc9ff1c3b3cfd90cea19dd5"
+    },
+    {
+      "name": "kEgLong",
+      "firmware_offset": 4216024,
+      "elements": 22,
+      "sha256": "5e1b9e2d2d6da99b4b27239610df19a28897705d7bce1fe2f95b325260560061"
+    },
+    {
+      "name": "kEgAsymptote",
+      "firmware_offset": 4216880,
+      "elements": 11,
+      "sha256": "6f1b9e6e4ac6c08d0a93a4b5ff5bc99bedd72692a4776360b72b287c675c016e"
+    },
+    {
+      "name": "kExpFraction",
+      "firmware_offset": 4224740,
+      "elements": 256,
+      "sha256": "28c65b4c732cc61d7408f824e12d5dc78f15625439e78d1010821d41f23e0401"
+    },
+    {
+      "name": "kVelocityGain",
+      "firmware_offset": 4220138,
+      "elements": 256,
+      "sha256": "3acd76d37dac4b91fcea6489aadf557672315e2a4248ba00b93dfdb7d3ba6bc8"
+    },
+    {
+      "name": "kExpVelocity",
+      "firmware_offset": 4218632,
+      "elements": 128,
+      "sha256": "65e4a577232572e12bb0776456bad3b1beae54734e3a7e0375a75b39dad36a1c"
+    },
+    {
+      "name": "kTgReciprocal",
+      "firmware_offset": 3837248,
+      "elements": 25,
+      "sha256": "489798a72cf131445236c86ad4fc100fda32c930b80b177f0348605f02fbcf93"
+    }
+  ],
+  "program_sha256": "a52ae2deebe0a0997bb50d50b3b26c1e40bd278567068e6afc85ae20e09222e4",
+  "header_sha256": "797d518fbe42b568bd8c0b6ce63413a31f0cac34771d201e663330aab92edf42",
+  "trace_fixture_records": 243,
+  "trace_fixture_sha256": "36e31febc33cd567f9dbc43d7e18ea8588b48d131506dd6b9777711d3aa0e46e",
+  "scope": "Factory Concert control constants extracted at build time; generated code has no runtime firmware/Unicorn dependency"
+}

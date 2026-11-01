@@ -1,0 +1,245 @@
+{
+  "date": "2026-11-01",
+  "official_release_page": "https://www.korg.com/us/support/download/software/0/754/3833/",
+  "coordinate_system": "All firmware offsets refer to decompressed v1.2.4 file; virtual base 0xc0000000",
+  "assets": [
+    {
+      "path": "EXPCM001/EXPCM001.KEP",
+      "source_url": null,
+      "kind": "user supplied original",
+      "bytes": 47474840,
+      "sha256": "ca8e77bac45e731a09b50a4e9446ec72d8fad81a423e243cac34c9ae3e75be8c"
+    },
+    {
+      "path": "EXPCM001/EXPCM001_VNL.pdf",
+      "source_url": null,
+      "kind": "user supplied original",
+      "bytes": 27903,
+      "sha256": "e5c37126fd95ab78ccc40fc3f2190ad24ea287239655c32d3fb5ad9142c9035c"
+    },
+    {
+      "path": "research/downloads/KROSS2_V124.zip",
+      "source_url": "https://cdn.korg.com/us/support/download/files/bae95c14818e36ef7ad8f1209d6a6208.zip",
+      "kind": "official original",
+      "bytes": 3715012,
+      "sha256": "a846b90abadc2f57ceee423c3aeb76b0231a579a37ee096922dfc7859a513617"
+    },
+    {
+      "path": "research/downloads/KROSS2_Parameter_Guide.pdf",
+      "source_url": "https://cdn.korg.com/us/support/download/files/96dbde75752a88b2daf897262d199b80.pdf",
+      "kind": "official original",
+      "bytes": 5365528,
+      "sha256": "da60cf9461c5721e7c0c89373a5c005f83207d563f161a82e5642347edc85c5a"
+    },
+    {
+      "path": "research/derived/firmware/KROSS2_V124/KROSSAPP.bin",
+      "source_url": null,
+      "kind": "derived LZSS-decompressed official firmware",
+      "bytes": 6291456,
+      "sha256": "3005f0eca3f3772bcb810c526ceebb15562747d3cdcdf5d20faae4a539520c54"
+    },
+    {
+      "path": "research/external/hacktribe/synth-pcm-dump.patch",
+      "source_url": "https://raw.githubusercontent.com/bangcorrupt/hacktribe/bcf92de81e796e46e2ab66e18af184e8bb4c811c/patch/hacktribe-2.patch",
+      "kind": "external reference BSDIFF40 patch",
+      "bytes": 828,
+      "sha256": "2d1b32de38e319689bc02830e288413a1bdf52cef61fdb89e9a1ac3e088559eb"
+    },
+    {
+      "path": "research/firmware/KROSS2_V124/HowToUpdate_KROSS2_124_E.pdf",
+      "kind": "official archive member, verified byte-identical",
+      "source_archive": "research/downloads/KROSS2_V124.zip",
+      "archive_member": "KROSS2_V124/HowToUpdate_KROSS2_124_E.pdf",
+      "bytes": 433380,
+      "sha256": "d38794cf06c6f0e9d3e0b914ccf857d2500ec9cd5ae48f9a21cc6910946887c5"
+    },
+    {
+      "path": "research/firmware/KROSS2_V124/HowToUpdate_KROSS2_124_J.pdf",
+      "kind": "official archive member, verified byte-identical",
+      "source_archive": "research/downloads/KROSS2_V124.zip",
+      "archive_member": "KROSS2_V124/HowToUpdate_KROSS2_124_J.pdf",
+      "bytes": 490912,
+      "sha256": "9012e9eaec09780abd9e261c7f69bb44518f38f3f0f0661aef5b71602a896c26"
+    },
+    {
+      "path": "research/firmware/KROSS2_V124/KROSS2SY/KROSSAPP.CMP",
+      "kind": "official archive member, verified byte-identical",
+      "source_archive": "research/downloads/KROSS2_V124.zip",
+      "archive_member": "KROSS2_V124/KROSS2SY/KROSSAPP.CMP",
+      "bytes": 2746197,
+      "sha256": "35d2d700d009e90e424064bd999f28bba318efd8daf9dda87855dcf97e91599b"
+    },
+    {
+      "path": "research/firmware/KROSS2_V124/KROSS2SY/PPAT.BIN",
+      "kind": "official archive member, verified byte-identical",
+      "source_archive": "research/downloads/KROSS2_V124.zip",
+      "archive_member": "KROSS2_V124/KROSS2SY/PPAT.BIN",
+      "bytes": 1312036,
+      "sha256": "1f734fb8ffd41efa030079f9436753dae7e10e5cf7ac05a42921c28cc6592135"
+    },
+    {
+      "path": "research/downloads/KROSS2_downloads.html",
+      "source_url": "https://www.korg.com/us/support/download/product/0/754/",
+      "kind": "official download index HTML snapshot, 2026-10-31",
+      "bytes": 19197,
+      "sha256": "2245e0ce8e5c751dc7d96ac57d698895f97c6a9cdbe019b2c5e924bee0f37874"
+    },
+    {
+      "path": "research/external/hardware/kross2-klm3665-listing.png",
+      "source_url": "https://i.ebayimg.com/00/s/MTYwMFgxMjAw/z/vvwAAOSwGYdnOLhf/%24_57.PNG?set_id=880000500F",
+      "kind": "Seller original photo, KROSS2-61 KLM-3665B front",
+      "retrieved_date": "2026-10-31",
+      "bytes": 3265466,
+      "sha256": "000e8b5055ef6ef594ff80e27ac56e0a351fdc7bc6be1f610ad727d86029a881",
+      "source_page": "https://www.ebay.com/itm/156522112587"
+    },
+    {
+      "path": "research/external/hardware/kross2-klm3665-board.webp",
+      "source_url": "https://i.ebayimg.com/images/g/UawAAOSwcmxnOLh1/s-l1600.webp",
+      "kind": "Seller original photo, KLM-3665B back",
+      "retrieved_date": "2026-10-31",
+      "bytes": 454072,
+      "sha256": "f1acf171b558507cb81bafa3c4f0dc006a4787b4ec8c384664284345e03f7fcb",
+      "source_page": "https://www.ebay.com/itm/156522112587"
+    },
+    {
+      "path": "research/external/hardware/syntaur-cpu-board.html",
+      "source_url": "https://syntaur.com/parts/korg/kross-2-61/cpu-board-korg-kross-2",
+      "kind": "Seller original board-identification HTML snapshot",
+      "retrieved_date": "2026-10-31",
+      "bytes": 8817,
+      "sha256": "ba0f46d2cc87d4872021b6e2a1d2ff0e1854aafba6415a6599e311c813ddfc38"
+    },
+    {
+      "path": "research/downloads/TI_OMAP-L1x_overview.pdf",
+      "source_url": "https://www.ti.com/en/download/mcu/OMAP-L1x.pdf",
+      "kind": "Manufacturer original, candidate MCU-family overview",
+      "retrieved_date": "2026-10-31",
+      "bytes": 1318829,
+      "sha256": "c9573a197e45658069acee2b6e48011c152c30695eb143abcfef0f4f73e2feb8"
+    },
+    {
+      "path": "research/downloads/TI_Timer64_Clock_Reference.html",
+      "source_url": "https://downloads.ti.com/dsps/dsps_public_sw/sdo_sb/targetcontent/tirtos/1_21_00_09/exports/docs/products/bios_6_37_00_20/docs/cdoc/ti/sysbios/timers/timer64/doc-files/TimerTables.html",
+      "kind": "official TI family reference; not proof of KROSS2 chip identity",
+      "bytes": 1835,
+      "sha256": "e553278c33fc94331e97b3895bf85c006dfddd59b48f35318fd41811d9edd189"
+    },
+    {
+      "path": "research/downloads/TI_Timer64_Clock_Reference.js",
+      "source_url": "https://downloads.ti.com/dsps/dsps_public_sw/sdo_sb/targetcontent/tirtos/1_21_00_09/exports/docs/products/bios_6_37_00_20/docs/cdoc/ti/sysbios/timers/timer64/doc-files/TimerTables.js",
+      "kind": "official TI family reference; not proof of KROSS2 chip identity",
+      "bytes": 101123,
+      "sha256": "35165eeb51df934d291495b30206da7164debcc9244967a29c8c3295fd15d654"
+    },
+    {
+      "path": "research/downloads/W3C_Audio_EQ_Cookbook_20210608.html",
+      "source_url": "https://www.w3.org/TR/2021/NOTE-audio-eq-cookbook-20210608/",
+      "kind": "primary host biquad formula reference; not Korg algorithm evidence",
+      "bytes": 28376,
+      "sha256": "a40b10461566fc0fd7e2911b847750b8c3a90034c46c2f9562f23489ee7704d8"
+    },
+    {
+      "path": "research/downloads/EXPCM002_download.html",
+      "source_url": "https://www.korg.com/us/support/download/software/0/754/4382/",
+      "kind": "official expansion download page; auxiliary branch",
+      "bytes": 21857,
+      "sha256": "25b1ebe454d13f0767976f4aa067c364b4fc5664b01a66eafe57176a289fceab"
+    },
+    {
+      "path": "research/downloads/EXPCM002_EP_Collection.zip",
+      "source_url": "https://cdn.korg.com/us/support/download/files/7aaf0f7a1d6b2f1a314de33e95ca5ebb.zip",
+      "kind": "official original expansion archive; auxiliary branch",
+      "bytes": 9065396,
+      "sha256": "928e3aa515922839446a2ceeacaf61e9c642968dcfa132326cea426db603c45b"
+    },
+    {
+      "path": "research/libraries/EXPCM002_EP_Collection/EXPCM002/EXPCM002.KEP",
+      "source_url": null,
+      "kind": "unmodified official expansion member; auxiliary branch",
+      "bytes": 9139496,
+      "sha256": "4ec7d6c8f740fadce55aa257628e4e284449ef44e75d400eb0d5156405e49688",
+      "source_archive": "research/downloads/EXPCM002_EP_Collection.zip",
+      "archive_member": "EXPCM002/EXPCM002.KEP"
+    },
+    {
+      "path": "research/libraries/EXPCM002_EP_Collection/EXPCM002/EXPCM002_VNL.pdf",
+      "source_url": null,
+      "kind": "unmodified official expansion member; auxiliary branch",
+      "bytes": 31315,
+      "sha256": "1c19cbfc5f2027735bb60b9653a1845cfe300d77cadb493b00641e64c302e6d6",
+      "source_archive": "research/downloads/EXPCM002_EP_Collection.zip",
+      "archive_member": "EXPCM002/EXPCM002_VNL.pdf"
+    },
+    {
+      "path": "research/downloads/EXPCM004_download.html",
+      "source_url": "https://www.korg.com/us/support/download/software/0/754/4384/",
+      "kind": "official expansion download page; auxiliary branch",
+      "bytes": 21935,
+      "sha256": "54c377754dcd0ccaaceebcb3c99568f88fa620c951b4e5922dcce08c913500e9"
+    },
+    {
+      "path": "research/downloads/EXPCM004_Future_Synth_Collection.zip",
+      "source_url": "https://cdn.korg.com/us/support/download/files/e7aa767af7ec6f9d990ffb12349aa131.zip",
+      "kind": "official original expansion archive; auxiliary branch",
+      "bytes": 7844575,
+      "sha256": "67c980316cf3451acdd650411c0f99c44e89e2f4b70d42f3fc5b8af3d14a6c7b"
+    },
+    {
+      "path": "research/libraries/EXPCM004_Future_Synth_Collection/EXPCM004/EXPCM004.KEP",
+      "source_url": null,
+      "kind": "unmodified official expansion member; auxiliary branch",
+      "bytes": 8513952,
+      "sha256": "297d8687f4aa339927c1b792e69a44370b7746ec6eeb7ee109fe9a92b1594864",
+      "source_archive": "research/downloads/EXPCM004_Future_Synth_Collection.zip",
+      "archive_member": "EXPCM004/EXPCM004.KEP"
+    },
+    {
+      "path": "research/libraries/EXPCM004_Future_Synth_Collection/EXPCM004/EXPCM004_VNL.pdf",
+      "source_url": null,
+      "kind": "unmodified official expansion member; auxiliary branch",
+      "bytes": 63644,
+      "sha256": "354cc3066a8d20c4d7c10aba2fc65487ccaee4a153c42bd51d9ea92c5a4146da",
+      "source_archive": "research/downloads/EXPCM004_Future_Synth_Collection.zip",
+      "archive_member": "EXPCM004/EXPCM004_VNL.pdf"
+    },
+    {
+      "path": "research/downloads/KROSS2Editor_mac_100_en.zip",
+      "source_url": "https://www.korg.com.br/arquivos/KROSS2Editor_mac_100_en.zip",
+      "kind": "official regional editor archive, not installed",
+      "bytes": 16516778,
+      "sha256": "d719c9f042cdc6927e2313c2bbcb2f9382202aa2d76a33b51bde52830a2b541c"
+    },
+    {
+      "path": "research/libraries/KROSS2_Editor_100/PRELOAD.KRS2all",
+      "source_url": null,
+      "kind": "unmodified official editor preload data, copied from read-only image without installation",
+      "bytes": 5993354,
+      "sha256": "71bf82f1183e36422f31fb253be8a3010435f46d6fb7f3bd35d432116adb557b",
+      "source_archive": "research/downloads/KROSS2Editor_mac_100_en.zip",
+      "nested_image": "KROSS2Editor_mac_100_en.dmg",
+      "image_file": "/PRELOAD.KRS2all"
+    },
+    {
+      "path": "research/downloads/KROSS2_Voice_Name_List_download.html",
+      "source_url": "https://www.korg.com/us/support/download/manual/0/754/3641/",
+      "kind": "official factory voice-list download page",
+      "bytes": 13015,
+      "sha256": "fae8eafac50ac4ef9d7c89c6e0c182e6ed9167bd44f2f1ab38c05f02ca6961f5"
+    },
+    {
+      "path": "research/downloads/KROSS2_Voice_Name_List_20180323.pdf",
+      "source_url": "https://cdn.korg.com/us/support/download/files/38a498de9387b0d3ec8009b47069c9de.pdf",
+      "kind": "official factory Voice Name List, revision2018-03-23",
+      "bytes": 833072,
+      "sha256": "c0d6985f04e16b5ef88d92a8eafce4ce1fa64311d157c3fcd4fff8c4bec11075"
+    },
+    {
+      "path": "research/downloads/KROSS2_Editor110_download.html",
+      "source_url": "https://www.korg.com/us/support/download/software/0/754/4845/",
+      "kind": "official editor110 reference page; actual recovered data came from100 archive",
+      "bytes": 25891,
+      "sha256": "54bda41dc80ac6e4ca12752146995242958a8bda02bcd3460dcec700e5274254"
+    }
+  ]
+}

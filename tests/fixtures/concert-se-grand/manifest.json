@@ -1,0 +1,38 @@
+{
+  "format_version": 1,
+  "kind": "Independent original-ARM test fixtures; never linked into the plugin",
+  "files": [
+    {
+      "file": "concert-control-map.bin",
+      "bytes": 650264,
+      "sha256": "bc13482218d0995beec17dba3d21c8cfd511cceb1fc8f7cf484ef4cf55c7c9b6"
+    },
+    {
+      "file": "native-voice-traces.bin",
+      "bytes": 7788,
+      "sha256": "36e31febc33cd567f9dbc43d7e18ea8588b48d131506dd6b9777711d3aa0e46e"
+    },
+    {
+      "file": "native-tg-commands.bin",
+      "bytes": 572,
+      "sha256": "6d9f051b0d26cfd4e05e34ed18568956b8f668c2706115f0e052c0b6a5d3924a"
+    },
+    {
+      "file": "concert-filter-map.bin",
+      "bytes": 910360,
+      "sha256": "bf65f732c26e8cd8f59bdabc701d19737642808ca502b2941261ee45a6d7a8f6"
+    },
+    {
+      "file": "concert-filter-traces.bin",
+      "bytes": 28716,
+      "sha256": "0ed385b31ecfbe9510910b0913f863c64b6ddc232b1798497ab9310adc8f8759"
+    }
+  ],
+  "provenance_sha256": {
+    "research/derived/verification/concert-voice-arm-comparison.json": "c1c4f4e2715bb1ef7975b9acc0f1408ef13c2f476ec0f9c4f6f62a2525a6f620",
+    "research/derived/verification/concert-filter-arm-comparison.json": "c825fa7557fc6043f76d90f2d1c612790e36d7d98e8fd9bc83718a3279244d63",
+    "research/derived/verification/voice-timing-arm-comparison.json": "2303e8ad44e5fd3f1dfb80bec1f5fb0b077becb2459d069990998cd2fe3800cf"
+  },
+  "exporter_sha256": "d48900111afaf347a0265568b38b96b0e77af85083badb4f2183396f4644ed5c",
+  "scope": "Frozen build/test input; provenance paths are references, not normal build dependencies"
+}

@@ -1,0 +1,39 @@
+{
+  "format_version": 1,
+  "kind": "Concert product runtime assets; unchanged accepted audio data",
+  "files": [
+    {
+      "file": "SEGrand.samples",
+      "bytes": 102683978,
+      "sha256": "e13c96752c73f1e6f4077e589e558a7572f07f0fff11a0909e08f3dcc9b07da8"
+    },
+    {
+      "file": "ConcertEqData.h",
+      "bytes": 985,
+      "sha256": "1510b3c184d1343e804ea35fbdd21775891e7e3e7193ca789b14e57ff0ba2a98"
+    },
+    {
+      "file": "NativeVoiceData.h",
+      "bytes": 82769,
+      "sha256": "797d518fbe42b568bd8c0b6ce63413a31f0cac34771d201e663330aab92edf42"
+    },
+    {
+      "file": "assets.json",
+      "bytes": 11607,
+      "sha256": "35babad46c88323ca9b79e64e58634dd7d34b49b90a048bf91176caa7121cd79"
+    },
+    {
+      "file": "voice-assets.json",
+      "bytes": 2173,
+      "sha256": "e4e986f2329fa56444edceae66cdd90b2bdc28794a1f42f0c62873c71d9f8052"
+    }
+  ],
+  "provenance_sha256": {
+    "output/Concert_SE_Grand_Filter/manifest.json": "d98b7e9b1312b60cd5e8375560fc7c05bd4e3949ef486d85008bc0ceda584901",
+    "output/Concert_SE_Grand_WAV/decode_report.json": "69af668039ee73e295a2f15fc88e89ffea7337ae8597ff12bff81660d14bafe4",
+    "research/derived/verification/voice-timing-arm-comparison.json": "2303e8ad44e5fd3f1dfb80bec1f5fb0b077becb2459d069990998cd2fe3800cf",
+    "research/derived/firmware/KROSS2_V124/effects/007/concert-coefficients.json": "698ba3f14b420b021a75497bd3a3457df07a9c9b231e7c421896ce87c28c735d"
+  },
+  "exporter_sha256": "d48900111afaf347a0265568b38b96b0e77af85083badb4f2183396f4644ed5c",
+  "scope": "Frozen build/test input; provenance paths are references, not normal build dependencies"
+}
