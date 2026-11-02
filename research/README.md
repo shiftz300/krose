@@ -1,32 +1,45 @@
-# Krose research
+# Krose 研究资料
 
-原始输入、逆向脚本、解码产物与研究证据全部保留在此目录。产品源码在上一级；网页源码在相邻 `krose-website/public/`。
+**本轮逆向已于 2026-11-02 按用户要求结束。** 成果供后续插件实现使用，未解的音频问题继续保留。产品源码位于仓库的 `src/`，研究文件均位于本目录。
 
-- [原生共享库与首批接入](../docs/NATIVE_ARCHITECTURE.md)
-- [当前逆向进度](docs/PROGRESS.md)
-- [资源总索引](RESOURCES.md) · [全部音色状态表 CSV](derived/catalog/programs.csv)
-- [ROM 采集与校验](docs/ROM_ACQUISITION.md)
-- [采样解码与音色组织](docs/ROM_DECODING.md)
-- [原机预制音色](docs/FACTORY_SOUNDS.md)
-- [声音控制](docs/VOICE_CONTROL.md)、[控制时间](docs/VOICE_TIMING.md)、[滤波](docs/FILTER_CONTROL.md)
-- [网页原始释放包络及动态 AMS](docs/WEB_RELEASE_AMS.md)
-- [迁移前项目记录](HISTORY.md)
-- [迁移清单](archive/migration-2026-11-01/manifest.json)
+## 先看这里
 
-从 `krose` 根目录运行新的入口：
+- [研究交接与保留缺口](docs/REVERSE_HANDOFF.md)
+- [图文报告 PDF：10 页、7 幅图](output/pdf/KROSS2-v1.2.4-plugin-report.pdf) · [可编辑正文](docs/architecture/PLUGIN_REPORT.md)
+- [按主题排列的全部文档](docs/architecture/INDEX.md) · [研究工具索引](tools/README.md)
+- [资源总索引](RESOURCES.md) · [历史进度](docs/PROGRESS.md)
+
+## 插件主要证据
+
+| 主题 | 阅读入口 |
+| --- | --- |
+| 采样与资源 | [PCM 解码](docs/ROM_DECODING.md) · [扩展采样](docs/architecture/EXPANSION_PCM.md) · [GM](docs/architecture/GM_PROGRAMS.md) |
+| 选样与鼓组 | [原厂声部](docs/architecture/FACTORY_VOICE_CHAIN.md) · [鼓组发声](docs/architecture/DRUM_VOICE_CHAIN.md) |
+| MIDI 与声部 | [MIDI 控制](docs/architecture/MIDI_PARAMETERS.md) · [单音/滑音](docs/architecture/MONO_LIVE.md) · [复音压力](docs/architecture/VOICE_PRESSURE.md) |
+| 调制与刷新 | [EG](docs/architecture/ENVELOPES.md) · [LFO](docs/architecture/VOICE_LFO.md) · [AMS Mixer](docs/architecture/AMS_MIXERS.md) · [正常刷新](docs/architecture/VOICE_REFRESH.md) |
+| 音乐发生器 | [琶音](docs/architecture/ARPEGGIATOR.md) · [步进](docs/architecture/STEP_SEQUENCER.md) · [鼓轨到声部](docs/architecture/DRUM_VOICE_PLAYBACK.md) |
+| 滤波与效果 | [滤波控制](docs/FILTER_CONTROL.md) · [EQ](docs/architecture/EFFECT_EQ.md) · [效果路由](docs/architecture/EFFECT_ROUTING.md) · [加载状态](docs/architecture/EFFECT_LOAD_STATE.md) |
+| 导入与引用 | [资源导入](docs/architecture/RESOURCE_IMPORT.md) · [引用重编号](docs/architecture/PROGRAM_RELOCATION.md) |
+| 历史整机研究 | [阶段 01 架构](docs/architecture/README.md) · [归档范围与状态](docs/architecture/REVERSE_STATUS.md) |
+
+## 目录
+
+| 路径 | 内容 |
+| --- | --- |
+| `docs/` | 章节、正文、交接说明与图 |
+| `tools/` | 脚本、模型、绘图与复核工具 |
+| `derived/` | 解析结果、CSV、原指令及证据指纹 |
+| `output/` | 当前 PDF、源 WAV 和研究试听 |
+| `firmware/`、`libraries/`、`downloads/` | 既有固件、设备备份、扩展库和手册 |
+| `archive/` | 历史快照与整理前版本 |
+| `build/`、`tmp/` | 工作产物；有证据引用的文件保留 |
+
+## 复核
 
 ```sh
-python3 research/tools/index_resources.py
-python3 research/tools/verify_workspace.py
-python3 research/tools/test_korg_pcm.py
-python3 research/tools/test_kep_extraction.py
-python3 research/tools/verify_wav_exports.py
+python3 research/tools/firmware_runtime_verify.py
 ```
 
-研究环境可用 `python3 -m venv research/.venv`，再安装 `research/requirements-research.txt` 与 `research/requirements-rom-audio.txt`。当前仍保留已验证的 Capstone / Unicorn 本地依赖。原 ARM 执行对宿主 JIT 权限有要求；无需为了普通插件或网页开发运行探针。
+现有核验覆盖 86 份原 ARM 模块结果，并检查 54 份保护文件、当前报告与相关证据。具体边界见各章；主机候选和原机音频验收分别记录。
 
-`tools/layout.py` 支持旧报告中的 `research/...`、`output/...`、`tools/...` 等路径，原报告和来源哈希不重写。历史文档中的旧命令、`build/` 与 `output/` 路径是当时的记录：研究输出现在为 `research/output/`，研究脚本现在为 `research/tools/`。工具源码移动后，报告对旧工具 SHA 的检查可能要求重新生成证据；不要绕过检查或将旧报告标为当前通过。
-
-网页资源导出入口仍为 `python3 research/tools/build_krose_web.py`，读取网站仓库的唯一网页源文件，在 `research/output/Krose_Web/` 生成待检查副本。日常网站修改、测试和部署只需在 `krose-website` 中运行 Bun scripts。已生成的网页目录、ZIP 和 Opus 中间输入可按需重建。
-
-硬件采集脚本只作为研究资料保存；当前工作不执行硬件命令，也不安装 VST3。
+研究使用既有离线材料，产品实现与冻结资源保持原值。仓库发布文档、脚本、图表和最终 PDF；固件、采样、设备备份、派生证据与归档保留本地，相关链接供完整离线工作区使用。旧命令中的 `tools/`、`output/` 由兼容路径承接，见[工具索引](tools/README.md)。

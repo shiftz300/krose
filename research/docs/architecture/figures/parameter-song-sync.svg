@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="480" viewBox="0 0 900 480"><rect width="100%" height="100%" fill="white"/>
+<text x="450" y="38" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="23" fill="#18354a">工作区更新之后，歌曲副本按状态同步</text>
+<rect x="25" y="70" width="230" height="100" rx="5" fill="white" stroke="#265d82"/>
+<text x="140.0" y="98" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">当前工作区</text>
+<text x="140.0" y="122" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">原参数回调写入字段</text>
+<text x="140.0" y="142" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">供当前运行状态读取</text>
+<rect x="335" y="70" width="230" height="100" rx="5" fill="white" stroke="#237b78"/>
+<text x="450.0" y="98" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">变更通知</text>
+<text x="450.0" y="122" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">操作码 8：新值 / 旧值</text>
+<text x="450.0" y="142" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">携带事件类型与临时标志</text>
+<rect x="645" y="70" width="230" height="100" rx="5" fill="white" stroke="#a66b27"/>
+<text x="760.0" y="98" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">效果参数快照</text>
+<text x="760.0" y="122" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">效果选择值改变时</text>
+<text x="760.0" y="142" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">先复制 64 字节参数块</text>
+<line x1="255" y1="120" x2="335" y2="120" stroke="#647784" stroke-width="1"/>
+<line x1="335" y1="120" x2="327.79642318117857" y2="123.47972427288984" stroke="#647784" stroke-width="1"/>
+<line x1="335" y1="120" x2="327.79642318117857" y2="116.52027572711016" stroke="#647784" stroke-width="1"/>
+<line x1="565" y1="120" x2="645" y2="120" stroke="#647784" stroke-width="1"/>
+<line x1="645" y1="120" x2="637.7964231811786" y2="123.47972427288984" stroke="#647784" stroke-width="1"/>
+<line x1="645" y1="120" x2="637.7964231811786" y2="116.52027572711016" stroke="#647784" stroke-width="1"/>
+<line x1="450" y1="170" x2="450" y2="225" stroke="#647784" stroke-width="1"/>
+<line x1="450" y1="225" x2="446.5202757271102" y2="217.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="450" y1="225" x2="453.4797242728898" y2="217.7964231811786" stroke="#647784" stroke-width="1"/>
+<rect x="245" y="225" width="410" height="125" rx="5" fill="white" stroke="#237b78"/>
+<text x="450.0" y="253" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">检查歌曲同步资格</text>
+<text x="450.0" y="277" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">参数组 100–135，播放缓存没有该项记录</text>
+<text x="450.0" y="297" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">播放状态允许，临时标志为零</text>
+<text x="450.0" y="317" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">字段同步还会排除事件类型 18、20</text>
+<line x1="450" y1="350" x2="450" y2="390" stroke="#647784" stroke-width="1"/>
+<line x1="450" y1="390" x2="446.5202757271102" y2="382.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="450" y1="390" x2="453.4797242728898" y2="382.79642318117857" stroke="#647784" stroke-width="1"/>
+<rect x="245" y="390" width="410" height="70" rx="5" fill="white" stroke="#265d82"/>
+<text x="450.0" y="418" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">当前歌曲缓冲</text>
+<text x="450.0" y="442" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">保存单项字段，或复制效果的 64 字节参数块</text>
+<text x="120" y="285" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#647784">门槛未满足</text>
+<text x="120" y="309" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">歌曲副本保持原值</text>
+<line x1="245" y1="285" x2="220" y2="285" stroke="#647784" stroke-width="1"/>
+<line x1="220" y1="285" x2="227.2035768188214" y2="281.5202757271102" stroke="#647784" stroke-width="1"/>
+<line x1="220" y1="285" x2="227.2035768188214" y2="288.4797242728898" stroke="#647784" stroke-width="1"/>
+</svg>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="930" height="590" viewBox="0 0 930 590"><rect width="100%" height="100%" fill="white"/>
+<text x="465" y="37" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="24" fill="#18354a">鼓组怎样找到真正播放的采样</text>
+<text x="465" y="67" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">原厂 F033 / Rock Kit 1，按键 24、力度 100；整条原 ARM 控制链执行</text>
+<rect x="25" y="103" width="260" height="112" rx="5" fill="white" stroke="#265d82"/>
+<text x="155.0" y="131" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">Program → Drum Kit</text>
+<text x="155.0" y="155" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">OSC 选择鼓组 2</text>
+<text x="155.0" y="175" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">128 个按键，各占 68 字节</text>
+<text x="155.0" y="195" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">空键向上寻找下一分配键</text>
+<rect x="335" y="103" width="260" height="112" rx="5" fill="white" stroke="#265d82"/>
+<text x="465.0" y="131" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">按键 → 力度层</text>
+<text x="465.0" y="155" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">按键 24，第 1 层</text>
+<text x="465.0" y="175" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">四个候选层，最多同时取两层</text>
+<text x="465.0" y="195" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">当前权重 32768 / 32768</text>
+<rect x="645" y="103" width="260" height="112" rx="5" fill="white" stroke="#237b78"/>
+<text x="775.0" y="131" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">鼓采样目录 → PCM</text>
+<text x="775.0" y="155" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Drumsample 33</text>
+<text x="775.0" y="175" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Sample 3269</text>
+<text x="775.0" y="195" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">左右配对来自原生目录构造</text>
+<line x1="285" y1="159" x2="335" y2="159" stroke="#647784" stroke-width="1"/>
+<line x1="335" y1="159" x2="327.79642318117857" y2="162.47972427288985" stroke="#647784" stroke-width="1"/>
+<line x1="335" y1="159" x2="327.79642318117857" y2="155.52027572711015" stroke="#647784" stroke-width="1"/>
+<line x1="595" y1="159" x2="645" y2="159" stroke="#647784" stroke-width="1"/>
+<line x1="645" y1="159" x2="637.7964231811786" y2="162.47972427288985" stroke="#647784" stroke-width="1"/>
+<line x1="645" y1="159" x2="637.7964231811786" y2="155.52027572711015" stroke="#647784" stroke-width="1"/>
+<line x1="775" y1="215" x2="775" y2="271" stroke="#647784" stroke-width="1"/>
+<line x1="775" y1="271" x2="771.5202757271102" y2="263.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="775" y1="271" x2="778.4797242728898" y2="263.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="775" y1="271" x2="465" y2="271" stroke="#647784" stroke-width="1"/>
+<line x1="465" y1="271" x2="472.20357681882143" y2="267.5202757271102" stroke="#647784" stroke-width="1"/>
+<line x1="465" y1="271" x2="472.20357681882143" y2="274.4797242728898" stroke="#647784" stroke-width="1"/>
+<line x1="465" y1="271" x2="465" y2="315" stroke="#647784" stroke-width="1"/>
+<line x1="465" y1="315" x2="461.5202757271102" y2="307.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="465" y1="315" x2="468.4797242728898" y2="307.79642318117857" stroke="#647784" stroke-width="1"/>
+<rect x="210" y="315" width="510" height="136" rx="5" fill="white" stroke="#a66b27"/>
+<text x="465.0" y="343" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">两项有符号修正共同决定中间增益</text>
+<text x="465.0" y="367" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">交叉缩放后的层电平：127</text>
+<text x="465.0" y="387" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">鼓组描述符修正 -10，鼓采样目录修正 -66</text>
+<text x="465.0" y="407" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">原整数结果 G = 9817；后续仍叠加力度、调制与包络</text>
+<text x="465.0" y="427" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">采样根音固定为 60，调音来自每层的粗调与微调</text>
+<text x="465" y="502" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#265d82">鼓组层电平与旋律音色的处理方式不同，不能共用旋律描述符的缩放规则。</text>
+<text x="465" y="546" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">模式、起始、结束和循环命令已与原样本字节逐项核对；本轮未渲染音频。</text>
+</svg>

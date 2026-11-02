@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="1040" viewBox="0 0 1180 1040"><rect width="100%" height="100%" fill="white"/>
+<text x="590" y="38" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="24" fill="#18354a">单音与连奏：按键回退接入真实声部</text>
+<text x="590" y="68" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">26 条轨迹 / 4160 次更新 / 778 次原复用调音；按键表、采样与控制状态逐阶段核对。</text>
+<line x1="110" y1="365.0" x2="1090" y2="365.0" stroke="#edf3f6" stroke-width="1"/>
+<text x="78" y="369.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">60</text>
+<line x1="110" y1="255.0" x2="1090" y2="255.0" stroke="#edf3f6" stroke-width="1"/>
+<text x="78" y="259.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">62</text>
+<line x1="110" y1="145.0" x2="1090" y2="145.0" stroke="#edf3f6" stroke-width="1"/>
+<text x="78" y="149.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">64</text>
+<line x1="110" y1="145" x2="110" y2="365" stroke="#647784" stroke-width="1"/>
+<line x1="110" y1="365" x2="1090" y2="365" stroke="#647784" stroke-width="1"/>
+<text x="95" y="122" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">当前按键</text>
+<line x1="110.0" y1="365.0" x2="306.0" y2="365.0" stroke="#265d82" stroke-width="2"/>
+<line x1="306.0" y1="365.0" x2="306.0" y2="365.0" stroke="#265d82" stroke-width="2"/>
+<line x1="306.0" y1="365.0" x2="502.0" y2="365.0" stroke="#265d82" stroke-width="2"/>
+<line x1="502.0" y1="365.0" x2="502.0" y2="365.0" stroke="#265d82" stroke-width="2"/>
+<line x1="502.0" y1="365.0" x2="698.0" y2="365.0" stroke="#265d82" stroke-width="2"/>
+<line x1="698.0" y1="365.0" x2="698.0" y2="365.0" stroke="#265d82" stroke-width="2"/>
+<line x1="698.0" y1="365.0" x2="894.0" y2="365.0" stroke="#265d82" stroke-width="2"/>
+<line x1="894.0" y1="365.0" x2="894.0" y2="365.0" stroke="#265d82" stroke-width="2"/>
+<line x1="275" y1="94" x2="300" y2="94" stroke="#265d82" stroke-width="3"/>
+<text x="350" y="98" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#265d82">Low</text>
+<line x1="110.0" y1="365.0" x2="306.0" y2="365.0" stroke="#237b78" stroke-width="2"/>
+<line x1="306.0" y1="365.0" x2="306.0" y2="145.0" stroke="#237b78" stroke-width="2"/>
+<line x1="306.0" y1="145.0" x2="502.0" y2="145.0" stroke="#237b78" stroke-width="2"/>
+<line x1="502.0" y1="145.0" x2="502.0" y2="145.0" stroke="#237b78" stroke-width="2"/>
+<line x1="502.0" y1="145.0" x2="698.0" y2="145.0" stroke="#237b78" stroke-width="2"/>
+<line x1="698.0" y1="145.0" x2="698.0" y2="145.0" stroke="#237b78" stroke-width="2"/>
+<line x1="698.0" y1="145.0" x2="894.0" y2="145.0" stroke="#237b78" stroke-width="2"/>
+<line x1="894.0" y1="145.0" x2="894.0" y2="365.0" stroke="#237b78" stroke-width="2"/>
+<line x1="545" y1="94" x2="570" y2="94" stroke="#237b78" stroke-width="3"/>
+<text x="620" y="98" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#237b78">High</text>
+<line x1="110.0" y1="365.0" x2="306.0" y2="365.0" stroke="#a66b27" stroke-width="2"/>
+<line x1="306.0" y1="365.0" x2="306.0" y2="145.0" stroke="#a66b27" stroke-width="2"/>
+<line x1="306.0" y1="145.0" x2="502.0" y2="145.0" stroke="#a66b27" stroke-width="2"/>
+<line x1="502.0" y1="145.0" x2="502.0" y2="255.0" stroke="#a66b27" stroke-width="2"/>
+<line x1="502.0" y1="255.0" x2="698.0" y2="255.0" stroke="#a66b27" stroke-width="2"/>
+<line x1="698.0" y1="255.0" x2="698.0" y2="145.0" stroke="#a66b27" stroke-width="2"/>
+<line x1="698.0" y1="145.0" x2="894.0" y2="145.0" stroke="#a66b27" stroke-width="2"/>
+<line x1="894.0" y1="145.0" x2="894.0" y2="365.0" stroke="#a66b27" stroke-width="2"/>
+<line x1="815" y1="94" x2="840" y2="94" stroke="#a66b27" stroke-width="3"/>
+<text x="890" y="98" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#a66b27">Last</text>
+<text x="110.0" y="393" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">On 60/40</text>
+<text x="306.0" y="393" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">On 64/80</text>
+<text x="502.0" y="393" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">On 62/100</text>
+<text x="698.0" y="393" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">Off 62</text>
+<text x="894.0" y="393" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">Off 64</text>
+<text x="1090.0" y="393" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">Off 60</text>
+<text x="1090" y="314" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">空表</text>
+<text x="590" y="434" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">横轴为更新序号；末尾松键后按键表为空。所有模式均继续执行原采样与正常轮询。</text>
+<text x="590" y="493" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="20" fill="#265d82">同一组演奏输入，不同单音模式的声部行为</text>
+<text x="230" y="537" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">原厂 Program</text>
+<text x="590" y="537" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">新建声部</text>
+<text x="820" y="537" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">复用调音</text>
+<text x="1060" y="537" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">采样 / EG 保留</text>
+<text x="230" y="581" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">D024 普通单音</text>
+<text x="590" y="581" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">52</text>
+<text x="820" y="581" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">0</text>
+<text x="1060" y="581" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">-</text>
+<line x1="70" y1="598" x2="1110" y2="598" stroke="#edf3f6" stroke-width="1"/>
+<text x="230" y="624" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">D009 Normal 连奏</text>
+<text x="590" y="624" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">28</text>
+<text x="820" y="624" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">76</text>
+<text x="1060" y="624" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">逐次通过</text>
+<line x1="70" y1="641" x2="1110" y2="641" stroke="#edf3f6" stroke-width="1"/>
+<text x="230" y="667" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">D046 Offset 连奏</text>
+<text x="590" y="667" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">52</text>
+<text x="820" y="667" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">0</text>
+<text x="1060" y="667" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">-</text>
+<line x1="70" y1="684" x2="1110" y2="684" stroke="#edf3f6" stroke-width="1"/>
+<text x="230" y="710" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">D017 Unison 2</text>
+<text x="590" y="710" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">56</text>
+<text x="820" y="710" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">152</text>
+<text x="1060" y="710" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">逐次通过</text>
+<line x1="70" y1="727" x2="1110" y2="727" stroke="#edf3f6" stroke-width="1"/>
+<text x="230" y="753" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">D015 Unison 3</text>
+<text x="590" y="753" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">21</text>
+<text x="820" y="753" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">57</text>
+<text x="1060" y="753" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">逐次通过</text>
+<line x1="70" y1="770" x2="1110" y2="770" stroke="#edf3f6" stroke-width="1"/>
+<text x="230" y="796" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">F006 Unison 4</text>
+<text x="590" y="796" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">208</text>
+<text x="820" y="796" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">0</text>
+<text x="1060" y="796" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">-</text>
+<line x1="70" y1="813" x2="1110" y2="813" stroke="#edf3f6" stroke-width="1"/>
+<text x="230" y="839" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">F110 Unison 6</text>
+<text x="590" y="839" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">624</text>
+<text x="820" y="839" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">0</text>
+<text x="1060" y="839" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">-</text>
+<line x1="70" y1="856" x2="1110" y2="856" stroke="#edf3f6" stroke-width="1"/>
+<text x="590" y="916" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#237b78">D009 输入 64/80、62/100 时，复用声部保留力度 40；采样、EG 与 LFO 均保持原状态。</text>
+<text x="590" y="959" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">表中取 Last 与延音开启；新建和调音均为槽次数。Low/High 仅覆盖记录的私有优先级位。</text>
+<text x="590" y="1000" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">TG 使用受控读回及启动 / 停止响应；横轴未换算实机时间，尚未验证实际声音。</text>
+</svg>

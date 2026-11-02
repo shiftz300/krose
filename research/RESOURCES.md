@@ -2,6 +2,10 @@
 
 2026-11-01。本表由 `python3 research/tools/index_resources.py` 生成。旧报告不覆盖，当前状态以本索引和 [逆向进度](docs/PROGRESS.md) 为入口。
 
+2026-11-02 GM 后续：[265 条完整参数、银行映射及真实采样](docs/architecture/GM_PROGRAMS.md)已核实。当前 GM 条目见[新参数索引 CSV](derived/firmware/KROSS2_V124/architecture/stage04/gm-programs.csv)；下方清单与旧 CSV 保留 2026-11-01 快照的统计口径。
+
+2026-11-02 扩展后续：[E.P./Future Synth 完整源采样与原区域寻址](docs/architecture/EXPANSION_PCM.md)已核实。新增 797 个 WAV 及[采样清单](derived/firmware/KROSS2_V124/architecture/stage04/expansion-samples.csv)，位于 `research/output/Expansion_PCM_WAV/`；原网页代表试听和旧统计继续保留。
+
 | 层级 | 资源 | 目录 | 文件数 | 大小 MiB | 用途 |
 | --- | --- | --- | ---: | ---: | --- |
 | 原始资料 | [EXPCM001 原件](EXPCM001) | `research/EXPCM001` | 2 | 45.30 | 未修改 KEP 与原始附带资料 |
@@ -21,7 +25,7 @@
 
 [完整机器清单](derived/catalog/resources.json) · [音色状态表 CSV](derived/catalog/programs.csv) · [本轮完整性检查](derived/catalog/integrity.json)
 
-音色状态表含 768 条板载 A–F、265 条 GM 名称目录、128 条扩展包预置，共 1161 行。GM 行不代表已有参数或已完成该音色复刻。
+旧音色状态表含 768 条板载 A–F、265 条 GM 名称目录、128 条扩展包预置，共 1161 行。其中 GM 行保留当时状态；现已补齐完整记录和受控采样映射，完整复刻与插件接入仍未完成。
 
 原始 `programs.json` 仍保留当时的 `ROM_PCM_available=false` 或扩展依赖不全标记；现已取得 ROM。本索引提供当前状态覆盖，不改写旧证据的字节。
 

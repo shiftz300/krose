@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820"><rect width="100%" height="100%" fill="white"/>
+<text x="600" y="40" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="25" fill="#18354a">鼓轨事件进入真实声部</text>
+<text x="600" y="73" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#647784">同一原 ARM 内存：PPAT 播放 → 本机 MIDI 输入 → 鼓组选层与起音 → 正常控制刷新</text>
+<rect x="45" y="110" width="310" height="112" rx="5" fill="white" stroke="#265d82"/>
+<text x="200.0" y="138" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">原 PPAT 轨道</text>
+<text x="200.0" y="162" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">原厂 31 / 799 与两圈合成轨</text>
+<text x="200.0" y="182" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">绑定、tick、延音表与停止</text>
+<rect x="445" y="110" width="310" height="112" rx="5" fill="white" stroke="#265d82"/>
+<text x="600.0" y="138" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">本机 MIDI 输入</text>
+<text x="600.0" y="162" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">2BD7B4 → 271500</text>
+<text x="600.0" y="182" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">通道 7，事件来源 1</text>
+<rect x="845" y="110" width="310" height="112" rx="5" fill="white" stroke="#265d82"/>
+<text x="1000.0" y="138" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">真实鼓组声部</text>
+<text x="1000.0" y="162" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">F033 立体声 / F042 单声道</text>
+<text x="1000.0" y="182" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">采样、增益与启动地址逐项核对</text>
+<line x1="355" y1="166" x2="445" y2="166" stroke="#647784" stroke-width="1"/>
+<line x1="445" y1="166" x2="437.79642318117857" y2="169.47972427288985" stroke="#647784" stroke-width="1"/>
+<line x1="445" y1="166" x2="437.79642318117857" y2="162.52027572711015" stroke="#647784" stroke-width="1"/>
+<line x1="755" y1="166" x2="845" y2="166" stroke="#647784" stroke-width="1"/>
+<line x1="845" y1="166" x2="837.7964231811786" y2="169.47972427288985" stroke="#647784" stroke-width="1"/>
+<line x1="845" y1="166" x2="837.7964231811786" y2="162.52027572711015" stroke="#647784" stroke-width="1"/>
+<rect x="245" y="266" width="710" height="98" rx="5" fill="white" stroke="#237b78"/>
+<text x="600.0" y="294" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">正常声部管理器：批次 4 / 16，每 8 个音乐 tick 推进与轮询</text>
+<text x="600.0" y="318" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">完整软件状态与 TG I/O 对照显式原函数调度；受控读回，未执行 DSP 音频</text>
+<line x1="1000" y1="222" x2="1000" y2="246" stroke="#647784" stroke-width="1"/>
+<line x1="1000" y1="246" x2="996.5202757271102" y2="238.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="1000" y1="246" x2="1003.4797242728898" y2="238.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="1000" y1="246" x2="840" y2="266" stroke="#647784" stroke-width="1"/>
+<line x1="840" y1="266" x2="846.7163432338924" y2="261.65365284813237" stroke="#647784" stroke-width="1"/>
+<line x1="840" y1="266" x2="847.5795565871555" y2="268.55935967423665" stroke="#647784" stroke-width="1"/>
+<text x="600" y="424" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="19" fill="#18354a">合成轨两圈：循环首音出现在 tick 1921；长音在圈末关断</text>
+<text x="600" y="447" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">蓝色端点：起音；金色端点：关音；绿色线段：事件持续区间</text>
+<line x1="140.0" y1="455" x2="140.0" y2="632" stroke="#edf3f6" stroke-width="1"/>
+<text x="140.0" y="657" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">0</text>
+<line x1="382.5" y1="455" x2="382.5" y2="632" stroke="#edf3f6" stroke-width="1"/>
+<text x="382.5" y="657" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">960</text>
+<line x1="625.0" y1="455" x2="625.0" y2="632" stroke="#edf3f6" stroke-width="1"/>
+<text x="625.0" y="657" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">1920</text>
+<line x1="867.5" y1="455" x2="867.5" y2="632" stroke="#edf3f6" stroke-width="1"/>
+<text x="867.5" y="657" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">2880</text>
+<line x1="1110.0" y1="455" x2="1110.0" y2="632" stroke="#edf3f6" stroke-width="1"/>
+<text x="1110.0" y="657" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">3840</text>
+<text x="70" y="479" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">键 36</text>
+<line x1="140" y1="475" x2="1110" y2="475" stroke="#edf3f6" stroke-width="1"/>
+<line x1="140.0" y1="475" x2="155.15625" y2="475" stroke="#237b78" stroke-width="4"/>
+<line x1="140.0" y1="467" x2="140.0" y2="483" stroke="#265d82" stroke-width="2"/>
+<line x1="155.15625" y1="467" x2="155.15625" y2="483" stroke="#a66b27" stroke-width="2"/>
+<line x1="625.2526041666666" y1="475" x2="640.15625" y2="475" stroke="#237b78" stroke-width="4"/>
+<line x1="625.2526041666666" y1="467" x2="625.2526041666666" y2="483" stroke="#265d82" stroke-width="2"/>
+<line x1="640.15625" y1="467" x2="640.15625" y2="483" stroke="#a66b27" stroke-width="2"/>
+<text x="70" y="539" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">键 38</text>
+<line x1="140" y1="535" x2="1110" y2="535" stroke="#edf3f6" stroke-width="1"/>
+<line x1="170.3125" y1="535" x2="200.625" y2="535" stroke="#237b78" stroke-width="4"/>
+<line x1="170.3125" y1="527" x2="170.3125" y2="543" stroke="#265d82" stroke-width="2"/>
+<line x1="200.625" y1="527" x2="200.625" y2="543" stroke="#a66b27" stroke-width="2"/>
+<line x1="655.3125" y1="535" x2="685.625" y2="535" stroke="#237b78" stroke-width="4"/>
+<line x1="655.3125" y1="527" x2="655.3125" y2="543" stroke="#265d82" stroke-width="2"/>
+<line x1="685.625" y1="527" x2="685.625" y2="543" stroke="#a66b27" stroke-width="2"/>
+<text x="70" y="599" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">键 42</text>
+<line x1="140" y1="595" x2="1110" y2="595" stroke="#edf3f6" stroke-width="1"/>
+<line x1="594.6875" y1="595" x2="625.0" y2="595" stroke="#237b78" stroke-width="4"/>
+<line x1="594.6875" y1="587" x2="594.6875" y2="603" stroke="#265d82" stroke-width="2"/>
+<line x1="625.0" y1="587" x2="625.0" y2="603" stroke="#a66b27" stroke-width="2"/>
+<text x="609.84375" y="580" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">1800–1920</text>
+<line x1="1079.6875" y1="595" x2="1109.7473958333335" y2="595" stroke="#237b78" stroke-width="4"/>
+<line x1="1079.6875" y1="587" x2="1079.6875" y2="603" stroke="#265d82" stroke-width="2"/>
+<line x1="1109.7473958333335" y1="587" x2="1109.7473958333335" y2="603" stroke="#a66b27" stroke-width="2"/>
+<text x="1094.7174479166667" y="580" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">3720–3839</text>
+<text x="600" y="703" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">横轴为音乐 tick；线段表示生成事件的起音到关音，不表示实际声音长度。</text>
+<text x="600" y="749" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">12 条轨迹 · 6720 次控制更新 · 390 个声部 · 18954 次提交</text>
+<text x="600" y="789" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#a66b27">TG 启停与零幅度目标即时应答；其余幅度固定。宿主时基与芯片音频仍待验证。</text>
+</svg>

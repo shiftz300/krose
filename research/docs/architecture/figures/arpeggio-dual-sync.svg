@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="470" viewBox="0 0 820 470"><rect width="100%" height="100%" fill="white"/>
+<text x="410" y="35" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="23" fill="#18354a">第二个琶音怎样加入</text>
+<text x="410" y="63" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">A 从 tick 0 播放；B 在 tick 121 触键；步长 120，拍长 480</text>
+<line x1="266.38690476190476" y1="90" x2="266.38690476190476" y2="292" stroke="#a66b27" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="336.38690476190476" y="92" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#a66b27">B 触键</text>
+<text x="80" y="129" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#265d82">A</text>
+<line x1="185" y1="123" x2="750" y2="123" stroke="#647784" stroke-width="1"/>
+<line x1="185.0" y1="116" x2="185.0" y2="130" stroke="#237b78" stroke-width="2"/>
+<text x="185.0" y="146" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">0</text>
+<line x1="265.7142857142857" y1="116" x2="265.7142857142857" y2="130" stroke="#237b78" stroke-width="2"/>
+<text x="265.7142857142857" y="146" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">120</text>
+<line x1="346.42857142857144" y1="116" x2="346.42857142857144" y2="130" stroke="#237b78" stroke-width="2"/>
+<text x="346.42857142857144" y="146" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">240</text>
+<line x1="427.14285714285717" y1="116" x2="427.14285714285717" y2="130" stroke="#237b78" stroke-width="2"/>
+<text x="427.14285714285717" y="146" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">360</text>
+<line x1="507.8571428571429" y1="116" x2="507.8571428571429" y2="130" stroke="#237b78" stroke-width="2"/>
+<text x="507.8571428571429" y="146" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">480</text>
+<line x1="588.5714285714287" y1="116" x2="588.5714285714287" y2="130" stroke="#237b78" stroke-width="2"/>
+<text x="588.5714285714287" y="146" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">600</text>
+<line x1="669.2857142857143" y1="116" x2="669.2857142857143" y2="130" stroke="#237b78" stroke-width="2"/>
+<text x="669.2857142857143" y="146" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">720</text>
+<line x1="750.0" y1="116" x2="750.0" y2="130" stroke="#237b78" stroke-width="2"/>
+<text x="750.0" y="146" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">840</text>
+<text x="80" y="199" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#265d82">B · Sync 关闭</text>
+<line x1="185" y1="193" x2="750" y2="193" stroke="#647784" stroke-width="1"/>
+<line x1="507.8571428571429" y1="186" x2="507.8571428571429" y2="200" stroke="#237b78" stroke-width="2"/>
+<text x="507.8571428571429" y="216" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">480</text>
+<line x1="587.8988095238096" y1="186" x2="587.8988095238096" y2="200" stroke="#237b78" stroke-width="2"/>
+<text x="587.8988095238096" y="216" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">599</text>
+<line x1="668.6130952380953" y1="186" x2="668.6130952380953" y2="200" stroke="#237b78" stroke-width="2"/>
+<text x="668.6130952380953" y="216" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">719</text>
+<line x1="749.327380952381" y1="186" x2="749.327380952381" y2="200" stroke="#237b78" stroke-width="2"/>
+<text x="749.327380952381" y="216" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">839</text>
+<text x="80" y="269" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#265d82">B · Sync 开启</text>
+<line x1="185" y1="263" x2="750" y2="263" stroke="#647784" stroke-width="1"/>
+<line x1="267.0595238095238" y1="256" x2="267.0595238095238" y2="270" stroke="#237b78" stroke-width="2"/>
+<text x="267.0595238095238" y="286" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">122</text>
+<line x1="347.1011904761905" y1="256" x2="347.1011904761905" y2="270" stroke="#237b78" stroke-width="2"/>
+<text x="347.1011904761905" y="286" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">241</text>
+<line x1="427.8154761904762" y1="256" x2="427.8154761904762" y2="270" stroke="#237b78" stroke-width="2"/>
+<text x="427.8154761904762" y="286" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">361</text>
+<line x1="508.5297619047619" y1="256" x2="508.5297619047619" y2="270" stroke="#237b78" stroke-width="2"/>
+<text x="508.5297619047619" y="286" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">481</text>
+<line x1="589.2440476190477" y1="256" x2="589.2440476190477" y2="270" stroke="#237b78" stroke-width="2"/>
+<text x="589.2440476190477" y="286" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">601</text>
+<line x1="669.9583333333334" y1="256" x2="669.9583333333334" y2="270" stroke="#237b78" stroke-width="2"/>
+<text x="669.9583333333334" y="286" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">721</text>
+<text x="410" y="339" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">Sync 关闭时的拍内选择</text>
+<rect x="55" y="356" width="320" height="65" rx="5" fill="white" stroke="#237b78"/>
+<text x="215.0" y="384" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">拍内位置 0–59</text>
+<text x="215.0" y="408" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">直接追赶当前拍</text>
+<rect x="435" y="356" width="320" height="65" rx="5" fill="white" stroke="#a66b27"/>
+<text x="595.0" y="384" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">拍内位置 60–479</text>
+<text x="595.0" y="408" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">等待下一拍</text>
+<text x="410" y="452" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">数字对应输入先于 tick 的本组执行顺序；首步有时间差门槛。</text>
+</svg>

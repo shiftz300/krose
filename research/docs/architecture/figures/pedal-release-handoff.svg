@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="650" viewBox="0 0 900 650"><rect width="100%" height="100%" fill="white"/>
+<text x="450" y="38" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="24" fill="#18354a">声部释放：即时提交与后续更新</text>
+<text x="450" y="66" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">图示为允许释放、已启动、无等待且保持条件均已解除的普通路径</text>
+<text x="108" y="148" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">事件当次</text>
+<rect x="220" y="100" width="620" height="92" rx="5" fill="white" stroke="#265d82"/>
+<text x="530.0" y="128" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">释放管理器</text>
+<text x="530.0" y="152" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">加入可替换队列；可用数保持不变</text>
+<text x="530.0" y="172" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">重新判断 CC66 保持与 CC64 延音</text>
+<line x1="530" y1="192" x2="530" y2="230" stroke="#647784" stroke-width="1"/>
+<line x1="530" y1="230" x2="526.5202757271102" y2="222.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="530" y1="230" x2="533.4797242728898" y2="222.7964231811786" stroke="#647784" stroke-width="1"/>
+<text x="108" y="278" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">事件当次</text>
+<rect x="220" y="230" width="620" height="92" rx="5" fill="white" stroke="#265d82"/>
+<text x="530.0" y="258" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">音量先更新并提交</text>
+<text x="530.0" y="282" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Amp EG 进入 Release，并推进一次</text>
+<text x="530.0" y="302" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">计算音量目标；读回电平，提交 TG 目标与步长</text>
+<line x1="530" y1="322" x2="530" y2="360" stroke="#647784" stroke-width="1"/>
+<line x1="530" y1="360" x2="526.5202757271102" y2="352.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="530" y1="360" x2="533.4797242728898" y2="352.79642318117857" stroke="#647784" stroke-width="1"/>
+<text x="108" y="408" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">第 1 次声部更新</text>
+<rect x="220" y="360" width="620" height="92" rx="5" fill="white" stroke="#237b78"/>
+<text x="530.0" y="388" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">统一准备三类 EG 的释放段</text>
+<text x="530.0" y="412" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">消耗声部标志 0x04</text>
+<text x="530.0" y="432" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Pitch / Filter / Amp 重新准备 Release；本次不推进</text>
+<line x1="530" y1="452" x2="530" y2="490" stroke="#647784" stroke-width="1"/>
+<line x1="530" y1="490" x2="526.5202757271102" y2="482.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="530" y1="490" x2="533.4797242728898" y2="482.79642318117857" stroke="#647784" stroke-width="1"/>
+<text x="108" y="538" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">第 2 次声部更新</text>
+<rect x="220" y="490" width="620" height="92" rx="5" fill="white" stroke="#265d82"/>
+<text x="530.0" y="518" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">恢复正常控制推进</text>
+<text x="530.0" y="542" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">推进三类 EG 和两路 LFO</text>
+<text x="530.0" y="562" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">后续刷新、Mixer 与目标计算继续使用原控制链</text>
+<text x="450" y="631" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">所有音频总线访问均在模拟器内截获；本图描述控制顺序。</text>
+</svg>

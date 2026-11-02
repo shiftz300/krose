@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="480" viewBox="0 0 900 480"><rect width="100%" height="100%" fill="white"/>
+<text x="450" y="35" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="23" fill="#18354a">Time AMS：不同包络和阶段使用不同深度</text>
+<text x="450" y="65" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">基础时间索引 50，来源 +4096，强度 +99；纵轴为相对时长（对数坐标）</text>
+<line x1="90" y1="345.0" x2="820" y2="345.0" stroke="#edf3f6" stroke-width="1"/>
+<text x="48" y="349.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">1×</text>
+<line x1="90" y1="245.0" x2="820" y2="245.0" stroke="#edf3f6" stroke-width="1"/>
+<text x="48" y="249.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">64×</text>
+<line x1="90" y1="145.0" x2="820" y2="145.0" stroke="#edf3f6" stroke-width="1"/>
+<text x="48" y="149.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">4096×</text>
+<line x1="90" y1="145" x2="90" y2="345" stroke="#647784" stroke-width="1"/>
+<line x1="90" y1="345" x2="820" y2="345" stroke="#647784" stroke-width="1"/>
+<line x1="141" y1="345" x2="141" y2="145.0" stroke="#265d82" stroke-width="15"/>
+<text x="141" y="130.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#265d82">4096×</text>
+<line x1="180" y1="345" x2="180" y2="145.0" stroke="#237b78" stroke-width="15"/>
+<text x="180" y="130.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#237b78">4096×</text>
+<line x1="219" y1="345" x2="219" y2="145.0" stroke="#a66b27" stroke-width="15"/>
+<text x="219" y="130.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#a66b27">4096×</text>
+<text x="180" y="385" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#647784">起音</text>
+<line x1="336" y1="345" x2="336" y2="145.0" stroke="#265d82" stroke-width="15"/>
+<text x="336" y="130.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#265d82">4096×</text>
+<line x1="375" y1="345" x2="375" y2="145.0" stroke="#237b78" stroke-width="15"/>
+<text x="375" y="130.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#237b78">4096×</text>
+<line x1="414" y1="345" x2="414" y2="245.0" stroke="#a66b27" stroke-width="15"/>
+<text x="414" y="230.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#a66b27">64×</text>
+<text x="375" y="385" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#647784">衰减</text>
+<line x1="531" y1="345" x2="531" y2="145.0" stroke="#265d82" stroke-width="15"/>
+<text x="531" y="130.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#265d82">4096×</text>
+<line x1="570" y1="345" x2="570" y2="145.0" stroke="#237b78" stroke-width="15"/>
+<text x="570" y="130.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#237b78">4096×</text>
+<line x1="609" y1="345" x2="609" y2="145.0" stroke="#a66b27" stroke-width="15"/>
+<text x="609" y="130.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#a66b27">4096×</text>
+<text x="570" y="385" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#647784">后段</text>
+<line x1="719" y1="345" x2="733" y2="345" stroke="#265d82" stroke-width="3"/>
+<text x="726" y="330.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#265d82">1×</text>
+<line x1="765" y1="345" x2="765" y2="145.0" stroke="#237b78" stroke-width="15"/>
+<text x="765" y="130.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#237b78">4096×</text>
+<line x1="804" y1="345" x2="804" y2="145.0" stroke="#a66b27" stroke-width="15"/>
+<text x="804" y="130.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#a66b27">4096×</text>
+<text x="765" y="385" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#647784">释放</text>
+<line x1="150" y1="97" x2="175" y2="97" stroke="#265d82" stroke-width="2"/>
+<text x="225" y="101" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#265d82">Pitch EG</text>
+<line x1="380" y1="97" x2="405" y2="97" stroke="#237b78" stroke-width="2"/>
+<text x="455" y="101" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#237b78">Filter EG</text>
+<line x1="610" y1="97" x2="635" y2="97" stroke="#a66b27" stroke-width="2"/>
+<text x="685" y="101" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#a66b27">Amp EG</text>
+<text x="450" y="431" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#265d82">Pitch EG 的释放段不读取该组 Time AMS；Amp EG 的衰减段采用一倍深度。</text>
+<text x="450" y="466" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">其余受测阶段采用两倍深度；108 组来源、强度与阶段组合已核对。</text>
+</svg>

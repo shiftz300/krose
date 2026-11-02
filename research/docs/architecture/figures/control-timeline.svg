@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="680" height="350" preserveAspectRatio="xMinYMin meet" viewBox="0 0 680 350" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="680" height="350"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-350)" style="clip-path: url(#clip)">
+		<g transform="">
+			<text x="221.0" y="325" style="font-family: PaperUI; font-size: 17px;fill: rgb(9%,20%,29%); stroke:none;" transform="translate(0,650) scale(1,-1)">控制更新与音频平滑的时间尺度</text>
+			<text x="18" y="263" style="font-family: PaperUI; font-size: 11px;fill: rgb(9%,20%,29%); stroke:none;" transform="translate(0,526) scale(1,-1)">tick</text>
+			<text x="18" y="185" style="font-family: PaperUI; font-size: 11px;fill: rgb(9%,20%,29%); stroke:none;" transform="translate(0,370) scale(1,-1)">批次</text>
+			<text x="18" y="96" style="font-family: PaperUI; font-size: 11px;fill: rgb(9%,20%,29%); stroke:none;" transform="translate(0,192) scale(1,-1)">语音</text>
+			<path d="M 90,257 L 640,257 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 90,251 L 90,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<text x="79.35" y="275" style="font-family: PaperUI; font-size: 10px;fill: rgb(39%,46%,51%); stroke:none;" transform="translate(0,550) scale(1,-1)">0 ms</text>
+			<path d="M 124.375,251 L 124.375,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 158.75,251 L 158.75,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 193.125,251 L 193.125,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 227.5,251 L 227.5,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<text x="216.85" y="275" style="font-family: PaperUI; font-size: 10px;fill: rgb(39%,46%,51%); stroke:none;" transform="translate(0,550) scale(1,-1)">4 ms</text>
+			<path d="M 261.875,251 L 261.875,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 296.25,251 L 296.25,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 330.625,251 L 330.625,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 365,251 L 365,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<text x="354.35" y="275" style="font-family: PaperUI; font-size: 10px;fill: rgb(39%,46%,51%); stroke:none;" transform="translate(0,550) scale(1,-1)">8 ms</text>
+			<path d="M 399.375,251 L 399.375,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 433.75,251 L 433.75,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 468.125,251 L 468.125,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 502.5,251 L 502.5,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<text x="489.08" y="275" style="font-family: PaperUI; font-size: 10px;fill: rgb(39%,46%,51%); stroke:none;" transform="translate(0,550) scale(1,-1)">12 ms</text>
+			<path d="M 536.875,251 L 536.875,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 571.25,251 L 571.25,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 605.625,251 L 605.625,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<path d="M 640,251 L 640,263 Z" style="stroke: rgb(39%,46%,51%); stroke-linecap: butt; stroke-width: 1;"/>
+			<text x="626.58" y="275" style="font-family: PaperUI; font-size: 10px;fill: rgb(39%,46%,51%); stroke:none;" transform="translate(0,550) scale(1,-1)">16 ms</text>
+			<rect x="90.0" y="157" width="64.75" height="45" style="stroke: rgb(13%,48%,47%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="112.405" y="183" style="font-family: PaperUI; font-size: 10px;fill: rgb(13%,48%,47%); stroke:none;" transform="translate(0,366) scale(1,-1)">0-14</text>
+			<rect x="158.75" y="157" width="64.75" height="45" style="stroke: rgb(13%,48%,47%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="178.385" y="183" style="font-family: PaperUI; font-size: 10px;fill: rgb(13%,48%,47%); stroke:none;" transform="translate(0,366) scale(1,-1)">15-29</text>
+			<rect x="227.5" y="157" width="64.75" height="45" style="stroke: rgb(13%,48%,47%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="247.135" y="183" style="font-family: PaperUI; font-size: 10px;fill: rgb(13%,48%,47%); stroke:none;" transform="translate(0,366) scale(1,-1)">30-44</text>
+			<rect x="296.25" y="157" width="64.75" height="45" style="stroke: rgb(13%,48%,47%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="315.885" y="183" style="font-family: PaperUI; font-size: 10px;fill: rgb(13%,48%,47%); stroke:none;" transform="translate(0,366) scale(1,-1)">45-59</text>
+			<rect x="365.0" y="157" width="64.75" height="45" style="stroke: rgb(13%,48%,47%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="384.635" y="183" style="font-family: PaperUI; font-size: 10px;fill: rgb(13%,48%,47%); stroke:none;" transform="translate(0,366) scale(1,-1)">60-74</text>
+			<rect x="433.75" y="157" width="64.75" height="45" style="stroke: rgb(13%,48%,47%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="453.385" y="183" style="font-family: PaperUI; font-size: 10px;fill: rgb(13%,48%,47%); stroke:none;" transform="translate(0,366) scale(1,-1)">75-89</text>
+			<rect x="502.5" y="157" width="64.75" height="45" style="stroke: rgb(13%,48%,47%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="519.365" y="183" style="font-family: PaperUI; font-size: 10px;fill: rgb(13%,48%,47%); stroke:none;" transform="translate(0,366) scale(1,-1)">90-104</text>
+			<rect x="571.25" y="157" width="64.75" height="45" style="stroke: rgb(13%,48%,47%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="585.345" y="183" style="font-family: PaperUI; font-size: 10px;fill: rgb(13%,48%,47%); stroke:none;" transform="translate(0,366) scale(1,-1)">105-119</text>
+			<path d="M 90,132 L 640,132 Z" style="stroke: rgb(13%,48%,47%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<polygon points="640 132, 634.5973 134.6098, 634.5973 129.3902" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(13%,48%,47%); fill-rule: evenodd;"/>
+			<text x="273.404" y="113" style="font-family: PaperUI; font-size: 12px;fill: rgb(13%,48%,47%); stroke:none;" transform="translate(0,226) scale(1,-1)">8 批 × 15 槽 = 120 槽 / 名义 16 ms</text>
+			<rect x="90" y="25" width="550" height="65" rx="6" ry="6" style="stroke: rgb(14%,36%,50%); stroke-linecap: butt; stroke-width: 1.2; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="90" y="85" width="550" height="5" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(14%,36%,50%); fill-rule: evenodd;"/>
+			<text x="317.0" y="65" style="font-family: PaperUI; font-size: 12px;fill: rgb(14%,36%,50%); stroke:none;" transform="translate(0,130) scale(1,-1)">一次语音控制更新</text>
+			<text x="252.77075" y="43.0" style="font-family: PaperUI; font-size: 10.5px;fill: rgb(39%,46%,51%); stroke:none;" transform="translate(0,86) scale(1,-1)">24 EG 内部单位 -&gt; TG 目标 / 步长 -&gt; 音频帧平滑</text>
+		</g>
+	</g>
+</svg>

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="550" viewBox="0 0 940 550"><rect width="100%" height="100%" fill="white"/>
+<text x="470" y="36" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="24" fill="#18354a">变化来源决定 TG 的平滑档位</text>
+<text x="470" y="65" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">原 25 项整数系数表；音量、音高与滤波分别选择索引 D</text>
+<line x1="85" y1="391.8503847227113" x2="440" y2="391.8503847227113" stroke="#edf3f6" stroke-width="1"/>
+<text x="59" y="394.8503847227113" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">100</text>
+<line x1="85" y1="307.75571767719947" x2="440" y2="307.75571767719947" stroke="#edf3f6" stroke-width="1"/>
+<text x="59" y="310.75571767719947" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">1000</text>
+<line x1="85" y1="223.6610506316877" x2="440" y2="223.6610506316877" stroke="#edf3f6" stroke-width="1"/>
+<text x="59" y="226.6610506316877" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">10000</text>
+<line x1="85" y1="155.0" x2="440" y2="155.0" stroke="#edf3f6" stroke-width="1"/>
+<text x="59" y="158.0" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">65535</text>
+<line x1="85.0" y1="400" x2="85.0" y2="404" stroke="#647784" stroke-width="1"/>
+<text x="85.0" y="421" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">0</text>
+<line x1="99.79166666666667" y1="400" x2="99.79166666666667" y2="404" stroke="#647784" stroke-width="1"/>
+<text x="99.79166666666667" y="421" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">1</text>
+<line x1="203.33333333333331" y1="400" x2="203.33333333333331" y2="404" stroke="#647784" stroke-width="1"/>
+<text x="203.33333333333331" y="421" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">8</text>
+<line x1="321.66666666666663" y1="400" x2="321.66666666666663" y2="404" stroke="#647784" stroke-width="1"/>
+<text x="321.66666666666663" y="421" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">16</text>
+<line x1="440.0" y1="400" x2="440.0" y2="404" stroke="#647784" stroke-width="1"/>
+<text x="440.0" y="421" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="11" fill="#647784">24</text>
+<line x1="85" y1="155" x2="85" y2="400" stroke="#647784" stroke-width="1"/>
+<line x1="85" y1="400" x2="440" y2="400" stroke="#647784" stroke-width="1"/>
+<line x1="85.0" y1="155.0" x2="99.79166666666667" y2="281.5923662865781" stroke="#265d82" stroke-width="2"/>
+<line x1="99.79166666666667" y1="281.5923662865781" x2="114.58333333333333" y2="306.9252295483119" stroke="#265d82" stroke-width="2"/>
+<line x1="114.58333333333333" y1="306.9252295483119" x2="129.375" y2="321.73356534822443" stroke="#265d82" stroke-width="2"/>
+<line x1="129.375" y1="321.73356534822443" x2="144.16666666666666" y2="332.2759649978008" stroke="#265d82" stroke-width="2"/>
+<line x1="144.16666666666666" y1="332.2759649978008" x2="158.95833333333334" y2="340.4077168118548" stroke="#265d82" stroke-width="2"/>
+<line x1="158.95833333333334" y1="340.4077168118548" x2="173.75" y2="347.04858260429876" stroke="#265d82" stroke-width="2"/>
+<line x1="173.75" y1="347.04858260429876" x2="188.54166666666669" y2="352.7141687814657" stroke="#265d82" stroke-width="2"/>
+<line x1="188.54166666666669" y1="352.7141687814657" x2="203.33333333333331" y2="357.6625236084955" stroke="#265d82" stroke-width="2"/>
+<line x1="203.33333333333331" y1="357.6625236084955" x2="218.125" y2="361.9105088024627" stroke="#265d82" stroke-width="2"/>
+<line x1="218.125" y1="361.9105088024627" x2="232.91666666666669" y2="365.81213888578424" stroke="#265d82" stroke-width="2"/>
+<line x1="232.91666666666669" y1="365.81213888578424" x2="247.70833333333331" y2="369.18578341425" stroke="#265d82" stroke-width="2"/>
+<line x1="247.70833333333331" y1="369.18578341425" x2="262.5" y2="372.470859408408" stroke="#265d82" stroke-width="2"/>
+<line x1="262.5" y1="372.470859408408" x2="277.29166666666663" y2="375.37626867902526" stroke="#265d82" stroke-width="2"/>
+<line x1="277.29166666666663" y1="375.37626867902526" x2="292.08333333333337" y2="378.02918603754" stroke="#265d82" stroke-width="2"/>
+<line x1="292.08333333333337" y1="378.02918603754" x2="306.875" y2="380.6204746856967" stroke="#265d82" stroke-width="2"/>
+<line x1="306.875" y1="380.6204746856967" x2="321.66666666666663" y2="383.12104537083485" stroke="#265d82" stroke-width="2"/>
+<line x1="321.66666666666663" y1="383.12104537083485" x2="336.45833333333337" y2="385.19166420008753" stroke="#265d82" stroke-width="2"/>
+<line x1="336.45833333333337" y1="385.19166420008753" x2="351.25" y2="387.3867706906791" stroke="#265d82" stroke-width="2"/>
+<line x1="351.25" y1="387.3867706906791" x2="366.04166666666663" y2="389.37936572173425" stroke="#265d82" stroke-width="2"/>
+<line x1="366.04166666666663" y1="389.37936572173425" x2="380.83333333333337" y2="391.1271561418586" stroke="#265d82" stroke-width="2"/>
+<line x1="380.83333333333337" y1="391.1271561418586" x2="395.625" y2="392.96281132518095" stroke="#265d82" stroke-width="2"/>
+<line x1="395.625" y1="392.96281132518095" x2="410.41666666666663" y2="394.5008006703244" stroke="#265d82" stroke-width="2"/>
+<line x1="410.41666666666663" y1="394.5008006703244" x2="425.20833333333337" y2="396.1064152630829" stroke="#265d82" stroke-width="2"/>
+<line x1="425.20833333333337" y1="396.1064152630829" x2="440.0" y2="397.7858766644824" stroke="#265d82" stroke-width="2"/>
+<text x="260" y="130" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#265d82">系数 K[D]（对数坐标）</text>
+<text x="260" y="458" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">D = min(所选标记, 24)</text>
+<rect x="500" y="95" width="410" height="94" rx="5" fill="white" stroke="#237b78"/>
+<text x="705.0" y="123" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">音量</text>
+<text x="705.0" y="147" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">LFO 变化位 0x08：D = 1</text>
+<text x="705.0" y="167" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">其他情况：D = 24</text>
+<rect x="500" y="212" width="410" height="94" rx="5" fill="white" stroke="#237b78"/>
+<text x="705.0" y="240" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">音高</text>
+<text x="705.0" y="264" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">LFO 变化位 0x01：D = 0</text>
+<text x="705.0" y="284" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">否则 EG 位 0x10 取时间标记；其余取 24</text>
+<rect x="500" y="329" width="410" height="94" rx="5" fill="white" stroke="#237b78"/>
+<text x="705.0" y="357" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">Filter A / B</text>
+<text x="705.0" y="381" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">各自的 LFO 变化位：D = 1</text>
+<text x="705.0" y="401" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">否则各自的 EG 位取时间标记；其余取 24</text>
+<text x="470" y="496" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#265d82">K[0] = 65535，K[1] = 2047，K[24] = 85；实际步长还取决于目标差值。</text>
+<text x="470" y="532" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">所有低七位标志组合、五种标记和三种差值方向另有直接提交检查。</text>
+</svg>

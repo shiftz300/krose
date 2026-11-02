@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="620" viewBox="0 0 1040 620"><rect width="100%" height="100%" fill="white"/>
+<text x="520" y="40" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="24" fill="#18354a">正常声部刷新：两段附加计算可以省略</text>
+<text x="520" y="72" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">结论限于受测路径；保留其余原运算、全部演奏状态和 TG I/O 对照。</text>
+<rect x="45" y="115" width="400" height="90" rx="5" fill="white" stroke="#265d82"/>
+<text x="245.0" y="143" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">原管理器路径</text>
+<text x="245.0" y="167" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">EG / LFO / Mixer → 音高与滤波目标</text>
+<rect x="595" y="115" width="400" height="90" rx="5" fill="white" stroke="#237b78"/>
+<text x="795.0" y="143" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">省略后的插件路径</text>
+<text x="795.0" y="167" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">相同原目标计算与批次顺序</text>
+<rect x="45" y="250" width="400" height="110" rx="5" fill="white" stroke="#a66b27"/>
+<text x="245.0" y="278" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">两段附加计算</text>
+<text x="245.0" y="302" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">读取私有参数，更新 voice +1CC…+1EF</text>
+<text x="245.0" y="322" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">原绑定来源尚未确定</text>
+<rect x="595" y="250" width="400" height="110" rx="5" fill="white" stroke="#237b78"/>
+<text x="795.0" y="278" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">直接进入后续计算</text>
+<text x="795.0" y="302" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">不执行两段附加计算</text>
+<text x="795.0" y="322" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">不提供猜测的参数指针</text>
+<rect x="45" y="405" width="400" height="85" rx="5" fill="white" stroke="#265d82"/>
+<text x="245.0" y="433" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">Amp / 声像 / TG 提交</text>
+<text x="245.0" y="457" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">记录原寄存器写入与读回请求</text>
+<rect x="595" y="405" width="400" height="85" rx="5" fill="white" stroke="#237b78"/>
+<text x="795.0" y="433" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">Amp / 声像 / TG 提交</text>
+<text x="795.0" y="457" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">其余声部字节与原控制输出一致</text>
+<line x1="245" y1="205" x2="245" y2="250" stroke="#647784" stroke-width="1"/>
+<line x1="245" y1="250" x2="241.52027572711015" y2="242.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="245" y1="250" x2="248.47972427288985" y2="242.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="245" y1="360" x2="245" y2="405" stroke="#647784" stroke-width="1"/>
+<line x1="245" y1="405" x2="241.52027572711015" y2="397.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="245" y1="405" x2="248.47972427288985" y2="397.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="795" y1="205" x2="795" y2="250" stroke="#647784" stroke-width="1"/>
+<line x1="795" y1="250" x2="791.5202757271102" y2="242.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="795" y1="250" x2="798.4797242728898" y2="242.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="795" y1="360" x2="795" y2="405" stroke="#647784" stroke-width="1"/>
+<line x1="795" y1="405" x2="791.5202757271102" y2="397.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="795" y1="405" x2="798.4797242728898" y2="397.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="445" y1="447" x2="595" y2="447" stroke="#237b78" stroke-width="1"/>
+<line x1="595" y1="447" x2="587.7964231811786" y2="450.4797242728898" stroke="#237b78" stroke-width="1"/>
+<line x1="595" y1="447" x2="587.7964231811786" y2="443.5202757271102" stroke="#237b78" stroke-width="1"/>
+<text x="520" y="433" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#237b78">一致</text>
+<text x="520" y="538" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">72 条换音 / 踏板 / 批次轨迹 · 6912 次更新 · 3380 次 TG 控制提交</text>
+<text x="520" y="573" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">剩余轮询对附加区间的原指令读取：0；比较时仅排除这 36 字节。</text>
+<text x="520" y="606" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">未证明所有固件入口均可省略，也未验证 TG 音频、插值、滤波或芯片舍入。</text>
+</svg>

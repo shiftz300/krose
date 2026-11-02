@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="560" viewBox="0 0 1080 560"><rect width="100%" height="100%" fill="white"/>
+<text x="540" y="36" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="24" fill="#18354a">Hall 四段延迟区间的程序引用顺序</text>
+<text x="540" y="66" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">横轴为原程序项编号；标记来自字段 A，未将它们解释成音频读写指令</text>
+<line x1="180.0" y1="114" x2="180.0" y2="426" stroke="#e5eef2" stroke-width="1"/>
+<text x="180.0" y="450" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">0</text>
+<line x1="318.3333333333333" y1="114" x2="318.3333333333333" y2="426" stroke="#e5eef2" stroke-width="1"/>
+<text x="318.3333333333333" y="450" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">20</text>
+<line x1="456.66666666666663" y1="114" x2="456.66666666666663" y2="426" stroke="#e5eef2" stroke-width="1"/>
+<text x="456.66666666666663" y="450" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">40</text>
+<line x1="595.0" y1="114" x2="595.0" y2="426" stroke="#e5eef2" stroke-width="1"/>
+<text x="595.0" y="450" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">60</text>
+<line x1="733.3333333333333" y1="114" x2="733.3333333333333" y2="426" stroke="#e5eef2" stroke-width="1"/>
+<text x="733.3333333333333" y="450" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">80</text>
+<line x1="871.6666666666667" y1="114" x2="871.6666666666667" y2="426" stroke="#e5eef2" stroke-width="1"/>
+<text x="871.6666666666667" y="450" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">100</text>
+<line x1="1010.0" y1="114" x2="1010.0" y2="426" stroke="#e5eef2" stroke-width="1"/>
+<text x="1010.0" y="450" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">120</text>
+<text x="80" y="146" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">区间 1</text>
+<text x="80" y="165" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">2880—8330</text>
+<line x1="180" y1="145" x2="1010" y2="145" stroke="#cbd9e1" stroke-width="1"/>
+<line x1="311.41666666666663" y1="138" x2="311.41666666666663" y2="152" stroke="#265d82" stroke-width="4"/>
+<text x="311.41666666666663" y="126" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#265d82">终点 19</text>
+<line x1="435.9166666666667" y1="138" x2="435.9166666666667" y2="152" stroke="#237b78" stroke-width="4"/>
+<text x="435.9166666666667" y="126" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#237b78">衰减 37</text>
+<line x1="463.5833333333333" y1="138" x2="463.5833333333333" y2="152" stroke="#a66b27" stroke-width="4"/>
+<line x1="470.5" y1="138" x2="470.5" y2="152" stroke="#a66b27" stroke-width="4"/>
+<text x="467.0416666666667" y="169" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#a66b27">阻尼 41,42</text>
+<line x1="809.4166666666666" y1="138" x2="809.4166666666666" y2="152" stroke="#265d82" stroke-width="4"/>
+<text x="809.4166666666666" y="126" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#265d82">起点 91</text>
+<text x="80" y="226" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">区间 2</text>
+<text x="80" y="245" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">8331—13609</text>
+<line x1="180" y1="225" x2="1010" y2="225" stroke="#cbd9e1" stroke-width="1"/>
+<line x1="339.08333333333337" y1="218" x2="339.08333333333337" y2="232" stroke="#265d82" stroke-width="4"/>
+<text x="339.08333333333337" y="206" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#265d82">终点 23</text>
+<line x1="484.3333333333333" y1="218" x2="484.3333333333333" y2="232" stroke="#237b78" stroke-width="4"/>
+<text x="484.3333333333333" y="206" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#237b78">衰减 44</text>
+<line x1="525.8333333333334" y1="218" x2="525.8333333333334" y2="232" stroke="#a66b27" stroke-width="4"/>
+<line x1="539.6666666666667" y1="218" x2="539.6666666666667" y2="232" stroke="#a66b27" stroke-width="4"/>
+<text x="532.75" y="249" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#a66b27">阻尼 50,52</text>
+<line x1="830.1666666666666" y1="218" x2="830.1666666666666" y2="232" stroke="#265d82" stroke-width="4"/>
+<text x="830.1666666666666" y="206" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#265d82">起点 94</text>
+<text x="80" y="306" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">区间 3</text>
+<text x="80" y="325" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">13610—18456</text>
+<line x1="180" y1="305" x2="1010" y2="305" stroke="#cbd9e1" stroke-width="1"/>
+<line x1="366.75" y1="298" x2="366.75" y2="312" stroke="#265d82" stroke-width="4"/>
+<text x="366.75" y="286" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#265d82">终点 27</text>
+<line x1="546.5833333333333" y1="298" x2="546.5833333333333" y2="312" stroke="#237b78" stroke-width="4"/>
+<text x="546.5833333333333" y="286" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#237b78">衰减 53</text>
+<line x1="595.0" y1="298" x2="595.0" y2="312" stroke="#a66b27" stroke-width="4"/>
+<line x1="601.9166666666666" y1="298" x2="601.9166666666666" y2="312" stroke="#a66b27" stroke-width="4"/>
+<text x="598.4583333333333" y="329" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#a66b27">阻尼 60,61</text>
+<line x1="864.75" y1="298" x2="864.75" y2="312" stroke="#265d82" stroke-width="4"/>
+<text x="864.75" y="286" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#265d82">起点 99</text>
+<text x="80" y="386" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">区间 4</text>
+<text x="80" y="405" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">18457—23255</text>
+<line x1="180" y1="385" x2="1010" y2="385" stroke="#cbd9e1" stroke-width="1"/>
+<line x1="394.4166666666667" y1="378" x2="394.4166666666667" y2="392" stroke="#265d82" stroke-width="4"/>
+<text x="394.4166666666667" y="366" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#265d82">终点 31</text>
+<line x1="622.6666666666667" y1="378" x2="622.6666666666667" y2="392" stroke="#237b78" stroke-width="4"/>
+<text x="622.6666666666667" y="366" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#237b78">衰减 64</text>
+<line x1="657.25" y1="378" x2="657.25" y2="392" stroke="#a66b27" stroke-width="4"/>
+<line x1="664.1666666666667" y1="378" x2="664.1666666666667" y2="392" stroke="#a66b27" stroke-width="4"/>
+<text x="660.7083333333334" y="409" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#a66b27">阻尼 69,70</text>
+<line x1="892.4166666666666" y1="378" x2="892.4166666666666" y2="392" stroke="#265d82" stroke-width="4"/>
+<text x="892.4166666666666" y="366" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#265d82">起点 103</text>
+<text x="540" y="494" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#265d82">终点字段先出现，起点字段后出现；本图只记录引用次序。</text>
+<text x="540" y="529" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">A/B 的局部索引按槽位平移；扩散、阻尼递推和反馈连线仍需运算语义验证。</text>
+</svg>

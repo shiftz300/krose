@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="490" viewBox="0 0 820 490"><rect width="100%" height="100%" fill="white"/>
+<text x="410" y="35" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="23" fill="#18354a">琶音：按键、Pattern 与输出事件</text>
+<rect x="20" y="62" width="235" height="100" rx="5" fill="white" stroke="#265d82"/>
+<text x="137.5" y="90" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">按键集合</text>
+<text x="137.5" y="114" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">键区 / 力度区 / 直通</text>
+<text x="137.5" y="134" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Sort 决定排序，Latch 保留集合</text>
+<rect x="292" y="62" width="235" height="100" rx="5" fill="white" stroke="#265d82"/>
+<text x="409.5" y="90" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">Pattern 数据</text>
+<text x="409.5" y="114" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">552 字节，64 个步骤</text>
+<text x="409.5" y="134" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">每步：音高 / Gate / 力度 / Flam</text>
+<rect x="565" y="62" width="235" height="100" rx="5" fill="white" stroke="#265d82"/>
+<text x="682.5" y="90" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">音乐 tick</text>
+<text x="682.5" y="114" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">八种步长：40～480</text>
+<text x="682.5" y="134" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Swing 改变选定步骤的时间</text>
+<line x1="137" y1="162" x2="137" y2="208" stroke="#647784" stroke-width="1"/>
+<line x1="137" y1="208" x2="133.52027572711015" y2="200.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="137" y1="208" x2="140.47972427288985" y2="200.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="409" y1="162" x2="409" y2="208" stroke="#647784" stroke-width="1"/>
+<line x1="409" y1="208" x2="405.5202757271102" y2="200.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="409" y1="208" x2="412.4797242728898" y2="200.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="682" y1="162" x2="682" y2="208" stroke="#647784" stroke-width="1"/>
+<line x1="682" y1="208" x2="678.5202757271102" y2="200.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="682" y1="208" x2="685.4797242728898" y2="200.7964231811786" stroke="#647784" stroke-width="1"/>
+<rect x="20" y="208" width="780" height="87" rx="5" fill="white" stroke="#237b78"/>
+<text x="410.0" y="236" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">原指令生成步骤事件</text>
+<text x="410.0" y="260" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Tone → 按键或固定音高 → 移调 → 扫弦分时 → Note On / Note Off</text>
+<line x1="410" y1="295" x2="410" y2="320" stroke="#647784" stroke-width="1"/>
+<line x1="410" y1="320" x2="406.5202757271102" y2="312.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="410" y1="320" x2="413.4797242728898" y2="312.79642318117857" stroke="#647784" stroke-width="1"/>
+<rect x="20" y="320" width="780" height="75" rx="5" fill="white" stroke="#a66b27"/>
+<text x="410.0" y="348" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">输出到分配层</text>
+<text x="410.0" y="372" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">检查记录时间、音高、力度与开关；音源和 TG 音频尚未接入本组实验</text>
+<text x="410" y="436" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">已核对 1280 个 Pattern 的 27486 个有效步骤</text>
+<text x="410" y="466" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">连续执行含 8 个原厂例子、4 类独立顺序检查和 36 组扫弦检查</text>
+</svg>

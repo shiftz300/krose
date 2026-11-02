@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="540" viewBox="0 0 760 540"><rect width="100%" height="100%" fill="white"/>
+<text x="380" y="37" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="23" fill="#18354a">一个音符怎样进入音源</text>
+<rect x="20" y="65" width="210" height="105" rx="5" fill="white" stroke="#265d82"/>
+<text x="125.0" y="93" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">MIDI 预处理</text>
+<text x="125.0" y="117" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">状态分类 / 移调</text>
+<text x="125.0" y="137" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">零力度转换为 Note Off</text>
+<rect x="275" y="65" width="210" height="105" rx="5" fill="white" stroke="#265d82"/>
+<text x="380.0" y="93" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">通道与音色</text>
+<text x="380.0" y="117" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">16 通道 / 音色开关</text>
+<text x="380.0" y="137" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">键区与力度区筛选</text>
+<rect x="530" y="65" width="210" height="105" rx="5" fill="white" stroke="#265d82"/>
+<text x="635.0" y="93" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">PCM 振荡器</text>
+<text x="635.0" y="117" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">虚表 +0x14 调用</text>
+<text x="635.0" y="137" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">选择参与发声的 OSC</text>
+<rect x="530" y="220" width="210" height="105" rx="5" fill="white" stroke="#265d82"/>
+<text x="635.0" y="248" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">力度层选择</text>
+<text x="635.0" y="272" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">四个候选层，最多取两个</text>
+<text x="635.0" y="292" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">计算交叉淡化权重</text>
+<rect x="275" y="220" width="210" height="105" rx="5" fill="white" stroke="#265d82"/>
+<text x="380.0" y="248" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">声部分配</text>
+<text x="380.0" y="272" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">每层占 1 或 2 个槽</text>
+<text x="380.0" y="292" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">强制分配 / 候选替换</text>
+<rect x="20" y="220" width="210" height="105" rx="5" fill="white" stroke="#265d82"/>
+<text x="125.0" y="248" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">立体声配对</text>
+<text x="125.0" y="272" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">按 TG 槽号排序</text>
+<text x="125.0" y="292" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">记录双方指针与配对类型</text>
+<rect x="20" y="375" width="210" height="105" rx="5" fill="white" stroke="#265d82"/>
+<text x="125.0" y="403" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">延迟启动</text>
+<text x="125.0" y="427" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">剩余时间 / 访问次数</text>
+<text x="125.0" y="447" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">到期后设置就绪标志</text>
+<rect x="275" y="375" width="210" height="105" rx="5" fill="white" stroke="#a66b27"/>
+<text x="380.0" y="403" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">TG 控制入口</text>
+<text x="380.0" y="427" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">参数初始化与寄存器写入</text>
+<text x="380.0" y="447" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">本次在函数边界截获</text>
+<rect x="530" y="375" width="210" height="105" rx="5" fill="white" stroke="#a66b27"/>
+<text x="635.0" y="403" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">TG 音频执行</text>
+<text x="635.0" y="427" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">采样 / 滤波 / 效果</text>
+<text x="635.0" y="447" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">DSP 指令语义仍待恢复</text>
+<line x1="230" y1="117" x2="275" y2="117" stroke="#647784" stroke-width="1"/>
+<line x1="275" y1="117" x2="267.79642318117857" y2="120.47972427288984" stroke="#647784" stroke-width="1"/>
+<line x1="275" y1="117" x2="267.79642318117857" y2="113.52027572711016" stroke="#647784" stroke-width="1"/>
+<line x1="485" y1="117" x2="530" y2="117" stroke="#647784" stroke-width="1"/>
+<line x1="530" y1="117" x2="522.7964231811786" y2="120.47972427288984" stroke="#647784" stroke-width="1"/>
+<line x1="530" y1="117" x2="522.7964231811786" y2="113.52027572711016" stroke="#647784" stroke-width="1"/>
+<line x1="530" y1="272" x2="485" y2="272" stroke="#647784" stroke-width="1"/>
+<line x1="485" y1="272" x2="492.20357681882143" y2="268.5202757271102" stroke="#647784" stroke-width="1"/>
+<line x1="485" y1="272" x2="492.20357681882143" y2="275.4797242728898" stroke="#647784" stroke-width="1"/>
+<line x1="275" y1="272" x2="230" y2="272" stroke="#647784" stroke-width="1"/>
+<line x1="230" y1="272" x2="237.2035768188214" y2="268.5202757271102" stroke="#647784" stroke-width="1"/>
+<line x1="230" y1="272" x2="237.2035768188214" y2="275.4797242728898" stroke="#647784" stroke-width="1"/>
+<line x1="230" y1="427" x2="275" y2="427" stroke="#a66b27" stroke-width="1" stroke-dasharray="5 4"/>
+<line x1="275" y1="427" x2="267.79642318117857" y2="430.4797242728898" stroke="#a66b27" stroke-width="1"/>
+<line x1="275" y1="427" x2="267.79642318117857" y2="423.5202757271102" stroke="#a66b27" stroke-width="1"/>
+<line x1="485" y1="427" x2="530" y2="427" stroke="#a66b27" stroke-width="1" stroke-dasharray="5 4"/>
+<line x1="530" y1="427" x2="522.7964231811786" y2="430.4797242728898" stroke="#a66b27" stroke-width="1"/>
+<line x1="530" y1="427" x2="522.7964231811786" y2="423.5202757271102" stroke="#a66b27" stroke-width="1"/>
+<line x1="635" y1="170" x2="635" y2="220" stroke="#647784" stroke-width="1"/>
+<line x1="635" y1="220" x2="631.5202757271102" y2="212.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="635" y1="220" x2="638.4797242728898" y2="212.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="125" y1="325" x2="125" y2="375" stroke="#647784" stroke-width="1"/>
+<line x1="125" y1="375" x2="121.52027572711016" y2="367.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="125" y1="375" x2="128.47972427288985" y2="367.79642318117857" stroke="#647784" stroke-width="1"/>
+<text x="380" y="514" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">图示汇总已恢复的控制关系；TG 启动与音频执行尚未连通验证。</text>
+</svg>

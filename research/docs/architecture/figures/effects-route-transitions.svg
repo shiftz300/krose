@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="500" viewBox="0 0 820 500"><rect width="100%" height="100%" fill="white"/>
+<text x="410" y="35" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="23" fill="#18354a">路由切换会分批完成</text>
+<text x="410" y="77" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="17" fill="#265d82">IFX：从普通发送切换为串接</text>
+<rect x="25" y="95" width="220" height="105" rx="5" fill="white" stroke="#265d82"/>
+<text x="135.0" y="123" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">原状态</text>
+<text x="135.0" y="147" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Send1 = 101</text>
+<text x="135.0" y="167" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Send2 = 79</text>
+<rect x="300" y="95" width="220" height="105" rx="5" fill="white" stroke="#265d82"/>
+<text x="410.0" y="123" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">第一批</text>
+<text x="410.0" y="147" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">两路发送降到 0</text>
+<text x="410.0" y="167" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">直接输出关闭</text>
+<rect x="575" y="95" width="220" height="105" rx="5" fill="white" stroke="#265d82"/>
+<text x="685.0" y="123" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">第二批</text>
+<text x="685.0" y="147" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">更新串接目的地</text>
+<text x="685.0" y="167" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">开启串接传输</text>
+<line x1="245" y1="147" x2="300" y2="147" stroke="#647784" stroke-width="1"/>
+<line x1="300" y1="147" x2="292.79642318117857" y2="150.47972427288985" stroke="#647784" stroke-width="1"/>
+<line x1="300" y1="147" x2="292.79642318117857" y2="143.52027572711015" stroke="#647784" stroke-width="1"/>
+<line x1="520" y1="147" x2="575" y2="147" stroke="#647784" stroke-width="1"/>
+<line x1="575" y1="147" x2="567.7964231811786" y2="150.47972427288985" stroke="#647784" stroke-width="1"/>
+<line x1="575" y1="147" x2="567.7964231811786" y2="143.52027572711015" stroke="#647784" stroke-width="1"/>
+<text x="410" y="255" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="17" fill="#237b78">MFX：方向 B 切换为方向 A</text>
+<rect x="25" y="275" width="220" height="105" rx="5" fill="white" stroke="#237b78"/>
+<text x="135.0" y="303" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">原状态</text>
+<text x="135.0" y="327" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">A = 0</text>
+<text x="135.0" y="347" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">B = 127</text>
+<rect x="300" y="275" width="220" height="105" rx="5" fill="white" stroke="#237b78"/>
+<text x="410.0" y="303" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">第一批</text>
+<text x="410.0" y="327" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">A = 0</text>
+<text x="410.0" y="347" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">B = 0</text>
+<rect x="575" y="275" width="220" height="105" rx="5" fill="white" stroke="#237b78"/>
+<text x="685.0" y="303" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">第二批</text>
+<text x="685.0" y="327" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">A = 127</text>
+<text x="685.0" y="347" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">B = 0</text>
+<line x1="245" y1="327" x2="300" y2="327" stroke="#237b78" stroke-width="1"/>
+<line x1="300" y1="327" x2="292.79642318117857" y2="330.4797242728898" stroke="#237b78" stroke-width="1"/>
+<line x1="300" y1="327" x2="292.79642318117857" y2="323.5202757271102" stroke="#237b78" stroke-width="1"/>
+<line x1="520" y1="327" x2="575" y2="327" stroke="#237b78" stroke-width="1"/>
+<line x1="575" y1="327" x2="567.7964231811786" y2="330.4797242728898" stroke="#237b78" stroke-width="1"/>
+<line x1="575" y1="327" x2="567.7964231811786" y2="323.5202757271102" stroke="#237b78" stroke-width="1"/>
+<text x="410" y="434" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">普通调用前 8 次延后，第 9 次提交；IFX 另有强制提交入口。</text>
+<text x="410" y="462" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#a66b27">图示为原 ARM 控制写入顺序，音频渐变的实际时长尚未确定。</text>
+</svg>

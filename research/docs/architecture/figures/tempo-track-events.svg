@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420"><rect width="100%" height="100%" fill="white"/>
+<text x="450" y="35" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="23" fill="#18354a">速度轨：事件到达指定位置后更新速度</text>
+<line x1="80" y1="286.42857142857144" x2="820" y2="286.42857142857144" stroke="#e4edf3" stroke-width="1"/>
+<text x="48" y="290.42857142857144" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">90</text>
+<line x1="80" y1="252.85714285714286" x2="820" y2="252.85714285714286" stroke="#e4edf3" stroke-width="1"/>
+<text x="48" y="256.8571428571429" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">120</text>
+<line x1="80" y1="185.71428571428572" x2="820" y2="185.71428571428572" stroke="#e4edf3" stroke-width="1"/>
+<text x="48" y="189.71428571428572" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">180</text>
+<line x1="80" y1="118.57142857142858" x2="820" y2="118.57142857142858" stroke="#e4edf3" stroke-width="1"/>
+<text x="48" y="122.57142857142858" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">240</text>
+<text x="93" y="67" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">BPM</text>
+<line x1="80" y1="85" x2="80" y2="320" stroke="#647784" stroke-width="1"/>
+<line x1="80" y1="320" x2="820" y2="320" stroke="#647784" stroke-width="1"/>
+<line x1="80.0" y1="252.85714285714286" x2="178.4611111111111" y2="252.85714285714286" stroke="#237b78" stroke-width="2"/>
+<line x1="178.4611111111111" y1="252.85714285714286" x2="178.4611111111111" y2="252.85714285714286" stroke="#237b78" stroke-width="2"/>
+<line x1="178.4611111111111" y1="252.85714285714286" x2="178.66666666666669" y2="252.85714285714286" stroke="#237b78" stroke-width="2"/>
+<line x1="178.66666666666669" y1="252.85714285714286" x2="178.66666666666669" y2="118.57142857142858" stroke="#237b78" stroke-width="2"/>
+<line x1="178.66666666666669" y1="118.57142857142858" x2="474.4611111111111" y2="118.57142857142858" stroke="#237b78" stroke-width="2"/>
+<line x1="474.4611111111111" y1="118.57142857142858" x2="474.4611111111111" y2="118.57142857142858" stroke="#237b78" stroke-width="2"/>
+<line x1="474.4611111111111" y1="118.57142857142858" x2="474.6666666666667" y2="118.57142857142858" stroke="#237b78" stroke-width="2"/>
+<line x1="474.6666666666667" y1="118.57142857142858" x2="474.6666666666667" y2="286.42857142857144" stroke="#237b78" stroke-width="2"/>
+<line x1="474.6666666666667" y1="286.42857142857144" x2="536.1277777777777" y2="286.42857142857144" stroke="#237b78" stroke-width="2"/>
+<line x1="536.1277777777777" y1="286.42857142857144" x2="536.1277777777777" y2="286.42857142857144" stroke="#237b78" stroke-width="2"/>
+<line x1="536.1277777777777" y1="286.42857142857144" x2="536.3333333333333" y2="286.42857142857144" stroke="#237b78" stroke-width="2"/>
+<line x1="536.3333333333333" y1="286.42857142857144" x2="536.3333333333333" y2="185.71428571428572" stroke="#237b78" stroke-width="2"/>
+<line x1="536.3333333333333" y1="185.71428571428572" x2="819.7944444444445" y2="185.71428571428572" stroke="#237b78" stroke-width="2"/>
+<line x1="819.7944444444445" y1="185.71428571428572" x2="819.7944444444445" y2="185.71428571428572" stroke="#237b78" stroke-width="2"/>
+<text x="80.0" y="342" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">0</text>
+<text x="178.66666666666669" y="342" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">480</text>
+<text x="474.6666666666667" y="342" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">1920</text>
+<text x="536.3333333333333" y="342" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">2220</text>
+<text x="820.0" y="342" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">3600</text>
+<line x1="474.6666666666667" y1="85" x2="474.6666666666667" y2="320" stroke="#a66b27" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="277.33333333333337" y="71" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#265d82">第 1 小节：4/4</text>
+<text x="647.3333333333334" y="71" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#a66b27">第 2 小节：7/8</text>
+<text x="450" y="375" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">横轴为从歌曲起点累计的 tick；第一小节长 1920，第二小节长 1680。</text>
+<text x="450" y="405" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">轨迹来自原事件遍历与速度设置函数；事件数据由夹具构造。</text>
+</svg>

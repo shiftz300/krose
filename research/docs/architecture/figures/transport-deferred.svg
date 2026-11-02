@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="430" viewBox="0 0 880 430"><rect width="100%" height="100%" fill="white"/>
+<text x="440" y="35" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="23" fill="#18354a">定位尚未完成时，传输命令怎样继续</text>
+<rect x="25" y="75" width="210" height="110" rx="5" fill="white" stroke="#265d82"/>
+<text x="130.0" y="103" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">Song Position 到达</text>
+<text x="130.0" y="127" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">请求计数加一</text>
+<text x="130.0" y="147" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">记录定位标志</text>
+<rect x="335" y="75" width="210" height="110" rx="5" fill="white" stroke="#265d82"/>
+<text x="440.0" y="103" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">Start / Continue 到达</text>
+<text x="440.0" y="127" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">写入待执行标志</text>
+<text x="440.0" y="147" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">保留第一个命令</text>
+<rect x="645" y="75" width="210" height="110" rx="5" fill="white" stroke="#265d82"/>
+<text x="750.0" y="103" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">定位请求处理完成</text>
+<text x="750.0" y="127" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">请求计数减一</text>
+<text x="750.0" y="147" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">计数清空后转交命令</text>
+<rect x="645" y="255" width="210" height="110" rx="5" fill="white" stroke="#265d82"/>
+<text x="750.0" y="283" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">生成待执行命令</text>
+<text x="750.0" y="307" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Start → 3</text>
+<text x="750.0" y="327" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Continue → 2</text>
+<rect x="335" y="255" width="210" height="110" rx="5" fill="white" stroke="#265d82"/>
+<text x="440.0" y="283" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">请求分发器</text>
+<text x="440.0" y="307" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">设置启动控制位</text>
+<text x="440.0" y="327" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">恢复累计的时钟数</text>
+<rect x="25" y="255" width="210" height="110" rx="5" fill="white" stroke="#a66b27"/>
+<text x="130.0" y="283" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">启动或继续操作</text>
+<text x="130.0" y="307" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">进入对应操作函数</text>
+<text x="130.0" y="327" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">轨道定位与事件恢复待查</text>
+<line x1="235" y1="130" x2="335" y2="130" stroke="#647784" stroke-width="1"/>
+<line x1="335" y1="130" x2="327.79642318117857" y2="133.47972427288985" stroke="#647784" stroke-width="1"/>
+<line x1="335" y1="130" x2="327.79642318117857" y2="126.52027572711016" stroke="#647784" stroke-width="1"/>
+<line x1="545" y1="130" x2="645" y2="130" stroke="#647784" stroke-width="1"/>
+<line x1="645" y1="130" x2="637.7964231811786" y2="133.47972427288985" stroke="#647784" stroke-width="1"/>
+<line x1="645" y1="130" x2="637.7964231811786" y2="126.52027572711016" stroke="#647784" stroke-width="1"/>
+<line x1="750" y1="185" x2="750" y2="255" stroke="#647784" stroke-width="1"/>
+<line x1="750" y1="255" x2="746.5202757271102" y2="247.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="750" y1="255" x2="753.4797242728898" y2="247.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="645" y1="310" x2="545" y2="310" stroke="#647784" stroke-width="1"/>
+<line x1="545" y1="310" x2="552.2035768188214" y2="306.5202757271102" stroke="#647784" stroke-width="1"/>
+<line x1="545" y1="310" x2="552.2035768188214" y2="313.4797242728898" stroke="#647784" stroke-width="1"/>
+<line x1="335" y1="310" x2="235" y2="310" stroke="#a66b27" stroke-width="1" stroke-dasharray="5 4"/>
+<line x1="235" y1="310" x2="242.2035768188214" y2="306.5202757271102" stroke="#a66b27" stroke-width="1"/>
+<line x1="235" y1="310" x2="242.2035768188214" y2="313.4797242728898" stroke="#a66b27" stroke-width="1"/>
+<text x="440" y="408" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">原 ARM 连通到操作入口；虚线后的轨道主体在边界截获。</text>
+</svg>

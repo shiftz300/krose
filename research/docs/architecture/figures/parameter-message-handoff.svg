@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="545" viewBox="0 0 900 545"><rect width="100%" height="100%" fill="white"/>
+<text x="450" y="38" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="23" fill="#18354a">MMI 复制参数列表后，发送方才回收消息</text>
+<text x="215" y="84" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="18" fill="#265d82">任务 2 · CS / 参数发送方</text>
+<text x="685" y="84" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="18" fill="#237b78">任务 3 · MMI 接收方</text>
+<rect x="35" y="105" width="360" height="90" rx="5" fill="white" stroke="#265d82"/>
+<text x="215.0" y="133" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">发送变更列表</text>
+<text x="215.0" y="157" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">类型 9 / 子类型 0 / 命令 12</text>
+<text x="215.0" y="177" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">附带 16 位流水号和列表指针</text>
+<rect x="505" y="105" width="360" height="90" rx="5" fill="white" stroke="#237b78"/>
+<text x="685.0" y="133" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">复制每条记录</text>
+<text x="685.0" y="157" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">24 字节独立副本</text>
+<text x="685.0" y="177" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">追加到 MMI 待处理列表</text>
+<line x1="395" y1="150" x2="505" y2="150" stroke="#647784" stroke-width="1"/>
+<line x1="505" y1="150" x2="497.79642318117857" y2="153.47972427288985" stroke="#647784" stroke-width="1"/>
+<line x1="505" y1="150" x2="497.79642318117857" y2="146.52027572711015" stroke="#647784" stroke-width="1"/>
+<rect x="35" y="255" width="360" height="90" rx="5" fill="white" stroke="#265d82"/>
+<text x="215.0" y="283" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">等待命令 13</text>
+<text x="215.0" y="307" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">按子类型 / 命令 / 流水号匹配</text>
+<text x="215.0" y="327" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">期间继续分派其他事件</text>
+<rect x="505" y="255" width="360" height="90" rx="5" fill="white" stroke="#237b78"/>
+<text x="685.0" y="283" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">原消息改成回复</text>
+<text x="685.0" y="307" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">类型 8 / 子类型 0 / 命令 13</text>
+<text x="685.0" y="327" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">流水号和载荷指针保持不变</text>
+<line x1="215" y1="195" x2="215" y2="255" stroke="#647784" stroke-width="1"/>
+<line x1="215" y1="255" x2="211.52027572711015" y2="247.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="215" y1="255" x2="218.47972427288985" y2="247.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="685" y1="195" x2="685" y2="255" stroke="#647784" stroke-width="1"/>
+<line x1="685" y1="255" x2="681.5202757271102" y2="247.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="685" y1="255" x2="688.4797242728898" y2="247.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="505" y1="300" x2="395" y2="300" stroke="#647784" stroke-width="1"/>
+<line x1="395" y1="300" x2="402.20357681882143" y2="296.5202757271102" stroke="#647784" stroke-width="1"/>
+<line x1="395" y1="300" x2="402.20357681882143" y2="303.4797242728898" stroke="#647784" stroke-width="1"/>
+<rect x="35" y="405" width="360" height="90" rx="5" fill="white" stroke="#265d82"/>
+<text x="215.0" y="433" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">收到回复并回收</text>
+<text x="215.0" y="457" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">释放载荷，归还消息节点</text>
+<text x="215.0" y="477" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">原列表随后可清理</text>
+<rect x="505" y="405" width="360" height="90" rx="5" fill="white" stroke="#a66b27"/>
+<text x="685.0" y="433" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">后续页面处理</text>
+<text x="685.0" y="457" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">使用 MMI 自己的记录副本</text>
+<text x="685.0" y="477" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">回调与显示更新继续追踪</text>
+<line x1="215" y1="345" x2="215" y2="405" stroke="#647784" stroke-width="1"/>
+<line x1="215" y1="405" x2="211.52027572711015" y2="397.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="215" y1="405" x2="218.47972427288985" y2="397.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="685" y1="345" x2="685" y2="405" stroke="#a66b27" stroke-width="1" stroke-dasharray="5 4"/>
+<line x1="685" y1="405" x2="681.5202757271102" y2="397.79642318117857" stroke="#a66b27" stroke-width="1"/>
+<line x1="685" y1="405" x2="688.4797242728898" y2="397.79642318117857" stroke="#a66b27" stroke-width="1"/>
+<text x="450" y="528" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">已执行原发送、队列、接收分派、复制及回复；任务切换由隔离夹具安排。</text>
+</svg>

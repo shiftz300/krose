@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="590" viewBox="0 0 900 590"><rect width="100%" height="100%" fill="white"/>
+<text x="450" y="38" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="23" fill="#18354a">界面对象怎样进入绘制</text>
+<rect x="300" y="65" width="300" height="75" rx="5" fill="white" stroke="#265d82"/>
+<text x="450.0" y="93" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">整页环 / 局部子树</text>
+<text x="450.0" y="117" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">刷新入口 DE344，模式固定为 3</text>
+<line x1="450" y1="140" x2="450" y2="177" stroke="#647784" stroke-width="1"/>
+<line x1="450" y1="177" x2="446.5202757271102" y2="169.7964231811786" stroke="#647784" stroke-width="1"/>
+<line x1="450" y1="177" x2="453.4797242728898" y2="169.7964231811786" stroke="#647784" stroke-width="1"/>
+<rect x="300" y="177" width="300" height="95" rx="5" fill="white" stroke="#237b78"/>
+<text x="450.0" y="205" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">有效性与矩形判断</text>
+<text x="450.0" y="229" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">对象索引 / 标志 / 有效面积</text>
+<text x="450.0" y="249" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">裁剪开启时检查矩形交集</text>
+<line x1="300" y1="225" x2="175" y2="300" stroke="#647784" stroke-width="1"/>
+<line x1="175" y1="300" x2="179.38671279350626" y2="293.309951355387" stroke="#647784" stroke-width="1"/>
+<line x1="175" y1="300" x2="182.9673195304262" y2="299.27762925025354" stroke="#647784" stroke-width="1"/>
+<line x1="600" y1="225" x2="725" y2="300" stroke="#647784" stroke-width="1"/>
+<line x1="725" y1="300" x2="717.0326804695738" y2="299.27762925025354" stroke="#647784" stroke-width="1"/>
+<line x1="725" y1="300" x2="720.6132872064937" y2="293.309951355387" stroke="#647784" stroke-width="1"/>
+<rect x="35" y="300" width="280" height="110" rx="5" fill="white" stroke="#a66b27"/>
+<text x="175.0" y="328" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">暂不绘制</text>
+<text x="175.0" y="352" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">全局绘制开关关闭 → 状态 1</text>
+<text x="175.0" y="372" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">对象不可见 → 保留 1 或设 2</text>
+<rect x="585" y="300" width="280" height="110" rx="5" fill="white" stroke="#237b78"/>
+<text x="725.0" y="328" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">立即分派绘制</text>
+<text x="725.0" y="352" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">全局开关打开且对象可见</text>
+<text x="725.0" y="372" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">调用 DCFF4，再设状态 2</text>
+<line x1="725" y1="410" x2="725" y2="451" stroke="#647784" stroke-width="1"/>
+<line x1="725" y1="451" x2="721.5202757271102" y2="443.79642318117857" stroke="#647784" stroke-width="1"/>
+<line x1="725" y1="451" x2="728.4797242728898" y2="443.79642318117857" stroke="#647784" stroke-width="1"/>
+<rect x="465" y="451" width="400" height="95" rx="5" fill="white" stroke="#265d82"/>
+<text x="665.0" y="479" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">绘制接收者</text>
+<text x="665.0" y="503" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">背景 → 对象回调 → 虚表 +2C</text>
+<text x="665.0" y="523" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">元素绘制 EFED4 → 标志附加绘制</text>
+<text x="235" y="479" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">本章已验证遍历、裁剪、状态和调用顺序。</text>
+<text x="235" y="509" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">接收者在边界记录调用，像素主体待恢复。</text>
+</svg>

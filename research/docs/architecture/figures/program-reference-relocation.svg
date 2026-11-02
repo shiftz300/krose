@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="620" viewBox="0 0 960 620"><rect width="100%" height="100%" fill="white"/>
+<text x="480" y="38" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="24" fill="#18354a">导入位置改变时，Program 引用怎样移动</text>
+<text x="480" y="68" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">原函数 1F373C：只修改满足条件的编号，完整记录其余字节保持原值</text>
+<rect x="35" y="105" width="280" height="80" rx="5" fill="white" stroke="#265d82"/>
+<text x="175.0" y="133" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">用户鼓组</text>
+<text x="175.0" y="157" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">Drum 模式且编号 ≥ 42</text>
+<line x1="315" y1="145" x2="355" y2="145" stroke="#647784" stroke-width="1"/>
+<line x1="355" y1="145" x2="347.79642318117857" y2="148.47972427288985" stroke="#647784" stroke-width="1"/>
+<line x1="355" y1="145" x2="347.79642318117857" y2="141.52027572711015" stroke="#647784" stroke-width="1"/>
+<rect x="355" y="105" width="570" height="80" rx="5" fill="white" stroke="#265d82"/>
+<text x="640.0" y="133" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">新号 = min(57, 旧号 − 42 + 目标起点)</text>
+<text x="640.0" y="157" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">未满足条件的引用保留原值</text>
+<rect x="35" y="213" width="280" height="80" rx="5" fill="white" stroke="#237b78"/>
+<text x="175.0" y="241" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">琶音 Pattern</text>
+<text x="175.0" y="265" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">编号 ≥ 1029</text>
+<line x1="315" y1="253" x2="355" y2="253" stroke="#647784" stroke-width="1"/>
+<line x1="355" y1="253" x2="347.79642318117857" y2="256.4797242728898" stroke="#647784" stroke-width="1"/>
+<line x1="355" y1="253" x2="347.79642318117857" y2="249.52027572711015" stroke="#647784" stroke-width="1"/>
+<rect x="355" y="213" width="570" height="80" rx="5" fill="white" stroke="#237b78"/>
+<text x="640.0" y="241" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">新号 = min(1284, 旧号 − 1024 + 目标基数)</text>
+<text x="640.0" y="265" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">未满足条件的引用保留原值</text>
+<rect x="35" y="321" width="280" height="80" rx="5" fill="white" stroke="#265d82"/>
+<text x="175.0" y="349" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">鼓轨 / 步进所用 Program</text>
+<text x="175.0" y="373" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">768 ≤ 编号 &lt; 768 + 本次导入数量</text>
+<line x1="315" y1="361" x2="355" y2="361" stroke="#647784" stroke-width="1"/>
+<line x1="355" y1="361" x2="347.79642318117857" y2="364.4797242728898" stroke="#647784" stroke-width="1"/>
+<line x1="355" y1="361" x2="347.79642318117857" y2="357.5202757271102" stroke="#647784" stroke-width="1"/>
+<rect x="355" y="321" width="570" height="80" rx="5" fill="white" stroke="#265d82"/>
+<text x="640.0" y="349" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">新号 = min(1279, 旧号 − 768 + 目标起点)</text>
+<text x="640.0" y="373" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">未满足条件的引用保留原值</text>
+<rect x="80" y="453" width="800" height="80" rx="5" fill="white" stroke="#a66b27"/>
+<text x="480.0" y="481" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">Future Synth 四个鼓组：导入起点从 42 移到 46</text>
+<text x="480.0" y="505" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">原编号：45 / 45 / 43 / 44</text>
+<text x="480.0" y="525" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">新编号：49 / 49 / 47 / 48；前两个仍共用同一编号</text>
+<text x="480" y="581" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">上限截断可能使多个引用合并；完整文件导入的容量检查与套件放置尚待核对。</text>
+</svg>

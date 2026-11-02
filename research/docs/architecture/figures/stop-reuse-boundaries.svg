@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="770" viewBox="0 0 1180 770"><rect width="100%" height="100%" fill="white"/>
+<text x="590" y="36" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="24" fill="#18354a">硬停后复用：失败条件与主机适配</text>
+<text x="590" y="66" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#647784">私有 32 槽环境；六类音色、两模式、四力度。用例计数不表示实机发生率。</text>
+<line x1="320.0" y1="105" x2="320.0" y2="400" stroke="#dce5eb" stroke-width="1"/>
+<text x="320.0" y="422" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">0</text>
+<line x1="660.0" y1="105" x2="660.0" y2="400" stroke="#dce5eb" stroke-width="1"/>
+<text x="660.0" y="422" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">24</text>
+<line x1="1000.0" y1="105" x2="1000.0" y2="400" stroke="#dce5eb" stroke-width="1"/>
+<text x="1000.0" y="422" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">48</text>
+<text x="150" y="137" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">不停止</text>
+<line x1="320" y1="130" x2="1000" y2="130" stroke="#edf3f6" stroke-width="14"/>
+<text x="1080" y="136" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">0 / 48</text>
+<text x="150" y="177" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">CC123 释放</text>
+<line x1="320" y1="170" x2="1000" y2="170" stroke="#edf3f6" stroke-width="14"/>
+<text x="1080" y="176" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">0 / 48</text>
+<text x="150" y="217" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">CC120 强停</text>
+<line x1="320" y1="210" x2="1000" y2="210" stroke="#edf3f6" stroke-width="14"/>
+<line x1="320" y1="210" x2="660.0" y2="210" stroke="#a66b27" stroke-width="14"/>
+<text x="1080" y="216" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#a66b27">24 / 48</text>
+<text x="150" y="257" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">音色强停</text>
+<line x1="320" y1="250" x2="1000" y2="250" stroke="#edf3f6" stroke-width="14"/>
+<line x1="320" y1="250" x2="660.0" y2="250" stroke="#a66b27" stroke-width="14"/>
+<text x="1080" y="256" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#a66b27">24 / 48</text>
+<text x="150" y="297" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">OSC 强停</text>
+<line x1="320" y1="290" x2="1000" y2="290" stroke="#edf3f6" stroke-width="14"/>
+<line x1="320" y1="290" x2="660.0" y2="290" stroke="#a66b27" stroke-width="14"/>
+<text x="1080" y="296" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#a66b27">24 / 48</text>
+<text x="150" y="337" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">列表强停</text>
+<line x1="320" y1="330" x2="1000" y2="330" stroke="#edf3f6" stroke-width="14"/>
+<line x1="320" y1="330" x2="660.0" y2="330" stroke="#a66b27" stroke-width="14"/>
+<text x="1080" y="336" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#a66b27">24 / 48</text>
+<text x="150" y="377" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">逐槽强停</text>
+<line x1="320" y1="370" x2="1000" y2="370" stroke="#edf3f6" stroke-width="14"/>
+<line x1="320" y1="370" x2="660.0" y2="370" stroke="#a66b27" stroke-width="14"/>
+<text x="1080" y="376" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#a66b27">24 / 48</text>
+<text x="590" y="456" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">橙色为重新申请时触及未映射 0/4 的数量；对照与五层原停止入口分别核对。</text>
+<rect x="40" y="487" width="340" height="112" rx="5" fill="white" stroke="#a66b27"/>
+<text x="210.0" y="515" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">原字段 + 未映射零页</text>
+<text x="210.0" y="539" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">成对声部的空节点再次摘除</text>
+<text x="210.0" y="559" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">120 组在 0/4 处停止</text>
+<rect x="420" y="487" width="340" height="112" rx="5" fill="white" stroke="#a66b27"/>
+<text x="590.0" y="515" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">原字段 + 可写零页</text>
+<text x="590.0" y="539" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">2 / 2 起音返回，仍写 0/4</text>
+<text x="590.0" y="559" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">模拟页前两条向量指令清零</text>
+<rect x="800" y="487" width="340" height="112" rx="5" fill="white" stroke="#237b78"/>
+<text x="970.0" y="515" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">主机空节点适配</text>
+<text x="970.0" y="539" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">24 / 24 状态及 I/O 一致</text>
+<text x="970.0" y="559" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">保留配对字段，省略空写入</text>
+<text x="590" y="650" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">C001 → A061：先复用槽 2/3，第三个新音符到旧配对槽时也复现。</text>
+<text x="590" y="695" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="14" fill="#237b78">主机适配只把已为空的节点摘除视为空操作；受测其余状态与原指令一致。</text>
+<text x="590" y="740" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">实机零页映射仍待确定；适配仅在研究代码验证，未修改产品或原固件。</text>
+</svg>

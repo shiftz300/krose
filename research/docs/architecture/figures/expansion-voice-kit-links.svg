@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="580" viewBox="0 0 960 580"><rect width="100%" height="100%" fill="white"/>
+<text x="480" y="38" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="24" fill="#18354a">四个扩展鼓组 Program 的原始引用</text>
+<text x="480" y="68" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="13" fill="#647784">私有检查按文件顺序放入用户槽 42–45；引用平移已确认，完整套件放置仍待核对</text>
+<text x="285" y="125" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#265d82">原 Program / 保存的套件号</text>
+<text x="730" y="125" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="15" fill="#237b78">私有槽中的套件</text>
+<rect x="35" y="156" width="475" height="60" rx="5" fill="white" stroke="#265d82"/>
+<text x="272.5" y="184" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">EXPCM004:041  Nu Pop Kit</text>
+<text x="272.5" y="208" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">保存编号 45</text>
+<line x1="510" y1="186" x2="590" y2="186" stroke="#647784" stroke-width="1"/>
+<line x1="590" y1="186" x2="582.7964231811786" y2="189.47972427288985" stroke="#647784" stroke-width="1"/>
+<line x1="590" y1="186" x2="582.7964231811786" y2="182.52027572711015" stroke="#647784" stroke-width="1"/>
+<rect x="590" y="156" width="335" height="60" rx="5" fill="white" stroke="#237b78"/>
+<text x="757.5" y="184" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">Nu DISCO Kit</text>
+<text x="757.5" y="208" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">用户槽 45</text>
+<rect x="35" y="233" width="475" height="60" rx="5" fill="white" stroke="#265d82"/>
+<text x="272.5" y="261" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">EXPCM004:042  Nu DISCO Kit</text>
+<text x="272.5" y="285" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">保存编号 45</text>
+<line x1="510" y1="263" x2="590" y2="263" stroke="#647784" stroke-width="1"/>
+<line x1="590" y1="263" x2="582.7964231811786" y2="266.4797242728898" stroke="#647784" stroke-width="1"/>
+<line x1="590" y1="263" x2="582.7964231811786" y2="259.5202757271102" stroke="#647784" stroke-width="1"/>
+<rect x="590" y="233" width="335" height="60" rx="5" fill="white" stroke="#237b78"/>
+<text x="757.5" y="261" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">Nu DISCO Kit</text>
+<text x="757.5" y="285" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">用户槽 45</text>
+<rect x="35" y="310" width="475" height="60" rx="5" fill="white" stroke="#265d82"/>
+<text x="272.5" y="338" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">EXPCM004:043  Electric Beats Kit</text>
+<text x="272.5" y="362" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">保存编号 43</text>
+<line x1="510" y1="340" x2="590" y2="340" stroke="#647784" stroke-width="1"/>
+<line x1="590" y1="340" x2="582.7964231811786" y2="343.4797242728898" stroke="#647784" stroke-width="1"/>
+<line x1="590" y1="340" x2="582.7964231811786" y2="336.5202757271102" stroke="#647784" stroke-width="1"/>
+<rect x="590" y="310" width="335" height="60" rx="5" fill="white" stroke="#237b78"/>
+<text x="757.5" y="338" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">Electrik Kit</text>
+<text x="757.5" y="362" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">用户槽 43</text>
+<rect x="35" y="387" width="475" height="60" rx="5" fill="white" stroke="#265d82"/>
+<text x="272.5" y="415" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#265d82">EXPCM004:044  Industrial Kit</text>
+<text x="272.5" y="439" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">保存编号 44</text>
+<line x1="510" y1="417" x2="590" y2="417" stroke="#647784" stroke-width="1"/>
+<line x1="590" y1="417" x2="582.7964231811786" y2="420.4797242728898" stroke="#647784" stroke-width="1"/>
+<line x1="590" y1="417" x2="582.7964231811786" y2="413.5202757271102" stroke="#647784" stroke-width="1"/>
+<rect x="590" y="387" width="335" height="60" rx="5" fill="white" stroke="#237b78"/>
+<text x="757.5" y="415" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#237b78">Bang Kit</text>
+<text x="757.5" y="439" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">用户槽 44</text>
+<rect x="100" y="480" width="760" height="68" rx="5" fill="white" stroke="#a66b27"/>
+<text x="480.0" y="508" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="16" fill="#a66b27">按原编号检查，保留资源缺口</text>
+<text x="480.0" y="532" text-anchor="middle" font-family="Heiti SC, sans-serif" font-size="12" fill="#647784">两个 Program 保存编号 45；11 组启动因逻辑银行 6 缺失而暂缓，均来自 043</text>
+</svg>
