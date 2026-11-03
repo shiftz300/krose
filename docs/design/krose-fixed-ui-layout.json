@@ -1,0 +1,280 @@
+{
+  "version": 21,
+  "canvas": {
+    "width": 1472,
+    "height": 648,
+    "unit": "logical_px",
+    "extra_edge_padding": 16
+  },
+  "preview": "Scale the entire canvas uniformly; never reflow individual controls.",
+  "page": "https://chatgpt.com/space/page_7ac8da78136881919fb4032cf175ebaa",
+  "source": "krose-fixed-ui.html",
+  "sections": {
+    "white_top_edge": {
+      "x": 0,
+      "y": 0,
+      "height": 19,
+      "full_width": true,
+      "separator_height": 3,
+      "separator_color": "#808080",
+      "separator_ready_colors": {
+        "fx_expanded": "rgba(119,44,50,0.35)",
+        "fx_folded": "#eeeeee"
+      }
+    },
+    "output": {
+      "x": 1360,
+      "y": 153,
+      "width": 64,
+      "knob_right": 1416
+    },
+    "velocity": {
+      "x": 289,
+      "y": 255,
+      "width": 80
+    },
+    "pan": {
+      "x": 289,
+      "y": 153,
+      "width": 80
+    },
+    "value": {
+      "x": 223,
+      "y": 153,
+      "width": 56
+    },
+    "cutoff": {
+      "x": 133,
+      "y": 255,
+      "width": 80
+    },
+    "resonance": {
+      "x": 211,
+      "y": 255,
+      "width": 80
+    },
+    "arp_switches": {
+      "x": 37,
+      "y": 266,
+      "gap": 12,
+      "direction": "column",
+      "button_width": 65
+    },
+    "preset_dropdown": {
+      "background": "#232323",
+      "x": 412,
+      "y": 49,
+      "width": 576,
+      "height": 32
+    },
+    "lcd_bezel": {
+      "x": 400,
+      "y": 88,
+      "width": 600,
+      "height": 212,
+      "inset_x": 20,
+      "inset_y": 16,
+      "style": "recessed"
+    },
+    "program_actions": {
+      "x": 412,
+      "y": 312,
+      "width": 576,
+      "height": 34,
+      "controls": [
+        "previous",
+        "next",
+        "browse",
+        "save",
+        "compare"
+      ]
+    },
+    "envelope": {
+      "x": 1028,
+      "y": 49,
+      "width": 234,
+      "bottom": 287,
+      "track_span": [
+        1039,
+        1251
+      ],
+      "header_width": 212
+    },
+    "voice": {
+      "x": 1040,
+      "y": 312,
+      "height": 34,
+      "button_width": 65,
+      "gap": 8
+    },
+    "sustain_panic": {
+      "x": 1278,
+      "y": 312,
+      "height": 34
+    },
+    "keyboard": {
+      "x": 194,
+      "y": 392,
+      "width": 1228,
+      "height": 220
+    },
+    "pitch_wheel": {
+      "x": 55,
+      "y": 431,
+      "width": 29,
+      "height": 127
+    },
+    "mod_wheel": {
+      "x": 127,
+      "y": 431,
+      "width": 29,
+      "height": 127
+    },
+    "octave_controls": {
+      "x": 37,
+      "y": 589,
+      "width": 137,
+      "height": 34,
+      "button_width": 40,
+      "button_height": 32
+    },
+    "glide": {
+      "x": 133,
+      "y": 153,
+      "width": 80
+    },
+    "brand": {
+      "y": 263,
+      "right_edge": 1416
+    },
+    "effect_view": {
+      "x": 0,
+      "y": 19,
+      "width": 428,
+      "height": 332,
+      "source": "all_populated_fx_slots",
+      "pointer_events": "none",
+      "shape": "triangle",
+      "toggle": {
+        "label": "FX",
+        "state": "fxFolded",
+        "default": false,
+        "scope": "editor display only",
+        "collapsed": "marble FX glyph on chassis",
+        "anchor": "red_track_intersection",
+        "typeface": "upright bold roman serif"
+      }
+    }
+  },
+  "keyboard": {
+    "keys": 61,
+    "white": 36,
+    "black": 25,
+    "default_first_midi": 36,
+    "default_last_midi": 96,
+    "white_pitch": 34,
+    "white_length": 216,
+    "black_width": 20.4,
+    "black_length": 134,
+    "black_center_rule": "preceding_white_count * white_pitch",
+    "proportion_basis": "Visible key geometry in supplied photos; not measured hardware dimensions."
+  },
+  "envelope": {
+    "targets": [
+      "amp",
+      "filter"
+    ],
+    "controls": [
+      "attack",
+      "decay",
+      "sustain",
+      "release"
+    ],
+    "range": [
+      -99,
+      99
+    ],
+    "default": 0,
+    "semantics": "Preset offsets; detailed firmware envelope stages remain in the full editor."
+  },
+  "removed": [
+    "category_knob",
+    "printed_realtime_mode_table",
+    "hardware_page_buttons",
+    "pads",
+    "drum_track",
+    "step_sequencer",
+    "sampler",
+    "audio_recorder",
+    "audio_play",
+    "audio_input",
+    "song_transport"
+  ],
+  "retained_generator": "arpeggiator",
+  "prototype_only": [
+    "no_audio",
+    "example_host_tempo",
+    "fx_enable_ui_state",
+    "page_state_save"
+  ],
+  "verification": {
+    "key_counts_and_geometry_unchanged": true,
+    "pixel_font_loaded": true,
+    "visible_controls_outside_canvas": 0,
+    "preset_dropdown": true,
+    "tone_configuration": true,
+    "fx_configuration": true,
+    "arp_configuration": true,
+    "octave_buttons": true,
+    "compare": true,
+    "narrow_preview_overflow": false,
+    "browser_script_errors": 0
+  },
+  "font": "krose-lcd-pixel.ttf",
+  "buttons": {
+    "standard_width": 58,
+    "standard_height": 34,
+    "active_light": "translucent keycap with a lower red hotspot and inner edge reflection",
+    "active_light_color": "#aa1e36"
+  },
+  "lcd_configuration": {
+    "tone": [
+      "cutoff",
+      "resonance",
+      "pan",
+      "velocity"
+    ],
+    "fx": [
+      "factory_slot",
+      "slot_enabled",
+      "insert_enabled",
+      "master_enabled",
+      "slot_parameters"
+    ],
+    "arp": [
+      "pattern",
+      "rate",
+      "gate",
+      "swing"
+    ],
+    "header": [
+      "host_sync"
+    ],
+    "main_row": {
+      "logical_size": [
+        240,
+        12
+      ],
+      "resources": "krose-lcd-resources.json",
+      "fields": [
+        "category_icon",
+        "category",
+        "category_index",
+        "bank_program",
+        "tempo",
+        "ac_symbol"
+      ],
+      "reference_bpm": 125
+    }
+  }
+}
