@@ -18,3 +18,5 @@
 两个 bundle 均加载随包提供的定稿页面，WKWebView 只在编辑器打开时创建。控件通过 iPlug2 通知宿主自动化手势，音频线程继续运行原有采样引擎。VOLUME、VELOCITY、Program、Concert 变体、Space 和 Release 复用旧参数。屏幕键盘、延音、弯音及 Panic 发送 MIDI。其余功能分阶段启用。
 
 本机先运行五项 CTest，再运行官方 validator。带图形会话的测试命令为 `build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor`。该测试实际挂载编辑器，检查七个 Program，将力度曲线从页面写入宿主，再关闭并重开窗口读取同一个值。
+
+阶段 2 的首个增量接入 PAN、CUTOFF、RESONANCE 以及 AMP/FILTER 两套包络偏移。面板旋钮、LCD 字段和宿主自动化共用同一参数。截止与共振在原滤波控制字之后偏移，包络偏移进入下一段的目标和时长计算，零位保留已有整数模型。鼓组保留原有单次采样路径。声像在立体声输出端平滑调整。已加入旧六参数状态迁移及双引擎渲染回归。

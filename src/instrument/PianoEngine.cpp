@@ -143,6 +143,8 @@ void PianoEngine::NoteOn(int note,int velocity,int channel) noexcept {
   // host trim changes loudness response, leaving the verified layer edges fixed.
   it->velocityTrim=std::pow(velocity/127.0,mControls.velocityCurve-1);
   for(int osc=0;osc<2;++osc){
+    it->native[osc].SetOffsets(mControls.ampEg);
+    it->filter[osc].SetOffsets(mControls.filterEg,mControls.cutoff,mControls.resonance);
     it->native[osc].Start(note,velocity,osc,layer==2?127:119);
     it->slew[osc].Reset(it->native[osc].InitialGain());
     it->slew[osc].SetTarget(it->native[osc].Gain());
@@ -204,7 +206,7 @@ void PianoEngine::RenderVoice(Voice& voice,double& left,double& right) noexcept 
   voice.controlPhase+=mControlIncrement;
   if(voice.controlPhase>=1){
     voice.controlPhase-=1;
-    for(int osc=0;osc<2;++osc){voice.native[osc].Tick();voice.slew[osc].SetTarget(voice.native[osc].Gain());voice.filter[osc].Tick();}
+    for(int osc=0;osc<2;++osc){voice.native[osc].SetOffsets(mControls.ampEg);voice.filter[osc].SetOffsets(mControls.filterEg,mControls.cutoff,mControls.resonance);voice.native[osc].Tick();voice.slew[osc].SetTarget(voice.native[osc].Gain());voice.filter[osc].Tick();}
   }
   if(voice.native[0].Finished()&&voice.native[1].Finished()&&voice.slew[0].Silent()&&voice.slew[1].Silent())voice.sample=nullptr;
 }

@@ -84,7 +84,7 @@ void NativeVoice::StartProgram(const uint8_t* program,int note,int velocity,int 
   mLevel=std::clamp(int(eg[0])*330+12*Mod(S8(eg[13]),Source(eg[12])),0,32767);
   mStage=0;mEnded=false;mInitialGain=Gain();
   const int target=std::clamp(int(eg[2])*330+12*Mod(S8(eg[14]),Source(eg[12])),0,32767);
-  Prepare(0,target,native_data::kEgTime[eg[1]]);
+  Prepare(0,target,native_data::kEgTime[std::clamp(eg[1]+mOffsets.attack,0,99)]);
   Tick(); // original note-on setup includes one segment advance
 }
 uint16_t NativeVoice::Gain() const noexcept {return uint16_t(std::min<uint64_t>(32767,(uint64_t(mBaseGain)*unsigned(mLevel))>>14));}
@@ -100,9 +100,9 @@ void NativeVoice::Prepare(int phase,int target,uint32_t baseTime) noexcept {
 }
 void NativeVoice::NextStage() noexcept {
   const uint8_t* eg=mOsc+0x118;
-  if(mStage<=1){const int target=std::clamp(int(eg[4])*330+12*Mod(S8(eg[15]),Source(eg[12])),0,32767);Prepare(1,target,native_data::kEgTime[eg[3]]);}
-  else if(mStage<=3)Prepare(2,int(eg[6])*330,native_data::kEgTime[eg[5]]);
-  else if(mStage<=5&&eg[6])mStage=6;
+  if(mStage<=1){const int target=std::clamp(int(eg[4])*330+12*Mod(S8(eg[15]),Source(eg[12])),0,32767);Prepare(1,target,native_data::kEgTime[std::clamp(eg[3]+mOffsets.decay,0,99)]);}
+  else if(mStage<=3)Prepare(2,std::clamp(eg[6]+mOffsets.sustain,0,99)*330,native_data::kEgTime[eg[5]]);
+  else if(mStage<=5&&eg[6]+mOffsets.sustain>0)mStage=6;
   else {mStage=7;mLevel=0;mEnded=true;}
 }
 void NativeVoice::Tick() noexcept {
@@ -116,11 +116,11 @@ void NativeVoice::Tick() noexcept {
 void NativeVoice::Release(double baseSeconds) noexcept {
   if(!mOsc)return;
   baseSeconds=std::isfinite(baseSeconds)?std::clamp(baseSeconds,0.03,2.0):kNativeReleaseBaseSeconds;
-  mEnded=false;Prepare(3,0,uint32_t(std::lround(baseSeconds*1500)));
+  mEnded=false;Prepare(3,0,uint32_t(std::lround(baseSeconds*1500*std::exp2(mOffsets.release/16.0))));
 }
 void NativeVoice::ReleaseProgram(double scale) noexcept {
   if(!mOsc)return;
-  mEnded=false;Prepare(3,0,uint32_t(std::lround(native_data::kEgTime[mOsc[0x118+7]]*std::clamp(scale,0.1,8.0))));
+  mEnded=false;Prepare(3,0,uint32_t(std::lround(native_data::kEgTime[std::clamp(mOsc[0x118+7]+mOffsets.release,0,99)]*std::clamp(scale,0.1,8.0))));
 }
 int NativeSlew::CommandStep(int previousTarget,int target,unsigned durationUnits) noexcept {
   const int difference=target-previousTarget;if(!difference)return 0;

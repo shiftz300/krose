@@ -50,10 +50,10 @@ window.kroseNative.mount = function(root,state,render) {
     lcd.append(label);
   }
   // Only expose actions that are connected to the processor in this phase.
-  for(const el of root.querySelectorAll('[data-toggle=arp],[data-toggle=latch],[data-toggle=sw1],[data-toggle=sw2],[data-toggle=host],[data-voice],[data-fader] input,[data-bind]:not([data-bind=velocity]),[data-fx],#kf-pan,#kf-save,#kf-compare,#kf-mod,#kf-pattern,#kf-rate')){
+  for(const el of root.querySelectorAll('[data-toggle=arp],[data-toggle=latch],[data-toggle=sw1],[data-toggle=sw2],[data-toggle=host],[data-voice],[data-bind=gate],[data-bind=swing],[data-fx],#kf-pan,#kf-save,#kf-compare,#kf-mod,#kf-pattern,#kf-rate')){
     el.disabled=true;
   }
-  for(const el of root.querySelectorAll('[data-control]:not([data-control=output]):not([data-control=velocity]) button,[data-control]:not([data-control=output]):not([data-control=velocity]) input')) el.disabled=true;
+  for(const el of root.querySelectorAll('[data-control=glide] button,[data-control=glide] input')) el.disabled=true;
   const notes=new Map();
   const keyFor=e=>e.target.closest('[data-midi]');
   function start(key){
@@ -86,14 +86,32 @@ window.kroseNative.mount = function(root,state,render) {
   for(const event of ['pointermove','pointerup','pointercancel','keydown'])
     q('#kf-pitch').addEventListener(event,wheel);
   window.addEventListener('blur',wheel);
-  q('[data-bind=velocity]').addEventListener('change',()=>bridge.set('Velocity',state.values.velocity));
+  const title=s=>s[0].toUpperCase()+s.slice(1);
+  for(const input of root.querySelectorAll('#kf-tone [data-bind]')){
+    const key=input.dataset.bind;
+    input.addEventListener('change',()=>bridge.set(title(key),state.values[key]));
+  }
+  for(const group of root.querySelectorAll('[data-fader]')){
+    const input=group.querySelector('input');
+    const name=()=>title(state.eg)+' '+title(group.dataset.fader);
+    let active;
+    input.addEventListener('pointerdown',()=>{active=name();bridge.begin(active);});
+    input.addEventListener('input',()=>bridge.set(active||name(),+input.value));
+    for(const type of ['pointerup','pointercancel','lostpointercapture'])
+      input.addEventListener(type,()=>{if(active)bridge.end(active);active=null;});
+    input.addEventListener('dblclick',()=>bridge.set(name(),0));
+  }
   bridge.connect((name,value)=>{
     if(legacy[name]) legacy[name].value=value;
     else if(name==='Program'){
       state.preset=value;
       legacy.Tone.disabled=value!==0;
     }else if(name==='Output') state.values.output=value;
-    else if(name==='Velocity') state.values.velocity=value;
+    else if(['Velocity','Pan','Cutoff','Resonance'].includes(name)) state.values[name.toLowerCase()]=value;
+    else if(name.includes(' ')){
+      const [eg,stage]=name.toLowerCase().split(' ');
+      if(state.envelopes[eg] && stage in state.envelopes[eg])state.envelopes[eg][stage]=value;
+    }
     render();
   });
 };

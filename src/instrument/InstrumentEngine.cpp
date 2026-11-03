@@ -1,9 +1,11 @@
 #include "InstrumentEngine.h"
 #include <algorithm>
+#include <cmath>
 namespace segrand {
 InstrumentEngine::InstrumentEngine(std::shared_ptr<const SampleBank> concert,std::shared_ptr<const ProgramLibrary> factory):mConcert(std::move(concert)),mFactory(factory),mProgramCount(unsigned(factory->programs.size())+1){}
-void InstrumentEngine::Prepare(double rate){mConcert.Prepare(rate);mFactory.Prepare(rate);Panic();}
+void InstrumentEngine::Prepare(double rate){mConcert.Prepare(rate);mFactory.Prepare(rate);mPanSmooth=1-std::exp(-1/(rate*.01));mPan=mPanTarget;Panic();}
 void InstrumentEngine::SetControls(const Controls& controls){
+ mPanTarget=std::clamp(controls.pan,-64,63)/(controls.pan<0?64.0:63.0);
  const int program=std::clamp(controls.program,0,int(mProgramCount)-1);
  if(program!=mProgram){
   if(!mProgram||!program){mFrom=mLast;mFade=96;mConcert.Panic();mFactory.Panic();}
@@ -23,6 +25,9 @@ void InstrumentEngine::Process(float* left,float* right,int frames) noexcept{
  unsigned consumed=0;while(consumed<mEventCount&&mEvents[consumed].offset<frames){if(mProgram)mFactory.Queue(mEvents[consumed]);else mConcert.Queue(mEvents[consumed]);++consumed;}
  for(unsigned i=consumed;i<mEventCount;++i){mEvents[i-consumed]=mEvents[i];mEvents[i-consumed].offset-=frames;}mEventCount-=consumed;
  if(mProgram)mFactory.Process(left,right,frames);else mConcert.Process(left,right,frames);
- for(int i=0;i<frames;++i){if(mFade){const float t=1-float(mFade)/96;left[i]=left[i]*t+mFrom[0]*(1-t);right[i]=right[i]*t+mFrom[1]*(1-t);--mFade;}mLast={{left[i],right[i]}};}
+ for(int i=0;i<frames;++i){if(mFade){const float t=1-float(mFade)/96;left[i]=left[i]*t+mFrom[0]*(1-t);right[i]=right[i]*t+mFrom[1]*(1-t);--mFade;}mLast={{left[i],right[i]}};
+  mPan+=mPanSmooth*(mPanTarget-mPan);
+  left[i]*=1-std::max(mPan,0.0);right[i]*=1+std::min(mPan,0.0);
+ }
 }
 }

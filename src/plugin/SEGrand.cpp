@@ -31,10 +31,17 @@ SEGrand::SEGrand(const InstanceInfo& info):Plugin(info,MakeConfig(kNumParams,seg
   GetParam(kParamVelocity)->InitDouble("Velocity",1.,0.5,3,0.01,"");
   GetParam(kParamProgram)->InitEnum("Program",0,segrand::kInstrumentProgramCount);
   for(int i=0;i<segrand::kInstrumentProgramCount;++i)GetParam(kParamProgram)->SetDisplayText(i,segrand::kInstrumentProgramNames[i]);
-  MakePreset("Concert",0.,-6.,100.,288.,1.,0.);
-  MakePreset("Warm",1.,-6.,100.,288.,1.,0.);
-  MakePreset("Wide",2.,-6.,100.,288.,1.,0.);
-  for(int i=1;i<segrand::kInstrumentProgramCount;++i)MakePreset(segrand::kInstrumentProgramNames[i],0.,-6.,20.,288.,1.,double(i));
+  GetParam(kParamPan)->InitInt("Pan",0,-64,63);
+  GetParam(kParamCutoff)->InitInt("Cutoff",0,-99,99);
+  GetParam(kParamResonance)->InitInt("Resonance",0,-99,99);
+  const char* offsets[]={"Amp Attack","Amp Decay","Amp Sustain","Amp Release",
+                         "Filter Attack","Filter Decay","Filter Sustain","Filter Release"};
+  for(int i=0;i<8;++i)GetParam(kAmpAttack+i)->InitInt(offsets[i],0,-99,99);
+  MakeDefaultPreset("Concert");
+  MakePresetFromNamedParams("Warm",1,kParamTone,1);
+  MakePresetFromNamedParams("Wide",1,kParamTone,2);
+  for(int i=1;i<segrand::kInstrumentProgramCount;++i)
+    MakePresetFromNamedParams(segrand::kInstrumentProgramNames[i],2,kParamProgram,i,kParamSpace,20.);
   try {
     WDL_String path;BundleResourcePath(path,GetBundleID());path.Append("/SEGrand.samples");
     auto concert=segrand::SampleBank::Load(path.Get());
@@ -57,6 +64,22 @@ SEGrand::SEGrand(const InstanceInfo& info):Plugin(info,MakeConfig(kNumParams,seg
       [this](IWebViewControl*,const char* json) { HandleEditorMessage(json); }), kEditorTag);
   };
 #endif
+}
+int SEGrand::UnserializeState(const IByteChunk& chunk,int startPos) {
+  // Original projects stored six doubles, with a trailing bypass int in VST3.
+  constexpr int legacyBytes=6*sizeof(double);
+  const int available=chunk.Size()-startPos;
+  if(startPos>=0 && (available==legacyBytes || available==legacyBytes+int(sizeof(int32_t)))){
+    IByteChunk upgraded;
+    upgraded.PutBytes(chunk.GetData()+startPos,legacyBytes);
+    for(int i=kParamPan;i<kNumParams;++i){
+      const double value=GetParam(i)->GetDefault();
+      upgraded.Put(&value);
+    }
+    if(UnserializeParams(upgraded,0)<0)return -1;
+    return startPos+legacyBytes;
+  }
+  return Plugin::UnserializeState(chunk,startPos);
 }
 #if IPLUG_EDITOR
 void SEGrand::OnParamChangeUI(int id,EParamSource) {
@@ -123,6 +146,9 @@ void SEGrand::ProcessBlock(sample**,sample** outputs,int nFrames) {
   if(!mEngine||!mPrepared){for(int ch=0;ch<channels;++ch)std::fill(outputs[ch],outputs[ch]+nFrames,sample(0));return;}
   segrand::Controls c;c.program=GetParam(kParamProgram)->Int();c.preset=GetParam(kParamTone)->Int();c.outputDb=GetParam(kParamOutput)->Value();
   c.space=GetParam(kParamSpace)->Value()/100;c.releaseSeconds=GetParam(kParamRelease)->Value()/1000;c.velocityCurve=GetParam(kParamVelocity)->Value();
+  c.pan=GetParam(kParamPan)->Int();c.cutoff=GetParam(kParamCutoff)->Int();c.resonance=GetParam(kParamResonance)->Int();
+  auto envelope=[this](int first){return segrand::EnvelopeOffsets{GetParam(first)->Int(),GetParam(first+1)->Int(),GetParam(first+2)->Int(),GetParam(first+3)->Int()};};
+  c.ampEg=envelope(kAmpAttack);c.filterEg=envelope(kFilterAttack);
   mEngine->SetControls(c);
   // Fixed stack buffers support arbitrary host block lengths without allocation.
   std::array<float,256> left,right;

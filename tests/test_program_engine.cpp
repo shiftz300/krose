@@ -46,6 +46,18 @@ int main(int argc,char** argv){
  auto concert=SampleBank::Load(argv[2]);PianoEngine baseline(concert);InstrumentEngine facade(concert,bank);baseline.SetControls(controls);facade.SetControls(controls);baseline.Prepare(48000);facade.Prepare(48000);
  for(auto* e:{&baseline}){e->Queue({0,0x90,60,100});e->Queue({1200,0x80,60,0});}
  facade.Queue({0,0x90,60,100});facade.Queue({1200,0x80,60,0});Audio old(12000),same(12000);Process(baseline,old,127);Process(facade,same,127);assert(old.l==same.l&&old.r==same.r);
+ // Tone offsets affect both Concert and factory voices at neutral pan.
+ for(int program : {0,1}){
+   auto renderTone=[&](int cutoff,int attack,int pan){
+     Controls c;c.space=0;c.program=program;c.cutoff=cutoff;c.ampEg.attack=attack;c.pan=pan;
+     facade.SetControls(c);facade.Prepare(48000);facade.Queue({0,0x90,60,100});
+     Audio a(8192);Process(facade,a,127);return a;
+   };
+   const auto neutral=renderTone(0,0,0),dark=renderTone(-80,0,0),slow=renderTone(0,90,0),right=renderTone(0,0,63);
+   assert(Energy(dark)<Energy(neutral) && std::abs(Energy(slow)-Energy(neutral))>1e-4);
+   assert(std::all_of(right.l.begin(),right.l.end(),[](float v){return v==0;}));
+   assert(Energy(right)>0);
+ }
  // Host automation and queued notes on the switching block are not lost.
  controls.program=5;gAudio=true;facade.SetControls(controls);facade.Queue({0,0x90,38,100});gAudio=false;Audio switched(12000);Process(facade,switched,257);assert(Energy(switched)>1e-6);
  // Overflow recovery and dense retriggers stay bounded and allocation-free.

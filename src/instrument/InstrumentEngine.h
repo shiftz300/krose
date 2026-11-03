@@ -20,6 +20,7 @@ private:
  unsigned mEventCount=0,mFade=0,mProgramCount=0;
  int mProgram=0;
  bool mOverflow=false;
+ double mPan=0,mPanTarget=0,mPanSmooth=1;
  std::array<float,2> mLast{},mFrom{};
 };
 }

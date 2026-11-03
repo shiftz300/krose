@@ -11,8 +11,11 @@ inline constexpr double kNativeReleaseBaseSeconds=0.288;
 // Original control-domain model: Start retains the verified Concert default;
 // StartProgram accepts immutable Program controls. Unconnected LFO/controllers
 // remain zero; new Programs do not imply complete TG/allocator emulation.
+struct EnvelopeOffsets {int attack=0,decay=0,sustain=0,release=0;};
+
 class NativeVoice {
 public:
+  void SetOffsets(EnvelopeOffsets offsets) noexcept {mOffsets=offsets;}
   void Start(int note,int velocity,int oscillator,int slotLevel) noexcept;
   void StartProgram(const uint8_t* program,int note,int velocity,int oscillator,int slotLevel) noexcept;
   void ReleaseProgram(double scale=1) noexcept;
@@ -29,6 +32,7 @@ public:
   int Source(unsigned index) const noexcept {return index<mSources.size()?mSources[index]:0;}
   bool Finished() const noexcept {return mEnded;}
 private:
+  EnvelopeOffsets mOffsets;
   const uint8_t* mOsc=nullptr;
   std::array<int,46> mSources{};
   uint32_t mBaseGain=0,mTotal=0,mProgress=0,mCoefficient=0,mAsymptote=0;

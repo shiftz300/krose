@@ -38,12 +38,13 @@ void NativeFilter::StartProgram(const uint8_t* program,const NativeVoice& amplit
 void NativeFilter::Prepare(int phase) noexcept {
   const auto p=mOsc+0xD8;
   const int depth=phase==0?Signed(p[15]):phase==1?Signed(p[16]):0;
-  const int target=std::clamp(Signed(p[6+phase*2])*330+12*Mod(depth,(p[13]<mSources.size()?mSources[p[13]]:0)),-32767,32767);
+  const int target=std::clamp((Signed(p[6+phase*2])+(phase==2?mOffsets.sustain:0))*330+12*Mod(depth,(p[13]<mSources.size()?mSources[p[13]]:0)),-32767,32767);
   mStage=phase<3?phase*2:8;if(mLevel>=target)++mStage;
   mLow=std::min(mLevel,target);mDelta=std::abs(mLevel-target);mCurve=p[phase];
   int modulation=0;
   for(int i=0;i<3;++i){unsigned source=p[17+5*i];modulation+=12*Mod(Signed(p[18+5*i+phase]),source<mSources.size()?mSources[source]:0);}
-  uint32_t base=native_data::kEgTime[p[5+phase*2]];if(modulation>0&&base<=7)base=8;
+  const int offset=phase==0?mOffsets.attack:phase==1?mOffsets.decay:phase==3?mOffsets.release:0;
+  uint32_t base=native_data::kEgTime[std::clamp(p[5+phase*2]+offset,0,99)];if(modulation>0&&base<=7)base=8;
   mTotal=uint32_t(std::min<uint64_t>(INT32_MAX,(uint64_t(base)*Exp(modulation*16))>>16));
   mRemaining=mTotal;mProgress=0;mAsymptote=native_data::kEgAsymptote[mCurve];mCoefficient=Coefficient(mCurve,mTotal/24);
 }
@@ -83,7 +84,7 @@ void NativeFilter::UpdateAudio(unsigned frames) noexcept {
   // Standard RBJ biquads: https://www.w3.org/TR/audio-eq-cookbook/
   constexpr double pi=3.14159265358979323846;
   for(int branch=0;branch<2;++branch){
-    double frequency=std::min(ApproximateHz(Word(branch,1)),mRate*0.45),q=ApproximateQ(Word(branch,2));
+    double frequency=std::min(ApproximateHz(Word(branch,1)+317*mCutoff),mRate*0.45),q=ApproximateQ(Word(branch,2)+321*mResonance);
     const double w=2*pi*frequency/mRate,c=std::cos(w),alpha=std::sin(w)/(2*q),a0=1+alpha;
     const int type=mOsc[0xA0+branch*0x24]&3;
     double b0=0,b1=0,b2=0;

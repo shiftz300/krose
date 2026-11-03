@@ -60,7 +60,7 @@ void ProgramEngine::NoteOn(int note,int velocity,int channel) noexcept{
   if(r.sample[1]==UINT32_MAX){v.panL=std::cos((pan+1)*.7853981633974483);v.panR=std::sin((pan+1)*.7853981633974483);}
   else {v.panL=pan>0?1-pan:1;v.panR=pan<0?1+pan:1;}
   for(int ch=0;ch<2;++ch)if(r.sample[ch]!=UINT32_MAX){v.step[ch]=mLibrary->Step(r,ch,note,mRate);if(r.flags&1)v.position[ch]=mLibrary->samples[r.sample[ch]].pcm.size()-1;}
-  if(!p.drum){v.amplitude.StartProgram(p.controls.data(),note,velocity,r.oscillator,r.slotLevel);v.slew.Reset(v.amplitude.InitialGain());v.slew.SetTarget(v.amplitude.Gain());v.filter.StartProgram(p.controls.data(),v.amplitude,r.oscillator,velocity,mRate);}
+  if(!p.drum){v.amplitude.SetOffsets(mControls.ampEg);v.filter.SetOffsets(mControls.filterEg,mControls.cutoff,mControls.resonance);v.amplitude.StartProgram(p.controls.data(),note,velocity,r.oscillator,r.slotLevel);v.slew.Reset(v.amplitude.InitialGain());v.slew.SetTarget(v.amplitude.Gain());v.filter.StartProgram(p.controls.data(),v.amplitude,r.oscillator,velocity,mRate);}
  }
 }
 void ProgramEngine::Queue(MidiEvent event) noexcept{
@@ -106,7 +106,7 @@ void ProgramEngine::RenderVoice(Voice& v,double& left,double& right) noexcept{
  left+=l*level*v.panL;right+=rr*level*v.panR;
  if(!v.program->drum){
   v.audioPhase+=kNativeAudioHz/mRate;while(v.audioPhase>=1){v.slew.Advance();v.audioPhase-=1;}
-  v.phase+=kNativeControlHz/mRate;if(v.phase>=1){v.phase-=1;v.amplitude.Tick();v.slew.SetTarget(v.amplitude.Gain());v.filter.Tick();}
+  v.phase+=kNativeControlHz/mRate;if(v.phase>=1){v.phase-=1;v.amplitude.SetOffsets(mControls.ampEg);v.filter.SetOffsets(mControls.filterEg,mControls.cutoff,mControls.resonance);v.amplitude.Tick();v.slew.SetTarget(v.amplitude.Gain());v.filter.Tick();}
   if(v.amplitude.Finished()&&v.slew.Silent())v.region=nullptr;
  }
 }

@@ -36,7 +36,7 @@ int main(int argc,char** argv){
   auto component=provider.getComponentPtr();auto controller=provider.getControllerPtr();
   FUnknownPtr<IAudioProcessor> processor(component);assert(processor&&controller);
   std::map<std::string,ParamID> ids;
-  for(int i=0;i<controller->getParameterCount();++i){ParameterInfo p{};assert(controller->getParameterInfo(i,p)==kResultOk);std::string name;for(auto c:p.title){if(!c)break;name+=char(c);}ids[name]=p.id;}
+  for(int i=0;i<controller->getParameterCount();++i){ParameterInfo p{};assert(controller->getParameterInfo(i,p)==kResultOk);std::string name;for(auto c:p.title){if(!c)break;name+=char(c);}ids.emplace(name,p.id);}
   for(const char* name:{"Tone","Output","Space","Release","Velocity","Program"})assert(ids.count(name));
   assert(component->getBusCount(kAudio,kInput)==0&&component->getBusCount(kAudio,kOutput)==1);
   SpeakerArrangement stereo=SpeakerArr::kStereo;
@@ -98,6 +98,17 @@ int main(int argc,char** argv){
   saved.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&saved)==kResultOk);
   assert(std::abs(controller->getParamNormalized(ids["Tone"])-0.5)<1e-6);
   assert(std::abs(controller->getParamNormalized(ids["Release"])-0.7)<1e-6);
+  // State emitted by the six-parameter release ends immediately before bypass.
+  MemoryStream legacy;
+  double legacyValues[]={2.,-9.,45.,410.,1.25,3.};
+  int32 bypass=0;
+  assert(legacy.write(legacyValues,sizeof(legacyValues),nullptr)==kResultOk);
+  assert(legacy.write(&bypass,sizeof(bypass),nullptr)==kResultOk);
+  legacy.seek(0,IBStream::kIBSeekSet,nullptr);
+  controller->setParamNormalized(ids.at("Pan"),1.);
+  assert(component->setState(&legacy)==kResultOk);
+  assert(std::abs(controller->getParamNormalized(ids.at("Program"))-.5)<1e-8);
+  assert(std::abs(controller->getParamNormalized(ids.at("Pan"))-64./127.)<1e-8);
   FUnknownPtr<IMidiMapping> mapping(controller);assert(mapping);ParamID sustain=0;
   assert(mapping->getMidiControllerAssignment(0,0,kCtrlSustainOnOff,sustain)==kResultOk);
   auto* view=controller->createView(ViewType::kEditor);assert(view);
