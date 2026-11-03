@@ -13,13 +13,17 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <functional>
 #include <map>
 #include <vector>
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
+void verifyEditor(IPlugView*,const std::function<double()>&);
+
 int main(int argc,char** argv){
-  assert(argc==2);
+  const bool openEditor=argc==3 && std::string(argv[2])=="--editor";
+  assert(argc==2 || openEditor);
   std::string error;
   auto module=VST3::Hosting::Module::create(argv[1],error);
   if(!module){std::cerr<<error<<'\n';return 1;}
@@ -96,6 +100,8 @@ int main(int argc,char** argv){
   assert(std::abs(controller->getParamNormalized(ids["Release"])-0.7)<1e-6);
   FUnknownPtr<IMidiMapping> mapping(controller);assert(mapping);ParamID sustain=0;
   assert(mapping->getMidiControllerAssignment(0,0,kCtrlSustainOnOff,sustain)==kResultOk);
-  auto* view=controller->createView(ViewType::kEditor);assert(view);view->release();
+  auto* view=controller->createView(ViewType::kEditor);assert(view);
+  if(openEditor) verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);});
+  view->release();
   std::cout<<"PASS compiled VST3: self-contained sample bank, MIDI offsets/audio, three rates/tones, parameter state round-trip, sustain mapping and editor creation\n";
 }

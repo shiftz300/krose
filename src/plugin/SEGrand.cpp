@@ -6,7 +6,21 @@
 #include <array>
 #if IPLUG_EDITOR
 #include "IControls.h"
-#include "IVKeyboardControl.h"
+#include "IWebViewControl.h"
+#include "json.hpp"
+#include <fstream>
+#include <iterator>
+
+namespace {
+class KroseEditor final : public IWebViewControl {
+public:
+  using IWebViewControl::IWebViewControl;
+  void OnWebContentLoaded() override {
+    IWebViewControl::OnWebContentLoaded();
+    EvaluateJavaScript("window.IPlugSendMsg({type:'ready'})");
+  }
+};
+}
 #endif
 
 SEGrand::SEGrand(const InstanceInfo& info):Plugin(info,MakeConfig(kNumParams,segrand::kInstrumentProgramCount+2)) {
@@ -30,31 +44,70 @@ SEGrand::SEGrand(const InstanceInfo& info):Plugin(info,MakeConfig(kNumParams,seg
 #if IPLUG_EDITOR
   mMakeGraphicsFunc=[this](){return MakeGraphics(*this,PLUG_WIDTH,PLUG_HEIGHT,PLUG_FPS,GetScaleForScreen(PLUG_WIDTH,PLUG_HEIGHT));};
   mLayoutFunc=[this](IGraphics* g){
-    g->LoadFont("Roboto-Regular",ROBOTO_FN);
-    g->EnableMouseOver(true);
-    g->AttachPopupMenuControl();
-    g->AttachTextEntryControl();
-    g->AttachPanelBackground(IColor(255,244,241,233));
-    IText title(32,IColor(255,35,50,45),"Roboto-Regular",EAlign::Near);
-    IText caption(13,IColor(255,90,103,95),"Roboto-Regular",EAlign::Near);
-    g->AttachControl(new ITextControl(IRECT(28,12,350,50),"Krose",title));
-    g->AttachControl(new ITextControl(IRECT(30,45,630,62),mError.empty()?"":mError.c_str(),caption));
-    const IVStyle style=DEFAULT_STYLE.WithColor(kFG,IColor(255,50,94,76))
-      .WithColor(kPR,IColor(255,50,94,76)).WithColor(kFR,IColor(255,150,164,149))
-      .WithColor(kBG,IColor(255,244,241,233)).WithDrawShadows(false);
-    const IVStyle tabs=style.WithColor(kFG,IColor(255,234,232,222)).WithColor(kPR,IColor(255,173,198,177));
-    g->AttachControl(new IVMenuButtonControl(IRECT(28,65,652,98),kParamProgram,"",style.WithShowLabel(false)));
-    g->AttachControl(new IVTabSwitchControl(IRECT(28,100,652,140),kParamTone,{"Concert","Warm","Wide"},"",tabs));
-    g->DisableControl(kParamTone,GetParam(kParamProgram)->Int()!=0);
-    const char* names[4]={"Output","Space","Release","Velocity"};
-    for(int i=0;i<4;++i)g->AttachControl(new IVKnobControl(IRECT(30+i*156,155,180+i*156,260),i+1,names[i],style));
-    g->AttachControl(new IVKeyboardControl(IRECT(28,280,652,338),36,84));
+    g->AttachPanelBackground(IColor(255,16,18,22));
+    g->AttachControl(new KroseEditor(g->GetBounds(),true,
+      [this](IWebViewControl* web) {
+        WDL_String path;
+        BundleResourcePath(path,GetBundleID());
+        path.Append("/editor.html");
+        std::ifstream input(path.Get(),std::ios::binary);
+        std::string html((std::istreambuf_iterator<char>(input)),{});
+        web->LoadHTML(html.empty()?"<p>Krose editor resource unavailable</p>":html.c_str());
+      },
+      [this](IWebViewControl*,const char* json) { HandleEditorMessage(json); }), kEditorTag);
   };
 #endif
 }
 #if IPLUG_EDITOR
-void SEGrand::OnParamChangeUI(int,EParamSource) {
-  if(auto* ui=GetUI())ui->DisableControl(kParamTone,GetParam(kParamProgram)->Int()!=0);
+void SEGrand::OnParamChangeUI(int id,EParamSource) {
+  if(!GetUI() || id<0 || id>=kNumParams) return;
+  auto* web=static_cast<IWebViewControl*>(GetUI()->GetControlWithTag(kEditorTag));
+  if(!web) return;
+  nlohmann::json args={GetParam(id)->GetName(),id,GetParam(id)->Value()};
+  auto js="window.kroseNative?.receive(..."+args.dump()+")";
+  web->EvaluateJavaScript(js.c_str());
+}
+
+void SEGrand::OnUIClose() {
+  for(int n=0;n<128;++n) if(mEditorNotes[n]) SendMidiMsgFromUI(IMidiMsg(0,0x80,n,0));
+  mEditorNotes.fill(false);
+  if(mEditorSustain) SendMidiMsgFromUI(IMidiMsg(0,0xb0,64,0));
+  if(mEditorBend) SendMidiMsgFromUI(IMidiMsg(0,0xe0,0,64));
+  mEditorSustain=mEditorBend=false;
+  Plugin::OnUIClose();
+}
+
+void SEGrand::HandleEditorMessage(const char* text) {
+  const auto msg=nlohmann::json::parse(text,nullptr,false);
+  if(!msg.is_object()) return;
+  const auto type=msg.find("type");
+  if(type==msg.end() || !type->is_string()) return;
+  if(*type=="ready"){
+    for(int id=0;id<kNumParams;++id) OnParamChangeUI(id);
+    return;
+  }
+  auto integer=[&](const char* key,int limit){
+    auto p=msg.find(key);
+    return p!=msg.end() && p->is_number_integer() && *p>=0 && *p<=limit ? p->get<int>() : -1;
+  };
+  if(*type=="midi"){
+    const int status=integer("status",239),a=integer("data1",127),b=integer("data2",127);
+    if(status<128 || a<0 || b<0) return;
+    if(status==0x90 || status==0x80) mEditorNotes[a]=status==0x90 && b>0;
+    if(status==0xb0 && a==64) mEditorSustain=b>=64;
+    if(status==0xe0) mEditorBend=a!=0 || b!=64;
+    SendMidiMsgFromUI(IMidiMsg(0,status,a,b));
+    return;
+  }
+  const int id=integer("id",kNumParams-1);
+  if(id<0) return;
+  if(*type=="begin") BeginInformHostOfParamChangeFromUI(id);
+  if(*type=="end") EndInformHostOfParamChangeFromUI(id);
+  if(*type=="set" && msg.contains("value") && msg["value"].is_number()){
+    const double value=msg["value"];
+    auto* param=GetParam(id);
+    if(std::isfinite(value)) SendParameterValueFromUI(id,param->ToNormalized(std::clamp(value,param->GetMin(),param->GetMax())));
+  }
 }
 #endif
 #if IPLUG_DSP

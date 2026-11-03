@@ -478,7 +478,12 @@ function krosePaintLcd(canvas,view){
 (()=>{
 const root=document.getElementById('krose-fixed-ui');
 const $=s=>root.querySelector(s), $$=s=>[...root.querySelectorAll(s)];
+const native=window.kroseNative;
 const presets=[['A000','Kross GrandPiano 1','PIANO',0],['A061','Celesta','PIANO',61],['B097','DWGS Bells 1','BELL',5],['C001','Stereo Strings 1','STRINGS',0]];
+if(native){
+ presets.unshift(['EX','Concert SE Grand','PIANO',0]);
+ presets.push(['F042','Basic Kit 1','DRUM/SFX',42],['F036','Jazz Kit','DRUM/SFX',36]);
+}
 const lcdResources={"source":"KROSS2 v1.2.4 KROSSAPP.bin","row_encoding":"Each integer is one row, most significant visible bit at left.","symbols":{"PIANO":{"offset":"0x38e219","width":14,"height":12,"rows":[4064,8176,8188,16383,16383,16383,16383,10837,10837,8193,16383,4290]},"E.PIANO":{"offset":"0x38e231","width":14,"height":12,"rows":[8190,16383,12291,16383,10837,10837,8193,16383,8190,2052,4098,8193]},"ORGAN":{"offset":"0x38e249","width":14,"height":12,"rows":[16383,10927,11007,16383,10837,10837,8193,16383,10837,10837,8193,16383]},"BELL":{"offset":"0x38e261","width":14,"height":12,"rows":[6,11,255,270,524,7180,4872,4504,4784,2656,3168,992]},"STRINGS":{"offset":"0x38e279","width":14,"height":12,"rows":[1804,2192,5728,8896,8496,12872,7784,1840,2488,4349,8199,11]},"BRASS":{"offset":"0x38e291","width":14,"height":12,"rows":[0,8192,8360,12288,14504,16383,14764,12970,8874,8706,508,0]},"SYNTH":{"offset":"0x38e2a9","width":14,"height":12,"rows":[16383,12125,16383,11093,16383,16213,11263,16383,11093,11093,16129,16383]},"SYNTH_ALT":{"offset":"0x38e2c1","width":14,"height":12,"rows":[16383,16383,16383,11221,15999,10837,16383,16383,10837,10837,8193,16383]},"GUITAR":{"offset":"0x38e2d9","width":14,"height":12,"rows":[14,30,60,1904,1120,6528,8608,10272,11360,9920,4288,3968]},"BASS":{"offset":"0x38e2f1","width":14,"height":12,"rows":[7,398,600,560,7272,8396,8460,9228,11832,7216,6192,10176]},"DRUM/SFX":{"offset":"0x38e309","width":14,"height":12,"rows":[4100,14350,4100,6004,6014,4574,4654,5140,5140,5140,14894,10698]},"AC":{"offset":"0x38e209","width":13,"height":8,"rows":[2040,4088,3279,6840,6328,2767,4088,2040]}},"aliases":{"SYNTH LEAD":"SYNTH","SYNTH PAD":"SYNTH"},"font":{"offset":"0x394f84","stride":10,"glyphs":{" ":[3,0,0,0,0,0,0,0,0,0],"(":[6,16,32,64,64,64,64,64,32,16],")":[6,64,32,16,16,16,16,16,32,64],":":[4,0,0,0,64,0,0,0,64,0],".":[4,0,0,0,0,0,0,0,64,0],"0":[6,0,112,136,152,168,200,136,112,0],"1":[6,0,32,96,32,32,32,32,32,0],"2":[6,0,112,136,136,16,32,64,248,0],"3":[6,0,112,136,8,48,8,136,112,0],"4":[6,0,16,48,80,144,248,16,16,0],"5":[6,0,248,128,240,8,8,136,112,0],"6":[6,0,112,128,240,136,136,136,112,0],"7":[6,0,248,8,16,32,32,32,32,0],"8":[6,0,112,136,136,112,136,136,112,0],"9":[6,0,112,136,136,136,120,8,112,0],"A":[6,0,32,80,80,136,248,136,136,0],"B":[6,0,240,136,136,240,136,136,240,0],"C":[6,0,112,136,128,128,128,136,112,0],"D":[6,0,240,136,136,136,136,136,240,0],"E":[6,0,248,128,128,240,128,128,248,0],"F":[6,0,248,128,128,240,128,128,128,0],"G":[6,0,120,128,128,152,136,136,120,0],"H":[6,0,136,136,136,248,136,136,136,0],"I":[2,0,128,128,128,128,128,128,128,0],"J":[5,0,16,16,16,16,16,144,96,0],"K":[6,0,136,144,160,192,160,144,136,0],"L":[6,0,128,128,128,128,128,128,248,0],"M":[8,0,130,198,170,170,146,146,130,0],"N":[6,0,136,200,200,168,152,152,136,0],"O":[6,0,112,136,136,136,136,136,112,0],"P":[6,0,240,136,136,240,128,128,128,0],"Q":[6,0,112,136,136,136,168,144,104,0],"R":[6,0,240,136,136,240,160,144,136,0],"S":[6,0,112,136,128,112,8,136,112,0],"T":[6,0,248,32,32,32,32,32,32,0],"U":[6,0,136,136,136,136,136,136,120,0],"V":[6,0,136,136,80,80,80,32,32,0],"W":[8,0,130,146,84,84,84,40,40,0],"X":[6,0,136,136,80,32,80,136,136,0],"Y":[6,0,136,136,80,32,32,32,32,0],"Z":[6,0,248,8,16,32,64,128,248,0],"/":[5,0,16,16,32,32,64,64,128,128]}},"tempoReference":{"origin":"User MAIN status-row photo","bpm":"125.00","sprites":{"[":[6,4,4,4,4,4,4,4,6],"]":[6,2,2,2,2,2,2,2,6],"note":[1,1,1,1,1,7,15,14],"=":[31,0,31],"1":[7,3,3,3,3],"2":[63,3,63,48,63],"5":[63,48,63,3,63],".":[3],"0":[30,51,51,51,30]}}};
 function drawProgramRow(p){
  const [code,,category,index]=p;
@@ -510,6 +515,7 @@ function feedback(t){$('#kf-feedback').textContent=t;}
 function persist(){const fn=window.openai?.setWidgetState;if(fn)Promise.resolve(fn({modelContent:{kroseFixedUI:compare?{...state,...compare}:state}})).catch(()=>{});}
 function loadShared(s){const incoming=s?.modelContent?.kroseFixedUI;if(!incoming||incoming.version!==1)return;state={...state,...incoming,values:{...defaults,...incoming.values},toggles:{...state.toggles,...incoming.toggles},envelopes:{amp:{...state.envelopes.amp,...incoming.envelopes?.amp},filter:{...state.envelopes.filter,...incoming.envelopes?.filter}},wheels:{pitch:0,mod:0,...incoming.wheels}};state.preset=clamp(Number(state.preset)||0,0,presets.length-1);state.eg=state.eg==='filter'?'filter':'amp';state.page=['main','tone','fx','arp'].includes(state.page)?state.page:'main';state.octave=clamp(Number(state.octave)||0,-2,2);}
 loadShared(window.openai?.widgetState);
+if(native)state.toggles.arp=false;
 state.fx={insert:true,master:true,...state.fx};
 presets.forEach((p,i)=>{const option=document.createElement('option');option.value=String(i);option.textContent=p[0]+'  '+p[1];$('#kf-program').append(option);});
 $$('[data-control]').forEach(c=>{
@@ -517,11 +523,12 @@ const key=c.dataset.control,label=c.dataset.label,min=+c.dataset.min,max=+c.data
 const caption=document.createElement('label');caption.className='caption';caption.textContent=label;caption.htmlFor='kf-value-'+key;
 const knob=document.createElement('button');knob.type='button';knob.className='knob cursor-interaction';knob.role='slider';knob.setAttribute('aria-label',label);knob.setAttribute('aria-valuemin',min);knob.setAttribute('aria-valuemax',max);const pointer=document.createElement('span');pointer.className='pointer';knob.append(pointer);
 const input=document.createElement('input');input.id='kf-value-'+key;input.type='text';input.inputMode='decimal';input.className='readout';input.setAttribute('aria-label',label+' value');c.append(caption,knob,input);
-const set=n=>{state.values[key]=Math.round(clamp(n,min,max)/step)*step;paintKnob(c);};
+const hostName=c.dataset.label==='VOLUME'?'Output':label[0]+label.slice(1).toLowerCase();
+const set=n=>{state.values[key]=Math.round(clamp(n,min,max)/step)*step;paintKnob(c);native?.set(hostName,state.values[key]);};
 input.addEventListener('change',()=>{const n=parseFloat(input.value.replace('−','-'));if(Number.isFinite(n))set(n);else paintKnob(c);persist();});
-let start=null;knob.addEventListener('pointerdown',e=>{start={y:e.clientY,value:state.values[key]};knob.setPointerCapture(e.pointerId);e.preventDefault();});
+let start=null;knob.addEventListener('pointerdown',e=>{native?.begin(hostName);start={y:e.clientY,value:state.values[key]};knob.setPointerCapture(e.pointerId);e.preventDefault();});
 knob.addEventListener('pointermove',e=>{if(!start)return;const scale=$('.instrument').getBoundingClientRect().width/$('.instrument').offsetWidth;set(start.value+(start.y-e.clientY)/scale*(max-min)/160*(e.shiftKey?.1:1));});
-const end=()=>{if(start){start=null;persist();}};knob.addEventListener('pointerup',end);knob.addEventListener('pointercancel',end);
+const end=()=>{if(start){start=null;native?.end(hostName);persist();}};knob.addEventListener('pointerup',end);knob.addEventListener('pointercancel',end);
 knob.addEventListener('dblclick',()=>{set(+c.dataset.default);persist();});
 knob.addEventListener('keydown',e=>{if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Home'].includes(e.key))return;e.preventDefault();set(e.key==='Home'?+c.dataset.default:state.values[key]+(['ArrowUp','ArrowRight'].includes(e.key)?step:-step));persist();});
 });
@@ -548,6 +555,7 @@ const fxRanges={
  attack:['Attack',1,100,1],release:['Release',1,100,1],blend:['Blend',-100,100,1],
  depth:['Depth',0,100,1],chorusMix:['Wet/Dry',-100,100,1],mix:['Wet/Dry',0,100,1],damp:['Hi Damp %',0,100,1]
 };
+if(native){for(const [code] of presets)programEffects[code]??=[];}
 let selectedSlot=0,selectedBand=0;
 const scopeStyles={
  EQ:['#73decf','PARAMETRIC EQ'],Lim:['#f2b777','STEREO LIMITER'],
@@ -797,9 +805,11 @@ function paintEffectView(){
 function renderEffects(){
  paintEffectView();
  const program=presets[state.preset][0], slots=programEffects[program];
- const slot=slots[selectedSlot]||slots[0], key=program+'/'+slot.slot;
+ const slot=slots[selectedSlot]||slots[0];
  const strip=$('#kf-fx-slots'), fields=$('#kf-fx-fields');
  strip.replaceChildren();fields.replaceChildren();
+ if(!slot){fields.textContent='—';$('#kf-slot-on').disabled=true;return;}
+ const key=program+'/'+slot.slot;
  slots.forEach((item,i)=>{
   const button=document.createElement('button');
   button.type='button';button.textContent=item.slot.replace('FX','')+' '+item.name;
@@ -809,7 +819,7 @@ function renderEffects(){
   strip.append(button);
  });
  function addField(title,control){
-  const label=document.createElement('label');label.append(title,control);fields.append(label);
+  const label=document.createElement('label');if(native)control.disabled=true;label.append(title,control);fields.append(label);
  }
  function options(items,current,change){
   const select=document.createElement('select');
@@ -828,7 +838,7 @@ function renderEffects(){
   };
   addField(title,input);
  }
- const enabled=$('#kf-slot-on');enabled.checked=state.fxEdits[key]?.enabled!==false;
+ const enabled=$('#kf-slot-on');enabled.disabled=!!native;enabled.checked=state.fxEdits[key]?.enabled!==false;
  enabled.onchange=()=>save('enabled',enabled.checked);
  if(slot.bands){
   const band=slot.bands[selectedBand], prefix='b'+selectedBand;
@@ -910,7 +920,7 @@ $$('[data-bind]').forEach(input=>input.addEventListener('change',()=>{const v=Nu
 $$('[data-fx]').forEach(input=>input.addEventListener('change',()=>{state.fx[input.dataset.fx]=input.checked;paintEffectView();persist();}));
 $$('[data-fader]').forEach(f=>{const input=f.querySelector('input');input.addEventListener('input',()=>{state.envelopes[state.eg][f.dataset.fader]=+input.value;f.querySelector('output').textContent=signed(+input.value);});input.addEventListener('change',persist);input.addEventListener('dblclick',()=>{state.envelopes[state.eg][f.dataset.fader]=0;render();persist();});});
 $('#kf-rate').addEventListener('change',e=>{state.rate=e.target.value;render();persist();});$('#kf-pattern').addEventListener('change',e=>{state.pattern=e.target.value;persist();});
-function selectPreset(n){if(compare){state.fxEdits=compare.fxEdits;state.fx=compare.fx;}selectedSlot=0;selectedBand=0;state.preset=(n+presets.length)%presets.length;state.page='main';state.values={...defaults};state.envelopes={amp:{attack:0,decay:0,sustain:0,release:0},filter:{attack:0,decay:0,sustain:0,release:0}};compare=null;render();persist();}
+function selectPreset(n){if(compare){state.fxEdits=compare.fxEdits;state.fx=compare.fx;}selectedSlot=0;selectedBand=0;state.preset=(n+presets.length)%presets.length;state.page='main';if(native)native.set('Program',state.preset);else state.values={...defaults};state.envelopes={amp:{attack:0,decay:0,sustain:0,release:0},filter:{attack:0,decay:0,sustain:0,release:0}};compare=null;render();persist();}
 $('#kf-prev').addEventListener('click',()=>selectPreset(state.preset-1));$('#kf-next').addEventListener('click',()=>selectPreset(state.preset+1));
 $('#kf-browse').addEventListener('click',()=>{const select=$('#kf-program');select.focus();if(typeof select.showPicker==='function'){try{select.showPicker();}catch{}}});
 $('#kf-save').addEventListener('click',()=>{persist();feedback('UI SNAPSHOT SAVED · '+presets[state.preset][0]);});
@@ -925,7 +935,11 @@ $$('[data-toggle="sustain"]').forEach(b=>b.addEventListener('click',()=>{if(!sta
 window.addEventListener('blur',()=>{held.forEach(releaseKey);state.wheels.pitch=0;render();});
 window.addEventListener('openai:set_globals',e=>{loadShared(e.detail?.globals?.widgetState);render();buildKeyboard();});
 function fit(){const scale=Math.min(1,root.clientWidth/$('.instrument').offsetWidth);$('.instrument').style.transform='scale('+scale+')';$('.viewport').style.height=($('.instrument').offsetHeight*scale)+'px';}
+if(native){
+ native.mount(root,state,render);
+}
 new ResizeObserver(fit).observe(root);render();buildKeyboard();fit();
-document.fonts.ready.then(()=>requestAnimationFrame(()=>root.setAttribute('data-ready','')));
+if(native)root.setAttribute('data-ready','');
+else document.fonts.ready.then(()=>requestAnimationFrame(()=>root.setAttribute('data-ready','')));
 })();
 </script>

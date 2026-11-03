@@ -16,9 +16,14 @@ public:
   void OnReset() override;
 #endif
 #if IPLUG_EDITOR
+  static constexpr int kEditorTag=100;
+  void HandleEditorMessage(const char* text);
+  void OnUIClose() override;
   void OnParamChangeUI(int paramIdx,EParamSource source=kUnknown) override;
 #endif
 private:
+  std::array<bool,128> mEditorNotes{};
+  bool mEditorSustain=false,mEditorBend=false;
   std::unique_ptr<segrand::InstrumentEngine> mEngine;
   std::string mError;
   bool mPrepared=true;

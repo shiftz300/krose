@@ -12,3 +12,9 @@
 | 5 · 整体验收 | VST3 和独立程序打包、离线音频回归、原生窗口交互与宿主重开 | 记录 CTest、Steinberg validator、实时开销和实际宿主覆盖范围，区分本机测试与发行签名 |
 
 每个可独立验收的阶段或阶段内可运行增量单独提交并推送。仓库保留源码、设计与验收记录。本机 PCM 包继续按现有机制装入本地产物。专用 TG/DSP 的近似行为沿用逆向交接中的证据分级。
+
+## 阶段 1 验收
+
+两个 bundle 均加载随包提供的定稿页面，WKWebView 只在编辑器打开时创建。控件通过 iPlug2 通知宿主自动化手势，音频线程继续运行原有采样引擎。VOLUME、VELOCITY、Program、Concert 变体、Space 和 Release 复用旧参数。屏幕键盘、延音、弯音及 Panic 发送 MIDI。其余功能分阶段启用。
+
+本机先运行五项 CTest，再运行官方 validator。带图形会话的测试命令为 `build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor`。该测试实际挂载编辑器，检查七个 Program，将力度曲线从页面写入宿主，再关闭并重开窗口读取同一个值。
