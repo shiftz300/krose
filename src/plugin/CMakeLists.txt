@@ -1,10 +1,12 @@
 set(panel "${CMAKE_SOURCE_DIR}/docs/design/krose-fixed-ui.html")
 set(catalog "${KROSE_FACTORY_ASSET_DIR}/FactoryPrograms.json")
+set(browser_catalog "${KROSE_FACTORY_ASSET_DIR}/FactoryBrowser.json")
 set(bridge "${CMAKE_CURRENT_SOURCE_DIR}/resources/editor-bridge.js")
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${panel}" "${bridge}" "${catalog}")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${panel}" "${bridge}" "${catalog}" "${browser_catalog}")
 file(READ "${panel}" KROSE_PANEL)
 file(READ "${bridge}" KROSE_BRIDGE)
 file(READ "${catalog}" KROSE_CATALOG)
+file(READ "${browser_catalog}" KROSE_BROWSER)
 configure_file(resources/editor.html.in "${CMAKE_CURRENT_BINARY_DIR}/editor.html" @ONLY)
 iplug_add_plugin(Krose
   SOURCES SEGrand.cpp SEGrand.h resources/resource.h

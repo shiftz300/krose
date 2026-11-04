@@ -1,0 +1,33 @@
+{
+  "categories": [
+    "PIANO",
+    "E.PIANO",
+    "ORGAN",
+    "BELL",
+    "STRINGS",
+    "BRASS",
+    "SYNTH LEAD",
+    "SYNTH PAD",
+    "GUITAR",
+    "BASS",
+    "DRUM/SFX"
+  ],
+  "original_category_counts": {
+    "PIANO": 74,
+    "E.PIANO": 98,
+    "ORGAN": 89,
+    "BELL": 52,
+    "STRINGS": 102,
+    "BRASS": 92,
+    "SYNTH LEAD": 115,
+    "SYNTH PAD": 93,
+    "GUITAR": 80,
+    "BASS": 80,
+    "DRUM/SFX": 158
+  },
+  "original_category_indices": "Each category is continuous from zero; 1033 factory and GM entries checked",
+  "native_editor": "Category menu, PRESET order, BROWSE order, G015 BELL filter, search/select and reopen passed",
+  "audio_bundle": "SHA256 unchanged from e1b3f90",
+  "log_sha256": "301733425d60c758360518dd512f6afb45566274a49001c465e36dd153467d94",
+  "browser_sha256": "0f1bc6e6c8b2d939920881a80b5d2840796d30f193124353bca1d22842723783"
+}

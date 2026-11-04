@@ -31,6 +31,8 @@ flowchart LR
 
 原有索引 0–6 保持原顺序：Concert、A000、A061、B097、C001、F042、F036。其余出厂、GM、扩展音色依次追加。音色名、分类图标、浏览器和宿主列表从同一份导出目录生成。BROWSE 支持名称／编号搜索、音色库和类别筛选；点击条目选择音色，Tab 键可依次导航按钮。
 
+浏览分类严格按原厂 Voice Name List 顺序：PIANO → E.PIANO → ORGAN → BELL → STRINGS → BRASS → SYNTH LEAD → SYNTH PAD → GUITAR → BASS → DRUM/SFX。出厂与 GM 音色在各类别中共用原厂分类编号排序；扩展音色随后按原库文件顺序排列。PRESET、BROWSE 和上一项／下一项共用 `FactoryBrowser.json` 的显示顺序，宿主索引保持固定。原表重复标注 G016 的两项通过音色名称区分，GM Tubular Bells 归入 BELL，GM Santur 归入 GUITAR。
+
 旧工程中的 Program 数值索引保持可读。Program 的枚举范围已经扩大，旧测试版工程若保存了归一化 Program 自动化曲线，需要重新指定曲线中的音色；普通保存的状态不受此项影响。
 
 `factory-starter` 目录名仅为路径兼容保留，目前存放完整资源包。构建只读取冻结数据，不运行固件或研究脚本。采样包保留本地，源码仓库记录目录、来源和哈希。

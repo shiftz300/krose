@@ -14,8 +14,13 @@
     },
     {
       "file": "FactoryPrograms.json",
-      "bytes": 103767,
-      "sha256": "1109639454fd3482c631337342ee079f302c11d16191e4925883fb4c37f9ae42"
+      "bytes": 103765,
+      "sha256": "cd7ed57393e318dbc5d50eb7f28cd4ef461d255998774d03b49728e9474ae1fb"
+    },
+    {
+      "file": "FactoryBrowser.json",
+      "bytes": 10998,
+      "sha256": "0f1bc6e6c8b2d939920881a80b5d2840796d30f193124353bca1d22842723783"
     }
   ],
   "programs": [
@@ -9406,8 +9411,8 @@
     {
       "id": "G015",
       "name": "GM Tubular Bells",
-      "category": "GUITAR",
-      "index": 44,
+      "category": "BELL",
+      "index": 42,
       "group": "GM",
       "source": "research/derived/acquisitions/KROSS2_local_20261101-022845/files/PROGGC.BIN",
       "sha256": "f08494110f455f3bc8229eb68a360845f954000a848d8cf1fcb0c2df598882de",
@@ -18953,6 +18958,6 @@
     "40188": "b9bd1142d0c35db35e8bff6cc6e8f7eb809d4a6f609bd3c0d63deade2b5fb5f1",
     "40193": "ffc4c68cfb872ca35a2071f1387ded2429fc01ee94c19b26e62fffff23d21204"
   },
-  "exporter_sha256": "baf480fbd348e948dffd6f372530867aa04a83bd6f2ea5dd5a8f6d3e037de623",
+  "exporter_sha256": "8af320285fa9b5314afe98d5ab01f10876fe6440d0c1e9b0efa1a96c0faf0d97",
   "scope": "Original Program controls, key/velocity selection, stereo regions, transpose/slope and layer crossfades. Host filter/FX and drum gain remain approximations; drum start-offset, expansion importer kit relocation and missing logical bank 6 remain unresolved."
 }

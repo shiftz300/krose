@@ -128,14 +128,15 @@ window.kroseNative.openBrowser = function(root) {
     const filters=document.createElement('div');Object.assign(filters.style,{display:'flex',gap:'8px',marginBottom:'12px'});
     const search=document.createElement('input');search.type='search';search.placeholder='名称或编号';search.setAttribute('aria-label','搜索音色');search.style.flex='1';
     const bank=document.createElement('select');bank.setAttribute('aria-label','音色库');bank.add(new Option('全部音色库',''));
-    for(const group of new Set(this.presets.map(p=>p[4]))) bank.add(new Option(group,group));
+    for(const group of this.browser.groups) bank.add(new Option(group,group));
     const category=document.createElement('select');category.setAttribute('aria-label','音色类型');category.add(new Option('全部类型',''));
-    for(const name of new Set(this.presets.map(p=>p[2])))category.add(new Option(name,name));
+    for(const name of this.browser.categories)category.add(new Option(name,name));
     filters.append(search,bank,category);
     const list=document.createElement('div');list.setAttribute('role','list');Object.assign(list.style,{overflowY:'auto',height:'292px',display:'flex',flexDirection:'column',gap:'2px'});
     const redraw=()=>{
       list.replaceChildren();const needle=search.value.toLowerCase().trim();
-      this.presets.forEach((p,i)=>{
+      this.browser.order.forEach(i=>{
+        const p=this.presets[i];
         if(bank.value&&bank.value!==p[4]||category.value&&category.value!==p[2]||needle&&!`${p[0]} ${p[1]}`.toLowerCase().includes(needle))return;
         const button=document.createElement('button');button.type='button';button.dataset.program=i;
         button.textContent=`${p[0]}  ${p[1]} · ${p[2]}${p[5]?" · "+p[5]:""}`;

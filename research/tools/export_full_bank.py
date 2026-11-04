@@ -82,19 +82,26 @@ def main():
     lib,decoded=libraries[4];section=lib['sections']['1KBD'];ext=decoded[section['payload_offset']:section['payload_offset']+section['bytes']]
     extension_kits={42+i:ext[i*8728:(i+1)*8728] for i in range(4)}
     records=[]
-    for p in read(CAT/'sounds/factory/programs.json')['programs']:
+    factory_catalog=read(CAT/'sounds/factory/programs.json')
+    categories=list(dict.fromkeys(p['category'] for p in factory_catalog['programs']))
+    assert categories==CATEGORIES
+    for p in factory_catalog['programs']:
         if p['kind']!='factory_A_F':continue
         path=ROOT/p['program_file'];assert sha(path)==p['program_sha256']
         records.append(dict(id=p['bank_program'],name=p['name'],category=p['category'],index=p['category_index'],group='Factory',raw=path.read_bytes(),source=str(path.relative_to(PRODUCT_ROOT)),sha256=p['program_sha256']))
     starter=read(ROOT/'config/native-starter.json')['programs']
     records.sort(key=lambda p:(starter.index(p['id']) if p['id'] in starter else len(starter),p['id']))
     gm=read(CAT/'architecture/stage04/gm-programs-check.json')
-    official={p['bank_program']:p for p in csv.DictReader((CAT/'sounds/factory/GM-programs.csv').open())}
+    official=list(csv.DictReader((CAT/'sounds/factory/GM-programs.csv').open()))
     for p in gm['records']:
         path=ROOT/'derived/acquisitions/KROSS2_local_20261101-022845/files'/p['source']
         blob=path.read_bytes()[64+2140*p['index']:64+2140*(p['index']+1)]
         assert hashlib.sha256(blob).hexdigest()==p['source_sha256']
-        records.append(dict(id=p['id'],name=p['name'],category=official[p['official_id']]['category'],index=int(official[p['official_id']]['category_index']),group='GM',raw=blob,source=str(path.relative_to(PRODUCT_ROOT)),sha256=p['source_sha256']))
+        matches=[row for row in official if ' '.join(row['name'].split())==' '.join(p['name'].split())]
+        if not matches:matches=[row for row in official if row['bank_program']==p['official_id']]
+        assert len(matches)==1,(p['id'],matches)
+        category_row=matches[0]
+        records.append(dict(id=p['id'],name=p['name'],category=category_row['category'],index=int(category_row['category_index']),group='GM',raw=blob,source=str(path.relative_to(PRODUCT_ROOT)),sha256=p['source_sha256']))
     for p in read(CAT/'sounds/programs.json')['programs']:
         path=ROOT/p['path'];assert sha(path)==p['sha256']
         records.append(dict(id=p['key'],name=p['name'],category=CATEGORIES[min(p['category_raw'],10)],index=p['index'],group=p['library'],raw=path.read_bytes()[:2140],source=str(path.relative_to(PRODUCT_ROOT)),sha256=p['sha256']))
@@ -207,8 +214,18 @@ def main():
         absent=sorted({row['note'] for row in missing if row['program']==p['id']})
         if absent:warnings[p['id']]='缺少部分采样：MIDI '+', '.join(map(str,absent))
     warnings['EXPCM004:041']='原始引用指向 Nu DISCO Kit，导入器重映射待核对'
-    browser.write_text(json.dumps([['EX','Concert SE Grand','PIANO',0,'Concert']]+[[p['id'],p['name'],p['category'],p['index'],p['group'],warnings.get(p['id'],'')] for p in records],ensure_ascii=False,indent=2)+'\n')
-    report=dict(format_version=2,kind='Complete locally recovered Factory, GM and expansion Programs',files=[dict(file=f.name,bytes=f.stat().st_size,sha256=sha(f)) for f in [target,header,browser]],programs=[{k:v for k,v in p.items() if k!='raw'} for p in records],sample_count=len(ids),region_count=len(zones),missing_layers=missing,expansion_kit_links=[x for x in kitlinks if x['program'].startswith('EXPCM')],source_inputs=source_inputs,source_WAV_sha256={str(s):samples[s]['wav_sha256'] for s in ids},exporter_sha256=sha(Path(__file__)),scope='Original Program controls, key/velocity selection, stereo regions, transpose/slope and layer crossfades. Host filter/FX and drum gain remain approximations; drum start-offset, expansion importer kit relocation and missing logical bank 6 remain unresolved.')
+    entries=[['EX','Concert SE Grand','PIANO',0,'Concert']]+[[p['id'],p['name'],p['category'],p['index'],p['group'],warnings.get(p['id'],'')] for p in records]
+    browser.write_text(json.dumps(entries,ensure_ascii=False,indent=2)+'\n')
+    groups=list(dict.fromkeys(p['group'] for p in records))+['Concert']
+    def display_key(i):
+        p=entries[i];rank=categories.index(p[2])
+        # Factory and GM category numbers share the original Voice Name List.
+        # Expansion records follow those entries in each category, in file order.
+        return (rank,0,p[3],i) if p[4] in ['Factory','GM'] else (rank,1,groups.index(p[4]),p[3],i)
+    order=sorted(range(len(entries)),key=display_key)
+    presentation=DEST/'FactoryBrowser.json'
+    presentation.write_text(json.dumps(dict(categories=categories,groups=groups,order=order,source=factory_catalog['source_pdf'],source_sha256=factory_catalog['source_pdf_sha256']),indent=2)+'\n')
+    report=dict(format_version=2,kind='Complete locally recovered Factory, GM and expansion Programs',files=[dict(file=f.name,bytes=f.stat().st_size,sha256=sha(f)) for f in [target,header,browser,presentation]],programs=[{k:v for k,v in p.items() if k!='raw'} for p in records],sample_count=len(ids),region_count=len(zones),missing_layers=missing,expansion_kit_links=[x for x in kitlinks if x['program'].startswith('EXPCM')],source_inputs=source_inputs,source_WAV_sha256={str(s):samples[s]['wav_sha256'] for s in ids},exporter_sha256=sha(Path(__file__)),scope='Original Program controls, key/velocity selection, stereo regions, transpose/slope and layer crossfades. Host filter/FX and drum gain remain approximations; drum start-offset, expansion importer kit relocation and missing logical bank 6 remain unresolved.')
     (DEST/'manifest.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(dict(programs=len(records),samples=len(ids),regions=len(zones),bytes=offset,missing_layers=len(missing),groups=dict(collections.Counter(p['group'] for p in records))),indent=2))
 if __name__=='__main__':main()

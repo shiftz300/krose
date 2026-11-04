@@ -48,6 +48,12 @@ void verifyEditor(Steinberg::IPlugView* view,const std::function<double()>& velo
       waitFor([&]{return std::abs(velocity()-.6)<1e-6;});
       eval(web,@"document.querySelector('#kf-browse').click()");
       assert([eval(web,@"document.querySelector('#krose-browser').open") boolValue]);
+      assert([eval(web,@"[...document.querySelectorAll('#krose-browser select[aria-label=音色类型] option')].slice(1).map(x=>x.value).join('|')") isEqualToString:@"PIANO|E.PIANO|ORGAN|BELL|STRINGS|BRASS|SYNTH LEAD|SYNTH PAD|GUITAR|BASS|DRUM/SFX"]);
+      assert([eval(web,@"[...document.querySelector('#kf-program').options].slice(0,3).map(x=>x.textContent.split('  ')[0]).join('|')") isEqualToString:@"A000|A001|A002"]);
+      assert([eval(web,@"[...document.querySelectorAll('#krose-browser [data-program]')].slice(0,3).map(x=>x.textContent.split('  ')[0]).join('|')") isEqualToString:@"A000|A001|A002"]);
+      eval(web,@"(()=>{const c=document.querySelector('#krose-browser select[aria-label=音色类型]');c.value='BELL';c.dispatchEvent(new Event('change'));})()");
+      assert([eval(web,@"[...document.querySelectorAll('#krose-browser [data-program]')].some(x=>x.textContent.startsWith('G015  GM Tubular Bells'))") boolValue]);
+      eval(web,@"(()=>{const c=document.querySelector('#krose-browser select[aria-label=音色类型]');c.value='';c.dispatchEvent(new Event('change'));})()");
       eval(web,@"(()=>{const e=document.querySelector('#krose-browser input');e.value='EXPCM004:063';e.dispatchEvent(new Event('input'));})()");
       assert([eval(web,@"document.querySelectorAll('#krose-browser [data-program]').length") intValue]==1);
       eval(web,@"document.querySelector('#krose-browser [data-program]').click()");
