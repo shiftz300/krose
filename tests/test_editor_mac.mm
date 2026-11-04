@@ -121,6 +121,15 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       key(v, @"\uf701", 125);
       key(v, @"\r", 36);
       assert(parameter("Arp Pattern") == 1.);
+      click(v, 635, 177);
+      key(v, @"\uf72b", 119);
+      key(v, @"\r", 36);
+      assert(parameter("Arp Pattern") == 1.); // End reaches the final enum value.
+      click(v, 635, 177);
+      key(v, @"\uf729", 115);
+      key(v, @"\uf701", 125);
+      key(v, @"\r", 36);
+      assert(parameter("Arp Pattern") == .25);
       click(v, 700, 125);
       click(v, 1145, 331);
       assert(std::abs(mode() - .5) < 1e-8);

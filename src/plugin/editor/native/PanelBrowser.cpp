@@ -50,16 +50,23 @@ void NativePanel::OpenPopup(const Hit &h) {
     }
     mPopupFocus = int(Value(h.id));
   }
-  mPopupScroll = std::clamp(mPopupFocus - 6, 0, std::max(0, int(mChoices.size()) - 12));
+  mPopupRows = std::min(12, int(mChoices.size()));
+  if (h.action == "field") {
+    // Keep LCD menus inside the display; scroll when the available side is short.
+    float room = std::max(284 - h.r.B - 2, h.r.T - 164 - 2);
+    mPopupRows = std::min(mPopupRows, std::max(1, int(room / 22)));
+  }
+  mPopupScroll = std::clamp(mPopupFocus - mPopupRows / 2, 0,
+                           std::max(0, int(mChoices.size()) - mPopupRows));
   SetDirty(false);
 }
 void NativePanel::Popup(IGraphics &g) {
   bool lcd = mPopupTarget.action == "field";
   float rowHeight = lcd ? 22 : 26;
-  int count = std::min(12, int(mChoices.size()));
+  int count = mPopupRows;
   float width = mPopupTarget.r.W();
   float left = mPopupTarget.r.L, top = mPopupTarget.r.B + 2;
-  if (top + count * rowHeight > 646)
+  if (top + count * rowHeight > (lcd ? 284 : 646))
     top = mPopupTarget.r.T - 2 - count * rowHeight;
   top = std::max(2.f, top);
   auto r = R(left, top, width, count * rowHeight);
@@ -77,6 +84,11 @@ void NativePanel::Popup(IGraphics &g) {
          R(row.L + 7, row.T, row.W() - 14, row.H()));
     g.PathClipRegion();
     HitBox(row, "choice", -1, mChoiceValues[i]);
+  }
+  if (int(mChoices.size()) > count) {
+    float h = r.H() * count / mChoices.size();
+    g.FillRect(lcd ? Ink : IColor(255, 150, 157, 162),
+               R(r.R - 3, r.T + (r.H() - h) * mPopupScroll / (mChoices.size() - count), 1, h));
   }
 }
 void NativePanel::Browser(IGraphics &g) {

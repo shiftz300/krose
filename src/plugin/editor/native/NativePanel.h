@@ -81,7 +81,7 @@ private:
   std::vector<std::string> mChoices;
   std::vector<int> mChoiceValues;
   Hit mPopupTarget;
-  int mPopupScroll = 0, mPopupFocus = 0;
+  int mPopupScroll = 0, mPopupFocus = 0, mPopupRows = 12;
   bool mKeyboardFocus = false;
   double mFoldFrom = 0;
   std::chrono::steady_clock::time_point mFoldStarted{};

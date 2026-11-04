@@ -373,7 +373,7 @@ void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &r, 
     if (choice)
       g.DrawRect(Ink, r, nullptr, 1);
     else
-      Bitmap(g, std::string("number-") + (mPage == 3 ? "arp" : "tone"), r.L, r.T);
+      g.FillRect(Ink, R(r.L, r.B - 2, r.W(), 2));
     bool editing = mEdit >= 0 && mEdit == id;
     if (editing)
       g.FillRect(Ink, r);

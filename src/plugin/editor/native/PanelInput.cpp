@@ -199,7 +199,8 @@ void NativePanel::OnMouseDblClick(float x, float y, const IMouseMod &) {
 }
 void NativePanel::OnMouseWheel(float, float, const IMouseMod &, float d) {
   if (!mChoices.empty()) {
-    mPopupScroll = std::clamp(mPopupScroll - int(d * 3), 0, std::max(0, int(mChoices.size()) - 12));
+    mPopupScroll = std::clamp(mPopupScroll - int(d * 3), 0,
+                             std::max(0, int(mChoices.size()) - mPopupRows));
     SetDirty(false);
   } else if (mBrowsing) {
     mScroll -= int(d * 3);
@@ -221,7 +222,8 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
   if (!mChoices.empty()) {
     if (key.VK == kVK_HOME || key.VK == kVK_END) {
       mPopupFocus = key.VK == kVK_HOME ? 0 : int(mChoices.size()) - 1;
-      mPopupScroll = std::clamp(mPopupFocus - 6, 0, std::max(0, int(mChoices.size()) - 12));
+      mPopupScroll = std::clamp(mPopupFocus - mPopupRows / 2, 0,
+                               std::max(0, int(mChoices.size()) - mPopupRows));
       SetDirty(false);
       return true;
     }
@@ -232,7 +234,8 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
     if (key.VK == kVK_UP || key.VK == kVK_DOWN) {
       mPopupFocus =
           std::clamp(mPopupFocus + (key.VK == kVK_UP ? -1 : 1), 0, int(mChoices.size()) - 1);
-      mPopupScroll = std::clamp(mPopupFocus - 6, 0, std::max(0, int(mChoices.size()) - 12));
+      mPopupScroll = std::clamp(mPopupFocus - mPopupRows / 2, 0,
+                               std::max(0, int(mChoices.size()) - mPopupRows));
       SetDirty(false);
       return true;
     }
