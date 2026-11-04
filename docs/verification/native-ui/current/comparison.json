@@ -1,18 +1,18 @@
 {
   "tone": {
-    "mae_rgb_255": 0.6274,
-    "pixels_with_channel_delta_over_8_percent": 1.0994
+    "mae_rgb_255": 0.9019,
+    "pixels_with_channel_delta_over_8_percent": 1.7667
   },
   "fx": {
-    "mae_rgb_255": 0.4977,
-    "pixels_with_channel_delta_over_8_percent": 0.8178
+    "mae_rgb_255": 0.6689,
+    "pixels_with_channel_delta_over_8_percent": 1.4015
   },
   "main": {
-    "mae_rgb_255": 0.3719,
-    "pixels_with_channel_delta_over_8_percent": 0.619
+    "mae_rgb_255": 0.442,
+    "pixels_with_channel_delta_over_8_percent": 1.0971
   },
   "arp": {
-    "mae_rgb_255": 0.7662,
-    "pixels_with_channel_delta_over_8_percent": 1.1987
+    "mae_rgb_255": 1.0596,
+    "pixels_with_channel_delta_over_8_percent": 1.8316
   }
 }
