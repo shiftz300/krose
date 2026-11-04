@@ -19,3 +19,5 @@ __pycache__/
 /assets/program-library/Factory.samples
 
 /CMakeUserPresets.json
+
+/dist/

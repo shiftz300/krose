@@ -1,0 +1,10 @@
+# Keep portable CPU instructions and IEEE audio math in distributable builds.
+option(KROSE_ENABLE_IPO "Enable Release interprocedural optimization (LTO)" ON)
+if(KROSE_ENABLE_IPO AND NOT SEGRAND_SANITIZE)
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT _ipo_ok OUTPUT _ipo_error LANGUAGES C CXX)
+  if(NOT _ipo_ok)
+    message(FATAL_ERROR "Release LTO unavailable: ${_ipo_error}. Set KROSE_ENABLE_IPO=OFF to opt out.")
+  endif()
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+endif()

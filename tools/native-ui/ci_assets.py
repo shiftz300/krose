@@ -1,6 +1,7 @@
 """Stage compile-only asset bundles. These placeholders cannot render audio.
 
-The private PCM banks never enter CI or published artifacts. Product manifests
+These placeholder banks never enter published artifacts.
+Full release CI uses separately authorized, checksum-pinned runtime banks. Product manifests
 remain untouched; CI builds use explicit paths under build/compile-assets.
 """
 import hashlib,json,shutil

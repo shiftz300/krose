@@ -1,13 +1,18 @@
-name: Native Windows compile
+name: Native compile and installer checks
 on:
   push:
-    paths: ['src/**', 'cmake/**', 'CMakeLists.txt', 'tools/bootstrap_plugin.py', 'tools/native-ui/**', '.github/workflows/native-windows.yml']
+    paths: ['src/**', 'cmake/**', 'packaging/**', 'CMakeLists.txt', 'tools/**', '.github/workflows/**']
+  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  windows:
-    runs-on: windows-2022
+  compile:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-15]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -17,12 +22,39 @@ jobs:
         run: python tools/bootstrap_plugin.py
       - name: Stage compile-only assets
         run: python tools/native-ui/ci_assets.py
-      - name: Configure x64 native renderer
+      - name: Configure Windows
+        if: runner.os == 'Windows'
         run: >-
-          cmake -S . -B build/windows -G "Visual Studio 17 2022" -A x64
-          -DBUILD_TESTING=OFF -DSEGRAND_BUILD_TOOLS=OFF
+          cmake -S . -B build/ci -G "Visual Studio 17 2022" -A x64
+          -DKROSE_ENABLE_IPO=ON -DBUILD_TESTING=OFF -DSEGRAND_BUILD_TOOLS=OFF
           -DSEGRAND_ASSET_DIR="${{ github.workspace }}/build/compile-assets/concert-se-grand"
           -DKROSE_FACTORY_ASSET_DIR="${{ github.workspace }}/build/compile-assets/program-library"
-      - name: Compile VST3 and standalone
-        run: cmake --build build/windows --config Release --target Krose-vst3 Krose-app --parallel 4
-      # Do not upload nonfunctional builds containing placeholder PCM banks.
+      - name: Configure macOS universal
+        if: runner.os == 'macOS'
+        run: >-
+          cmake -S . -B build/ci -G Xcode
+          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+          -DKROSE_ENABLE_IPO=ON -DBUILD_TESTING=OFF -DSEGRAND_BUILD_TOOLS=OFF
+          -DSEGRAND_ASSET_DIR="${{ github.workspace }}/build/compile-assets/concert-se-grand"
+          -DKROSE_FACTORY_ASSET_DIR="${{ github.workspace }}/build/compile-assets/program-library"
+      - name: Build Release
+        run: cmake --build build/ci --config Release --target Krose-vst3 Krose-app --parallel 3
+      - name: Check macOS installer structure
+        if: runner.os == 'macOS'
+        run: bash tools/release/package_macos.sh build/ci 0.1.0
+      - name: Check NSIS install and uninstall
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install nsis --no-progress -y
+          $payload = (Resolve-Path build/ci/out).Path
+          & "${env:ProgramFiles(x86)}/NSIS/makensis.exe" /NOCD /DVERSION=0.1.0 "/DPAYLOAD=$payload" packaging/windows.nsi
+          if ($LASTEXITCODE -ne 0) { throw 'NSIS failed' }
+          $p = Start-Process ./Krose-0.1.0-windows-x64-setup.exe -ArgumentList /S -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Install failed' }
+          if (!(Test-Path "$env:ProgramFiles/Krose/Krose.exe")) { throw 'Missing app' }
+          if (!(Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3/Contents/Resources/Factory.samples")) { throw 'Missing plugin bank' }
+          Start-Process "$env:ProgramFiles/Krose/Uninstall.exe" -ArgumentList '/S', '_?=C:\Program Files\Krose' -Wait
+          if (Test-Path "$env:ProgramFiles/Krose/Krose.exe") { throw 'Uninstall left app' }
+          if (Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3") { throw 'Uninstall left plugin' }
+      # Placeholder banks are never uploaded or published.

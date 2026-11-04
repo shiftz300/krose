@@ -23,4 +23,4 @@ Use the `engine` preset for headless engine/tools builds and `sanitize` for ASan
 build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor
 ```
 
-[Project structure](docs/PROJECT_LAYOUT.md) · [Audio architecture and limits](docs/NATIVE_ARCHITECTURE.md) · [Implementation status](docs/IMPLEMENTATION.md) · [Design reference](docs/design/README.md) · [Resource gaps](research/docs/architecture/RESOURCE_GAPS.md) · [Research handoff](research/docs/REVERSE_HANDOFF.md)
+[CI and installers](docs/RELEASE.md) · [Project structure](docs/PROJECT_LAYOUT.md) · [Audio architecture and limits](docs/NATIVE_ARCHITECTURE.md) · [Implementation status](docs/IMPLEMENTATION.md) · [Design reference](docs/design/README.md) · [Resource gaps](research/docs/architecture/RESOURCE_GAPS.md) · [Research handoff](research/docs/REVERSE_HANDOFF.md)

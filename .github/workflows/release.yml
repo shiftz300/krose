@@ -1,0 +1,134 @@
+name: Build installers and release
+on:
+  push:
+    branches: [main, master, 'codex/**']
+    tags: ['v*']
+    paths: ['src/**', 'cmake/**', 'tests/**', 'assets/**', 'packaging/**', 'tools/**', 'CMakeLists.txt', '.github/workflows/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: installers-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+jobs:
+  build:
+    if: vars.KROSE_RELEASE_ASSETS_READY == 'true' || startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            platform: macos-universal
+          - os: windows-2022
+            platform: windows-x64
+    runs-on: ${{ matrix.os }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Check release version
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os,re
+          from pathlib import Path
+          version=re.search(r'project\(Krose VERSION ([0-9.]+)',Path('CMakeLists.txt').read_text())[1]
+          assert '#define PLUG_VERSION_STR "'+version+'"' in Path('src/plugin/config.h').read_text()
+          if os.environ['GITHUB_REF_TYPE']=='tag':
+              assert os.environ['GITHUB_REF_NAME']=='v'+version, 'Tag and product version must match'
+          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('KROSE_VERSION='+version+'\n')
+          PY
+      - uses: actions/cache@v4
+        id: pcm
+        with:
+          path: |
+            assets/concert-se-grand/SEGrand.samples
+            assets/program-library/Factory.samples
+          key: runtime-${{ hashFiles('packaging/runtime-assets.json') }}
+      - name: Download verified runtime banks
+        if: steps.pcm.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          mkdir -p build/downloads
+          gh release download runtime-assets-v1 --repo "$GITHUB_REPOSITORY" --pattern krose-runtime-v1.tar.gz --dir build/downloads
+          python tools/release/runtime_assets.py extract build/downloads/krose-runtime-v1.tar.gz
+      - name: Fetch pinned dependencies
+        run: python tools/bootstrap_plugin.py
+      - name: Configure macOS universal Release
+        if: runner.os == 'macOS'
+        run: >-
+          cmake -S . -B build/release -G Xcode
+          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+          -DKROSE_ENABLE_IPO=ON -DSEGRAND_BUILD_TOOLS=OFF -DBUILD_TESTING=ON
+      - name: Configure Windows x64 Release
+        if: runner.os == 'Windows'
+        run: >-
+          cmake -S . -B build/release -G "Visual Studio 17 2022" -A x64
+          -DKROSE_ENABLE_IPO=ON -DSEGRAND_BUILD_TOOLS=OFF -DBUILD_TESTING=OFF
+      - name: Build optimized plugin and standalone
+        run: cmake --build build/release --config Release --parallel 3
+      - name: Engine and VST3 regressions
+        if: runner.os == 'macOS'
+        run: ctest --test-dir build/release -C Release --output-on-failure
+      - name: Package macOS installer
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          lipo -verify_arch arm64 x86_64 build/release/out/Krose.app/Contents/MacOS/Krose
+          lipo -verify_arch arm64 x86_64 build/release/out/Krose.vst3/Contents/MacOS/Krose
+          bash tools/release/package_macos.sh build/release "$KROSE_VERSION"
+      - name: Package Windows NSIS installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install nsis --no-progress -y
+          $payload = (Resolve-Path build/release/out).Path
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Push-Location dist
+          & "${env:ProgramFiles(x86)}/NSIS/makensis.exe" /NOCD "/DVERSION=$env:KROSE_VERSION" "/DPAYLOAD=$payload" ../packaging/windows.nsi
+          if ($LASTEXITCODE -ne 0) { throw 'NSIS failed' }
+          Pop-Location
+      - name: Smoke test Windows install and uninstall
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $p = Start-Process "dist/Krose-$env:KROSE_VERSION-windows-x64-setup.exe" -ArgumentList /S -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Install failed' }
+          if (!(Test-Path "$env:ProgramFiles/Krose/Krose.exe")) { throw 'Missing app' }
+          if (!(Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3/Contents/Resources/Factory.samples")) { throw 'Missing VST3 samples' }
+          $p = Start-Process "$env:ProgramFiles/Krose/Uninstall.exe" -ArgumentList '/S', '_?=C:\Program Files\Krose' -Wait -PassThru
+          if (Test-Path "$env:ProgramFiles/Krose/Krose.exe") { throw 'Uninstall left app' }
+          if (Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3") { throw 'Uninstall left plugin' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Krose-${{ matrix.platform }}
+          path: |
+            dist/*.exe
+            dist/*.pkg
+          if-no-files-found: error
+          retention-days: 14
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish installers and checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          cd dist
+          sha256sum *.exe *.pkg > SHA256SUMS.txt
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "Krose $GITHUB_REF_NAME" --generate-notes \
+            --notes 'Includes standalone and VST3. macOS supports Apple Silicon and Intel. Installers are currently unsigned/not notarized.' \
+            *.exe *.pkg SHA256SUMS.txt
