@@ -271,6 +271,7 @@ void NativePanel::Render(IGraphics &g) {
   }
   g.PathClipRegion(R(424, 108, 556, 176));
   LCD(g);
+  LCDGrid(g, R(431, 115, 542, 169));
   g.PathClipRegion();
   if (mBrowsing)
     Browser(g);
@@ -355,8 +356,9 @@ void NativePanel::Chevron(IGraphics &g, const IRECT &r, const IColor &color) {
     g.FillRect(color, R(x - row, y + 5 - row, width, 1));
   }
 }
-void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &r, int id,
+void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &bounds, int id,
                         const std::string &text, bool enabled) {
+  const auto r = LCDRect(bounds);
   const char *font = mPage == 3 ? "lcd14" : "lcd16";
   bool check = id == kArpSort || id == kArpKeySync;
   bool choice = id == kParamTone || id == kArpPattern || id == kArpResolution;
@@ -364,28 +366,31 @@ void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &r, 
   Text(g, font, label, R(left, r.T, r.L - left - 4, r.H()));
   if (check) {
     g.FillRect(Value(id) > 0 ? Ink : Paper, r);
-    g.DrawRect(Ink, r);
+    LCDFrame(g, r);
     if (Value(id) > 0) {
-      g.DrawLine(Paper, r.L + 3, r.MH(), r.L + 7, r.B - 4, nullptr, 2);
-      g.DrawLine(Paper, r.L + 7, r.B - 4, r.R - 3, r.T + 4, nullptr, 2);
+      constexpr float dot = 542.f / 240;
+      for (const auto &cell : {std::pair<int, int>{1, 3}, {2, 4}, {3, 3}, {4, 2}, {5, 1}})
+        g.FillRect(Paper, LCDRect(R(r.L + cell.first * dot, r.T + cell.second * dot, dot, dot)));
     }
   } else {
     if (choice)
-      g.DrawRect(Ink, r, nullptr, 1);
+      LCDFrame(g, r);
     else
-      g.FillRect(Ink, R(r.L, r.B - 2, r.W(), 2));
+      g.FillRect(Ink, LCDRect(R(r.L, r.B - 2.25f, r.W(), 2.25f)));
     bool editing = mEdit >= 0 && mEdit == id;
     if (editing)
       g.FillRect(Ink, r);
     if (choice)
-      Chevron(g, r, Ink);
+      LCDChevron(g, r, editing ? Paper : Ink);
     else {
       auto a = R(r.R - 19, r.T + 2, 16, r.H() - 4);
-      g.FillRect(IColor(32, 130, 138, 142), a);
-      Chevron(g, R(a.L + 5, a.T, a.W(), a.H()), IColor(255, 104, 114, 119));
+      LCDChevron(g, R(a.L + 5, a.T, a.W(), a.H()), editing ? Paper : Ink);
     }
+    const auto textBox = R(r.L + (choice ? 7 : 3), r.T, r.W() - (choice ? 31 : 24), r.H() - 2);
+    g.PathClipRegion(textBox);
     Text(g, editing ? (mPage == 3 ? "light14" : "light16") : font, editing ? mEditText : text,
-         R(r.L + (choice ? 7 : 3), r.T, r.W() - (choice ? 31 : 24), r.H()), choice ? 0 : 2);
+         textBox, choice ? 0 : 2);
+    g.PathClipRegion(R(424, 108, 556, 176));
   }
   if (enabled) {
     HitBox(r, check ? "toggle" : "field", id);
@@ -424,7 +429,7 @@ void NativePanel::LCD(IGraphics &g) {
   float sourceWidth = TextWidth("lcd16", source), tempoWidth = TextWidth("lcd16", tempo);
   float nameX = 446 + sourceWidth, nameRight = 958 - tempoWidth;
   Text(g, "lcd16", source, R(436, 140, sourceWidth, 20));
-  g.FillRect(Ink, R(nameX, 141, nameRight - nameX, 18));
+  g.FillRect(Ink, LCDRect(R(nameX, 141, nameRight - nameX, 18)));
   Text(g, "light16", name, R(nameX + 6, 140, nameRight - nameX - 12, 20));
   Text(g, "lcd16", tempo, R(968 - tempoWidth, 140, tempoWidth, 20), 2);
   HitBox(R(968 - tempoWidth, 140, tempoWidth, 20), "toggle", kArpHostSync);
@@ -451,7 +456,7 @@ void NativePanel::LCD(IGraphics &g) {
     Field(g, "Resolution:", R(859, 168, 108, 18), kArpResolution,
           rates[int(Value(kArpResolution))]);
     Field(g, "Gate (%):", R(625, 190, 68, 18), kArpGate, Format(Value(kArpGate)));
-    Field(g, "Tempo:", R(899, 190, 68, 18), kArpTempo, Format(Value(kArpTempo), 2));
+    Field(g, "Tempo:", R(883, 190, 84, 18), kArpTempo, Format(Value(kArpTempo), 2));
     Field(g, "Octave:", R(625, 212, 68, 18), kArpOctaves, Format(Value(kArpOctaves)));
     Field(g, "Sort:", R(949, 212, 18, 18), kArpSort, "");
     Field(g, "Key Sync:", R(675, 234, 18, 18), kArpKeySync, "");

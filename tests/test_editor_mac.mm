@@ -95,6 +95,9 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       capture("tone", 780, 125);
       capture("fx", 850, 125);
       capture("arp", 930, 125);
+      number(v, 930, 199, @"300.00");
+      capture("numeric-max", 800, 270);
+      number(v, 930, 199, @"120.00");
       capture("lcd-dropdown", 635, 177);
       key(v, @"\x1b", 53);
       capture("folded", 71, 85);
@@ -117,6 +120,14 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       assert(parameter("Arp Host Sync") == 0.);
       number(v, 930, 199, @"143.25");
       assert(std::abs(parameter("Arp Tempo") - 123.25 / 280.) < 1e-8);
+      number(v, 930, 199, @"300.00");
+      click(v, 956, 194);
+      assert(parameter("Arp Tempo") == 1.);
+      click(v, 956, 203);
+      assert(std::abs(parameter("Arp Tempo") - 279.99 / 280.) < 1e-8);
+      number(v, 930, 199, @"20.00");
+      assert(parameter("Arp Tempo") == 0.);
+      number(v, 930, 199, @"143.25");
       click(v, 635, 177);
       key(v, @"\uf701", 125);
       key(v, @"\r", 36);

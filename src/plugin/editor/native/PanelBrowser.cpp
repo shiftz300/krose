@@ -70,26 +70,41 @@ void NativePanel::Popup(IGraphics &g) {
     top = mPopupTarget.r.T - 2 - count * rowHeight;
   top = std::max(2.f, top);
   auto r = R(left, top, width, count * rowHeight);
+  if (lcd)
+    r = LCDRect(r);
   HitBox(mRECT, "dismiss");
   g.FillRect(lcd ? Paper : IColor(255, 35, 38, 40), r);
-  g.DrawRect(lcd ? Ink : IColor(255, 118, 122, 125), r, nullptr, 1);
+  if (lcd)
+    LCDFrame(g, r);
+  else
+    g.DrawRect(IColor(255, 118, 122, 125), r, nullptr, 1);
   for (int n = 0; n < count; ++n) {
     int i = mPopupScroll + n;
     auto row = R(left + 1, top + n * rowHeight, width - 2, rowHeight);
+    if (lcd) {
+      row = LCDRect(row);
+      row.L = LCDX(r.L + 2.25f);
+      row.R = LCDX(r.R - 2.25f);
+      row.T = std::max(row.T, LCDY(r.T + 2.25f));
+      row.B = std::min(row.B, LCDY(r.B - 2.25f));
+    }
     bool selected = i == mPopupFocus;
     if (selected)
       g.FillRect(lcd ? Ink : IColor(255, 65, 81, 94), row);
     g.PathClipRegion(row.GetPadded(-1));
     Text(g, lcd ? (selected ? "light14" : "lcd14") : "arial15", mChoices[i],
-         R(row.L + 7, row.T, row.W() - 14, row.H()));
+         R((lcd ? r.L : row.L) + 7, row.T, row.W() - 14, row.H()));
     g.PathClipRegion();
     HitBox(row, "choice", -1, mChoiceValues[i]);
   }
   if (int(mChoices.size()) > count) {
     float h = r.H() * count / mChoices.size();
-    g.FillRect(lcd ? Ink : IColor(255, 150, 157, 162),
-               R(r.R - 3, r.T + (r.H() - h) * mPopupScroll / (mChoices.size() - count), 1, h));
+    auto bar = R(r.R - (lcd ? 4.5f : 3),
+                 r.T + (r.H() - h) * mPopupScroll / (mChoices.size() - count), lcd ? 2.25f : 1, h);
+    g.FillRect(lcd ? Ink : IColor(255, 150, 157, 162), lcd ? LCDRect(bar) : bar);
   }
+  if (lcd)
+    LCDGrid(g, r);
 }
 void NativePanel::Browser(IGraphics &g) {
   mHits.clear();
