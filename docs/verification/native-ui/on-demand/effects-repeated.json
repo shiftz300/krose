@@ -1,0 +1,255 @@
+{
+  "scope": "Five alternating-order runs, identical input/compiler optimization; median of per-run medians; 48kHz/128 frames",
+  "runs": [
+    {
+      "before": {
+        "profiles": [
+          {
+            "mode": 0,
+            "median_us": 5.25,
+            "p95_us": 5.5,
+            "hash": "18427334463898273352"
+          },
+          {
+            "mode": 1,
+            "median_us": 5.334,
+            "p95_us": 5.5,
+            "hash": "10051997478310371872"
+          },
+          {
+            "mode": 2,
+            "median_us": 5.333,
+            "p95_us": 5.542,
+            "hash": "1891542750668366464"
+          }
+        ]
+      },
+      "after": {
+        "profiles": [
+          {
+            "mode": 0,
+            "median_us": 1.583,
+            "p95_us": 2.125,
+            "hash": "18427334463898273352"
+          },
+          {
+            "mode": 1,
+            "median_us": 3.375,
+            "p95_us": 3.417,
+            "hash": "10051997478310371872"
+          },
+          {
+            "mode": 2,
+            "median_us": 3.541,
+            "p95_us": 3.583,
+            "hash": "1891542750668366464"
+          }
+        ]
+      }
+    },
+    {
+      "after": {
+        "profiles": [
+          {
+            "mode": 0,
+            "median_us": 1.458,
+            "p95_us": 2,
+            "hash": "18427334463898273352"
+          },
+          {
+            "mode": 1,
+            "median_us": 3.375,
+            "p95_us": 3.458,
+            "hash": "10051997478310371872"
+          },
+          {
+            "mode": 2,
+            "median_us": 3.541,
+            "p95_us": 3.583,
+            "hash": "1891542750668366464"
+          }
+        ]
+      },
+      "before": {
+        "profiles": [
+          {
+            "mode": 0,
+            "median_us": 4.959,
+            "p95_us": 5.209,
+            "hash": "18427334463898273352"
+          },
+          {
+            "mode": 1,
+            "median_us": 5.333,
+            "p95_us": 5.5,
+            "hash": "10051997478310371872"
+          },
+          {
+            "mode": 2,
+            "median_us": 5.334,
+            "p95_us": 5.583,
+            "hash": "1891542750668366464"
+          }
+        ]
+      }
+    },
+    {
+      "before": {
+        "profiles": [
+          {
+            "mode": 0,
+            "median_us": 5.292,
+            "p95_us": 5.542,
+            "hash": "18427334463898273352"
+          },
+          {
+            "mode": 1,
+            "median_us": 5.333,
+            "p95_us": 5.542,
+            "hash": "10051997478310371872"
+          },
+          {
+            "mode": 2,
+            "median_us": 5.292,
+            "p95_us": 5.5,
+            "hash": "1891542750668366464"
+          }
+        ]
+      },
+      "after": {
+        "profiles": [
+          {
+            "mode": 0,
+            "median_us": 1.458,
+            "p95_us": 1.958,
+            "hash": "18427334463898273352"
+          },
+          {
+            "mode": 1,
+            "median_us": 3.334,
+            "p95_us": 3.416,
+            "hash": "10051997478310371872"
+          },
+          {
+            "mode": 2,
+            "median_us": 3.541,
+            "p95_us": 3.625,
+            "hash": "1891542750668366464"
+          }
+        ]
+      }
+    },
+    {
+      "after": {
+        "profiles": [
+          {
+            "mode": 0,
+            "median_us": 1.458,
+            "p95_us": 1.959,
+            "hash": "18427334463898273352"
+          },
+          {
+            "mode": 1,
+            "median_us": 3.416,
+            "p95_us": 3.458,
+            "hash": "10051997478310371872"
+          },
+          {
+            "mode": 2,
+            "median_us": 3.542,
+            "p95_us": 3.584,
+            "hash": "1891542750668366464"
+          }
+        ]
+      },
+      "before": {
+        "profiles": [
+          {
+            "mode": 0,
+            "median_us": 5.334,
+            "p95_us": 5.583,
+            "hash": "18427334463898273352"
+          },
+          {
+            "mode": 1,
+            "median_us": 5.292,
+            "p95_us": 5.5,
+            "hash": "10051997478310371872"
+          },
+          {
+            "mode": 2,
+            "median_us": 5.292,
+            "p95_us": 5.5,
+            "hash": "1891542750668366464"
+          }
+        ]
+      }
+    },
+    {
+      "before": {
+        "profiles": [
+          {
+            "mode": 0,
+            "median_us": 5.042,
+            "p95_us": 5.375,
+            "hash": "18427334463898273352"
+          },
+          {
+            "mode": 1,
+            "median_us": 5.25,
+            "p95_us": 5.5,
+            "hash": "10051997478310371872"
+          },
+          {
+            "mode": 2,
+            "median_us": 5.125,
+            "p95_us": 5.417,
+            "hash": "1891542750668366464"
+          }
+        ]
+      },
+      "after": {
+        "profiles": [
+          {
+            "mode": 0,
+            "median_us": 1.542,
+            "p95_us": 2.208,
+            "hash": "18427334463898273352"
+          },
+          {
+            "mode": 1,
+            "median_us": 3.375,
+            "p95_us": 3.417,
+            "hash": "10051997478310371872"
+          },
+          {
+            "mode": 2,
+            "median_us": 3.542,
+            "p95_us": 3.667,
+            "hash": "1891542750668366464"
+          }
+        ]
+      }
+    }
+  ],
+  "summary": [
+    {
+      "mode": 0,
+      "before_median_us": 5.25,
+      "after_median_us": 1.458,
+      "reduction_percent": 72.22857142857143
+    },
+    {
+      "mode": 1,
+      "before_median_us": 5.333,
+      "after_median_us": 3.375,
+      "reduction_percent": 36.714794674667175
+    },
+    {
+      "mode": 2,
+      "before_median_us": 5.292,
+      "after_median_us": 3.541,
+      "reduction_percent": 33.087679516250944
+    }
+  ]
+}

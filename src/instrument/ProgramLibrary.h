@@ -3,12 +3,16 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <mutex>
+#include <list>
 #include <string>
 #include <vector>
 namespace segrand {
 struct SharedSample {
   uint32_t id=0,loopStart=0,loopEnd=0,flags=0;
   int pitch=0;
+  uint32_t frames=0;
+  uint64_t offset=0;
   PCM24 pcm; // Mono, stored once and shared by all regions/instances.
 };
 struct ProgramRegion {
@@ -31,7 +35,11 @@ struct InstrumentProgram {
 class ProgramLibrary {
 public:
   // The returned bank is immutable; loading/caching is a non-audio-thread operation.
-  static std::shared_ptr<const ProgramLibrary> Load(const std::string& path);
+  static std::shared_ptr<const ProgramLibrary> Load(const std::string& path, bool preload=true);
+  bool OnDemand() const noexcept {return !mPreload;}
+  // Worker/lifecycle thread only. Cache is shared by plugin instances.
+  std::vector<std::shared_ptr<const PCM24>> LoadProgram(unsigned program) const;
+  size_t ResidentBytes() const;
   std::vector<SharedSample> samples;
   std::vector<ProgramRegion> regions;
   std::vector<InstrumentProgram> programs;
@@ -40,6 +48,12 @@ public:
   int LayerWeight(const ProgramRegion& region,int velocity) const noexcept;
   static int SelectionPitch(const InstrumentProgram& program,int oscillator,int note) noexcept;
 private:
+  std::string mPath;
+  bool mPreload=true;
+  mutable std::mutex mCacheMutex;
+  mutable std::vector<std::weak_ptr<const PCM24>> mSampleCache;
+  mutable std::list<std::shared_ptr<const PCM24>> mRecent;
+  mutable size_t mRecentBytes=0;
   std::array<uint32_t,224> mPhaseBase{};
   std::array<uint16_t,256> mPhaseFraction{};
   std::array<uint16_t,129> mCrossfade{};

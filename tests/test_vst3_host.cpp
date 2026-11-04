@@ -15,6 +15,8 @@
 #include <iostream>
 #include <functional>
 #include <map>
+#include <chrono>
+#include <thread>
 #include <vector>
 using namespace Steinberg;
 using namespace Steinberg::Vst;
@@ -180,6 +182,22 @@ int main(int argc,char** argv){
     for(int i=0;i<controller->getParameterCount();++i){ParameterInfo p{};controller->getParameterInfo(i,p);controller->setParamNormalized(p.id,p.defaultNormalizedValue);}
     controller->setParamNormalized(ids.at("Program"),1./1161.);
     controller->setParamNormalized(ids.at("Arp Host Sync"),0.);
+  }
+  if(const char* selected=std::getenv("KROSE_UI_BENCH_PROGRAM")){
+    const int program=std::atoi(selected);assert(program>=0&&program<=1161);
+    ProcessSetup setup{};setup.processMode=kRealtime;setup.symbolicSampleSize=kSample32;setup.maxSamplesPerBlock=128;setup.sampleRate=48000;
+    assert(processor->setupProcessing(setup)==kResultOk);assert(component->setActive(true)==kResultOk);processor->setProcessing(true);
+    ParameterChanges changes;int index=0,point=0;
+    for(int i=0;i<controller->getParameterCount();++i){ParameterInfo p{};controller->getParameterInfo(i,p);
+      if(p.id>=29)continue;
+      const auto value=p.id==ids.at("Program")?program/1161.:p.defaultNormalizedValue;
+      controller->setParamNormalized(p.id,value);changes.addParameterData(p.id,index)->addPoint(0,value,point);
+    }
+    float l[128]{},r[128]{};float* channels[]={l,r};AudioBusBuffers bus{};bus.numChannels=2;bus.channelBuffers32=channels;
+    ProcessData data{};data.processMode=kRealtime;data.symbolicSampleSize=kSample32;data.numOutputs=1;data.outputs=&bus;data.inputParameterChanges=&changes;data.numSamples=128;
+    for(int n=0;n<256;++n){assert(processor->process(data)==kResultOk);changes.clearQueue();std::this_thread::sleep_for(std::chrono::milliseconds(3));}
+    processor->setProcessing(false);component->setActive(false);
+    std::cout<<"MEMORY selected Program "<<program<<std::endl;
   }
   auto* view=controller->createView(ViewType::kEditor);assert(view);
   if(openEditor) verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);},[&]{return controller->getParamNormalized(ids["Program"]);},[&]{return controller->getParamNormalized(ids["Voice Mode"]);},[&]{return controller->getParamNormalized(ids["Glide"]);},[&](const char* name){return controller->getParamNormalized(ids.at(name));});

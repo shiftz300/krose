@@ -28,7 +28,7 @@ public:
   bool OnKeyUp(float, float, const IKeyPress &) override;
   void OnMouseOver(float, float, const IMouseMod &) override;
   void OnMouseOut() override;
-  void Refresh(double tempo, bool host);
+  void Refresh(double tempo, bool host, bool loading, bool loadFailed);
   void ReleaseHeld();
 
 private:
@@ -89,6 +89,7 @@ private:
       mScroll = 0, mGroup = -1, mCategory = -1, mFocus = -1;
   float mDragY = 0, mMouseX = 0, mMouseY = 0;
   double mDragValue = 0, mTempo = 120, mPitch = 0;
+  bool mLoading = false, mLoadFailed = false;
   bool mHost = false, mFold = false, mSustain = false, mBrowsing = false, mSelectAll = false;
   std::string mEditText, mSearch, mHover;
   std::vector<std::string> mChoices;

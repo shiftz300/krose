@@ -74,7 +74,7 @@ def main():
                 'source_sha256': {str(p.relative_to(ROOT)): digest(p) for p in sources if p.is_file()},
                 'verification': {'vst3_official_validator': result[0],
                                  'native_cocoa_ui':'passed',
-                                 'ctest': ['program-engine','piano-engine','native-voice','native-filter','performance','arpeggiator','vst3-host'], 'engine_asan_ubsan': 'passed',
+                                 'ctest': ['program-engine','piano-engine','native-voice','native-filter','performance','arpeggiator','sample-loading','effects','vst3-host'], 'engine_asan_ubsan': 'passed',
                                  'ableton_manual_acceptance': 'pending'},
                 'benchmark': json.loads((ROOT/'build/piano-benchmark.json').read_text()) if (ROOT/'build/piano-benchmark.json').exists() else None}
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
@@ -85,6 +85,7 @@ def main():
     shutil.copy(ROOT/'docs/ARPEGGIATOR.md',output/'ARPEGGIATOR.md')
     shutil.copy(ROOT/'docs/NATIVE_UI_MIGRATION.md',output/'NATIVE_UI_MIGRATION.md')
     shutil.copy(ROOT/'docs/UI_OPTIMIZATION.md',output/'UI_OPTIMIZATION.md')
+    shutil.copy(ROOT/'docs/SAMPLE_LOADING.md',output/'SAMPLE_LOADING.md')
     print('Packaged, signed and verified: output/Krose/{Krose.vst3,Krose.app}')
 
 

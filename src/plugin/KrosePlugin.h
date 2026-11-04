@@ -13,12 +13,13 @@ using namespace igraphics;
 
 class KrosePlugin final : public Plugin {
 public:
-  explicit KrosePlugin(const InstanceInfo& info);
-  int UnserializeState(const IByteChunk& chunk, int startPos) override;
+  explicit KrosePlugin(const InstanceInfo &info);
+  void OnParamChange(int paramIdx, EParamSource source, int sampleOffset = -1) override;
+  int UnserializeState(const IByteChunk &chunk, int startPos) override;
 
 #if IPLUG_DSP
-  void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
-  void ProcessMidiMsg(const IMidiMsg& msg) override;
+  void ProcessBlock(sample **inputs, sample **outputs, int nFrames) override;
+  void ProcessMidiMsg(const IMidiMsg &msg) override;
   void OnReset() override;
 #endif
 #if IPLUG_EDITOR

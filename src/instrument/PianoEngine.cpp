@@ -1,4 +1,5 @@
 #include "PianoEngine.h"
+#include "SampleResidency.h"
 #include "ConcertEqData.h"
 #include <algorithm>
 #include <cmath>
@@ -7,6 +8,7 @@
 #include <fstream>
 #include <limits>
 #include <mutex>
+#include <map>
 #include <stdexcept>
 
 namespace segrand {
@@ -22,13 +24,14 @@ double Interpolate(const Sample& sample,double position,int channel) {
 }
 }
 
-std::shared_ptr<const SampleBank> SampleBank::Load(const std::string& path) {
+std::shared_ptr<const SampleBank> SampleBank::Load(const std::string& path,bool preload) {
   // Construction only. Instances share immutable samples; no audio-thread locks.
   static std::mutex mutex;
-  static std::weak_ptr<const SampleBank> cached;
-  static std::string cachedPath;
+  static std::map<std::string,std::weak_ptr<const SampleBank>> cache;
   std::lock_guard<std::mutex> lock(mutex);
-  if(cachedPath==path)if(auto existing=cached.lock())return existing;
+  const auto key=path+(preload?"#full":"#metadata");
+  if(auto existing=cache[key].lock())return existing;
+  for(auto it=cache.begin();it!=cache.end();)if(it->second.expired())it=cache.erase(it);else ++it;
   std::ifstream file(std::filesystem::u8path(path),std::ios::binary|std::ios::ate);
   if(!file)throw std::runtime_error("Sample library is missing");
   const auto fileSize=file.tellg();
@@ -37,7 +40,7 @@ std::shared_ptr<const SampleBank> SampleBank::Load(const std::string& path) {
   unsigned char header[32];
   if(!file.read(reinterpret_cast<char*>(header),32)||std::memcmp(header,"SEGRAND1",8)||U32(header+8)!=1||U32(header+12)!=84||U32(header+24)!=32)
     throw std::runtime_error("Invalid sample library header");
-  auto bank=std::make_shared<SampleBank>();
+  auto bank=std::make_shared<SampleBank>();bank->path=path;bank->preloaded=preload;
   uint64_t rateBits=U64(header+16);
   std::memcpy(&bank->rootRate,&rateBits,8);
   if(bank->rootRate!=42017.578125)throw std::runtime_error("Unsupported source playback rate");
@@ -53,13 +56,14 @@ std::shared_ptr<const SampleBank> SampleBank::Load(const std::string& path) {
        ||(i>0&&layer==previousLayer&&top<=previousTop))throw std::runtime_error("Invalid sample region");
     previousTop=top; previousLayer=layer; expectedOffset+=bytes;
     Sample sample;sample.root=root;sample.top=top;sample.loopStart=start;sample.loopEnd=end;
-    sample.stereo.resize(static_cast<size_t>(frames)*2);
+    sample.frameCount=frames;
+    if(preload){sample.stereo.resize(static_cast<size_t>(frames)*2);
     file.seekg(static_cast<std::streamoff>(offset));
-    if(!file.read(reinterpret_cast<char*>(sample.stereo.data()),bytes))throw std::runtime_error("Incomplete sample payload");
+    if(!file.read(reinterpret_cast<char*>(sample.stereo.data()),bytes))throw std::runtime_error("Incomplete sample payload");}
     bank->layers[layer].push_back(std::move(sample));
   }
   if(expectedOffset!=uint64_t(fileSize))throw std::runtime_error("Trailing sample payload data");
-  cached=bank; cachedPath=path;
+  cache[key]=bank;
   return bank;
 }
 
@@ -71,7 +75,18 @@ const Sample& SampleBank::Select(unsigned layer,unsigned note) const {
 
 PianoEngine::PianoEngine(std::shared_ptr<const SampleBank> bank):mBank(std::move(bank)) {
   if(!mBank)throw std::invalid_argument("Missing sample bank");
+  mPlaybackBank=mBank.get();
   Prepare(48000);
+}
+void PianoEngine::SetSamples(const SampleResidency* samples) noexcept {
+ mResidency=samples;mPlaybackBank=samples?samples->concert.get():mBank.get();
+}
+void PianoEngine::MarkSamples(bool* used) const noexcept {
+ for(const auto& v:mVoices)if(v.sample&&v.residency)used[v.residency->slot]=true;
+ for(const auto& v:mTails)if(v.sample&&v.residency)used[v.residency->slot]=true;
+}
+void PianoEngine::Deactivate() noexcept {
+ mMono.Reset();mSustain.fill(false);for(auto& v:mVoices)if(v.sample)Release(v);
 }
 PianoEngine::~PianoEngine()=default;
 void PianoEngine::Prepare(double rate) {
@@ -156,8 +171,8 @@ void PianoEngine::NoteOn(int note,int velocity,int channel,int previousPitch) no
   }
   const int layer=VelocityLayer(velocity);
   const int selection=mControls.glide&&previousPitch>=0?std::max(note,previousPitch/65536):note;
-  const Sample& sample=mBank->Select(layer,selection);
-  *it={};it->sample=&sample;it->note=note;it->channel=channel;it->keyDown=true;it->age=++mAge;
+  const Sample& sample=mPlaybackBank->Select(layer,selection);
+  *it={};it->residency=mResidency;it->sample=&sample;it->note=note;it->channel=channel;it->keyDown=true;it->age=++mAge;
   it->step=mBank->rootRate/mRate*std::pow(2,(note-int(sample.root))/12.0);
   it->glide.Start(previousPitch,note,mControls.glide);it->glideRatio=it->glide.Ratio();
   // Native velocity/slot/AMS/keyboard response is the baseline. This optional
@@ -241,7 +256,9 @@ void PianoEngine::Render(float* left,float* right,int frames) noexcept {
     std::array<float,kChunk*2> dry{};
     std::array<std::array<float,kChunk*2>,3> audio;
     for(int n=0;n<count;++n){double l=0,r=0;for(auto& v:mVoices)RenderVoice(v,l,r);for(auto& v:mTails)RenderVoice(v,l,r);dry[n*2]=float(l);dry[n*2+1]=float(r);}
-    for(int p=0;p<3;++p){audio[p]=dry;concert_effects_process(mEffects[p].get(),audio[p].data(),count);}
+    std::array<double,kChunk*2> equalized;
+    concert_effects_equalize(mEffects[0].get(),dry.data(),equalized.data(),count);
+    for(int p=0;p<3;++p)concert_effects_process_equalized(mEffects[p].get(),equalized.data(),audio[p].data(),count);
     for(int n=0;n<count;++n){
       double l=0,r=0;mOutput+=mSmoothing*(mOutputTarget-mOutput);
       for(int p=0;p<3;++p){mWeights[p]+=mSmoothing*((p==mControls.preset?1:0)-mWeights[p]);l+=audio[p][n*2]*mWeights[p];r+=audio[p][n*2+1]*mWeights[p];}

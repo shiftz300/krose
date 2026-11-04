@@ -59,8 +59,11 @@ void NativePanel::Set(int id, double v, bool gesture) {
     GetDelegate()->EndInformHostOfParamChangeFromUI(id);
   SetDirty(false);
 }
-void NativePanel::Refresh(double tempo, bool host) {
-  bool changed = tempo != mTempo || host != mHost || FoldProgress() != mRenderedFold;
+void NativePanel::Refresh(double tempo, bool host, bool loading, bool loadFailed) {
+  bool changed = tempo != mTempo || host != mHost || FoldProgress() != mRenderedFold ||
+                 loading != mLoading || loadFailed != mLoadFailed;
+  mLoading = loading;
+  mLoadFailed = loadFailed;
   mTempo = tempo;
   mHost = host;
   for (int i = 0; i < 29; ++i) {
@@ -298,8 +301,12 @@ void NativePanel::Render(IGraphics &g) {
   auto &p = mPrograms[program];
   g.FillRect(IColor(255, 34, 34, 34), R(507, 52, 482, 30));
   g.DrawRect(IColor(255, 94, 99, 102), R(507, 52, 482, 30), nullptr, 1);
-  Text(g, "arial14", p[0].get<std::string>() + " " + p[1].get<std::string>(),
-       R(515.015625, 52, 444, 30));
+  auto presetText = R(515.015625, 52, mLoading ? 340 : 444, 30);
+  g.PathClipRegion(R(presetText.L - 4, presetText.T, presetText.W() + 4, presetText.H()));
+  Text(g, "arial14", p[0].get<std::string>() + " " + p[1].get<std::string>(), presetText);
+  g.PathClipRegion();
+  if (mLoading)
+    Text(g, "arial13", mLoadFailed ? "LOAD FAILED" : "LOADING", R(862, 52, 97, 30), 2);
   Chevron(g, R(507, 52, 482, 30), IColor(255, 227, 227, 227));
   HitBox(R(507, 52, 482, 30), "presets");
   if (!mFold && !mBrowsing) {

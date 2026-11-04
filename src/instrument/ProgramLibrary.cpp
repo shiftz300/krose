@@ -21,18 +21,19 @@ public:
 };
 void Require(bool value){if(!value)throw std::runtime_error("Invalid factory library");}
 }
-std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string& path){
+std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string& path,bool preload){
  static std::mutex mutex;
  static std::map<std::string,std::weak_ptr<const ProgramLibrary>> cache;
- const std::string key=std::filesystem::absolute(std::filesystem::u8path(path)).lexically_normal().string();
+ const std::string key=std::filesystem::absolute(std::filesystem::u8path(path)).lexically_normal().u8string();
  std::lock_guard<std::mutex> lock(mutex); // Loading only, never called by audio processing.
- if(auto existing=cache[key].lock())return existing;
+ const auto cacheKey=key+(preload?"#full":"#metadata");
+ if(auto existing=cache[cacheKey].lock())return existing;
  for(auto it=cache.begin();it!=cache.end();)if(it->second.expired())it=cache.erase(it);else ++it;
  Reader in(key);char magic[8];in.Bytes(magic,8);Require(!std::memcmp(magic,"KRPRG002",8)&&in.U32()==2);
  const auto sampleCount=in.U32(),regionCount=in.U32(),programCount=in.U32();
  Require(sampleCount>0&&sampleCount<=8192&&regionCount>0&&regionCount<=262144&&programCount>0&&programCount<=2048);
- const auto fileSize=std::filesystem::file_size(key);Require(fileSize<=512ull*1024*1024);
- auto bank=std::make_shared<ProgramLibrary>();
+ const auto fileSize=std::filesystem::file_size(std::filesystem::u8path(key));Require(fileSize<=512ull*1024*1024);
+ auto bank=std::make_shared<ProgramLibrary>();bank->mPath=key;bank->mPreload=preload;bank->mSampleCache.resize(sampleCount);
  for(auto& v:bank->mPhaseBase)v=in.U32();
  for(auto& v:bank->mPhaseFraction){uint8_t p[2];in.Bytes(p,2);v=uint16_t(p[0])|(uint16_t(p[1])<<8);}
  for(auto& v:bank->mCrossfade){uint8_t p[2];in.Bytes(p,2);v=uint16_t(p[0])|(uint16_t(p[1])<<8);}
@@ -42,6 +43,7 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string& pa
  for(auto& sample:bank->samples){
   sample.id=in.U32();const auto frames=in.U32();sample.loopStart=in.U32();sample.loopEnd=in.U32();sample.flags=in.U32();sample.pitch=in.I32();const auto offset=in.U64();
   Require(sample.id<65536&&sample.pitch>=-32768&&sample.pitch<=32767&&frames>0&&frames<=48000*60&&sample.loopStart<frames&&sample.loopEnd<frames&&sample.loopStart<=sample.loopEnd&&offset==expected);
+  sample.frames=frames;sample.offset=offset;
   expected+=uint64_t(frames)*3;Require(expected<=fileSize);payloads.push_back({frames,offset});
  }
  Require(expected==fileSize);bank->regions.resize(regionCount);
@@ -58,8 +60,38 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string& pa
   for(unsigned o=0;o<2;++o){const auto* base=p.controls.data()+0x564+380*o;for(unsigned stage=0;stage<4;++stage)Require(base[0x118+stage*2+1]<100&&base[0x118+8+stage]<=10&&base[0xd8+5+stage*2]<100&&base[0xd8+stage]<=10);}
   for(uint32_t i=p.firstRegion;i<p.firstRegion+p.regionCount;++i){const auto& r=bank->regions[i];Require(p.drum==bool(r.flags&8));for(int n=r.noteLow;n<=r.noteHigh;++n){Require(p.lookup[r.oscillator][n][r.slot]==-1);p.lookup[r.oscillator][n][r.slot]=int32_t(i);}}
  }
- for(size_t i=0;i<bank->samples.size();++i){auto& sample=bank->samples[i];const auto& info=payloads[i];Require(uint64_t(in.file.tellg())==info.offset);sample.pcm.resize(info.frames);in.Bytes(sample.pcm.data(),size_t(info.frames)*3);}
- cache[key]=bank;return bank;
+ if(preload)for(size_t i=0;i<bank->samples.size();++i){auto& sample=bank->samples[i];const auto& info=payloads[i];Require(uint64_t(in.file.tellg())==info.offset);sample.pcm.resize(info.frames);in.Bytes(sample.pcm.data(),size_t(info.frames)*3);}
+ cache[cacheKey]=bank;return bank;
+}
+std::vector<std::shared_ptr<const PCM24>> ProgramLibrary::LoadProgram(unsigned program) const {
+ if(program>=programs.size())throw std::out_of_range("Program index");
+ std::lock_guard<std::mutex> lock(mCacheMutex);
+ std::vector<std::shared_ptr<const PCM24>> result(samples.size());
+ const auto& p=programs[program];
+ std::ifstream file(std::filesystem::u8path(mPath),std::ios::binary);
+ if(!file)throw std::runtime_error("Factory samples unavailable");
+ for(uint32_t r=p.firstRegion;r<p.firstRegion+p.regionCount;++r)for(auto index:regions[r].sample){
+  if(index==UINT32_MAX||result[index])continue;
+  auto pcm=mSampleCache[index].lock();
+  if(!pcm){
+   const auto& sample=samples[index];auto loaded=std::make_shared<PCM24>();loaded->resize(sample.frames);
+   file.seekg(std::streamoff(sample.offset));
+   if(!file.read(reinterpret_cast<char*>(loaded->data()),std::streamsize(sample.frames)*3))throw std::runtime_error("Incomplete factory sample");
+   pcm=std::move(loaded);mSampleCache[index]=pcm;
+  }
+  result[index]=pcm;
+  auto recent=std::find_if(mRecent.begin(),mRecent.end(),[&](const auto& entry){return entry.get()==pcm.get();});
+  if(recent!=mRecent.end())mRecent.splice(mRecent.end(),mRecent,recent);
+  else {mRecent.push_back(pcm);mRecentBytes+=pcm->storageBytes();}
+  // Active voices/snapshots keep their own pins. Only unneeded cache references go away.
+  while(mRecentBytes>32u*1024*1024&&!mRecent.empty()) {mRecentBytes-=mRecent.front()->storageBytes();mRecent.pop_front();}
+ }
+ return result;
+}
+size_t ProgramLibrary::ResidentBytes() const {
+ std::lock_guard<std::mutex> lock(mCacheMutex);size_t bytes=PCMBytes();
+ for(const auto& weak:mSampleCache)if(auto pcm=weak.lock())bytes+=pcm->storageBytes();
+ return bytes;
 }
 uint32_t ProgramLibrary::Phase(int exponent) const noexcept{
  const auto index=unsigned(std::clamp(exponent,-32768,24575)+32768);const uint32_t base=mPhaseBase[index>>8];return base+((base*uint32_t(mPhaseFraction[index&255]))>>16);

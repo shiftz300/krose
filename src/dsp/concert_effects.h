@@ -15,6 +15,10 @@ ConcertEffects *concert_effects_create(double sample_rate, const double coeffici
     double trim, double reverb_seconds, double reverb_wet, double chorus_wet,
     double tone_lowpass_hz);
 void concert_effects_process(ConcertEffects *effects, float *stereo, size_t frames);
+/* Shared dry EQ for variants with identical coefficients/trim. Keep double
+ * precision between stages; downstream tone, chorus and hall states stay separate. */
+void concert_effects_equalize(ConcertEffects *effects, const float *input, double *output, size_t frames);
+void concert_effects_process_equalized(ConcertEffects *effects, const double *equalized, float *stereo, size_t frames);
 /* Call from the audio thread; transitions are smoothed over approximately 20ms. */
 int concert_effects_set_wet(ConcertEffects *effects, double reverb_wet, double chorus_wet);
 void concert_effects_reset(ConcertEffects *effects);

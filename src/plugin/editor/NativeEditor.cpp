@@ -12,7 +12,10 @@ void KrosePlugin::ConfigureEditor() {
     });
   };
 }
-void KrosePlugin::OnParamChangeUI(int, EParamSource) {
+void KrosePlugin::OnParamChangeUI(int id, EParamSource) {
+  // VST3 controller/state changes can arrive while processing is suspended.
+  if (id == kParamProgram && mEngine)
+    mEngine->RequestProgram(GetParam(id)->Int());
   if (GetUI())
     GetUI()->SetAllControlsDirty();
 }
@@ -22,7 +25,9 @@ void KrosePlugin::OnIdle() {
   auto *p = static_cast<krose::ui::NativePanel *>(GetUI()->GetControlWithTag(kEditorTag));
   if (p)
     p->Refresh(mDisplayTempo.load(std::memory_order_relaxed),
-               mDisplayHost.load(std::memory_order_relaxed));
+               mDisplayHost.load(std::memory_order_relaxed),
+               mEngine && !mEngine->SamplesReady(GetParam(kParamProgram)->Int()),
+               mEngine && GetParam(kParamProgram)->Int() == mEngine->FailedProgram());
 }
 void KrosePlugin::OnUIClose() {
   if (GetUI()) {

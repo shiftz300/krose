@@ -12,15 +12,19 @@
 #include "EngineTypes.h"
 
 namespace segrand {
+struct SampleResidency;
 struct Sample {
   unsigned root=0, top=0, loopStart=0, loopEnd=0;
+  uint32_t frameCount=0;
   PCM24 stereo;
-  size_t frames() const { return stereo.size()/2; }
+  size_t frames() const { return frameCount; }
 };
 struct SampleBank {
   double rootRate=42017.578125;
   std::array<std::vector<Sample>,3> layers;
-  static std::shared_ptr<const SampleBank> Load(const std::string& path);
+  static std::shared_ptr<const SampleBank> Load(const std::string& path,bool preload=true);
+  std::string path;
+  bool preloaded=true;
   const Sample& Select(unsigned layer, unsigned note) const;
 };
 
@@ -35,11 +39,15 @@ public:
   void Process(float* left, float* right, int frames) noexcept;
   void Panic() noexcept;
   unsigned ActiveVoices() const noexcept;
+  void SetSamples(const SampleResidency* samples) noexcept;
+  void MarkSamples(bool* used) const noexcept;
+  void Deactivate() noexcept;
   static int VelocityLayer(int velocity) noexcept { return velocity<86?0:velocity<107?1:2; }
 private:
   struct Voice {
   PitchGlide glide;
   double glideRatio=1;
+    const SampleResidency* residency=nullptr;
     const Sample* sample=nullptr;
     double position=0, step=1, velocityTrim=1, controlPhase=0, nativeAudioPhase=0;
     std::array<NativeVoice,2> native;
@@ -51,6 +59,8 @@ private:
   };
   struct EffectDeleter { void operator()(ConcertEffects* value) const {concert_effects_destroy(value);} };
   std::shared_ptr<const SampleBank> mBank;
+  const SampleBank* mPlaybackBank=nullptr;
+  const SampleResidency* mResidency=nullptr;
   std::array<Voice,kVoices> mVoices{};
   std::array<Voice,kTails> mTails{};
   std::array<MidiEvent,kEvents> mEvents{};

@@ -7,6 +7,7 @@
 #include <array>
 #include <memory>
 namespace segrand {
+struct SampleResidency;
 class ProgramEngine {
 public:
  static constexpr unsigned kVoices=128,kTails=32,kEvents=2048;
@@ -19,8 +20,12 @@ public:
  void Process(float* left,float* right,int frames) noexcept;
  void Panic() noexcept;
  unsigned ActiveVoices() const noexcept;
+ void SetSamples(const SampleResidency* samples) noexcept {mResidency=samples;}
+ void MarkSamples(bool* used) const noexcept;
+ void Deactivate() noexcept;
 private:
  struct Voice {
+  const SampleResidency* residency=nullptr;
   PitchGlide glide;
   double glideRatio=1;
   const ProgramRegion* region=nullptr;
@@ -36,6 +41,7 @@ private:
  };
  struct DeleteEffect{void operator()(ConcertEffects* p) const{concert_effects_destroy(p);}};
  std::shared_ptr<const ProgramLibrary> mLibrary;
+ const SampleResidency* mResidency=nullptr;
  std::unique_ptr<ConcertEffects,DeleteEffect> mRoom;
  std::array<Voice,kVoices> mVoices{};
  std::array<Voice,kTails> mTails{};

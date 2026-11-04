@@ -1,4 +1,6 @@
 add_library(segrand-engine STATIC
+  PCM24.cpp
+  SampleLoader.cpp
   ProgramLibrary.cpp
   ProgramEngine.cpp
   InstrumentEngine.cpp
@@ -18,3 +20,6 @@ if(MSVC)
 else()
   target_compile_options(segrand-engine PRIVATE -Wall -Wextra -Werror)
 endif()
+
+find_package(Threads REQUIRED)
+target_link_libraries(segrand-engine PUBLIC Threads::Threads)

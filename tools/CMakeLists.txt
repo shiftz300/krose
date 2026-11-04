@@ -9,3 +9,11 @@ target_link_libraries(benchmark-piano PRIVATE segrand-engine)
 
 set_target_properties(render-program benchmark-program render-piano benchmark-piano
   PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+add_executable(benchmark-loading benchmark_loading.cpp)
+target_link_libraries(benchmark-loading PRIVATE segrand-engine)
+set_target_properties(benchmark-loading PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+add_executable(benchmark-effects benchmark_effects.cpp)
+target_link_libraries(benchmark-effects PRIVATE segrand-engine)
+set_target_properties(benchmark-effects PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")

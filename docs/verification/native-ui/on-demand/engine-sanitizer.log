@@ -1,0 +1,21 @@
+Test project /Users/shiftz/dev/krose/build/sanitize
+    Start 1: program-engine
+1/8 Test #1: program-engine ...................   Passed   64.16 sec
+    Start 2: piano-engine
+2/8 Test #2: piano-engine .....................   Passed    2.20 sec
+    Start 3: native-voice
+3/8 Test #3: native-voice .....................   Passed    0.33 sec
+    Start 4: native-filter
+4/8 Test #4: native-filter ....................   Passed    0.63 sec
+    Start 5: performance
+5/8 Test #5: performance ......................   Passed    1.85 sec
+    Start 6: arpeggiator
+6/8 Test #6: arpeggiator ......................   Passed    2.22 sec
+    Start 7: sample-loading
+7/8 Test #7: sample-loading ...................   Passed    3.94 sec
+    Start 8: effects
+8/8 Test #8: effects ..........................   Passed    1.38 sec
+
+100% tests passed out of 8
+
+Total Test time (real) =  76.72 sec

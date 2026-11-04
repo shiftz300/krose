@@ -9,12 +9,19 @@ namespace segrand {
 // One guard byte makes the last unaligned 32-bit load safe as well.
 class PCM24 {
 public:
-  void resize(std::size_t samples) { mBytes.resize(samples * 3 + 1); }
-  uint8_t *data() noexcept { return mBytes.data(); }
-  std::size_t size() const noexcept { return mBytes.empty() ? 0 : (mBytes.size() - 1) / 3; }
-  std::size_t storageBytes() const noexcept { return mBytes.size(); }
+  PCM24() = default;
+  ~PCM24();
+  PCM24(const PCM24 &) = delete;
+  PCM24 &operator=(const PCM24 &) = delete;
+  PCM24(PCM24 &&) noexcept;
+  PCM24 &operator=(PCM24 &&) noexcept;
+  // Allocate a fresh zeroed loading buffer; previous contents are discarded.
+  void resize(std::size_t samples);
+  uint8_t *data() noexcept { return mData; }
+  std::size_t size() const noexcept { return mSize; }
+  std::size_t storageBytes() const noexcept { return mSize ? mSize * 3 + 1 : 0; }
   float operator[](std::size_t i) const noexcept {
-    const auto *p = mBytes.data() + i * 3;
+    const auto *p = mData + i * 3;
 #if defined(_WIN32) || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
     uint32_t bits;
     std::memcpy(&bits, p, sizeof(bits));
@@ -31,6 +38,9 @@ public:
   }
 
 private:
-  std::vector<uint8_t> mBytes;
+  std::vector<uint8_t> mSmall;
+  uint8_t *mData = nullptr;
+  std::size_t mSize = 0, mMappedBytes = 0;
+  void clear() noexcept;
 };
 } // namespace segrand

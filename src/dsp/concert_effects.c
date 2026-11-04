@@ -19,14 +19,16 @@ typedef struct {
     double eq[8][5], trim, reverb_wet, chorus_wet, tone_alpha;
     double feedback[LINES], damp_alpha, eq_low_alpha, eq_high_alpha;
     double lfo_step, chorus_delay[2], chorus_depth, mix_smoothing;
+    unsigned eq_count;
     unsigned lengths[LINES], ap_lengths[2][2], early_delays[3];
 } Configuration;
 
 typedef struct {
     double eq_z[8][2][2], damp[LINES], eq_low[2], eq_high[2], tone[2];
-    float delays[LINES][RING], early[2][SHORT_RING], chorus[2][SHORT_RING];
+    float delays[RING][LINES], early[2][SHORT_RING], chorus[2][SHORT_RING];
     float diffuse[2][2][AP_RING];
     unsigned position;
+    int clean;
     double phase;
     double reverb_wet, chorus_wet;
 } State;
@@ -86,8 +88,11 @@ ConcertEffects *concert_effects_create(double rate, const double coefficients[40
     }
     ConcertEffects *e = (ConcertEffects *)calloc(1, sizeof(*e));
     if (!e) return NULL;
-    memcpy(e->c.eq, coefficients, sizeof(e->c.eq));
-    for (int i=0;i<8;++i) remap_biquad(e->c.eq[i],rate,centers[i]);
+    for(int i=0;i<8;++i){
+        double b[5];memcpy(b,coefficients+i*5,sizeof(b));remap_biquad(b,rate,centers[i]);
+        if(b[0]!=1 || b[1]!=0 || b[2]!=0 || b[3]!=0 || b[4]!=0)
+            memcpy(e->c.eq[e->c.eq_count++],b,sizeof(b));
+    }
     e->c.trim = trim;
     e->c.reverb_wet = reverb_wet;
     e->c.chorus_wet = chorus_wet;
@@ -109,15 +114,36 @@ ConcertEffects *concert_effects_create(double rate, const double coefficients[40
         e->c.ap_lengths[ch][i]=(unsigned)round(ap_lengths[ch][i]*rate/48000);
     const unsigned early[3]={337,631,1103};
     for(int i=0;i<3;++i) e->c.early_delays[i]=(unsigned)round(early[i]*rate/48000);
+    e->s.clean=1;
     e->s.reverb_wet=reverb_wet;
     e->s.chorus_wet=chorus_wet;
     return e;
 }
 
-void concert_effects_process(ConcertEffects *e, float *stereo, size_t frames) {
+void concert_effects_equalize(ConcertEffects *e, const float *input, double *output, size_t frames) {
+    for(size_t n=0;n<frames;++n)for(int ch=0;ch<2;++ch){
+        double x=input[n*2+ch]*e->c.trim;
+        for(unsigned band=0;band<e->c.eq_count;++band)x=biquad(x,e->c.eq[band],e->s.eq_z[band][ch]);
+        output[n*2+ch]=x;
+    }
+}
+void concert_effects_process_equalized(ConcertEffects *e, const double *equalized, float *stereo, size_t frames) {
     if (!e || !stereo) return;
     Configuration *c = &e->c;
     State *s = &e->s;
+    const int chorus_active=c->chorus_wet!=0 || s->chorus_wet!=0;
+    if(s->clean){
+        for(size_t i=0;i<frames*2;++i)if(equalized[i]!=0){s->clean=0;break;}
+        if(s->clean){
+            for(size_t n=0;n<frames;++n){
+                s->reverb_wet+=c->mix_smoothing*(c->reverb_wet-s->reverb_wet);
+                s->chorus_wet+=c->mix_smoothing*(c->chorus_wet-s->chorus_wet);
+                s->position=(s->position+1)&(RING-1);s->phase+=c->lfo_step;if(s->phase>=1)s->phase-=1;
+                stereo[n*2]=stereo[n*2+1]=0;
+            }
+            return;
+        }
+    }
     for (size_t n=0; n<frames; ++n) {
         unsigned pos=s->position, short_pos=pos & (SHORT_RING-1);
         double dry[2], colored[2], diffused[2], chorus[2];
@@ -125,15 +151,14 @@ void concert_effects_process(ConcertEffects *e, float *stereo, size_t frames) {
         s->reverb_wet+=c->mix_smoothing*(c->reverb_wet-s->reverb_wet);
         s->chorus_wet+=c->mix_smoothing*(c->chorus_wet-s->chorus_wet);
         for (int ch=0; ch<2; ++ch) {
-            double x = stereo[n*2+ch]*c->trim;
-            for (int band=0; band<8; ++band) x=biquad(x,c->eq[band],s->eq_z[band][ch]);
+            double x = equalized[n*2+ch];
             s->tone[ch]=tiny_zero(s->tone[ch]+c->tone_alpha*(x-s->tone[ch]));
             dry[ch]=s->tone[ch];
             s->chorus[ch][short_pos]=(float)dry[ch];
             /* Recovered L/R base delay 24/13 ms, triangle 0.5 Hz, opposite phase.
              * Depth70 -> +/-3.5 ms is an explicitly approximate control mapping. */
             double delay=c->chorus_delay[ch] + (ch == 0 ? c->chorus_depth : -c->chorus_depth)*triangle;
-            chorus[ch]=fractional_read(s->chorus[ch],short_pos,delay);
+            chorus[ch]=chorus_active?fractional_read(s->chorus[ch],short_pos,delay):0;
             s->eq_low[ch]=tiny_zero(s->eq_low[ch]+c->eq_low_alpha*(dry[ch]-s->eq_low[ch]));
             s->eq_high[ch]=tiny_zero(s->eq_high[ch]+c->eq_high_alpha*(dry[ch]-s->eq_high[ch]));
             /* Hall send coloration: -3 dB lows / +2 dB highs, approximate Fc. */
@@ -152,7 +177,7 @@ void concert_effects_process(ConcertEffects *e, float *stereo, size_t frames) {
         }
         double sum=0, values[LINES], wet[2]={0,0};
         for (int i=0; i<LINES; ++i) {
-            values[i]=s->delays[i][(pos-c->lengths[i]) & (RING-1)];
+            values[i]=s->delays[(pos-c->lengths[i]) & (RING-1)][i];
             s->damp[i]=tiny_zero(s->damp[i]+c->damp_alpha*(values[i]-s->damp[i]));
             sum+=s->damp[i];
             wet[0]+=values[i]*sign_l[i]*0.3535533905932738;
@@ -161,7 +186,7 @@ void concert_effects_process(ConcertEffects *e, float *stereo, size_t frames) {
         for (int i=0; i<LINES; ++i) {
             double input=(diffused[0]*sign_l[i]+diffused[1]*sign_r[i])*0.25;
             double feedback=s->damp[i]-sum*0.25; /* I - 2/N * 11^T, N=8. */
-            s->delays[i][pos & (RING-1)]=(float)tiny_zero(input+c->feedback[i]*feedback);
+            s->delays[pos & (RING-1)][i]=(float)tiny_zero(input+c->feedback[i]*feedback);
         }
         for (int ch=0; ch<2; ++ch) {
             double early=0.3*s->early[ch][(pos-c->early_delays[0]) & (SHORT_RING-1)]
@@ -176,12 +201,22 @@ void concert_effects_process(ConcertEffects *e, float *stereo, size_t frames) {
     }
 }
 
+void concert_effects_process(ConcertEffects *e, float *stereo, size_t frames) {
+    if(!e || !stereo)return;
+    double equalized[256];
+    for(size_t at=0;at<frames;at+=128){
+        size_t count=frames-at<128?frames-at:128;
+        concert_effects_equalize(e,stereo+at*2,equalized,count);
+        concert_effects_process_equalized(e,equalized,stereo+at*2,count);
+    }
+}
+
 int concert_effects_set_wet(ConcertEffects *e, double reverb, double chorus) {
     if(!e || !isfinite(reverb) || reverb<0 || reverb>0.5 || !isfinite(chorus) || chorus<0 || chorus>0.5) return 0;
     e->c.reverb_wet=reverb; e->c.chorus_wet=chorus; return 1;
 }
 void concert_effects_reset(ConcertEffects *e) { if (e) {
-    memset(&e->s,0,sizeof(e->s)); e->s.reverb_wet=e->c.reverb_wet; e->s.chorus_wet=e->c.chorus_wet;
+    memset(&e->s,0,sizeof(e->s)); e->s.clean=1; e->s.reverb_wet=e->c.reverb_wet; e->s.chorus_wet=e->c.chorus_wet;
 } }
 void concert_effects_destroy(ConcertEffects *e) { free(e); }
 size_t concert_effects_memory_bytes(void) { return sizeof(ConcertEffects); }

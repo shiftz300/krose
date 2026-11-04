@@ -1,19 +1,19 @@
 #include "KrosePlugin.h"
-#include "IPlug_include_in_plug_src.h"
 #include "FactoryPrograms.h"
+#include "IPlug_include_in_plug_src.h"
 #include "ResourcePath.h"
 #include <algorithm>
 #include <array>
 
-KrosePlugin::KrosePlugin(const InstanceInfo& info)
+KrosePlugin::KrosePlugin(const InstanceInfo &info)
     : Plugin(info, MakeConfig(kNumParams, segrand::kInstrumentProgramCount + 2)) {
   InitializeParameters();
   try {
     const auto resources = krose::ResourceDirectory(GetBundleID());
-    auto concert = segrand::SampleBank::Load((resources / "SEGrand.samples").string());
-    auto programs = segrand::ProgramLibrary::Load((resources / "Factory.samples").string());
+    auto concert = segrand::SampleBank::Load((resources / "SEGrand.samples").u8string(), false);
+    auto programs = segrand::ProgramLibrary::Load((resources / "Factory.samples").u8string(), false);
     mEngine = std::make_unique<segrand::InstrumentEngine>(std::move(concert), std::move(programs));
-  } catch (const std::exception& error) {
+  } catch (const std::exception &error) {
     mError = error.what();
   }
 #if IPLUG_EDITOR
@@ -26,6 +26,10 @@ KrosePlugin::KrosePlugin(const InstanceInfo& info)
 #endif
 }
 
+void KrosePlugin::OnParamChange(int paramIdx, EParamSource, int) {
+  if (paramIdx == kParamProgram && mEngine)
+    mEngine->RequestProgram(GetParam(kParamProgram)->Int());
+}
 #if IPLUG_DSP
 void KrosePlugin::OnReset() {
   if (!mEngine)
@@ -33,18 +37,18 @@ void KrosePlugin::OnReset() {
   try {
     mEngine->Prepare(GetSampleRate());
     mPrepared = true;
-  } catch (const std::exception&) {
+  } catch (const std::exception &) {
     mPrepared = false;
     mEngine->Panic();
   }
 }
 
-void KrosePlugin::ProcessMidiMsg(const IMidiMsg& msg) {
+void KrosePlugin::ProcessMidiMsg(const IMidiMsg &msg) {
   if (mEngine && mPrepared)
     mEngine->Queue({msg.mOffset, msg.mStatus, msg.mData1, msg.mData2});
 }
 
-void KrosePlugin::ProcessBlock(sample**, sample** outputs, int nFrames) {
+void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
   const int channels = NOutChansConnected();
   if (!mEngine || !mPrepared) {
     for (int ch = 0; ch < channels; ++ch)
@@ -66,27 +70,34 @@ void KrosePlugin::ProcessBlock(sample**, sample** outputs, int nFrames) {
   controls.resonance = GetParam(kParamResonance)->Int();
   auto envelope = [this](int first) {
     return segrand::EnvelopeOffsets{GetParam(first)->Int(), GetParam(first + 1)->Int(),
-                                   GetParam(first + 2)->Int(), GetParam(first + 3)->Int()};
+                                    GetParam(first + 2)->Int(), GetParam(first + 3)->Int()};
   };
   controls.ampEg = envelope(kAmpAttack);
   controls.filterEg = envelope(kFilterAttack);
-  mEngine->SetControls(controls);
+  mEngine->SetControls(controls, GetRenderingOffline());
   segrand::ArpControls arp;
-  arp.enabled=GetParam(kArpEnabled)->Bool();arp.latch=GetParam(kArpLatch)->Bool();
-  arp.pattern=GetParam(kArpPattern)->Int();arp.resolution=GetParam(kArpResolution)->Int();
-  arp.gate=GetParam(kArpGate)->Int();arp.hostSync=GetParam(kArpHostSync)->Bool();
-  arp.tempo=GetParam(kArpTempo)->Value();arp.octaves=GetParam(kArpOctaves)->Int();
-  arp.sort=GetParam(kArpSort)->Bool();arp.keySync=GetParam(kArpKeySync)->Bool();
+  arp.enabled = GetParam(kArpEnabled)->Bool();
+  arp.latch = GetParam(kArpLatch)->Bool();
+  arp.pattern = GetParam(kArpPattern)->Int();
+  arp.resolution = GetParam(kArpResolution)->Int();
+  arp.gate = GetParam(kArpGate)->Int();
+  arp.hostSync = GetParam(kArpHostSync)->Bool();
+  arp.tempo = GetParam(kArpTempo)->Value();
+  arp.octaves = GetParam(kArpOctaves)->Int();
+  arp.sort = GetParam(kArpSort)->Bool();
+  arp.keySync = GetParam(kArpKeySync)->Bool();
   mEngine->SetArpeggiator(arp);
   segrand::Transport transport;
 #if defined(VST3_API)
   // iPlug2 marks sample position valid when VST3 supplies musical position.
-  transport.available=GetSamplePos()!=-1. && GetTempo()>0;
-  transport.running=GetTransportIsRunning();transport.tempo=GetTempo();transport.ppq=GetPPQPos();
+  transport.available = GetSamplePos() != -1. && GetTempo() > 0;
+  transport.running = GetTransportIsRunning();
+  transport.tempo = GetTempo();
+  transport.ppq = GetPPQPos();
 #endif
   mEngine->SetTransport(transport);
-  mDisplayTempo.store(mEngine->Tempo(),std::memory_order_relaxed);
-  mDisplayHost.store(arp.hostSync&&transport.available,std::memory_order_relaxed);
+  mDisplayTempo.store(mEngine->Tempo(), std::memory_order_relaxed);
+  mDisplayHost.store(arp.hostSync && transport.available, std::memory_order_relaxed);
 
   // Fixed stack buffers support arbitrary host block lengths without allocation.
   std::array<float, 256> left, right;

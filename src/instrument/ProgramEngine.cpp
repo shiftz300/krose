@@ -1,13 +1,14 @@
 #include "ProgramEngine.h"
+#include "SampleResidency.h"
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
 namespace segrand {
 namespace {
-double Read(const SharedSample& sample,double position){
- const auto last=sample.pcm.size()-1;
+double Read(const PCM24& pcm,double position){
+ const auto last=pcm.size()-1;
  const auto i=std::min(last,size_t(std::max(0.0,position)));
- return sample.pcm[i]+(sample.pcm[std::min(last,i+1)]-sample.pcm[i])*(position-std::floor(position));
+ return pcm[i]+(pcm[std::min(last,i+1)]-pcm[i])*(position-std::floor(position));
 }
 }
 ProgramEngine::ProgramEngine(std::shared_ptr<const ProgramLibrary> library):mLibrary(std::move(library)){
@@ -25,6 +26,13 @@ void ProgramEngine::Prepare(double rate){
 void ProgramEngine::Panic() noexcept{
  mMono.Reset();mVoices={};mTails={};mEventCount=0;mOverflow=false;mSustain.fill(false);mBend.fill(1);mVolume.fill(1);mExpression.fill(1);mSoft.fill(1);
  concert_effects_reset(mRoom.get());
+}
+void ProgramEngine::MarkSamples(bool* used) const noexcept {
+ for(const auto& v:mVoices)if(v.region&&v.residency)used[v.residency->slot]=true;
+ for(const auto& v:mTails)if(v.region&&v.residency)used[v.residency->slot]=true;
+}
+void ProgramEngine::Deactivate() noexcept {
+ mMono.Reset();mSustain.fill(false);for(auto& v:mVoices)if(v.region)Release(v);
 }
 void ProgramEngine::SetProgram(unsigned index) noexcept{
  if(index>=mLibrary->programs.size()||index==mProgram)return;
@@ -85,14 +93,14 @@ void ProgramEngine::NoteOn(int note,int velocity,int channel,int previousPitch) 
  for(auto index:indices){
   if(index<0)continue;const auto& r=mLibrary->regions[unsigned(index)];
   auto it=std::find_if(mVoices.begin(),mVoices.end(),[](const Voice& v){return !v.region;});if(it==mVoices.end())return;
-  auto& v=*it;v={};v.region=&r;v.program=&p;v.note=note;v.channel=channel;v.down=true;v.age=age;
+  auto& v=*it;v={};v.residency=mResidency;v.region=&r;v.program=&p;v.note=note;v.channel=channel;v.down=true;v.age=age;
   v.glide.Start(p.drum?-1:previousPitch,note,mControls.glide);v.glideRatio=v.glide.Ratio();
   const int weight=mLibrary->LayerWeight(r,velocity);
   v.velocityTrim=p.drum?std::pow(velocity/127.,1.4)*weight/32768.:std::pow(velocity/127.,mControls.velocityCurve-1);
   const double pan=std::clamp((r.pan-64)/63.,-1.,1.);
   if(r.sample[1]==UINT32_MAX){v.panL=std::cos((pan+1)*.7853981633974483);v.panR=std::sin((pan+1)*.7853981633974483);}
   else {v.panL=pan>0?1-pan:1;v.panR=pan<0?1+pan:1;}
-  for(int ch=0;ch<2;++ch)if(r.sample[ch]!=UINT32_MAX){v.step[ch]=mLibrary->Step(p,r,ch,note,mRate);if(r.flags&1)v.position[ch]=mLibrary->samples[r.sample[ch]].pcm.size()-1;}
+  for(int ch=0;ch<2;++ch)if(r.sample[ch]!=UINT32_MAX){v.step[ch]=mLibrary->Step(p,r,ch,note,mRate);if(r.flags&1)v.position[ch]=mLibrary->samples[r.sample[ch]].frames-1;}
   if(!p.drum){v.amplitude.SetOffsets(mControls.ampEg);v.filter.SetOffsets(mControls.filterEg,mControls.cutoff,mControls.resonance);v.amplitude.StartProgram(p.controls.data(),note,velocity,r.oscillator,r.slotLevel*weight/32768);v.slew.Reset(v.amplitude.InitialGain());v.slew.SetTarget(v.amplitude.Gain());v.filter.StartProgram(p.controls.data(),v.amplitude,r.oscillator,velocity,mRate);}
  }
 }
@@ -123,13 +131,14 @@ void ProgramEngine::RenderVoice(Voice& v,double& left,double& right) noexcept{
  if(!v.region)return;const auto& r=*v.region;std::array<double,2> audio{};
  for(int ch=0;ch<2;++ch){
   if(r.sample[ch]==UINT32_MAX)continue;const auto& sample=mLibrary->samples[r.sample[ch]];
+  const PCM24& pcm=v.residency?*v.residency->factory[r.sample[ch]]:sample.pcm;
   const bool reverse=r.flags&1,loop=!v.program->drum&&(sample.flags&16)&&sample.loopEnd-sample.loopStart>=8;
   auto& pos=v.position[ch];
   const double cross=loop?std::min(32.,double(sample.loopEnd-sample.loopStart)/8):0;
   if(!reverse&&pos>=sample.loopEnd&&loop){const double restart=sample.loopStart+cross;pos=restart+std::fmod(pos-sample.loopEnd,sample.loopEnd-restart);}
-  if(pos<0||pos>=sample.pcm.size()){v.region=nullptr;return;}
-  audio[ch]=Read(sample,pos);
-  if(loop&&pos>sample.loopEnd-cross){const double blend=(pos-(sample.loopEnd-cross))/cross;const double from=sample.loopStart+pos-(sample.loopEnd-cross);audio[ch]+=(Read(sample,from)-audio[ch])*blend;}
+  if(pos<0||pos>=pcm.size()){v.region=nullptr;return;}
+  audio[ch]=Read(pcm,pos);
+  if(loop&&pos>sample.loopEnd-cross){const double blend=(pos-(sample.loopEnd-cross))/cross;const double from=sample.loopStart+pos-(sample.loopEnd-cross);audio[ch]+=(Read(pcm,from)-audio[ch])*blend;}
   pos+=(reverse?-1:1)*v.step[ch]*mBend[v.channel]*v.glideRatio;
  }
  v.glideRatio=v.glide.Advance(mRate);
