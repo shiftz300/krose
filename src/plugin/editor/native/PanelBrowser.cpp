@@ -64,8 +64,8 @@ void NativePanel::Popup(IGraphics &g) {
   top = std::max(2.f, top);
   auto r = R(left, top, width, count * rowHeight);
   HitBox(mRECT, "dismiss");
-  g.FillRoundRect(lcd ? Paper : IColor(255, 35, 38, 40), r, 3);
-  g.DrawRoundRect(lcd ? Ink : IColor(255, 118, 122, 125), r, 3);
+  g.FillRect(lcd ? Paper : IColor(255, 35, 38, 40), r);
+  g.DrawRect(lcd ? Ink : IColor(255, 118, 122, 125), r, nullptr, 1);
   for (int n = 0; n < count; ++n) {
     int i = mPopupScroll + n;
     auto row = R(left + 1, top + n * rowHeight, width - 2, rowHeight);
@@ -87,14 +87,18 @@ void NativePanel::Browser(IGraphics &g) {
   Text(g, mSearch.empty() ? "placeholder15" : "search15", mSearch.empty() ? "名称或编号" : mSearch,
        R(481, 183, 185, 31));
   HitBox(R(452, 183, 227, 31), "search");
-  Text(g, "search15", mGroup < 0 ? "全部音色库" : mBrowser["groups"][mGroup].get<std::string>(),
+  for (auto r : {R(687, 183, 197, 31), R(892, 183, 128, 31)}) {
+    g.FillRect(IColor(255, 35, 38, 40), r);
+    g.DrawRect(IColor(255, 118, 122, 125), r, nullptr, 1);
+  }
+  Text(g, "arial15", mGroup < 0 ? "全部音色库" : mBrowser["groups"][mGroup].get<std::string>(),
        R(695, 183, 165, 31));
-  Chevron(g, R(687, 183, 197, 31), IColor(255, 38, 38, 38));
+  Chevron(g, R(687, 183, 197, 31), IColor(255, 227, 227, 227));
   HitBox(R(687, 183, 197, 31), "group");
-  Text(g, "search15",
+  Text(g, "arial15",
        mCategory < 0 ? "全部类型" : mBrowser["categories"][mCategory].get<std::string>(),
        R(900, 183, 96, 31));
-  Chevron(g, R(892, 183, 128, 31), IColor(255, 38, 38, 38));
+  Chevron(g, R(892, 183, 128, 31), IColor(255, 227, 227, 227));
   HitBox(R(892, 183, 128, 31), "category");
   g.PathClipRegion(R(452, 226, 568, 292));
   int maxScroll = std::max(0, int(mFiltered.size()) - 8);

@@ -1,1 +1,10 @@
+* text=auto eol=lf
+# Frozen bundles are hashed byte-for-byte on every platform.
+assets/** -text
+tests/fixtures/** -text
+*.png binary
+*.bin binary
+*.samples binary
+*.ttf binary
+*.wav binary
 *.pdf binary

@@ -82,6 +82,10 @@ void NativePanel::Text(IGraphics &g, const std::string &font, const std::string 
             : align == 2 ? r.R - TextWidth(font, s)
                          : r.L;
   float baseline = r.MH() + f.size * .3f;
+  if (font.rfind("mono", 0) == 0)
+    baseline += 1;
+  if (font == "arial14")
+    baseline += .5f;
   for (auto &ch : Chars(s)) {
     auto it = std::find(f.chars.begin(), f.chars.end(), ch);
     if (it == f.chars.end()) {
@@ -243,15 +247,12 @@ void NativePanel::Render(IGraphics &g) {
   HitBox(R(39, 592, 40, 32), "octave", -1, -1);
   HitBox(R(136, 592, 40, 32), "octave", -1, 1);
   auto &p = mPrograms[program];
+  g.FillRect(IColor(255, 34, 34, 34), R(507, 52, 482, 30));
+  g.DrawRect(IColor(255, 94, 99, 102), R(507, 52, 482, 30), nullptr, 1);
   Text(g, "arial14", p[0].get<std::string>() + " " + p[1].get<std::string>(),
        R(515.015625, 52, 444, 30));
-  for (int sign : {-1, 1}) {
-    g.DrawLine(IColor(255, 227, 227, 227), 975.5, 67 + sign * 1.5, 979, 67 + sign * 5, nullptr,
-               1.5);
-    g.DrawLine(IColor(255, 227, 227, 227), 979, 67 + sign * 5, 982.5, 67 + sign * 1.5, nullptr,
-               1.5);
-  }
-  HitBox(R(414, 51, 576, 32), "presets");
+  Chevron(g, R(507, 52, 482, 30), IColor(255, 227, 227, 227));
+  HitBox(R(507, 52, 482, 30), "presets");
   if (!mFold && !mBrowsing) {
     for (auto &h : mData["fxHits"][std::to_string(program < 5 ? program : 0)])
       if (h["kind"] == "module") {
@@ -345,11 +346,13 @@ void NativePanel::ProgramRow(IGraphics &g) {
   text(Format(Value(kArpHostSync) && mHost ? mTempo : Value(kArpTempo), 2), 178, 0);
   stamp(mLCD["symbols"]["AC"]["rows"], 13, 227, 2);
 }
-void NativePanel::Chevron(IGraphics &g, const IRECT &r, const IColor &c) {
-  float x = r.R - 12, y = r.MH();
-  for (int sign : {-1, 1}) {
-    g.DrawLine(c, x - 3.5, y + sign * 1.5, x, y + sign * 5, nullptr, 1.5);
-    g.DrawLine(c, x, y + sign * 5, x + 3.5, y + sign * 1.5, nullptr, 1.5);
+void NativePanel::Chevron(IGraphics &g, const IRECT &r, const IColor &color) {
+  const float x = std::floor(r.R - 12), y = std::floor(r.MH());
+  // Integer dot runs keep the selector arrow on the LCD's pixel grid.
+  for (int row = 0; row < 4; ++row) {
+    float width = 1 + row * 2;
+    g.FillRect(color, R(x - row, y - 6 + row, width, 1));
+    g.FillRect(color, R(x - row, y + 5 - row, width, 1));
   }
 }
 void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &r, int id,
@@ -367,8 +370,10 @@ void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &r, 
       g.DrawLine(Paper, r.L + 7, r.B - 4, r.R - 3, r.T + 4, nullptr, 2);
     }
   } else {
-    Bitmap(g, std::string(choice ? "select-" : "number-") + (mPage == 3 ? "arp" : "tone"), r.L,
-           r.T);
+    if (choice)
+      g.DrawRect(Ink, r, nullptr, 1);
+    else
+      Bitmap(g, std::string("number-") + (mPage == 3 ? "arp" : "tone"), r.L, r.T);
     bool editing = mEdit >= 0 && mEdit == id;
     if (editing)
       g.FillRect(Ink, r);
@@ -376,7 +381,7 @@ void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &r, 
       Chevron(g, r, Ink);
     else {
       auto a = R(r.R - 19, r.T + 2, 16, r.H() - 4);
-      g.FillRoundRect(IColor(32, 130, 138, 142), a, 4);
+      g.FillRect(IColor(32, 130, 138, 142), a);
       Chevron(g, R(a.L + 5, a.T, a.W(), a.H()), IColor(255, 104, 114, 119));
     }
     Text(g, editing ? (mPage == 3 ? "light14" : "light16") : font, editing ? mEditText : text,
