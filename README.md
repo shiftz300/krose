@@ -4,6 +4,8 @@
 
 An iPlug2 sample instrument reconstructing KROSS 2 sounds, with macOS arm64 VST3 and standalone builds. The catalog contains 1,161 factory, GM and expansion Programs plus the compatible Concert entry. The fixed-size editor and preset browser share the product catalog and original category order.
 
+The native editor uses IGraphics/NanoVG. Samples load per selected Program on a background thread, with a shared recent cache and pinned samples for existing voices. Playback continues during loading. See [sample loading and effects optimization](docs/SAMPLE_LOADING.md) for measured memory use and switching behavior.
+
 ## Build
 
 Requires CMake 3.25+, Ninja, macOS Command Line Tools and the local frozen sample bundles. Firmware and large sample packs are not included in Git.

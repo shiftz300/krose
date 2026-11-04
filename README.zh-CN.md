@@ -4,6 +4,8 @@
 
 基于 iPlug2 的 KROSS 2 采样乐器，提供 macOS arm64 VST3 和独立程序。当前接入 1,161 个出厂／GM／扩展 Program，另保留 Concert 兼容入口；原厂分类顺序与固定尺寸界面共用同一套目录和源码。
 
+原生界面使用 IGraphics／NanoVG。采样按当前音色在后台加载，近期缓存与仍在发声的旧音符共享采样；切换期间保留播放。机制、内存实测和效果优化见 [采样加载](docs/SAMPLE_LOADING.md)。
+
 ## 构建
 
 需要 CMake 3.25+、Ninja、macOS Command Line Tools 和本地冻结采样包。固件及大型采样包不随 Git 仓库提供。

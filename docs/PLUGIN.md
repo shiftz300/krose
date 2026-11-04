@@ -1,5 +1,7 @@
 > PRESET 现按原厂大类打开二级音色菜单；爱心可加入 Favorites，重开插件后保留。内存与动画修订见 [优化记录](UI_OPTIMIZATION.md)。
 
+> 采样已改为按当前音色后台加载，保留完整键区与力度层；首次加载时显示 `LOADING`，期间原音色继续播放。采样缓存、尾音保留、实际内存和效果 CPU 对照见 [采样与效果优化](SAMPLE_LOADING.md)。
+
 > 2026-11-04 原生 UI：默认编辑器已切换为 C++ IGraphics / NanoVG，保留定稿面板和现有参数。网页源码仅供设计参考与资源导出。当前验收与平台范围见 [原生界面移植](NATIVE_UI_MIGRATION.md)。下文早期 WebKit 描述为历史记录。
 
 > 琶音增量：ARP、Latch、五种内置 Pattern、Resolution、Gate、Octave、Sort、Key Sync 和内部／宿主时钟已接入。编辑位置为 LCD 的 ARP 页，操作与剩余 Pattern 范围见 [琶音器](ARPEGGIATOR.md)。
