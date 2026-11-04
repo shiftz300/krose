@@ -12,23 +12,37 @@
 namespace krose::ui {
 using namespace detail;
 NativePanel::NativePanel() : IControl(R(0, 0, 1472, 648)) { mLastValues.fill(-9999); }
+NativePanel::~NativePanel() {
+  if (const char *path = std::getenv("KROSE_UI_PROFILE")) {
+    Json result;
+    auto summary = [](std::vector<double> v) {
+      if (v.empty())
+        return Json::object();
+      std::sort(v.begin(), v.end());
+      return Json{{"count", v.size()},
+                  {"median_ms", v[v.size() / 2]},
+                  {"p95_ms", v[std::min(v.size() - 1, size_t(v.size() * .95))]}};
+    };
+    result["draw_cpu"] = summary(mDrawTimes);
+    result["animation_frame_gap"] = summary(mFrameGaps);
+    std::ofstream(path) << result.dump(2) << '\n';
+  }
+}
 void NativePanel::OnInit() {
   mData = Json::parse(kNativeData);
   mPrograms = Json::parse(kNativePrograms);
   mBrowser = Json::parse(kNativeBrowser);
   mLCD = Json::parse(kNativeLCD);
-  const auto path =
-      krose::ResourceDirectory(static_cast<KrosePlugin *>(GetDelegate())->GetBundleID());
-  auto load = [&](const std::string &name) {
-    return GetUI()->LoadBitmap((path / (name + ".png")).string().c_str(), 1, false, 2);
-  };
-  for (auto &name : Json::parse(kNativeImageNames))
-    mImages[name.get<std::string>()] = load(name);
+  mResourceRoot =
+      krose::ResourceDirectory(static_cast<KrosePlugin *>(GetDelegate())->GetBundleID()).u8string();
   for (auto it = mData["fonts"].begin(); it != mData["fonts"].end(); ++it) {
     auto &f = mFonts[it.key()];
-    f.image = mImages.at("font-" + it.key());
+    f.image = Image("font-" + it.key());
     f.chars = Chars(it.value()["chars"]);
     f.advances = it.value()["advances"].get<std::vector<double>>();
+    f.glyphs = it.value()["glyphs"].get<std::vector<std::array<float, 6>>>();
+    for (size_t i = 0; i < f.chars.size(); ++i)
+      f.indices.emplace(f.chars[i], i);
     f.size = it.value()["size"];
   }
   FilterPrograms();
@@ -46,7 +60,7 @@ void NativePanel::Set(int id, double v, bool gesture) {
   SetDirty(false);
 }
 void NativePanel::Refresh(double tempo, bool host) {
-  bool changed = tempo != mTempo || host != mHost || FoldProgress() != double(mFold);
+  bool changed = tempo != mTempo || host != mHost || FoldProgress() != mRenderedFold;
   mTempo = tempo;
   mHost = host;
   for (int i = 0; i < 29; ++i) {
@@ -63,15 +77,23 @@ void NativePanel::HitBox(IRECT r, std::string action, int id, double v) {
   mHits.push_back({r, std::move(action), id, v});
 }
 void NativePanel::Bitmap(IGraphics &g, const std::string &name, float x, float y) {
-  auto &b = mImages.at(name);
+  auto &b = Image(name);
   g.DrawBitmap(b, R(x, y, b.W(), b.H()));
+}
+const IBitmap &NativePanel::Image(const std::string &name) {
+  auto found = mImages.find(name);
+  if (found != mImages.end())
+    return found->second;
+  auto path = std::filesystem::u8path(mResourceRoot) / (name + ".png");
+  return mImages.emplace(name, GetUI()->LoadBitmap(path.u8string().c_str(), 1, false, 2))
+      .first->second;
 }
 double NativePanel::TextWidth(const std::string &font, const std::string &s) const {
   auto &f = mFonts.at(font);
   double w = 0;
   for (auto &ch : Chars(s)) {
-    auto i = std::find(f.chars.begin(), f.chars.end(), ch);
-    w += i == f.chars.end() ? f.size * .6 : f.advances[i - f.chars.begin()];
+    auto i = f.indices.find(ch);
+    w += i == f.indices.end() ? f.size * .6 : f.advances[i->second];
   }
   return w;
 }
@@ -87,13 +109,15 @@ void NativePanel::Text(IGraphics &g, const std::string &font, const std::string 
   if (font == "arial14")
     baseline += .5f;
   for (auto &ch : Chars(s)) {
-    auto it = std::find(f.chars.begin(), f.chars.end(), ch);
-    if (it == f.chars.end()) {
+    auto it = f.indices.find(ch);
+    if (it == f.indices.end()) {
       x += f.size * .6;
       continue;
     }
-    int i = int(it - f.chars.begin());
-    g.DrawBitmap(f.image, R(x - 4, baseline - f.size, 64, 44), (i % 10) * 64, (i / 10) * 44);
+    size_t i = it->second;
+    const auto &a = f.glyphs[i];
+    if (a[2] > 0)
+      g.DrawBitmap(f.image, R(x + a[4], baseline + a[5], a[2], a[3]), a[0], a[1]);
     x += f.advances[i];
   }
 }
@@ -110,6 +134,10 @@ void NativePanel::Button(IGraphics &g, const std::string &name, bool on, const s
     HitBox(R(float(r[0]) + 3, float(r[1]) + 3, float(r[2]) - 6, float(r[3]) - 6), action, id, v);
 }
 void NativePanel::Draw(IGraphics &g) {
+  const bool profiling = std::getenv("KROSE_UI_PROFILE");
+  const auto start =
+      profiling ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point{};
+  const bool animating = profiling && FoldProgress() != double(mFold);
   mHits.clear();
   const char *capture = std::getenv("KROSE_NATIVE_CAPTURE");
   if (capture) {
@@ -126,6 +154,20 @@ void NativePanel::Draw(IGraphics &g) {
     g.DrawLayer(layer);
   } else
     Render(g);
+  if (profiling) {
+    mDrawTimes.push_back(
+        std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start)
+            .count());
+    if (animating && mPreviousAnimating)
+      mFrameGaps.push_back(
+          std::chrono::duration<double, std::milli>(start - mPreviousFrame).count());
+    mPreviousAnimating = animating;
+    mPreviousFrame = start;
+  }
+}
+bool NativePanel::IsDirty() {
+  // Animation follows the graphics clock, not the slower host-message timer.
+  return IControl::IsDirty() || FoldProgress() != mRenderedFold;
 }
 double NativePanel::FoldProgress() const {
   double t = std::clamp(
@@ -137,9 +179,16 @@ void NativePanel::Render(IGraphics &g) {
   Bitmap(g, "native-base", 0, 0);
   int program = int(Value(kParamProgram));
   double folded = FoldProgress();
+  mRenderedFold = folded;
   if (folded < 1) {
-    if (folded > 0)
-      g.StartLayer(this, R(0, 19, 428, 332));
+    if (folded > 0) {
+      if (g.CheckLayer(mFXLayer))
+        g.ResumeLayer(mFXLayer);
+      else
+        g.StartLayer(this, R(0, 19, 428, 332));
+      IBlend erase(EBlend::DstOut);
+      g.FillRect(COLOR_WHITE, R(0, 19, 428, 332), &erase);
+    }
     Bitmap(g, "fx-region-" + std::to_string(program < 5 ? program : 0), 0, 19);
     if (folded > 0) {
       g.PathClear();
@@ -149,11 +198,11 @@ void NativePanel::Render(IGraphics &g) {
       g.PathSetWinding(true);
       IBlend cut(EBlend::DstOut);
       g.PathFill(COLOR_WHITE, IFillOptions(false, EFillRule::Preserve), &cut);
-      auto layer = g.EndLayer();
-      g.DrawLayer(layer);
+      mFXLayer = g.EndLayer();
+      g.DrawLayer(mFXLayer);
     }
     IBlend strip(EBlend::Default, 1 - folded);
-    auto &b = mImages.at("expanded-strip");
+    auto &b = Image("expanded-strip");
     g.DrawBitmap(b, R(0, 19, b.W(), b.H()), 1, &strip);
   }
   HitBox(R(38.5, 57.59375, 66, 54), "fold");
@@ -166,7 +215,7 @@ void NativePanel::Render(IGraphics &g) {
                             {kParamVelocity, 307, 278}, {kParamOutput, 1370, 176}};
   for (auto k : knobs) {
     Bitmap(g, "knob-shell", k.x - 8, k.y - 8);
-    g.DrawRotatedBitmap(mImages.at("knob-pointer"), k.x + 24, k.y + 24,
+    g.DrawRotatedBitmap(Image("knob-pointer"), k.x + 24, k.y + 24,
                         -135 + 270 * GetDelegate()->GetParam(k.id)->GetNormalized());
     HitBox(R(k.x, k.y, 48, 48), "knob", k.id);
     double v = Value(k.id);
@@ -277,6 +326,8 @@ void NativePanel::Render(IGraphics &g) {
     Browser(g);
   if (!mChoices.empty())
     Popup(g);
+  if (mPresetOpen)
+    PresetMenu(g);
   if (mKeyboardFocus && mFocus >= 0 && mFocus < int(mHits.size()))
     g.DrawRect(IColor(180, 215, 225, 230), mHits[mFocus].r.GetPadded(2), nullptr, 1);
 }

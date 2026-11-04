@@ -84,6 +84,7 @@ def main():
     shutil.copy(ROOT/'docs/PERFORMANCE.md',output/'PERFORMANCE.md')
     shutil.copy(ROOT/'docs/ARPEGGIATOR.md',output/'ARPEGGIATOR.md')
     shutil.copy(ROOT/'docs/NATIVE_UI_MIGRATION.md',output/'NATIVE_UI_MIGRATION.md')
+    shutil.copy(ROOT/'docs/UI_OPTIMIZATION.md',output/'UI_OPTIMIZATION.md')
     print('Packaged, signed and verified: output/Krose/{Krose.vst3,Krose.app}')
 
 

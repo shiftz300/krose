@@ -1,0 +1,18 @@
+{
+  "engine": {
+    "physical_footprint_bytes": 721372504,
+    "resident_bytes": 685391872
+  },
+  "editor": {
+    "physical_footprint_bytes": 1064142384,
+    "resident_bytes": 738230272
+  },
+  "animated": {
+    "physical_footprint_bytes": 1112327728,
+    "resident_bytes": 325648384
+  },
+  "closed": {
+    "physical_footprint_bytes": 793789928,
+    "resident_bytes": 196395008
+  }
+}

@@ -14,6 +14,7 @@ void NativePanel::SetProgram(int i) {
   mPage = 0;
   mSlot = 0;
   mBrowsing = false;
+  mPresetOpen = false;
   mEdit = -1;
 }
 void NativePanel::Note(int note, bool down) {
@@ -78,6 +79,7 @@ void NativePanel::Activate(const Hit &h) {
   } else if (h.action == "browse") {
     ReleaseHeld();
     mBrowsing = true;
+    LoadFavorites();
     mEdit = -2;
     FilterPrograms();
   } else if (h.action == "close") {
@@ -85,11 +87,29 @@ void NativePanel::Activate(const Hit &h) {
     mEdit = -1;
   } else if (h.action == "program")
     SetProgram(int(h.value));
-  else if (h.action == "group" || h.action == "category" || h.action == "presets")
-    OpenPopup(h);
-  else if (h.action == "dismiss")
+  else if (h.action == "presets") {
+    LoadFavorites();
+    mPresetOpen = true;
+    mPresetCategory = -2;
+    mPresetRootFocus = 0;
+    mPresetColumn = 0;
     mChoices.clear();
-  else if (h.action == "choice") {
+  } else if (h.action == "preset-category")
+    PresetCategory(int(h.value));
+  else if (h.action == "favorite") {
+    if (mPresetOpen) {
+      auto row = std::find(mPresetItems.begin(), mPresetItems.end(), int(h.value));
+      if (row != mPresetItems.end())
+        mPresetFocus = int(row - mPresetItems.begin());
+      mPresetColumn = 1;
+    }
+    ToggleFavorite(int(h.value));
+  } else if (h.action == "group" || h.action == "category")
+    OpenPopup(h);
+  else if (h.action == "dismiss") {
+    mChoices.clear();
+    mPresetOpen = false;
+  } else if (h.action == "choice") {
     int v = int(h.value);
     auto target = mPopupTarget;
     mChoices.clear();
@@ -99,9 +119,7 @@ void NativePanel::Activate(const Hit &h) {
     } else if (target.action == "category") {
       mCategory = v;
       FilterPrograms();
-    } else if (target.action == "presets")
-      SetProgram(v);
-    else
+    } else
       Set(target.id, v);
   } else if (h.action == "search")
     mEdit = -2;
@@ -197,10 +215,15 @@ void NativePanel::OnMouseDblClick(float x, float y, const IMouseMod &) {
       return;
     }
 }
-void NativePanel::OnMouseWheel(float, float, const IMouseMod &, float d) {
-  if (!mChoices.empty()) {
-    mPopupScroll = std::clamp(mPopupScroll - int(d * 3), 0,
-                             std::max(0, int(mChoices.size()) - mPopupRows));
+void NativePanel::OnMouseWheel(float x, float, const IMouseMod &, float d) {
+  if (mPresetOpen) {
+    if (x >= 675 && mPresetCategory >= -1)
+      mPresetScroll =
+          std::clamp(mPresetScroll - int(d * 3), 0, std::max(0, int(mPresetItems.size()) - 12));
+    SetDirty(false);
+  } else if (!mChoices.empty()) {
+    mPopupScroll =
+        std::clamp(mPopupScroll - int(d * 3), 0, std::max(0, int(mChoices.size()) - mPopupRows));
     SetDirty(false);
   } else if (mBrowsing) {
     mScroll -= int(d * 3);
@@ -208,6 +231,39 @@ void NativePanel::OnMouseWheel(float, float, const IMouseMod &, float d) {
   }
 }
 bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
+  if (mPresetOpen) {
+    if (key.VK == kVK_ESCAPE) {
+      mPresetOpen = false;
+      SetDirty(false);
+      return true;
+    }
+    if (key.VK == kVK_LEFT) {
+      mPresetColumn = 0;
+      SetDirty(false);
+      return true;
+    }
+    if (key.VK == kVK_RIGHT || key.VK == kVK_RETURN) {
+      if (!mPresetColumn)
+        PresetCategory(mPresetRootFocus - 1);
+      else if (key.VK == kVK_RETURN && !mPresetItems.empty())
+        SetProgram(mPresetItems[mPresetFocus]);
+    } else if (key.VK == kVK_SPACE && mPresetColumn && !mPresetItems.empty())
+      ToggleFavorite(mPresetItems[mPresetFocus]);
+    else {
+      int &focus = mPresetColumn ? mPresetFocus : mPresetRootFocus;
+      int count = mPresetColumn ? int(mPresetItems.size()) : 12;
+      if (key.VK == kVK_HOME)
+        focus = 0;
+      if (key.VK == kVK_END)
+        focus = std::max(0, count - 1);
+      if (key.VK == kVK_UP || key.VK == kVK_DOWN)
+        focus = std::clamp(focus + (key.VK == kVK_UP ? -1 : 1), 0, std::max(0, count - 1));
+      if (mPresetColumn)
+        mPresetScroll = std::clamp(focus - 6, 0, std::max(0, count - 12));
+    }
+    SetDirty(false);
+    return true;
+  }
   if (key.VK == kVK_ESCAPE) {
     if (!mChoices.empty()) {
       mChoices.clear();
@@ -223,7 +279,7 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
     if (key.VK == kVK_HOME || key.VK == kVK_END) {
       mPopupFocus = key.VK == kVK_HOME ? 0 : int(mChoices.size()) - 1;
       mPopupScroll = std::clamp(mPopupFocus - mPopupRows / 2, 0,
-                               std::max(0, int(mChoices.size()) - mPopupRows));
+                                std::max(0, int(mChoices.size()) - mPopupRows));
       SetDirty(false);
       return true;
     }
@@ -235,7 +291,7 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
       mPopupFocus =
           std::clamp(mPopupFocus + (key.VK == kVK_UP ? -1 : 1), 0, int(mChoices.size()) - 1);
       mPopupScroll = std::clamp(mPopupFocus - mPopupRows / 2, 0,
-                               std::max(0, int(mChoices.size()) - mPopupRows));
+                                std::max(0, int(mChoices.size()) - mPopupRows));
       SetDirty(false);
       return true;
     }

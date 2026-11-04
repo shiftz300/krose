@@ -7,6 +7,8 @@ void NativePanel::FilterPrograms() {
   mFiltered.clear();
   for (int i : mBrowser["order"].get<std::vector<int>>()) {
     auto &p = mPrograms[i];
+    if (mCategory == -2 && !mFavorites.count(p[0].get<std::string>()))
+      continue;
     if (mCategory >= 0 && p[2] != mBrowser["categories"][mCategory])
       continue;
     if (mGroup >= 0 && p[4] != mBrowser["groups"][mGroup])
@@ -29,19 +31,17 @@ void NativePanel::OpenPopup(const Hit &h) {
     mChoices.push_back(std::move(s));
     mChoiceValues.push_back(v);
   };
-  if (h.action == "presets") {
-    for (int i : mBrowser["order"].get<std::vector<int>>()) {
-      auto &p = mPrograms[i];
-      add(p[0].get<std::string>() + "  " + p[1].get<std::string>(), i);
-      if (i == int(Value(kParamProgram)))
-        mPopupFocus = int(mChoices.size()) - 1;
-    }
-  } else if (h.action == "group" || h.action == "category") {
+  if (h.action == "group" || h.action == "category") {
     add(h.action == "group" ? "全部音色库" : "全部类型", -1);
+    if (h.action == "category")
+      add("FAVORITES", -2);
     auto &list = mBrowser[h.action == "group" ? "groups" : "categories"];
     for (int i = 0; i < int(list.size()); ++i)
       add(list[i], i);
-    mPopupFocus = (h.action == "group" ? mGroup : mCategory) + 1;
+    mPopupFocus = h.action == "group" ? mGroup + 1
+                  : mCategory == -2   ? 1
+                  : mCategory < 0     ? 0
+                                      : mCategory + 2;
   } else {
     auto *p = GetDelegate()->GetParam(h.id);
     for (int i = int(p->GetMin()); i <= int(p->GetMax()); ++i) {
@@ -56,8 +56,8 @@ void NativePanel::OpenPopup(const Hit &h) {
     float room = std::max(284 - h.r.B - 2, h.r.T - 164 - 2);
     mPopupRows = std::min(mPopupRows, std::max(1, int(room / 22)));
   }
-  mPopupScroll = std::clamp(mPopupFocus - mPopupRows / 2, 0,
-                           std::max(0, int(mChoices.size()) - mPopupRows));
+  mPopupScroll =
+      std::clamp(mPopupFocus - mPopupRows / 2, 0, std::max(0, int(mChoices.size()) - mPopupRows));
   SetDirty(false);
 }
 void NativePanel::Popup(IGraphics &g) {
@@ -125,7 +125,9 @@ void NativePanel::Browser(IGraphics &g) {
   Chevron(g, R(687, 183, 197, 31), IColor(255, 227, 227, 227));
   HitBox(R(687, 183, 197, 31), "group");
   Text(g, "arial15",
-       mCategory < 0 ? "全部类型" : mBrowser["categories"][mCategory].get<std::string>(),
+       mCategory == -2 ? "FAVORITES"
+       : mCategory < 0 ? "全部类型"
+                       : mBrowser["categories"][mCategory].get<std::string>(),
        R(900, 183, 96, 31));
   Chevron(g, R(892, 183, 128, 31), IColor(255, 227, 227, 227));
   HitBox(R(892, 183, 128, 31), "category");
@@ -144,9 +146,15 @@ void NativePanel::Browser(IGraphics &g) {
         p[0].get<std::string>() + "  " + p[1].get<std::string>() + " · " + p[2].get<std::string>();
     if (p.size() > 5 && !p[5].get<std::string>().empty())
       s += " · " + p[5].get<std::string>();
-    Text(g, "arial15", s, b.GetPadded(-10));
+    auto text = b.GetPadded(-10);
+    text.R -= 30;
+    text.B = std::min(text.B, 518.f);
+    g.PathClipRegion(text);
+    Text(g, "arial15", s, text);
+    g.PathClipRegion(R(452, 226, 568, 292));
     b.B = std::min(b.B, 518.f);
     HitBox(b, "program", -1, i);
+    Heart(g, R(b.R - 32, b.T, 30, b.H()), i);
   }
   if (mFiltered.empty())
     Text(g, "arial15", "没有匹配的音色", R(452, 226, 568, 33));

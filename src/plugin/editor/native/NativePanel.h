@@ -4,7 +4,9 @@
 #include <array>
 #include <chrono>
 #include <map>
+#include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace krose::ui {
@@ -13,8 +15,10 @@ using namespace iplug::igraphics;
 class NativePanel final : public IControl {
 public:
   NativePanel();
+  ~NativePanel() override;
   void OnInit() override;
   void Draw(IGraphics &) override;
+  bool IsDirty() override;
   void OnMouseDown(float, float, const IMouseMod &) override;
   void OnMouseDrag(float, float, float, float, const IMouseMod &) override;
   void OnMouseUp(float, float, const IMouseMod &) override;
@@ -39,6 +43,8 @@ private:
     IBitmap image;
     std::vector<std::string> chars;
     std::vector<double> advances;
+    std::vector<std::array<float, 6>> glyphs;
+    std::unordered_map<std::string, size_t> indices;
     int size;
   };
   void Render(IGraphics &);
@@ -47,9 +53,15 @@ private:
   void Browser(IGraphics &);
   void Popup(IGraphics &);
   void OpenPopup(const Hit &);
+  void PresetMenu(IGraphics &);
+  void PresetCategory(int category);
+  void LoadFavorites();
+  void ToggleFavorite(int program);
+  void Heart(IGraphics &, const IRECT &, int program);
   void Text(IGraphics &, const std::string &, const std::string &, const IRECT &, int align = 0);
   double TextWidth(const std::string &, const std::string &) const;
   void Bitmap(IGraphics &, const std::string &, float, float);
+  const IBitmap &Image(const std::string &);
   void Button(IGraphics &, const std::string &, bool, const std::string &, int = -1, double = 0,
               bool = true);
   void Chevron(IGraphics &, const IRECT &, const IColor &);
@@ -67,6 +79,7 @@ private:
   void ProgramRow(IGraphics &);
   Json mData, mPrograms, mBrowser, mLCD;
   std::map<std::string, IBitmap> mImages;
+  std::string mResourceRoot;
   std::map<std::string, Font> mFonts;
   std::vector<Hit> mHits;
   std::vector<int> mFiltered;
@@ -82,8 +95,18 @@ private:
   std::vector<int> mChoiceValues;
   Hit mPopupTarget;
   int mPopupScroll = 0, mPopupFocus = 0, mPopupRows = 12;
+  bool mPresetOpen = false, mFavoriteSaveFailed = false;
+  int mPresetCategory = -2, mPresetRootFocus = 0, mPresetFocus = 0, mPresetScroll = 0,
+      mPresetColumn = 0;
+  std::vector<int> mPresetItems;
+  std::set<std::string> mFavorites;
   bool mKeyboardFocus = false;
   double mFoldFrom = 0;
+  double mRenderedFold = 0;
+  ILayerPtr mFXLayer;
   std::chrono::steady_clock::time_point mFoldStarted{};
+  std::vector<double> mDrawTimes, mFrameGaps;
+  std::chrono::steady_clock::time_point mPreviousFrame{};
+  bool mPreviousAnimating = false;
 };
 } // namespace krose::ui

@@ -4,7 +4,7 @@ iplug_add_plugin(Krose
   SOURCES
     KrosePlugin.cpp KrosePlugin.h
     Parameters.cpp Parameters.h
-    editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp  resources/resource.h
+    editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp resources/resource.h
   RESOURCES ${KROSE_NATIVE_IMAGES} "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
     "${CMAKE_SOURCE_DIR}/licenses/THIRD_PARTY.txt"
     "${CMAKE_SOURCE_DIR}/licenses/Roboto-Apache-2.0.txt"

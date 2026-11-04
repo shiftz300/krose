@@ -1,0 +1,17 @@
+{
+  "piano": {
+    "byte_identical": true,
+    "sha256": "0559528d754741514e23577c1d2f350a488e5d6699510edd1be0c689f6a5bdd5",
+    "bytes": 1920044
+  },
+  "kit": {
+    "byte_identical": true,
+    "sha256": "fb78b799e217a0c1723cf40bd67bacf975eafe1ade94edbb87497a84a80fe7f2",
+    "bytes": 1920044
+  },
+  "concert": {
+    "byte_identical": true,
+    "sha256": "3d48fac7d27d3f2a4ef3c20cd5384981c05dd646fb12390cd39180a5107bd212",
+    "bytes": 2688044
+  }
+}

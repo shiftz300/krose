@@ -1,4 +1,5 @@
 #pragma once
+#include "PCM24.h"
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -8,7 +9,7 @@ namespace segrand {
 struct SharedSample {
   uint32_t id=0,loopStart=0,loopEnd=0,flags=0;
   int pitch=0;
-  std::vector<float> pcm; // Mono, stored once and shared by all regions/instances.
+  PCM24 pcm; // Mono, stored once and shared by all regions/instances.
 };
 struct ProgramRegion {
   std::array<uint32_t,2> sample{};

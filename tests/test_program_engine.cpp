@@ -18,6 +18,12 @@ struct Audio{std::vector<float> l,r;explicit Audio(int n):l(n),r(n){}};
 template<class Engine>void Process(Engine& engine,Audio& a,int block){for(size_t i=0;i<a.l.size();i+=block){gAudio=true;engine.Process(a.l.data()+i,a.r.data()+i,int(std::min(size_t(block),a.l.size()-i)));gAudio=false;}for(size_t i=0;i<a.l.size();++i)assert(std::isfinite(a.l[i])&&std::isfinite(a.r[i]));}
 double Energy(const Audio& a){double n=0;for(size_t i=0;i<a.l.size();++i)n+=a.l[i]*a.l[i]+a.r[i]*a.r[i];return n;}
 int main(int argc,char** argv){
+ // Exhaust all signed 24-bit patterns against the previous float conversion.
+ PCM24 packed;packed.resize(65536);
+ for(unsigned high=0;high<256;++high){
+  for(unsigned i=0;i<65536;++i){packed.data()[i*3]=uint8_t(i);packed.data()[i*3+1]=uint8_t(i>>8);packed.data()[i*3+2]=uint8_t(high);}
+  for(unsigned i=0;i<65536;++i){int32_t v=int32_t(i|(high<<16));if(v&0x800000)v-=16777216;assert(packed[i]==float(v/8388608.0));}
+ }
  assert(argc==4);auto bank=ProgramLibrary::Load(argv[1]);assert(ProgramLibrary::Load(argv[1]).get()==bank.get());assert(bank->programs.size()==1161&&bank->samples.size()>=4920);
  // Compare sample IDs, stereo side, layer weight and pitch against frozen
  // observations from the original CPU voice-start path, outside this engine.

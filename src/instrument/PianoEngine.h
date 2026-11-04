@@ -1,5 +1,6 @@
 #pragma once
 #include "Performance.h"
+#include "PCM24.h"
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -13,7 +14,7 @@
 namespace segrand {
 struct Sample {
   unsigned root=0, top=0, loopStart=0, loopEnd=0;
-  std::vector<float> stereo;
+  PCM24 stereo;
   size_t frames() const { return stereo.size()/2; }
 };
 struct SampleBank {

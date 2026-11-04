@@ -23,7 +23,7 @@
 #define PLUG_HAS_UI 1
 #define PLUG_WIDTH 1472
 #define PLUG_HEIGHT 648
-#define PLUG_FPS 30
+#define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
 #define PLUG_HOST_RESIZE 0
 #define VST3_SUBCATEGORY "Instrument|Sampler"

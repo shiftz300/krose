@@ -1,10 +1,14 @@
 // Exercise the compiled native editor through Cocoa events. No browser runtime.
 #include "pluginterfaces/gui/iplugview.h"
 #import <Cocoa/Cocoa.h>
+#include <mach/mach.h>
 #include <cassert>
 #include <cstdlib>
 #include <functional>
 #include <iostream>
+#include <filesystem>
+#include <fstream>
+#include <unistd.h>
 namespace {
 void pump(double seconds = .15) {
   NSDate *end = [NSDate dateWithTimeIntervalSinceNow:seconds];
@@ -67,6 +71,9 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
                   const std::function<double()> &glide,
                   const std::function<double(const char *)> &parameter) {
   [NSApplication sharedApplication];
+  const std::string favoritesFile="/tmp/krose-favorites-test-"+std::to_string(getpid())+".json";
+  const bool ownFavorites=!std::getenv("KROSE_FAVORITES_FILE");
+  if(ownFavorites)setenv("KROSE_FAVORITES_FILE",favoritesFile.c_str(),1);
   Steinberg::ViewRect rect{};
   assert(view->getSize(&rect) == Steinberg::kResultOk && rect.getWidth() == 1472 &&
          rect.getHeight() == 648);
@@ -75,6 +82,12 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
                                                    backing:NSBackingStoreBuffered
                                                      defer:NO];
   [window orderFront:nil];
+  auto memory = [](const char *stage) {
+    task_vm_info_data_t info{}; mach_msg_type_number_t count=TASK_VM_INFO_COUNT;
+    if(task_info(mach_task_self(), TASK_VM_INFO, reinterpret_cast<task_info_t>(&info), &count)==KERN_SUCCESS)
+      std::cout << "MEMORY " << stage << " footprint=" << info.phys_footprint << " resident=" << info.resident_size << std::endl;
+  };
+  if(std::getenv("KROSE_UI_BENCH")) memory("engine");
   for (int pass = 0; pass < 2; ++pass) {
     assert(view->attached((__bridge void *)window.contentView, Steinberg::kPlatformTypeNSView) ==
            Steinberg::kResultOk);
@@ -83,6 +96,13 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
     assert(v);
     [window makeFirstResponder:v];
     std::cout << "Native editor ready pass " << pass << std::endl;
+    if (std::getenv("KROSE_UI_BENCH")) {
+      memory("editor");
+      for(int n=0;n<12;++n){click(v,71,85);pump(.2);}
+      memory("animated");
+      view->removed();pump(.3);memory("closed");
+      [window orderOut:nil];return;
+    }
     if (const char *directory = std::getenv("KROSE_UI_REFERENCE")) {
       auto capture = [&](const char *name, float x, float y) {
         std::string path = std::string(directory) + "/native-" + name + ".pam";
@@ -102,6 +122,10 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       key(v, @"\x1b", 53);
       capture("folded", 71, 85);
       capture("preset-dropdown", 700, 67);
+      capture("preset-secondary", 550, 123);
+      const double current=program();
+      click(v,1070,97);assert(program()==current);
+      capture("favorites",550,97);
       key(v, @"\x1b", 53);
       capture("browser", 620, 331);
       capture("filter-dropdown", 950, 198);
@@ -150,6 +174,12 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       assert(std::abs(velocity() - .6) < 1e-6);
       click(v, 700, 67);
       key(v, @"\uf729", 115);
+      key(v, @"\uf701", 125);
+      key(v, @"\r", 36);
+      const double beforeFavorite=program();
+      click(v,1070,97);
+      assert(program()==beforeFavorite);
+      assert(std::filesystem::exists(std::getenv("KROSE_FAVORITES_FILE")));
       key(v, @"\r", 36);
       assert(std::abs(program() - 1. / 1161.) < 1e-8);
       click(v, 620, 331);
@@ -174,6 +204,13 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       assert(std::abs(glide() - 80. / 127.) < 1e-8);
       assert(parameter("Arp") == 1.);
       assert(program() == 1.);
+      click(v,700,67);key(v,@"\r",36);
+      key(v,@"\r",36);
+      assert(std::abs(program()-1./1161.)<1e-8); // Favorite survived editor destruction.
+      click(v,700,67);key(v,@"\r",36);click(v,1070,97);
+      key(v,@"\r",36); // Empty favorites must not select another program.
+      assert(std::abs(program()-1./1161.)<1e-8);
+      key(v,@"\x1b",53);
     }
     if (const char *path = std::getenv("KROSE_NATIVE_CAPTURE")) {
       pump();
@@ -183,6 +220,7 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
     pump();
   }
   [window orderOut:nil];
+  if(ownFavorites){std::filesystem::remove(favoritesFile);unsetenv("KROSE_FAVORITES_FILE");}
   std::cout << "PASS native UI: Cocoa clicks, numeric editing, arp, voice, catalog search, FX "
                "folding, keyboard, panic and reopen\n";
 }

@@ -58,7 +58,7 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string& pa
   for(unsigned o=0;o<2;++o){const auto* base=p.controls.data()+0x564+380*o;for(unsigned stage=0;stage<4;++stage)Require(base[0x118+stage*2+1]<100&&base[0x118+8+stage]<=10&&base[0xd8+5+stage*2]<100&&base[0xd8+stage]<=10);}
   for(uint32_t i=p.firstRegion;i<p.firstRegion+p.regionCount;++i){const auto& r=bank->regions[i];Require(p.drum==bool(r.flags&8));for(int n=r.noteLow;n<=r.noteHigh;++n){Require(p.lookup[r.oscillator][n][r.slot]==-1);p.lookup[r.oscillator][n][r.slot]=int32_t(i);}}
  }
- for(size_t i=0;i<bank->samples.size();++i){auto& sample=bank->samples[i];const auto& info=payloads[i];Require(uint64_t(in.file.tellg())==info.offset);std::vector<uint8_t> pcm(size_t(info.frames)*3);in.Bytes(pcm.data(),pcm.size());sample.pcm.resize(info.frames);for(size_t f=0;f<info.frames;++f){const auto* p=pcm.data()+f*3;int32_t v=int32_t(uint32_t(p[0])|(uint32_t(p[1])<<8)|(uint32_t(p[2])<<16));if(v&0x800000)v-=16777216;sample.pcm[f]=float(v/8388608.0);}}
+ for(size_t i=0;i<bank->samples.size();++i){auto& sample=bank->samples[i];const auto& info=payloads[i];Require(uint64_t(in.file.tellg())==info.offset);sample.pcm.resize(info.frames);in.Bytes(sample.pcm.data(),size_t(info.frames)*3);}
  cache[key]=bank;return bank;
 }
 uint32_t ProgramLibrary::Phase(int exponent) const noexcept{
@@ -96,5 +96,5 @@ int ProgramLibrary::LayerWeight(const ProgramRegion& r,int velocity) const noexc
   return shape(std::clamp((velocity-r.velocityLow)*32768/r.fadeInWidth,0,32768),r.fadeInCurve);
  return 32768;
 }
-size_t ProgramLibrary::PCMBytes() const noexcept{size_t n=0;for(const auto& s:samples)n+=s.pcm.size()*sizeof(float);return n;}
+size_t ProgramLibrary::PCMBytes() const noexcept{size_t n=0;for(const auto& s:samples)n+=s.pcm.storageBytes();return n;}
 }

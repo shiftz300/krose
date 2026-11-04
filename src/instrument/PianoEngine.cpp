@@ -13,11 +13,6 @@ namespace segrand {
 namespace {
 uint32_t U32(const unsigned char* p) {return uint32_t(p[0])|uint32_t(p[1])<<8|uint32_t(p[2])<<16|uint32_t(p[3])<<24;}
 uint64_t U64(const unsigned char* p) {return uint64_t(U32(p))|uint64_t(U32(p+4))<<32;}
-float PCM24(const unsigned char* p) {
-  int32_t v=int32_t(uint32_t(p[0])|uint32_t(p[1])<<8|uint32_t(p[2])<<16);
-  if(v&0x800000)v-=16777216;
-  return float(v/8388608.0);
-}
 double Interpolate(const Sample& sample,double position,int channel) {
   const auto base=static_cast<int64_t>(position);
   const double f=position-base;
@@ -58,11 +53,9 @@ std::shared_ptr<const SampleBank> SampleBank::Load(const std::string& path) {
        ||(i>0&&layer==previousLayer&&top<=previousTop))throw std::runtime_error("Invalid sample region");
     previousTop=top; previousLayer=layer; expectedOffset+=bytes;
     Sample sample;sample.root=root;sample.top=top;sample.loopStart=start;sample.loopEnd=end;
-    sample.stereo.resize(size_t(frames)*2);
-    std::vector<unsigned char> pcm(static_cast<size_t>(bytes));
+    sample.stereo.resize(static_cast<size_t>(frames)*2);
     file.seekg(static_cast<std::streamoff>(offset));
-    if(!file.read(reinterpret_cast<char*>(pcm.data()),pcm.size()))throw std::runtime_error("Incomplete sample payload");
-    for(size_t n=0;n<sample.stereo.size();++n)sample.stereo[n]=PCM24(pcm.data()+n*3);
+    if(!file.read(reinterpret_cast<char*>(sample.stereo.data()),bytes))throw std::runtime_error("Incomplete sample payload");
     bank->layers[layer].push_back(std::move(sample));
   }
   if(expectedOffset!=uint64_t(fileSize))throw std::runtime_error("Trailing sample payload data");
