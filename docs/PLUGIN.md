@@ -1,3 +1,5 @@
+> 2026-11-04 原生 UI：默认编辑器已切换为 C++ IGraphics / NanoVG，保留定稿面板和现有参数。网页源码仅供设计参考与资源导出。当前验收与平台范围见 [原生界面移植](NATIVE_UI_MIGRATION.md)。下文早期 WebKit 描述为历史记录。
+
 > 琶音增量：ARP、Latch、五种内置 Pattern、Resolution、Gate、Octave、Sort、Key Sync 和内部／宿主时钟已接入。编辑位置为 LCD 的 ARP 页，操作与剩余 Pattern 范围见 [琶音器](ARPEGGIATOR.md)。
 
 > 当前演奏增量：POLY、MONO、LEGATO 和 GLIDE 已接入。Mono 使用按键优先级及松键回退；Legato 保留已有采样与包络；Glide 作用于重叠按键，0 关闭。新参数支持自动化及工程恢复。具体范围见 [演奏实现](PERFORMANCE.md)。构建使用 `cmake --preset plugin`、`cmake --build --preset plugin`；最新交付位于 `output/Krose/`。以下保留各阶段的历史声音与验证记录。

@@ -39,6 +39,10 @@ int main(int argc,char** argv) {@autoreleasepool {
     if([job[@"json"] boolValue]){
       NSData* data=[NSJSONSerialization dataWithJSONObject:value options:NSJSONWritingPrettyPrinted error:nil];if(![data writeToFile:path atomically:YES])return 4;continue;
     }
+    // Allow the reference's 220 ms FX transition to settle before capture.
+    NSDate* settled=[NSDate dateWithTimeIntervalSinceNow:.3];
+    while(settled.timeIntervalSinceNow>0)
+      [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.01]];
     WKSnapshotConfiguration* config=[WKSnapshotConfiguration new];
     NSArray* r=job[@"rect"]?:@[@0,@0,@1472,@648];
     config.rect=NSMakeRect([r[0] doubleValue],[r[1] doubleValue],[r[2] doubleValue],[r[3] doubleValue]);

@@ -176,6 +176,11 @@ int main(int argc,char** argv){
   arpState.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&arpState)==kResultOk);
   assert(controller->getParamNormalized(ids.at("Arp Pattern"))==.75);
   assert(std::abs(controller->getParamNormalized(ids.at("Arp Tempo"))-123.25/280.)<1e-8);
+  if(std::getenv("KROSE_UI_REFERENCE")){
+    for(int i=0;i<controller->getParameterCount();++i){ParameterInfo p{};controller->getParameterInfo(i,p);controller->setParamNormalized(p.id,p.defaultNormalizedValue);}
+    controller->setParamNormalized(ids.at("Program"),1./1161.);
+    controller->setParamNormalized(ids.at("Arp Host Sync"),0.);
+  }
   auto* view=controller->createView(ViewType::kEditor);assert(view);
   if(openEditor) verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);},[&]{return controller->getParamNormalized(ids["Program"]);},[&]{return controller->getParamNormalized(ids["Voice Mode"]);},[&]{return controller->getParamNormalized(ids["Glide"]);},[&](const char* name){return controller->getParamNormalized(ids.at(name));});
   view->release();

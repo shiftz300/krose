@@ -65,7 +65,7 @@ def main():
         if run('git', '-C', str(sdk / name), 'status', '--porcelain'):
             raise RuntimeError('Modified VST3 SDK submodule: ' + name)
     link = iplug / 'Dependencies/IPlug/VST3_SDK'
-    if link.is_symlink():
+    if link.is_symlink() or (hasattr(link,"is_junction") and link.is_junction()):
         assert link.resolve() == sdk.resolve()
     else:
         if link.exists():
@@ -75,7 +75,10 @@ def main():
             for path in files:
                 path.unlink()
             link.rmdir()
-        link.symlink_to(os.path.relpath(sdk, link.parent), target_is_directory=True)
+        if os.name == "nt":
+            subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(sdk)], check=True)
+        else:
+            link.symlink_to(os.path.relpath(sdk, link.parent), target_is_directory=True)
     print('Pinned iPlug2 and VST3 SDK ready in build/deps/')
 
 

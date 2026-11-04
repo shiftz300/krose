@@ -1,7 +1,7 @@
 #include "KrosePlugin.h"
 #include "IPlug_include_in_plug_src.h"
 #include "FactoryPrograms.h"
-#include "IPlugPaths.h"
+#include "ResourcePath.h"
 #include <algorithm>
 #include <array>
 
@@ -9,13 +9,9 @@ KrosePlugin::KrosePlugin(const InstanceInfo& info)
     : Plugin(info, MakeConfig(kNumParams, segrand::kInstrumentProgramCount + 2)) {
   InitializeParameters();
   try {
-    WDL_String path;
-    BundleResourcePath(path, GetBundleID());
-    path.Append("/SEGrand.samples");
-    auto concert = segrand::SampleBank::Load(path.Get());
-    BundleResourcePath(path, GetBundleID());
-    path.Append("/Factory.samples");
-    auto programs = segrand::ProgramLibrary::Load(path.Get());
+    const auto resources = krose::ResourceDirectory(GetBundleID());
+    auto concert = segrand::SampleBank::Load((resources / "SEGrand.samples").string());
+    auto programs = segrand::ProgramLibrary::Load((resources / "Factory.samples").string());
     mEngine = std::make_unique<segrand::InstrumentEngine>(std::move(concert), std::move(programs));
   } catch (const std::exception& error) {
     mError = error.what();

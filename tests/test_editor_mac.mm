@@ -1,114 +1,168 @@
-// Optional integration check for a machine with a macOS WindowServer session.
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
+// Exercise the compiled native editor through Cocoa events. No browser runtime.
 #include "pluginterfaces/gui/iplugview.h"
+#import <Cocoa/Cocoa.h>
 #include <cassert>
+#include <cstdlib>
 #include <functional>
 #include <iostream>
-#include <cstdlib>
-
 namespace {
-WKWebView* findWebView(NSView* parent) {
-  if([parent isKindOfClass:WKWebView.class]) return (WKWebView*)parent;
-  for(NSView* child in parent.subviews) if(auto* view=findWebView(child)) return view;
+void pump(double seconds = .15) {
+  NSDate *end = [NSDate dateWithTimeIntervalSinceNow:seconds];
+  while (end.timeIntervalSinceNow > 0)
+    [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.01]];
+}
+NSView *findNative(NSView *parent) {
+  NSLog(@"Native view: %@", NSStringFromClass(parent.class));
+  assert(![NSStringFromClass(parent.class) containsString:@"WKWebView"]);
+  if ([NSStringFromClass(parent.class) containsString:@"IGraphics"])
+    return parent;
+  for (NSView *child in parent.subviews)
+    if (auto *v = findNative(child))
+      return v;
   return nil;
 }
-void waitFor(const std::function<bool()>& predicate) {
-  NSDate* deadline=[NSDate dateWithTimeIntervalSinceNow:10];
-  while(!predicate()) {
-    assert(deadline.timeIntervalSinceNow>0);
-    [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.01]];
+void click(NSView *v, float x, float y) {
+  NSPoint p = [v convertPoint:NSMakePoint(x, v.isFlipped ? y : v.bounds.size.height - y)
+                       toView:nil];
+  for (NSEventType type : {NSEventTypeLeftMouseDown, NSEventTypeLeftMouseUp}) {
+    NSEvent *e = [NSEvent mouseEventWithType:type
+                                    location:p
+                               modifierFlags:0
+                                   timestamp:0
+                                windowNumber:v.window.windowNumber
+                                     context:nil
+                                 eventNumber:0
+                                  clickCount:1
+                                    pressure:1];
+    if (type == NSEventTypeLeftMouseDown)
+      [v mouseDown:e];
+    else
+      [v mouseUp:e];
   }
+  pump();
 }
-id eval(WKWebView* web, NSString* script) {
-  bool done=false; bool* completed=&done;
-  __block id result=nil;
-  [web evaluateJavaScript:script completionHandler:^(id value,NSError* error){
-    if(error) NSLog(@"Editor script: %@",error);
-    assert(!error);result=value;*completed=true;
-  }];
-  waitFor([&] {return done;});
-  return result;
+void key(NSView *v, NSString *s, unsigned short code = 0) {
+  NSEvent *e = [NSEvent keyEventWithType:NSEventTypeKeyDown
+                                location:NSZeroPoint
+                           modifierFlags:0
+                               timestamp:0
+                            windowNumber:v.window.windowNumber
+                                 context:nil
+                              characters:s
+             charactersIgnoringModifiers:s
+                               isARepeat:NO
+                                 keyCode:code];
+  [v keyDown:e];
+  pump();
 }
+void number(NSView *v, float x, float y, NSString *s) {
+  click(v, x, y);
+  for (NSUInteger i = 0; i < s.length; ++i)
+    key(v, [s substringWithRange:NSMakeRange(i, 1)]);
+  key(v, @"\r", 36);
 }
-void snapshotEditor(WKWebView* web) {
-  const char* destination=std::getenv("KROSE_UI_SNAPSHOT_PATH");
-  if(!destination)return;
-  NSString* path=[NSString stringWithUTF8String:destination];
-  bool done=false;bool* completed=&done;
-  [web takeSnapshotWithConfiguration:nil completionHandler:^(NSImage* image,NSError* error){
-    assert(image&&!error);
-    NSBitmapImageRep* rep=[NSBitmapImageRep imageRepWithData:image.TIFFRepresentation];
-    NSData* png=[rep representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
-    assert([png writeToFile:path atomically:YES]);*completed=true;
-  }];
-  waitFor([&]{return done;});
-}
-void verifyEditor(Steinberg::IPlugView* view,const std::function<double()>& velocity,const std::function<double()>& program,const std::function<double()>& mode,const std::function<double()>& glide,const std::function<double(const char*)>& parameter) {
+} // namespace
+void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &velocity,
+                  const std::function<double()> &program, const std::function<double()> &mode,
+                  const std::function<double()> &glide,
+                  const std::function<double(const char *)> &parameter) {
   [NSApplication sharedApplication];
   Steinberg::ViewRect rect{};
-  assert(view->getSize(&rect)==Steinberg::kResultOk && rect.getWidth()==1472 && rect.getHeight()==648);
-  NSWindow* window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,1472,648)
-    styleMask:NSWindowStyleMaskBorderless backing:NSBackingStoreBuffered defer:NO];
+  assert(view->getSize(&rect) == Steinberg::kResultOk && rect.getWidth() == 1472 &&
+         rect.getHeight() == 648);
+  NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1472, 648)
+                                                 styleMask:NSWindowStyleMaskBorderless
+                                                   backing:NSBackingStoreBuffered
+                                                     defer:NO];
   [window orderFront:nil];
-  for(int pass=0;pass<2;++pass){
-    assert(view->attached((__bridge void*)window.contentView,Steinberg::kPlatformTypeNSView)==Steinberg::kResultOk);
-    WKWebView* web=findWebView(window.contentView);assert(web);
-    waitFor([&]{return !web.loading;});
-    waitFor([&]{return [eval(web,@"!!document.querySelector('#krose-fixed-ui[data-ready]')") boolValue];});
-    assert(![eval(web,@"!!document.documentElement.dataset.scriptError") boolValue]);
-    assert([eval(web,@"document.querySelector('#kf-program').options.length") intValue]==1162);
-    std::cout<<"Editor ready pass "<<pass<<std::endl;
-    if(pass==0){
-      eval(web,@"document.querySelector('[data-page=arp]').click()");
-      assert(![eval(web,@"document.querySelector('[data-toggle=arp]').disabled") boolValue]);
-      assert([eval(web,@"document.querySelector('#kf-rate').options.length") intValue]==8);
-      eval(web,@"document.querySelector('[data-toggle=arp]').click()");
-      waitFor([&]{return parameter("Arp")==1.;});
-      eval(web,@"document.querySelector('[data-toggle=latch]').click()");
-      waitFor([&]{return parameter("Arp Latch")==1.;});
-      eval(web,@"document.querySelector('[data-toggle=host]').click()");
-      waitFor([&]{return parameter("Arp Host Sync")==0.;});
-      eval(web,@"(()=>{const e=document.querySelector('#kf-arp [data-bind=tempo]');e.value='143.25';e.dispatchEvent(new Event('change'));})()");
-      waitFor([&]{return std::abs(parameter("Arp Tempo")-123.25/280.)<1e-8;});
-      eval(web,@"(()=>{const e=document.querySelector('#kf-pattern');e.value='RANDOM';e.dispatchEvent(new Event('change'));})()");
-      waitFor([&]{return parameter("Arp Pattern")==1.;});
-      std::cout<<"ARP values written; tempo "<<[[eval(web,@"document.querySelector('#kf-tempo').textContent") description] UTF8String]<<std::endl;
-      assert([eval(web,@"document.querySelector('#kf-tempo').textContent") isEqualToString:@"INT 143.25"]);
-      assert([eval(web,@"(()=>{const screen=document.querySelector('.lcd').getBoundingClientRect();return [...document.querySelectorAll('#kf-arp input,#kf-arp select')].every(e=>{const r=e.getBoundingClientRect();return r.bottom<=screen.bottom-6&&r.left>=screen.left&&r.right<=screen.right;});})()") boolValue]);
-      snapshotEditor(web);
-      eval(web,@"document.querySelector('[data-page=main]').click()");
-      waitFor([&]{return [eval(web,@"document.querySelector('[data-voice=legato]').getAttribute('aria-pressed')") isEqualToString:@"true"];});
-      assert(![eval(web,@"document.querySelector('#kf-value-glide').disabled") boolValue]);
-      eval(web,@"document.querySelector('[data-voice=mono]').click()");
-      waitFor([&]{return std::abs(mode()-.5)<1e-8;});
-      eval(web,@"(()=>{const e=document.querySelector('#kf-value-glide');e.value='80';e.dispatchEvent(new Event('change'));})()");
-      waitFor([&]{return std::abs(glide()-80./127.)<1e-8;});
-      eval(web,@"(()=>{const e=document.querySelector('#kf-value-velocity');e.value='2';e.dispatchEvent(new Event('change'));})()");
-      waitFor([&]{return std::abs(velocity()-.6)<1e-6;});
-      eval(web,@"document.querySelector('#kf-browse').click()");
-      assert([eval(web,@"document.querySelector('#krose-browser').open") boolValue]);
-      assert([eval(web,@"[...document.querySelectorAll('#krose-browser select[aria-label=音色类型] option')].slice(1).map(x=>x.value).join('|')") isEqualToString:@"PIANO|E.PIANO|ORGAN|BELL|STRINGS|BRASS|SYNTH LEAD|SYNTH PAD|GUITAR|BASS|DRUM/SFX"]);
-      assert([eval(web,@"[...document.querySelector('#kf-program').options].slice(0,3).map(x=>x.textContent.split('  ')[0]).join('|')") isEqualToString:@"A000|A001|A002"]);
-      assert([eval(web,@"[...document.querySelectorAll('#krose-browser [data-program]')].slice(0,3).map(x=>x.textContent.split('  ')[0]).join('|')") isEqualToString:@"A000|A001|A002"]);
-      eval(web,@"(()=>{const c=document.querySelector('#krose-browser select[aria-label=音色类型]');c.value='BELL';c.dispatchEvent(new Event('change'));})()");
-      assert([eval(web,@"[...document.querySelectorAll('#krose-browser [data-program]')].some(x=>x.textContent.startsWith('G015  GM Tubular Bells'))") boolValue]);
-      eval(web,@"(()=>{const c=document.querySelector('#krose-browser select[aria-label=音色类型]');c.value='';c.dispatchEvent(new Event('change'));})()");
-      eval(web,@"(()=>{const e=document.querySelector('#krose-browser input');e.value='EXPCM004:063';e.dispatchEvent(new Event('input'));})()");
-      assert([eval(web,@"document.querySelectorAll('#krose-browser [data-program]').length") intValue]==1);
-      eval(web,@"document.querySelector('#krose-browser [data-program]').click()");
-      waitFor([&]{return std::abs(program()-1.)<1e-6;});
-      assert(![eval(web,@"!!document.documentElement.dataset.scriptError") boolValue]);
-    }else{
-      waitFor([&]{return [eval(web,@"document.querySelector('[data-toggle=arp]').getAttribute('aria-pressed')") isEqualToString:@"true"];});
-      assert([eval(web,@"document.querySelector('#kf-pattern').value") isEqualToString:@"RANDOM"]);
-      assert([eval(web,@"document.querySelector('#kf-arp [data-bind=tempo]').value") doubleValue]==143.25);
-      assert([eval(web,@"document.querySelector('[data-toggle=latch]').getAttribute('aria-pressed')") isEqualToString:@"true"]);
-      waitFor([&]{return [eval(web,@"document.querySelector('[data-voice=mono]').getAttribute('aria-pressed')") isEqualToString:@"true"];});
-      assert([eval(web,@"document.querySelector('#kf-value-glide').value") intValue]==80);
-      waitFor([&]{return [eval(web,@"document.querySelector('#kf-value-velocity').value") doubleValue]==2.;});
-      waitFor([&]{return [eval(web,@"document.querySelector('#kf-program').value") intValue]==1161;});
+  for (int pass = 0; pass < 2; ++pass) {
+    assert(view->attached((__bridge void *)window.contentView, Steinberg::kPlatformTypeNSView) ==
+           Steinberg::kResultOk);
+    pump(1);
+    NSView *v = findNative(window.contentView);
+    assert(v);
+    [window makeFirstResponder:v];
+    std::cout << "Native editor ready pass " << pass << std::endl;
+    if (const char *directory = std::getenv("KROSE_UI_REFERENCE")) {
+      auto capture = [&](const char *name, float x, float y) {
+        std::string path = std::string(directory) + "/native-" + name + ".pam";
+        setenv("KROSE_NATIVE_CAPTURE", path.c_str(), 1);
+        click(v, x, y);
+        pump(.2);
+        unsetenv("KROSE_NATIVE_CAPTURE");
+      };
+      capture("main", 700, 125);
+      capture("tone", 780, 125);
+      capture("fx", 850, 125);
+      capture("arp", 930, 125);
+      capture("lcd-dropdown", 635, 177);
+      key(v, @"\x1b", 53);
+      capture("folded", 71, 85);
+      capture("preset-dropdown", 700, 67);
+      key(v, @"\x1b", 53);
+      capture("browser", 620, 331);
+      capture("filter-dropdown", 950, 198);
+      key(v, @"\x1b", 53);
+      view->removed();
+      [window orderOut:nil];
+      return;
     }
-    view->removed();
+    if (pass == 0) {
+      click(v, 70, 285);
+      assert(parameter("Arp") == 1.);
+      click(v, 70, 331);
+      assert(parameter("Arp Latch") == 1.);
+      click(v, 930, 125);
+      click(v, 910, 150);
+      assert(parameter("Arp Host Sync") == 0.);
+      number(v, 930, 199, @"143.25");
+      assert(std::abs(parameter("Arp Tempo") - 123.25 / 280.) < 1e-8);
+      click(v, 635, 177);
+      key(v, @"\uf701", 125);
+      key(v, @"\r", 36);
+      assert(parameter("Arp Pattern") == 1.);
+      click(v, 700, 125);
+      click(v, 1145, 331);
+      assert(std::abs(mode() - .5) < 1e-8);
+      number(v, 175, 241, @"80");
+      assert(std::abs(glide() - 80. / 127.) < 1e-8);
+      number(v, 330, 343, @"2");
+      assert(std::abs(velocity() - .6) < 1e-6);
+      click(v, 700, 67);
+      key(v, @"\uf729", 115);
+      key(v, @"\r", 36);
+      assert(std::abs(program() - 1. / 1161.) < 1e-8);
+      click(v, 620, 331);
+      click(v, 950, 198);
+      key(v, @"\uf701", 125);
+      key(v, @"\r", 36);
+      click(v, 950, 198);
+      key(v, @"\uf700", 126);
+      key(v, @"\r", 36);
+      click(v, 550, 195);
+      for (char c : std::string("EXPCM004:063"))
+        key(v, [NSString stringWithFormat:@"%c", c]);
+      key(v, @"\r", 36);
+      assert(std::abs(program() - 1.) < 1e-8);
+      click(v, 71, 85);
+      click(v, 71, 85);
+      click(v, 215, 460);
+      click(v, 1305, 331);
+      click(v, 1380, 331);
+    } else {
+      assert(std::abs(velocity() - .6) < 1e-6);
+      assert(std::abs(glide() - 80. / 127.) < 1e-8);
+      assert(parameter("Arp") == 1.);
+      assert(program() == 1.);
+    }
+    if (const char *path = std::getenv("KROSE_NATIVE_CAPTURE")) {
+      pump();
+      std::cout << "Native framebuffer: " << path << std::endl;
+    }
+    assert(view->removed() == Steinberg::kResultOk);
+    pump();
   }
+  [window orderOut:nil];
+  std::cout << "PASS native UI: Cocoa clicks, numeric editing, arp, voice, catalog search, FX "
+               "folding, keyboard, panic and reopen\n";
 }

@@ -4,15 +4,15 @@
 
 ## 实施状态
 
-1. **已完成：参考冻结。** 从实际 WKWebView 提取 1472×648 逻辑坐标、2944×1296 Retina 图像、四个 LCD 页和五个代表音色。源文件 SHA-256 记录在 `verification/native-ui/source-manifest.json`。
-2. **已完成：首批资源与控件。** 透明旋钮外壳、独立指针、16 个按钮的开关状态、FX 展开/收起底图。C++ IGraphics 旋钮与开关已加入编译；旋钮使用连续旋转，支持拖动、Shift 微调、双击复位和方向键。
-3. **待完成：原生面板接入。** 推子、琴键、滚轮、数值编辑、LCD 字体与页面、音色浏览、FX 状态和启动状态尚未完成原生接入。当前产品入口仍使用 WebEditor。
-4. **待完成：图像差分和交互验收。** 已生成的材质资产通过尺寸与透明度检查。尚未取得原生整机渲染的对比结果，不能据此宣称 1:1 移植完成。
-5. **待完成：Windows 构建及宿主验证。** 绘图配置已按 macOS Metal / Windows GL2 分支。Windows 安装、资源路径和宿主验证仍待完成。
+- 原生面板已成为 VST3 和独立程序的默认编辑器。运行时使用 C++ / iPlug2 / IGraphics / NanoVG；macOS 使用 Metal，Windows 配置为 OpenGL 2。产品不再链接 WebKit。
+- 已接入旋钮、两套包络推子、61 键键盘、弯音、延音、Panic、LCD 四页、FX 收放、1162 项音色及原厂分类顺序。参数 ID 和声音核心保留。
+- 顶部 PRESET、LCD 和浏览器下拉菜单统一按输入框左边与宽度展开，固定文字内边距与箭头位置，支持鼠标与方向键选择。
+- 本机原生窗口的 Cocoa 事件测试通过，包括参数编辑、音色搜索、下拉选择和关窗重开；7 项 CTest 通过。原生帧缓冲与冻结页面的对比保存在 `build/native-ui/comparison/`。像素差分仍非零，不能宣称逐像素完全一致。
+- Windows 的模块资源路径、VST3/独立程序资源复制和原生窗口资源已补齐；Windows CI 使用独立的编译占位包，运行结果另记。占位包不包含 PCM，也不作可试听产物发布。
 
 ## 文件组织
 
-- `src/plugin/editor/native/BitmapControls.h`：IGraphics 控件。
+- `src/plugin/editor/native/NativePanel.cpp`：整机与 LCD 绘制；`PanelInput.cpp`：宿主参数及输入；`PanelBrowser.cpp`：音色与菜单。
 - `src/plugin/editor/native/assets/`：运行时 PNG 材质与坐标清单。
 - `tools/native-ui/`：开发期 WebKit 导出工具；原生控件不依赖 WebKit。
 - `docs/verification/native-ui/`：版本化参考图、源哈希和几何数据。
@@ -25,9 +25,11 @@
 python3 tools/native-ui/prepare.py
 clang++ -std=c++17 -fobjc-arc tools/native-ui/capture.mm -framework Cocoa -framework WebKit -o /tmp/krose-native-capture
 /tmp/krose-native-capture build/native-ui/reference.html build/native-ui/jobs.json build/native-ui
-python3 tools/native-ui/assets.py
-/tmp/krose-native-capture build/native-ui/reference.html build/native-ui/asset-jobs.json build/native-ui/assets
-python3 tools/native-ui/publish_assets.py
+python3 tools/native-ui/complete_assets.py
+/tmp/krose-native-capture build/native-ui/reference.html build/native-ui/complete-jobs.json build/native-ui/complete
+python3 tools/native-ui/field_assets.py
+/tmp/krose-native-capture build/native-ui/reference.html build/native-ui/field-jobs.json build/native-ui/fields
+python3 tools/native-ui/publish_complete.py
 ```
 
 导出 PNG 需要 2× 显示缩放；发布脚本拒绝尺寸不符的资源。开发工具仅从已生成页面读取资源，使用临时 WebKit 数据存储。发布脚本需要 Pillow。
@@ -39,3 +41,9 @@ python3 tools/native-ui/publish_assets.py
 - 提供原生整机截图和差分结果；仅通过编译不视为视觉通过。
 - Windows 和 macOS 分别构建、验证 VST3 并检查缩放及反复开关编辑器。
 - 完成验收后切换默认编辑器，并移除产品对 WebKit/WebView 的运行时依赖。
+
+## 本次保持的功能边界
+
+SW1/2、Mod、Save/Compare 和 FX 参数在迁移前的实际插件中处于禁用状态，原生界面保留此行为。FX 材质显示已有四组路由预览；没有已确认路由的音色不生成虚构模块。LCD 中的 Release/Space 使用宿主实际值，修正了脱离宿主导出时这两项为空的问题。
+
+开发期 WebKit 仅用于提取已批准的材质和字体。FX 收起参考需等待动画结束；导出收起底图时显式隐藏被裁剪的画布，避免 WKWebView 离屏截图遗漏 clip-path 后仍残留模块。

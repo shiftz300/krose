@@ -1,3 +1,5 @@
+> 2026-11-04 原生 UI：默认编辑器已切换为 C++ IGraphics / NanoVG，保留定稿面板和现有参数。网页源码仅供设计参考与资源导出。当前验收与平台范围见 [原生界面移植](NATIVE_UI_MIGRATION.md)。下文早期 WebKit 描述为历史记录。
+
 # 原生采样与 Program 引擎
 
 2026-11-04。原生插件现包含 768 个出厂 Program、265 个 GM Program、128 个扩展 Program，以及保留的 Concert SE Grand 入口，共 1,162 项。全部原始 Program 均进入同一个数据驱动引擎。完整目录见 `assets/program-library/FactoryPrograms.json`。

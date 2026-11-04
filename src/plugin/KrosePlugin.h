@@ -32,16 +32,10 @@ private:
 #if IPLUG_EDITOR
   static constexpr int kEditorTag = 100;
   void ConfigureEditor();
-  void HandleEditorMessage(const char* text);
-  std::array<bool, 128> mEditorNotes{};
-  bool mEditorSustain = false;
-  bool mEditorBend = false;
 #endif
   std::unique_ptr<segrand::InstrumentEngine> mEngine;
   std::string mError;
   bool mPrepared = true;
   std::atomic<double> mDisplayTempo{120.};
-  double mLastDisplayTempo = -1;
   std::atomic<bool> mDisplayHost{false};
-  bool mLastDisplayHost = false;
 };

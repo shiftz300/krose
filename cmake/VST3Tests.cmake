@@ -39,7 +39,7 @@ set_source_files_properties(tests/test_editor_mac.mm PROPERTIES COMPILE_FLAGS "-
 add_executable(test-vst3-host tests/test_vst3_host.cpp tests/test_editor_mac.mm
   "${SDK_ROOT}/public.sdk/source/vst/hosting/plugprovider.cpp"
   "${SDK_ROOT}/public.sdk/source/common/memorystream.cpp")
-target_link_libraries(test-vst3-host PRIVATE segrand-sdk-hosting "-framework WebKit")
+target_link_libraries(test-vst3-host PRIVATE segrand-sdk-hosting)
 target_compile_options(test-vst3-host PRIVATE -UNDEBUG)
 add_dependencies(test-vst3-host Krose-vst3)
 add_test(NAME vst3-host COMMAND test-vst3-host "${CMAKE_BINARY_DIR}/out/Krose.vst3")
