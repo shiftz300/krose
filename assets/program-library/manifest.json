@@ -14,8 +14,8 @@
     },
     {
       "file": "FactoryPrograms.json",
-      "bytes": 103765,
-      "sha256": "cd7ed57393e318dbc5d50eb7f28cd4ef461d255998774d03b49728e9474ae1fb"
+      "bytes": 103704,
+      "sha256": "a7c433b6152a4c5801a1bf1a26d6cc0a857c2d03615bd9a58742fdb2b9e64109"
     },
     {
       "file": "FactoryBrowser.json",
@@ -18958,6 +18958,6 @@
     "40188": "b9bd1142d0c35db35e8bff6cc6e8f7eb809d4a6f609bd3c0d63deade2b5fb5f1",
     "40193": "ffc4c68cfb872ca35a2071f1387ded2429fc01ee94c19b26e62fffff23d21204"
   },
-  "exporter_sha256": "8af320285fa9b5314afe98d5ab01f10876fe6440d0c1e9b0efa1a96c0faf0d97",
-  "scope": "Original Program controls, key/velocity selection, stereo regions, transpose/slope and layer crossfades. Host filter/FX and drum gain remain approximations; drum start-offset, expansion importer kit relocation and missing logical bank 6 remain unresolved."
+  "exporter_sha256": "47580f8f9d48b0d88c801eb16deb35f46ca39bd932a1a3696766de6bd9cd813e",
+  "scope": "Original Program controls, key/velocity selection, stereo regions, transpose/slope and layer crossfades. Host filter/FX and drum gain remain approximations; drum start-offset, missing logical bank 6 remain unresolved. Expansion kit links match the verified original section importer."
 }

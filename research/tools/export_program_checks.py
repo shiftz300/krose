@@ -5,7 +5,7 @@ from pathlib import Path
 from layout import ROOT,PRODUCT_ROOT
 
 def main():
-    manifest=json.loads((PRODUCT_ROOT/'assets/factory-starter/manifest.json').read_text())
+    manifest=json.loads((PRODUCT_ROOT/'assets/program-library/manifest.json').read_text())
     indices={p['id']:i for i,p in enumerate(manifest['programs'])}
     directory=ROOT/'derived/firmware/KROSS2_V124/architecture'
     rows=[];cases=[];inputs=[]

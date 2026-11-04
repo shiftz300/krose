@@ -1,6 +1,6 @@
 # 原生采样与 Program 引擎
 
-2026-11-04。原生插件现包含 768 个出厂 Program、265 个 GM Program、128 个扩展 Program，以及保留的 Concert SE Grand 入口，共 1,162 项。全部原始 Program 均进入同一个数据驱动引擎。完整目录见 `assets/factory-starter/FactoryPrograms.json`。
+2026-11-04。原生插件现包含 768 个出厂 Program、265 个 GM Program、128 个扩展 Program，以及保留的 Concert SE Grand 入口，共 1,162 项。全部原始 Program 均进入同一个数据驱动引擎。完整目录见 `assets/program-library/FactoryPrograms.json`。
 
 ## 数据与实时处理
 
@@ -35,7 +35,7 @@ flowchart LR
 
 旧工程中的 Program 数值索引保持可读。Program 的枚举范围已经扩大，旧测试版工程若保存了归一化 Program 自动化曲线，需要重新指定曲线中的音色；普通保存的状态不受此项影响。
 
-`factory-starter` 目录名仅为路径兼容保留，目前存放完整资源包。构建只读取冻结数据，不运行固件或研究脚本。采样包保留本地，源码仓库记录目录、来源和哈希。
+完整资源包统一存放于 `assets/program-library/`，旧默认缓存自动迁移。构建只读取冻结数据，不运行固件或研究脚本。采样包保留本地，源码仓库记录目录、来源和哈希。
 
 ## 已验证与限制
 
@@ -43,12 +43,12 @@ flowchart LR
 
 完整目录的收录与声音还原程度分别记录：滤波控制字到 Hz/Q、插值、循环拼接、鼓增益和空间效果仍采用主机实现。完整 LFO／动态 AMS、Pitch EG、OSC 微调、鼓 start-offset 及原 IFX/MFX 算法仍有未接入部分。详细功能阶段见 `IMPLEMENTATION.md`。
 
-以下资源问题已显示在浏览器中：
+缺失采样已显示在浏览器中。Nu Pop／Nu DISCO 的共享鼓组编号已经原导入器验证，详见 [资源复核](../research/docs/architecture/RESOURCE_GAPS.md)。
 
 | Program | 具体情况 |
 | --- | --- |
 | EXPCM004:043 · Electric Beats Kit | MIDI 45 的第二层、83 的第一层、96 的两层引用缺失的逻辑 bank 6。现有层继续播放，缺失层保留为空。 |
-| EXPCM004:041 · Nu Pop Kit | 保存的 kit 编号 45 在扩展文件顺序中指向 Nu DISCO Kit。当前遵循原始编号，真实导入器的重映射仍需证据。 |
+
 
 因此，1,161 项均可选择并产生声音；上述鼓组的全部键位和原硬件效果还原尚未完成。
 

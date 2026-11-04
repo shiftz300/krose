@@ -14,7 +14,7 @@ from pathlib import Path
 from layout import ROOT, PRODUCT_ROOT
 from program_firmware import Firmware
 
-DEST = PRODUCT_ROOT / 'assets/factory-starter'
+DEST = PRODUCT_ROOT / 'assets/program-library'
 CAT = ROOT / 'derived/firmware/KROSS2_V124'
 CATEGORIES = ['PIANO','E.PIANO','ORGAN','BELL','STRINGS','BRASS','SYNTH LEAD','SYNTH PAD','GUITAR','BASS','DRUM/SFX']
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -89,8 +89,8 @@ def main():
         if p['kind']!='factory_A_F':continue
         path=ROOT/p['program_file'];assert sha(path)==p['program_sha256']
         records.append(dict(id=p['bank_program'],name=p['name'],category=p['category'],index=p['category_index'],group='Factory',raw=path.read_bytes(),source=str(path.relative_to(PRODUCT_ROOT)),sha256=p['program_sha256']))
-    starter=read(ROOT/'config/native-starter.json')['programs']
-    records.sort(key=lambda p:(starter.index(p['id']) if p['id'] in starter else len(starter),p['id']))
+    legacy_order=read(ROOT/'config/legacy-program-order.json')['programs']
+    records.sort(key=lambda p:(legacy_order.index(p['id']) if p['id'] in legacy_order else len(legacy_order),p['id']))
     gm=read(CAT/'architecture/stage04/gm-programs-check.json')
     official=list(csv.DictReader((CAT/'sounds/factory/GM-programs.csv').open()))
     for p in gm['records']:
@@ -213,7 +213,8 @@ def main():
     for p in records:
         absent=sorted({row['note'] for row in missing if row['program']==p['id']})
         if absent:warnings[p['id']]='缺少部分采样：MIDI '+', '.join(map(str,absent))
-    warnings['EXPCM004:041']='原始引用指向 Nu DISCO Kit，导入器重映射待核对'
+    # Original section importer and reference relocation both preserve kit 45.
+    # Nu Pop and Nu DISCO intentionally share the imported fourth kit.
     entries=[['EX','Concert SE Grand','PIANO',0,'Concert']]+[[p['id'],p['name'],p['category'],p['index'],p['group'],warnings.get(p['id'],'')] for p in records]
     browser.write_text(json.dumps(entries,ensure_ascii=False,indent=2)+'\n')
     groups=list(dict.fromkeys(p['group'] for p in records))+['Concert']
@@ -225,7 +226,7 @@ def main():
     order=sorted(range(len(entries)),key=display_key)
     presentation=DEST/'FactoryBrowser.json'
     presentation.write_text(json.dumps(dict(categories=categories,groups=groups,order=order,source=factory_catalog['source_pdf'],source_sha256=factory_catalog['source_pdf_sha256']),indent=2)+'\n')
-    report=dict(format_version=2,kind='Complete locally recovered Factory, GM and expansion Programs',files=[dict(file=f.name,bytes=f.stat().st_size,sha256=sha(f)) for f in [target,header,browser,presentation]],programs=[{k:v for k,v in p.items() if k!='raw'} for p in records],sample_count=len(ids),region_count=len(zones),missing_layers=missing,expansion_kit_links=[x for x in kitlinks if x['program'].startswith('EXPCM')],source_inputs=source_inputs,source_WAV_sha256={str(s):samples[s]['wav_sha256'] for s in ids},exporter_sha256=sha(Path(__file__)),scope='Original Program controls, key/velocity selection, stereo regions, transpose/slope and layer crossfades. Host filter/FX and drum gain remain approximations; drum start-offset, expansion importer kit relocation and missing logical bank 6 remain unresolved.')
+    report=dict(format_version=2,kind='Complete locally recovered Factory, GM and expansion Programs',files=[dict(file=f.name,bytes=f.stat().st_size,sha256=sha(f)) for f in [target,header,browser,presentation]],programs=[{k:v for k,v in p.items() if k!='raw'} for p in records],sample_count=len(ids),region_count=len(zones),missing_layers=missing,expansion_kit_links=[x for x in kitlinks if x['program'].startswith('EXPCM')],source_inputs=source_inputs,source_WAV_sha256={str(s):samples[s]['wav_sha256'] for s in ids},exporter_sha256=sha(Path(__file__)),scope='Original Program controls, key/velocity selection, stereo regions, transpose/slope and layer crossfades. Host filter/FX and drum gain remain approximations; drum start-offset, missing logical bank 6 remain unresolved. Expansion kit links match the verified original section importer.')
     (DEST/'manifest.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(dict(programs=len(records),samples=len(ids),regions=len(zones),bytes=offset,missing_layers=len(missing),groups=dict(collections.Counter(p['group'] for p in records))),indent=2))
 if __name__=='__main__':main()

@@ -40,7 +40,7 @@ def main():
     sources = [
         'CMakeLists.txt', 'src/instrument/NativeVoice.h', 'src/instrument/NativeVoice.cpp',
         'src/instrument/PianoEngine.h', 'src/instrument/PianoEngine.cpp',
-        'src/plugin/SEGrand.cpp', 'src/dsp/concert_effects.c', 'src/dsp/concert_effects.h',
+        'src/plugin/KrosePlugin.cpp', 'src/dsp/concert_effects.c', 'src/dsp/concert_effects.h',
         'tools/prepare_voice_assets.py', 'tools/test_native_voice.cpp',
         'tools/test_piano_engine.cpp', 'tools/render_piano.cpp', 'tools/benchmark_piano.cpp',
         'tools/verify_native_player.py',

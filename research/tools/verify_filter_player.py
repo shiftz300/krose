@@ -81,7 +81,7 @@ def main():
                                peak=peak/32768,rms=math.sqrt(sum(x*x for x in samples)/len(samples))/32768))
     assert recordings[2]['sha256']==sha(ROOT/'output/Concert_SE_Grand_Control/instrument-native-dry.wav')
     assert recordings[1]['sha256']!=recordings[2]['sha256']
-    sources=core_sources+['CMakeLists.txt','src/plugin/SEGrand.cpp','tools/analyze_concert_program.py',
+    sources=core_sources+['CMakeLists.txt','src/plugin/KrosePlugin.cpp','tools/analyze_concert_program.py',
                          'tools/test_native_filter.cpp','tools/test_piano_engine.cpp','tools/render_piano.cpp',
                          'tools/benchmark_piano.cpp','tools/verify_filter_player.py']
     result=dict(

@@ -1,0 +1,52 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "plugin",
+      "displayName": "macOS VST3 and standalone",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/plugin",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "SEGRAND_BUILD_PLUGIN": "ON",
+        "SEGRAND_BUILD_TOOLS": "ON",
+        "SEGRAND_SANITIZE": "OFF",
+        "IPLUG_DEPLOY_PLUGINS": "OFF"
+      }
+    },
+    {
+      "name": "engine",
+      "displayName": "Engine and offline tools",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/engine",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "SEGRAND_BUILD_PLUGIN": "OFF",
+        "SEGRAND_BUILD_TOOLS": "ON",
+        "SEGRAND_SANITIZE": "OFF"
+      }
+    },
+    {
+      "name": "sanitize",
+      "inherits": "engine",
+      "displayName": "Engine ASan and UBSan",
+      "binaryDir": "${sourceDir}/build/sanitize",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "SEGRAND_BUILD_TOOLS": "OFF",
+        "SEGRAND_SANITIZE": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "plugin", "configurePreset": "plugin", "jobs": 6 },
+    { "name": "engine", "configurePreset": "engine", "jobs": 6 },
+    { "name": "sanitize", "configurePreset": "sanitize", "jobs": 6 }
+  ],
+  "testPresets": [
+    { "name": "plugin", "configurePreset": "plugin", "output": { "outputOnFailure": true }, "execution": { "jobs": 3 } },
+    { "name": "engine", "configurePreset": "engine", "output": { "outputOnFailure": true }, "execution": { "jobs": 3 } },
+    { "name": "sanitize", "configurePreset": "sanitize", "output": { "outputOnFailure": true }, "execution": { "jobs": 2 } }
+  ]
+}

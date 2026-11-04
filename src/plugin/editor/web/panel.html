@@ -1,0 +1,72 @@
+
+<div id="krose-fixed-ui">
+ <div class="viewport">
+  <div class="instrument" aria-label="KROSE 插件界面，固定设计尺寸 1472 乘 648">
+   <div class="rail"><span class="screw" style="left:9px"></span><span class="brand">KROSE</span><span class="rail-note">PROGRAM SYNTHESIZER</span><span class="screw" style="right:9px"></span></div>
+   <div class="upper-controls">
+   <canvas id="kf-effect-view" width="856" height="664" role="img" aria-label="Effect parameter view"></canvas><div class="fx-hit-layer"></div>
+   <button class="fx-lettering" type="button" aria-controls="kf-effect-view" aria-expanded="true" aria-label="收起 FX 展示"><canvas width="132" height="108" aria-hidden="true"></canvas></button>
+   <div class="section-title" style="left:28px">OUTPUT</div><div class="rule" style="left:28px;width:124px"></div>
+   <div class="section-title" style="left:190px">TONE ADJUST</div><div class="rule" style="left:190px;width:166px"></div>
+   <div class="section-title" style="left:388px">PROGRAM</div><div class="rule" style="left:388px;width:500px"></div>
+   <div class="section-title" style="left:917px">EG ADJUST</div><div class="rule" style="left:917px;width:231px"></div>
+   <div class="section-title" style="left:1185px">VOICE</div><div class="rule" style="left:1185px;width:215px"></div>
+   <div class="divider" style="left:171px"></div><div class="divider" style="left:370px"></div><div class="divider" style="left:902px"></div><div class="divider" style="left:1168px"></div><div class="keyline"></div>
+   <div class="control" style="left:30px;top:84px" data-control="glide" data-label="GLIDE" data-min="0" data-max="127" data-default="0" data-unit=""></div>
+   <span class="meter-label">LR</span><div class="meter" aria-label="静态电平示意"><div class="meter-lane"></div><div class="meter-lane"></div></div>
+   <div class="arp-switches"><button class="switch cursor-interaction" data-toggle="arp" aria-label="ARP" aria-pressed="true" type="button">ARP</button><button class="switch cursor-interaction" data-toggle="latch" aria-label="Latch" aria-pressed="false" type="button">LATCH</button></div>
+   <div class="program-picker"><label for="kf-program" class="program-picker-label">PRESET</label><select id="kf-program" aria-label="选择音色"></select></div>
+   <div class="hardware-control value-control"><span class="caption">VALUE</span><button type="button" class="knob cursor-interaction" id="kf-value" aria-label="下一个音色"><span class="pointer"></span></button></div>
+   <div class="control" style="left:187px;top:82px" data-control="cutoff" data-label="CUTOFF" data-min="-99" data-max="99" data-default="0" data-unit=""></div>
+   <div class="control" style="left:277px;top:82px" data-control="resonance" data-label="RESONANCE" data-min="-99" data-max="99" data-default="0" data-unit=""></div>
+   <div class="control" style="left:187px;top:200px" data-control="velocity" data-label="VELOCITY" data-min="0.5" data-max="3" data-step="0.01" data-default="1" data-unit="×"></div>
+   <div class="control" style="left:277px;top:200px" data-control="pan" data-label="PAN" data-min="-64" data-max="63" data-default="0" data-unit=""></div>
+   <div class="lcd-bezel"><div class="lcd" data-page="main"><canvas class="lcd-canvas" id="kf-lcd-canvas" width="1440" height="384" role="img" aria-label="KROSS 风格点阵 LCD"></canvas>
+    <div class="lcd-tabs" role="tablist" aria-label="编辑页面"><canvas class="lcd-tab-outline" aria-hidden="true"></canvas><span class="lcd-mode" role="presentation">PROG</span><button class="lcd-tab cursor-interaction" data-page="main" aria-selected="true" role="tab" aria-controls="kf-main" type="button">MAIN</button><button class="lcd-tab cursor-interaction" data-page="tone" aria-selected="false" role="tab" aria-controls="kf-tone" type="button">TONE</button><button class="lcd-tab cursor-interaction" data-page="fx" aria-selected="false" role="tab" aria-controls="kf-fx" type="button">FX</button><button class="lcd-tab cursor-interaction" data-page="arp" aria-selected="false" role="tab" aria-controls="kf-arp" type="button">ARP</button></div>
+    <div class="lcd-top"><canvas id="kf-program-row" width="240" height="12" role="img"></canvas><span id="kf-source"></span><span class="edit-name" id="kf-edit-name"></span><button type="button" id="kf-tempo" data-toggle="host" aria-pressed="true" aria-label="切换宿主速度同步"></button></div>
+    <div id="kf-main" class="lcd-main"><div class="preset-title" id="kf-preset"></div></div>
+    <div id="kf-tone" class="lcd-panel" hidden><div class="lcd-fields"><label>Cutoff: <input type="number" min="-99" max="99" data-bind="cutoff" aria-label="LCD Cutoff"></label><label>Resonance: <input type="number" min="-99" max="99" data-bind="resonance" aria-label="LCD Resonance"></label><label>Pan: <input type="number" min="-64" max="63" data-bind="pan" aria-label="LCD Pan"></label><label>Velocity: <input type="number" min="0.5" max="3" step="0.01" data-bind="velocity" aria-label="LCD Velocity"></label></div></div>
+    <div id="kf-fx" class="lcd-panel" hidden>
+     <div class="fx-strip"><div id="kf-fx-slots" aria-label="Effect slots"></div>
+      <label><input type="checkbox" id="kf-slot-on" aria-label="Selected effect enabled">On</label>
+      <label><input type="checkbox" data-fx="insert" aria-label="Insert effects enabled">IFX</label>
+      <label><input type="checkbox" data-fx="master" aria-label="Master effects enabled">MFX</label>
+     </div>
+     <div id="kf-fx-fields" class="lcd-fields"></div>
+    </div>
+    <div id="kf-arp" class="lcd-panel" hidden><div class="lcd-fields"><label>Pattern: <select id="kf-pattern" aria-label="ARP Pattern"><option>UP</option><option>DOWN</option><option>ALT 1</option><option>ALT 2</option><option>RANDOM</option></select></label><label>Resolution: <select id="kf-rate" aria-label="ARP Rate"><option>1/32</option><option selected>1/16</option><option>1/8</option><option>1/4</option></select></label><label>Gate (%): <input type="number" min="1" max="100" data-bind="gate" aria-label="ARP Gate"></label><label>Swing (%): <input type="number" min="-100" max="100" data-bind="swing" aria-label="ARP Swing"></label></div><span id="kf-arp-state" hidden></span></div>
+    <div class="lcd-footer" id="kf-route"><span id="kf-status"></span><span id="kf-routing"></span></div>
+   </div></div>
+   <div class="below-lcd"><button class="switch cursor-interaction" id="kf-prev" aria-label="上一个音色" type="button">◀</button><button class="switch cursor-interaction" id="kf-next" aria-label="下一个音色" type="button">▶</button><button class="switch cursor-interaction" id="kf-browse" aria-label="浏览音色" type="button">BROWSE</button><button class="switch cursor-interaction" id="kf-save" aria-label="保存原型状态" type="button">SAVE</button><button class="switch cursor-interaction" id="kf-compare" aria-label="对比预置" aria-pressed="false" type="button">COMPARE</button></div>
+   <svg class="maincore-mark" viewBox="0 0 400 400" role="img" aria-label="Maincore">
+    <defs><pattern id="kf-logo-marble" patternUnits="userSpaceOnUse" width="400" height="400">
+     <rect width="400" height="400" fill="#e5d3c8"/><image width="400" height="400"/>
+    </pattern></defs>
+    <path fill="url(#kf-logo-marble)" fill-rule="evenodd" d="M145 52C169 9 231 9 255 52L390 286C415 329 384 380 335 380H65C16 380-15 329 10 286Z M262 220C272 202 298 202 308 220L357 305C367 323 355 344 334 344H237C216 344 204 323 214 305Z"/>
+   </svg>
+   <div class="env-select"><span class="minor">EG ADJUST</span><button class="switch cursor-interaction" data-eg="amp" aria-pressed="true" type="button">AMP</button><button class="switch cursor-interaction" data-eg="filter" aria-pressed="false" type="button">FILTER</button></div>
+   <div class="fader" style="left:917px" data-fader="attack"><label class="caption" for="kf-attack">ATTACK</label><div class="fader-track"><input id="kf-attack" type="range" min="-99" max="99" value="0" aria-label="Attack offset"></div><output for="kf-attack">+00</output></div>
+   <div class="fader" style="left:977px" data-fader="decay"><label class="caption" for="kf-decay">DECAY</label><div class="fader-track"><input id="kf-decay" type="range" min="-99" max="99" value="0" aria-label="Decay offset"></div><output for="kf-decay">+00</output></div>
+   <div class="fader" style="left:1037px" data-fader="sustain"><label class="caption" for="kf-sustain">SUSTAIN</label><div class="fader-track"><input id="kf-sustain" type="range" min="-99" max="99" value="0" aria-label="Sustain offset"></div><output for="kf-sustain">+00</output></div>
+   <div class="fader" style="left:1097px" data-fader="release"><label class="caption" for="kf-release">RELEASE</label><div class="fader-track"><input id="kf-release" type="range" min="-99" max="99" value="0" aria-label="Release offset"></div><output for="kf-release">+00</output></div>
+   <div class="voice-modes"><button class="switch cursor-interaction" data-voice="poly" aria-pressed="true" type="button">POLY</button><button class="switch cursor-interaction" data-voice="mono" aria-pressed="false" type="button">MONO</button><button class="switch cursor-interaction" data-voice="legato" aria-pressed="false" type="button">LEGATO</button></div>
+   <div class="sustain"><button class="switch cursor-interaction" data-toggle="sustain" aria-label="Sustain" data-hardware-label="SUSTAIN" aria-pressed="false" type="button">SUSTAIN</button><button class="switch cursor-interaction" id="kf-panic" aria-label="Panic" data-hardware-label="PANIC" type="button">PANIC</button></div>
+   <div class="control" style="left:1321px;top:117px;gap:4px;width:68px" data-control="output" data-label="VOLUME" data-min="-60" data-max="6" data-step="0.1" data-default="-6" data-unit="dB"></div>
+   <div class="arp-line"><span class="caption">ARP TIMING</span><button class="switch cursor-interaction" data-toggle="host" aria-pressed="true" type="button" style="height:24px;font-size:9px;min-width:67px">HOST</button></div>
+   <div class="control" style="left:1253px;top:237px;gap:5px;width:68px" data-control="gate" data-label="GATE" data-min="1" data-max="100" data-default="80" data-unit="%"></div>
+   <div class="control" style="left:1331px;top:237px;gap:5px;width:68px" data-control="swing" data-label="SWING" data-min="-100" data-max="100" data-default="0" data-unit="%"></div>
+   </div>
+   <div class="keybed-controls">
+   <button class="switch cursor-interaction" data-toggle="sw1" aria-label="SW1 Octave Down" aria-pressed="false" type="button" style="position:absolute;left:32px;top:360px;width:47px;min-width:0;padding:0">1</button>
+   <button class="switch cursor-interaction" data-toggle="sw2" aria-label="SW2 Octave Up" aria-pressed="false" type="button" style="position:absolute;left:104px;top:360px;width:47px;min-width:0;padding:0">2</button>
+   <span class="sw-sub" style="left:24px">OCT DOWN</span><span class="sw-sub" style="left:96px">OCT UP</span>
+   <button class="wheel cursor-interaction" id="kf-pitch" style="left:39px" aria-label="Pitch bend" aria-valuemin="-8192" aria-valuemax="8191" aria-valuenow="0" role="slider" type="button"><span class="wheel-mark"></span></button>
+   <button class="wheel cursor-interaction" id="kf-mod" style="left:111px;--wheel:90%" aria-label="Modulation" aria-valuemin="0" aria-valuemax="127" aria-valuenow="0" role="slider" type="button"><span class="wheel-mark"></span></button>
+   <span class="wheel-label" style="left:29px">PITCH</span><span class="wheel-label" style="left:101px">MOD</span>
+   <div class="octaves"><button id="kf-oct-down" type="button" aria-label="显示低八度">−</button><span id="kf-octave">OCT 0</span><button id="kf-oct-up" type="button" aria-label="显示高八度">+</button></div>
+   <div class="keyboard" id="kf-keyboard" aria-label="61 键试奏键盘"></div>
+   <div class="keyboard-footer"><span id="kf-notes">C2 — C7</span><span id="kf-feedback" aria-live="polite">KEY VELOCITY 100 · MIDI OMNI</span><span>61 KEYS</span></div>
+   </div>
+  </div>
+ </div>
+</div>

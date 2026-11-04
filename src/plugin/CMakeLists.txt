@@ -1,15 +1,9 @@
-set(panel "${CMAKE_SOURCE_DIR}/docs/design/krose-fixed-ui.html")
-set(catalog "${KROSE_FACTORY_ASSET_DIR}/FactoryPrograms.json")
-set(browser_catalog "${KROSE_FACTORY_ASSET_DIR}/FactoryBrowser.json")
-set(bridge "${CMAKE_CURRENT_SOURCE_DIR}/resources/editor-bridge.js")
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${panel}" "${bridge}" "${catalog}" "${browser_catalog}")
-file(READ "${panel}" KROSE_PANEL)
-file(READ "${bridge}" KROSE_BRIDGE)
-file(READ "${catalog}" KROSE_CATALOG)
-file(READ "${browser_catalog}" KROSE_BROWSER)
-configure_file(resources/editor.html.in "${CMAKE_CURRENT_BINARY_DIR}/editor.html" @ONLY)
+include("${CMAKE_SOURCE_DIR}/cmake/EditorResources.cmake")
 iplug_add_plugin(Krose
-  SOURCES SEGrand.cpp SEGrand.h resources/resource.h
+  SOURCES
+    KrosePlugin.cpp KrosePlugin.h
+    Parameters.cpp Parameters.h
+    editor/WebEditor.cpp resources/resource.h
   RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/editor.html" "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
     "${CMAKE_SOURCE_DIR}/licenses/THIRD_PARTY.txt"
     "${CMAKE_SOURCE_DIR}/licenses/Roboto-Apache-2.0.txt"

@@ -1,5 +1,7 @@
 # 资源总索引
 
+2026-11-04 产品更新：完整库现位于 `assets/program-library/`，已接入 1,161 个原始 Program。结构说明见 [PROJECT_LAYOUT](../docs/PROJECT_LAYOUT.md)，缺口复核见 [RESOURCE_GAPS](docs/architecture/RESOURCE_GAPS.md)。下方统计表保留历史快照口径。
+
 2026-11-01。本表由 `python3 research/tools/index_resources.py` 生成。旧报告不覆盖，当前状态以本索引和 [逆向进度](docs/PROGRESS.md) 为入口。
 
 2026-11-02 GM 后续：[265 条完整参数、银行映射及真实采样](docs/architecture/GM_PROGRAMS.md)已核实。当前 GM 条目见[新参数索引 CSV](derived/firmware/KROSS2_V124/architecture/stage04/gm-programs.csv)；下方清单与旧 CSV 保留 2026-11-01 快照的统计口径。

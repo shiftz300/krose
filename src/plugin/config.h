@@ -7,7 +7,7 @@
 #define PLUG_URL_STR ""
 #define PLUG_EMAIL_STR ""
 #define PLUG_COPYRIGHT_STR "Krose local instrument"
-#define PLUG_CLASS_NAME SEGrand
+#define PLUG_CLASS_NAME KrosePlugin
 // Retain the original bundle identity and VST IDs for saved-project compatibility.
 #define BUNDLE_NAME "SEGrand"
 #define BUNDLE_MFR "LocalInstruments"

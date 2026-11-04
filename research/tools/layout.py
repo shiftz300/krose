@@ -17,6 +17,9 @@ PRODUCT_BUILDS = {'plugin', 'sanitize', 'deps', 'downloads', 'structure-isolatio
 class ResearchPath(type(Path())):
     def __truediv__(self, key):
         result = super().__truediv__(key)
+        legacy_assets = PRODUCT_ROOT / 'assets/factory-starter'
+        if result.is_relative_to(legacy_assets):
+            return ResearchPath(PRODUCT_ROOT / 'assets/program-library' / result.relative_to(legacy_assets))
         try:
             parts = result.relative_to(RESEARCH_ROOT).parts
         except ValueError:
@@ -25,6 +28,8 @@ class ResearchPath(type(Path())):
             return result
         if parts[0] == 'research':
             return ResearchPath(RESEARCH_ROOT.joinpath(*parts[1:]))
+        if parts[:2] == ('assets', 'factory-starter'):
+            return ResearchPath(PRODUCT_ROOT.joinpath('assets', 'program-library', *parts[2:]))
         if parts[0] in {'src', 'assets', 'tests', 'cmake', 'licenses', 'CMakeLists.txt'}:
             return ResearchPath(PRODUCT_ROOT.joinpath(*parts))
         if parts[0] == 'tools' and len(parts) > 1:

@@ -52,7 +52,7 @@ def main():
     boundary = json.loads((PRODUCT_ROOT/'build/project-boundary-check.json').read_text())
     for name, expected in boundary['source_sha256'].items():
         assert sha(PRODUCT_ROOT/name) == expected, ('Native source changed since isolated build', name)
-    for folder in ['assets/concert-se-grand', 'assets/factory-starter', 'tests/fixtures/concert-se-grand']:
+    for folder in ['assets/concert-se-grand', 'assets/program-library', 'tests/fixtures/concert-se-grand']:
         base = PRODUCT_ROOT/folder
         for item in json.loads((base/'manifest.json').read_text())['files']:
             assert sha(base/item['file']) == item['sha256'], item['file']

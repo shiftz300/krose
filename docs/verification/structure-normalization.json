@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-04",
+  "baseline_commit": "d203c0bf431e0ddfc33c08e7a87d31f283cb1e16",
+  "scope": "Module and project structure normalization; no DSP or panel redesign",
+  "checks": {
+    "plugin_ctest": "5/5 passed",
+    "asan_ubsan": "4/4 passed",
+    "isolated_product_engine": "4/4 passed; no research/docs/tools in checkout",
+    "native_editor": "Real WebKit checks passed, including factory ordering, category search, selection and reopen",
+    "official_validator": "Result: 47 tests passed, 0 tests failed",
+    "panel_css_markup_javascript": "Identical to pre-refactor generated panel",
+    "program_indices_header": "Byte identical to baseline",
+    "factory_browser_order": "Byte identical to baseline",
+    "sample_payload": "Byte identical to baseline",
+    "legacy_research_path_adapter": "Combined and chained paths verified"
+  },
+  "samples_sha256": "8565ccf99e6e45f592df85f9740ade2ba0785e75789f3be8e9cabb5f03c728f3",
+  "resource_review": {
+    "original_arm_section_cases": 65,
+    "program_kit_link_comparisons": 64,
+    "remaining_missing_layers": 4,
+    "missing_bank": 6,
+    "evidence_sha256": "e1ea61a0ebc233ff9966acddf8d5e6d5ac34fee827849cf6284d72e7603a7bed"
+  },
+  "logs_sha256": {
+    "ctest": "6a17baf72a9c18d1e1c1be29417b3ef7cb59518059858d7f8eb62ec3c1fe5304",
+    "sanitizers": "2a7ffb1405af0cbab3845ef9748a59da9998f90457a3ffc99469403d18273d99",
+    "native_editor": "301733425d60c758360518dd512f6afb45566274a49001c465e36dd153467d94",
+    "isolated_engine": "0784ed9d8fad505cf2b610a87058813d6c97afc1d94014e0b3762be0c6873e34",
+    "validator": "fd9fc931b176ee8996816754b3f6fbba8a7a091f085116f500d8294fed859be8",
+    "resource_import": "1e9909929e33fa3b67127adb113a3813f6f88db73a1c7ed10c18c0bae96a64de"
+  },
+  "package_manifest_sha256": "35d483cb734582d0246b3f4d826b54b715ed1ec15e9f556036c2bc306868388e",
+  "manual_daw_acceptance": "Pending; unchanged by this refactor"
+}

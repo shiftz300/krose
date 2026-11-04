@@ -55,11 +55,11 @@ def main():
                        stdout=stream, stderr=subprocess.STDOUT, check=True)
     result = re.search(r'Result: (\d+) tests passed, (\d+) tests failed', (build / 'official-validator.log').read_text())
     assert result and int(result[1]) > 0 and int(result[2]) == 0
-    sources = [ROOT / 'CMakeLists.txt', *sorted((ROOT / 'src').rglob('*')),
+    sources = [ROOT / 'CMakeLists.txt', ROOT / 'CMakePresets.json', *sorted((ROOT / 'src').rglob('*')),
                *sorted((ROOT / 'cmake').rglob('*'))]
     manifest = {'name': 'Krose', 'version': '0.1.0', 'platform': platform.platform(),
                 'bundles': bundles, 'assets': json.loads((build / 'generated/assets.json').read_text()),
-                'program_library':json.loads((ROOT/'assets/factory-starter/manifest.json').read_text()),
+                'program_library':json.loads((ROOT/'assets/program-library/manifest.json').read_text()),
                 'test_logs':{name:digest(build/name) for name,_ in checks},
                 'tests_run_by_packager':not args.skip_tests,
                 'dependencies': json.loads((ROOT / 'cmake/dependencies.json').read_text()),

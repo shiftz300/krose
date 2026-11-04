@@ -16,4 +16,6 @@ __pycache__/
 /assets/concert-se-grand/SEGrand.samples
 /output/
 
-/assets/factory-starter/Factory.samples
+/assets/program-library/Factory.samples
+
+/CMakeUserPresets.json

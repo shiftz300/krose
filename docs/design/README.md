@@ -1,6 +1,6 @@
 # KROSE 固定尺寸界面
 
-设计画布为 **1472 × 648 逻辑像素**。页面宽度不足时只缩放整个画布，不改变控件坐标。原型源码为 [krose-fixed-ui.html](krose-fixed-ui.html)，保留供后续原生 GUI 实现核对。
+设计画布为 **1472 × 648 逻辑像素**。页面宽度不足时只缩放整个画布，不改变控件坐标。产品面板源码位于 [editor/web](../../src/plugin/editor/web/)，按 HTML、CSS、面板逻辑和宿主绑定拆分。运行 `cmake --preset plugin` 会生成 `build/plugin/src/plugin/panel-preview.html`，用于离线设计核对；插件使用同源的 `editor.html`。
 
 Page：[Krose UI 设计稿](https://chatgpt.com/space/page_7ac8da78136881919fb4032cf175ebaa)。
 

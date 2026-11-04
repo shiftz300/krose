@@ -23,7 +23,7 @@ def main():
     expansions_path='research/derived/firmware/KROSS2_V124/sounds/programs.json'
     factory=read(factory_path);expansions=read(expansions_path)
     selection=read('research/output/Factory_Sound_Selection/rom-sound-catalog.json')
-    starter=read('assets/factory-starter/manifest.json')
+    starter=read('assets/program-library/manifest.json')
     native_ids={p['id'] for p in starter['programs']}
     web=read('../krose-website/public/catalog.json')
     kinds=Counter(p['kind'] for p in factory['programs'])
@@ -37,7 +37,7 @@ def main():
       ('已解码采样','OASYS Piano 全部 WAV','research/output/OASYS_Piano_WAV','272 个单声道采样，10 个 multisample 条目；含导出/Opus清单'),
       ('研究试听','原机分类波形试听','research/output/Factory_Sound_Selection','489 个旋律波形试听、965 个单鼓试听；不是 1454 个完整预置'),
       ('研究试听','扩展包代表波形试听','research/output/Sound_Selection','E.P./Future Synth 的 8 个代表波形；不是整库导出'),
-      ('产品输入','板载共享库','assets/factory-starter','357 个共享单声道采样、418 个区域、6 个 Program；首批数据驱动播放器'),
+      ('产品输入','板载共享库','assets/program-library','357 个共享单声道采样、418 个区域、6 个 Program；首批数据驱动播放器'),
       ('产品输入','冻结插件资源','assets/concert-se-grand','5 个运行输入，当前仍为 Concert 专用采样/控制表'),
       ('测试输入','原 ARM 期望数据','tests/fixtures/concert-se-grand','5 个独立二进制回归输入，不链接到插件'),
       ('研究缓存','Opus 编码缓存','research/build/web-opus','原始 WAV 的有损派生物，供网页重新导出'),
