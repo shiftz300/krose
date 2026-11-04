@@ -34,6 +34,9 @@ def main():
         text=(build/log).read_text()
         if '100% tests passed' not in text or re.search(r'[1-9]\d* tests failed',text):
             raise RuntimeError('A successful current test log is required: '+log)
+    ui_log = build / 'native-ui-test.log'
+    if not ui_log.exists() or 'PASS native UI:' not in ui_log.read_text():
+        raise RuntimeError('Run the native Cocoa editor test before packaging')
     bundles = []
     for name in ('Krose.vst3', 'Krose.app'):
         source = build / 'out' / name
@@ -60,11 +63,17 @@ def main():
     manifest = {'name': 'Krose', 'version': '0.1.0', 'platform': platform.platform(),
                 'bundles': bundles, 'assets': json.loads((build / 'generated/assets.json').read_text()),
                 'program_library':json.loads((ROOT/'assets/program-library/manifest.json').read_text()),
-                'test_logs':{name:digest(build/name) for name,_ in checks},
+                'test_logs':{name:digest(build/name) for name in [*(name for name,_ in checks), 'native-ui-test.log']},
                 'tests_run_by_packager':not args.skip_tests,
+                'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+                'source_worktree_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),
+                'editor':{'runtime':'iPlug2 IGraphics / NanoVG / Metal',
+                          'logical_size':[1472,648],
+                          'resource_manifest_sha256':digest(ROOT/'src/plugin/editor/native/assets/files.json')},
                 'dependencies': json.loads((ROOT / 'cmake/dependencies.json').read_text()),
                 'source_sha256': {str(p.relative_to(ROOT)): digest(p) for p in sources if p.is_file()},
                 'verification': {'vst3_official_validator': result[0],
+                                 'native_cocoa_ui':'passed',
                                  'ctest': ['program-engine','piano-engine','native-voice','native-filter','performance','arpeggiator','vst3-host'], 'engine_asan_ubsan': 'passed',
                                  'ableton_manual_acceptance': 'pending'},
                 'benchmark': json.loads((ROOT/'build/piano-benchmark.json').read_text()) if (ROOT/'build/piano-benchmark.json').exists() else None}
@@ -74,6 +83,7 @@ def main():
     shutil.copy(ROOT/'docs/IMPLEMENTATION.md',output/'IMPLEMENTATION.md')
     shutil.copy(ROOT/'docs/PERFORMANCE.md',output/'PERFORMANCE.md')
     shutil.copy(ROOT/'docs/ARPEGGIATOR.md',output/'ARPEGGIATOR.md')
+    shutil.copy(ROOT/'docs/NATIVE_UI_MIGRATION.md',output/'NATIVE_UI_MIGRATION.md')
     print('Packaged, signed and verified: output/Krose/{Krose.vst3,Krose.app}')
 
 

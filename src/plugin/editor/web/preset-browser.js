@@ -11,10 +11,10 @@ window.kroseNative.openBrowser = function(root) {
     const search=document.createElement('input');search.type='search';search.placeholder='名称或编号';search.setAttribute('aria-label','搜索音色');search.style.flex='1';
     const bank=document.createElement('select');bank.setAttribute('aria-label','音色库');bank.add(new Option('全部音色库',''));
     for(const group of this.browser.groups) bank.add(new Option(group,group));
-    for(const e of [bank])Object.assign(e.style,{appearance:'none',border:'1px solid #767a7d',borderRadius:'0',background:'#232628',color:'#e3e3e3',padding:'0 24px 0 7px'});
+
     const category=document.createElement('select');category.setAttribute('aria-label','音色类型');category.add(new Option('全部类型',''));
     for(const name of this.browser.categories)category.add(new Option(name,name));
-    Object.assign(category.style,{appearance:'none',border:'1px solid #767a7d',borderRadius:'0',background:'#232628',color:'#e3e3e3',padding:'0 24px 0 7px'});
+    for(const e of [bank,category])Object.assign(e.style,{appearance:"none",border:"1px solid #767a7d",borderRadius:"0",backgroundColor:"#232628",backgroundImage:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='12' viewBox='0 0 9 12'%3E%3Cpath fill='%23e3e3e3' d='M4 0h1v1H4zm-1 1h3v1H3zM2 2h5v1H2zM1 3h7v1H1zm0 5h7v1H1zm1 1h5v1H2zm1 1h3v1H3zm1 1h1v1H4z'/%3E%3C/svg%3E\")",backgroundRepeat:"no-repeat",backgroundPosition:"right 7px center",color:"#e3e3e3",padding:"0 24px 0 7px"});
     filters.append(search,bank,category);
     const list=document.createElement('div');list.setAttribute('role','list');Object.assign(list.style,{overflowY:'auto',height:'292px',display:'flex',flexDirection:'column',gap:'2px'});
     const redraw=()=>{

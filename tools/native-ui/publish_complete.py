@@ -3,6 +3,13 @@ from pathlib import Path
 from PIL import Image
 R=Path(__file__).resolve().parents[2];work=R/'build/native-ui';dest=R/'src/plugin/editor/native/assets'
 index=json.loads((work/'complete-index.json').read_text())
+# Validate the complete capture set before replacing any runtime image.
+for folder,jobs in [('complete','complete-jobs.json'),('fields','field-jobs.json')]:
+ for job in json.loads((work/jobs).read_text()):
+  if job.get('json'):continue
+  rect=job.get('rect',[0,0,1472,648]);expected=(round(rect[2]*2),round(rect[3]*2))
+  with Image.open(work/folder/job['name']) as im:
+   if im.size!=expected:raise ValueError(f"{job['name']}: expected 2x {expected}, got {im.size}")
 for e in index:
  p=work/'complete'/(e['name']+'.png');shutil.copyfile(p,dest/(e['name']+'@2x.png'))
 for i in range(5):
