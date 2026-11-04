@@ -32,7 +32,7 @@ VST3 使用 iPlug2 提供的有效音乐位置、Tempo 和播放状态。播放�
 
 ## 逆向来源与边界
 
-五种生成器、排序、八度折回、触键力度、Resolution、Swing 忽略规则及 RANDOM 递推来自 [原琶音检查](../research/docs/architecture/ARPEGGIATOR.md)。`tests/fixtures/arpeggiator/` 冻结了 200 组、9,600 个原音符及五条连续事件轨迹，来源指纹位于其 `manifest.json`。显式更新命令为 `python3 research/tools/export_arp_checks.py`，正常构建不加载固件。
+五种生成器、排序、八度折回、触键力度、Resolution、Swing 忽略规则及 RANDOM 递推来自 [原琶音检查](https://github.com/shiftz300/krose-source/blob/main/research/docs/architecture/ARPEGGIATOR.md)。`tests/fixtures/arpeggiator/` 冻结了 200 组、9,600 个原音符及五条连续事件轨迹，来源指纹位于其 `manifest.json`。显式更新命令为 `python3 research/tools/export_arp_checks.py`，正常构建不加载固件。
 
 本阶段将内置生成器接入插件的采样时钟及 VST3 PPQ。首音、宿主网格、停播和跳转采用上面的插件规则；原 OS 调度及双琶音 A/B 同步未作为实机音频时序复现。原 1,280 条用户 Pattern 的步骤解码、固定音高、Flam、连音及 Swing 尚未接入。外部 MIDI Clock、Keyboard 直通、独立键区和力度区也留在后续增量。
 

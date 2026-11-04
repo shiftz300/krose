@@ -2,17 +2,8 @@ __pycache__/
 *.pyc
 .DS_Store
 /build/
-/research/build/
-/research/.venv/
-/research/python-deps/
-/research/downloads/
-/research/firmware/
-/research/derived/
-/research/external/
-/research/libraries/
-/research/EXPCM001/
-/research/output/
-/research/archive/
+# Research and any restored compatibility link belong to krose-source.
+/research
 /assets/concert-se-grand/SEGrand.samples
 /output/
 

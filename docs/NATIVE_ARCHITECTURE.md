@@ -45,7 +45,7 @@ flowchart LR
 
 完整目录的收录与声音还原程度分别记录：滤波控制字到 Hz/Q、插值、循环拼接、鼓增益和空间效果仍采用主机实现。完整 LFO／动态 AMS、Pitch EG、OSC 微调、鼓 start-offset 及原 IFX/MFX 算法仍有未接入部分。详细功能阶段见 `IMPLEMENTATION.md`。
 
-缺失采样已显示在浏览器中。Nu Pop／Nu DISCO 的共享鼓组编号已经原导入器验证，详见 [资源复核](../research/docs/architecture/RESOURCE_GAPS.md)。
+缺失采样已显示在浏览器中。Nu Pop／Nu DISCO 的共享鼓组编号已经原导入器验证，详见 [资源复核](https://github.com/shiftz300/krose-source/blob/main/research/docs/architecture/RESOURCE_GAPS.md)。
 
 | Program | 具体情况 |
 | --- | --- |

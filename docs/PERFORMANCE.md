@@ -25,7 +25,7 @@ Glide 数值在下一次换音时读取，当前滑音沿用启动时的速度�
 
 ## 来源与实现边界
 
-按键模型依据 [原按键链检查](../research/docs/architecture/MONO_KEYS.md)，连奏依据 [原声部复用](../research/docs/architecture/VOICE_REUSE.md) 和 [真实采样连续轨迹](../research/docs/architecture/MONO_LIVE.md)。Normal Legato 保留原包络进度；重算键盘跟踪时只替换控制来源和基准增益，滤波器内部延迟状态继续使用。
+按键模型依据 [原按键链检查](https://github.com/shiftz300/krose-source/blob/main/research/docs/architecture/MONO_KEYS.md)，连奏依据 [原声部复用](https://github.com/shiftz300/krose-source/blob/main/research/docs/architecture/VOICE_REUSE.md) 和 [真实采样连续轨迹](https://github.com/shiftz300/krose-source/blob/main/research/docs/architecture/MONO_LIVE.md)。Normal Legato 保留原包络进度；重算键盘跟踪时只替换控制来源和基准增益，滤波器内部延迟状态继续使用。
 
 Glide 系数来自 v1.2.4 的 `0x3FD380`，128 项全部进入 `PerformanceData.h`。整数累加器使用 Time 模式的音程缩放和终点夹紧。当前主机模型以 62.5 Hz 调度控制访问，在访问之间连续插值音高；这些秒数与音频插值尚无实机校准。Mono 重建时，在前音与目标音中取较高的查询键位；Normal Legato 继续使用原采样。
 

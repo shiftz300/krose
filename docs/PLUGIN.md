@@ -18,7 +18,7 @@
 
 产品名已定为 **Krose**，当前构建产物为 `build/plugin/out/Krose.vst3` 与 `Krose.app`。VST3 类 ID、参数 ID 和原 bundle 标识保留，内部 `SEGrand` 类名与采样包名也保持兼容；这次改名不改变声音或状态格式。尚未在 Live 手工验证旧工程加载。
 
-本文描述当前源码和 `build/plugin/` 内的新构建。已接入原力度、双 OSC 键盘跟踪、AMS、多段 Amp EG 与 TG 平滑解释，见 [VOICE_TIMING.md](../research/docs/VOICE_TIMING.md)。**暂不复制或安装 VST3。** `research/output/SEGrand/` 保留旧原型，尚未重新打包；最新音频在 `research/output/Concert_SE_Grand_Filter/`。现已接入原 Filter A/B 控制与 Filter EG；电脑滤波传递函数仍为近似，字段标签修正与证据见 [FILTER_CONTROL.md](../research/docs/FILTER_CONTROL.md)。
+本文描述当前源码和 `build/plugin/` 内的新构建。已接入原力度、双 OSC 键盘跟踪、AMS、多段 Amp EG 与 TG 平滑解释，见 [VOICE_TIMING.md](https://github.com/shiftz300/krose-source/blob/main/research/docs/VOICE_TIMING.md)。**暂不复制或安装 VST3。** `research/output/SEGrand/` 保留旧原型，尚未重新打包；最新音频在 `research/output/Concert_SE_Grand_Filter/`。现已接入原 Filter A/B 控制与 Filter EG；电脑滤波传递函数仍为近似，字段标签修正与证据见 [FILTER_CONTROL.md](https://github.com/shiftz300/krose-source/blob/main/research/docs/FILTER_CONTROL.md)。
 
 本地制作的 Concert SE Grand 近似钢琴：84 个已解码立体声采样、三层力度、Concert / Warm / Wide 三种变体。运行时采样已装进插件，不需要连接 KROSS 2、Python 或固件。当前构建为 **Apple Silicon arm64，macOS 13+**。
 
@@ -49,7 +49,7 @@
 - Hall/Chorus、循环交叉淡化、CC7/CC11 线性响应和柔音处理仍是本项目方案；不模拟专用 DSP 定点音频行为。
 - 支持 32–192 kHz；实际引擎回归覆盖 44.1/48/96/192 kHz，编译后的 VST3 发声测试覆盖 44.1/48/96 kHz。参数自动化按处理块读取并平滑，MIDI 有样本偏移；不宣称参数逐采样自动化。
 
-用户于 2026-11-01 明确认可当前听感，作为可用基线，不再要求真琴 A/B。后续重点转向原机预置音色选择，见 [FACTORY_SOUNDS.md](../research/docs/FACTORY_SOUNDS.md)。Live 内的交互、项目重开和长时间演奏仍未手工验证；本轮继续不复制或安装 VST3。
+用户于 2026-11-01 明确认可当前听感，作为可用基线，不再要求真琴 A/B。后续重点转向原机预置音色选择，见 [FACTORY_SOUNDS.md](https://github.com/shiftz300/krose-source/blob/main/research/docs/FACTORY_SOUNDS.md)。Live 内的交互、项目重开和长时间演奏仍未手工验证；本轮继续不复制或安装 VST3。
 
 ## 已完成验证
 

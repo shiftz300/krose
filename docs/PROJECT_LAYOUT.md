@@ -1,6 +1,8 @@
 # 项目结构与开发入口
 
-普通构建只依赖 `src/`、`assets/`、`cmake/`、`tests/` 和固定版本 SDK。界面源码和音色数据都有唯一的产品入口。`docs/` 保存说明与设计参考，`research/` 保存原件和逆向证据。
+普通构建只依赖 `src/`、`assets/`、`cmake/`、`tests/` 和固定版本 SDK。界面源码和音色数据都有唯一的产品入口。`docs/` 保存说明与设计参考，研究原件与逆向证据独立发布于 `krose-source`。
+
+2026-11-05：研究代码及必要资源已提交至 [krose-source](https://github.com/shiftz300/krose-source)。完整本地仓库、Git LFS 对象和未去定位的原始照片已保存为相邻的 `krose-source-2026-11-05.tar.zst`，逐文件校验后删除展开目录及旧兼容链接。产品所需的冻结副本保留在 `assets/`、`tests/fixtures/`、原生界面资源及设计参考目录中。归档校验结果见相邻的 `.tar.zst.verification.json` 和 `.tar.zst.sha256`。显式运行下文研究或资源导出命令前，先将归档恢复到 `../krose-source/`，再用 `ln -s ../krose-source/research research` 恢复兼容路径。
 
 ```text
 krose/
@@ -43,7 +45,6 @@ krose/
   tools/                        依赖准备、隔离检查、打包、音频工具
   docs/                         产品说明、设计参考、验证记录
   licenses/                     第三方声明
-  research/                     原始资料、逆向工具和证据
   build/                        本机 SDK、缓存、生成页面和测试产物
   output/Krose/                 本地交付的 app、VST3 和清单
 ```
@@ -76,7 +77,9 @@ build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor
 
 ## 隔离和交付
 
-`python3 tools/check_project_boundary.py` 在不复制 `research/`、`docs/`、`output/`、`tools/` 的临时目录里重建引擎并运行全部六项测试，同时检查产品代码和 CMake 的依赖边界。结果写入 `build/project-boundary-check.json`。
+`python3 tools/check_project_boundary.py` 在不复制 `research/`、`docs/`、`output/`、`tools/` 的临时目录里重建引擎并运行全部十项测试，同时检查产品代码和 CMake 的依赖边界。结果写入 `build/project-boundary-check.json`。
+
+研究 Python 脚本已迁至 `krose-source`；本仓库仍保留 13 个产品工具脚本，供依赖准备、原生界面素材、隔离校验、运行资源归档和打包使用。CI 与 macOS 安装包脚本也会调用 Python。插件运行时不依赖 Python，移除研究目录不等于移除整个开发工具链中的 Python。
 
 `python3 tools/package_plugin.py` 运行测试、验证签名并生成 `output/Krose/`。已有本轮成功日志时，可使用 `--skip-tests`，打包器仍检查日志并运行官方 validator。正式发布签名、公证和实际 DAW 验收分别记录。
 
@@ -84,4 +87,4 @@ build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor
 
 `research/libraries/`、`downloads/`、`firmware/`、`EXPCM001/` 保存原件；`derived/` 保存解包、解析和原 ARM 执行结果；`output/` 保存解码 PCM 与试听；`tools/`、`docs/` 分别保存研究代码和说明。原始文件、报告正文与既有来源哈希不随目录重构改写。
 
-`research/RESOURCES.md` 中旧表保留其时间口径。当前产品覆盖以 [原生架构](NATIVE_ARCHITECTURE.md) 和 `assets/program-library/manifest.json` 为准；剩余缺口见 [资源复核](../research/docs/architecture/RESOURCE_GAPS.md)。独立试听网站仍位于相邻的 `krose-website` 工程。
+`research/RESOURCES.md` 中旧表保留其时间口径。当前产品覆盖以 [原生架构](NATIVE_ARCHITECTURE.md) 和 `assets/program-library/manifest.json` 为准；剩余缺口见 [资源复核](https://github.com/shiftz300/krose-source/blob/main/research/docs/architecture/RESOURCE_GAPS.md)。独立试听网站仍位于相邻的 `krose-website` 工程。
