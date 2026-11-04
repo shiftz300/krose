@@ -43,3 +43,8 @@ target_link_libraries(test-vst3-host PRIVATE segrand-sdk-hosting)
 target_compile_options(test-vst3-host PRIVATE -UNDEBUG)
 add_dependencies(test-vst3-host Krose-vst3)
 add_test(NAME vst3-host COMMAND test-vst3-host "${CMAKE_BINARY_DIR}/out/Krose.vst3")
+
+add_executable(benchmark-plugin-memory tools/benchmark_plugin_memory.mm
+  "${SDK_ROOT}/public.sdk/source/vst/hosting/plugprovider.cpp")
+set_source_files_properties(tools/benchmark_plugin_memory.mm PROPERTIES COMPILE_FLAGS "-fobjc-arc")
+target_link_libraries(benchmark-plugin-memory PRIVATE segrand-sdk-hosting)

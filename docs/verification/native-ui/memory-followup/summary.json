@@ -1,0 +1,166 @@
+{
+  "metric": "macOS task_vm_info.phys_footprint, decimal bytes; includes fresh host; native arm64",
+  "baseline_code_commit": "9506c138778696f1e8bf64cf739e8eed1e6e171b",
+  "baseline_checkout": "e81650e",
+  "generic_host": {
+    "couture": {
+      "footprint_bytes": {
+        "host": 10683184,
+        "engine": 11436896,
+        "editor": 96289776,
+        "closed": 87917552
+      },
+      "plugin": "Couture VERSION 1.10.0",
+      "view": "626x487"
+    },
+    "panagement": {
+      "footprint_bytes": {
+        "host": 10978120,
+        "engine": 32555872,
+        "editor": 138904560,
+        "closed": 138396656
+      },
+      "plugin": "Panagement 2 VERSION 2.8.0",
+      "view": "824x584"
+    },
+    "lens": {
+      "footprint_bytes": {
+        "host": 10748744,
+        "engine": 12780408,
+        "editor": 117851096,
+        "closed": 117244888
+      },
+      "plugin": "Lens VERSION 1.4.0",
+      "view": "800x550"
+    },
+    "analog-lab": {
+      "footprint_bytes": {
+        "host": 10732336,
+        "engine": 168576464,
+        "editor": 577963760,
+        "closed": 389302000
+      },
+      "plugin": "Analog Lab V VERSION 5.12.4.6686",
+      "view": "960x664"
+    },
+    "grand-piano": {
+      "footprint_bytes": {
+        "host": 10814280,
+        "engine": 121537448,
+        "editor": 174343248,
+        "closed": 169493584
+      },
+      "plugin": "Grand Piano VERSION 2.9.3",
+      "view": "600x250"
+    },
+    "krose-before": {
+      "footprint_bytes": {
+        "host": 10797872,
+        "engine": 139494288,
+        "editor": 239830000,
+        "closed": 156156864
+      },
+      "plugin": "Krose VERSION 0.1.0",
+      "view": "1472x648"
+    },
+    "krose-after": {
+      "footprint_bytes": {
+        "host": 10814256,
+        "engine": 139527056,
+        "editor": 221365208,
+        "closed": 159663040
+      },
+      "plugin": "Krose VERSION 0.1.0",
+      "view": "1472x648"
+    },
+    "analog-lab-playing": {
+      "footprint_bytes": {
+        "host": 10715952,
+        "engine": 175703504,
+        "editor": 599508696,
+        "played": 692405976,
+        "closed": 375637672
+      },
+      "plugin": "Analog Lab V VERSION 5.12.4.6686",
+      "view": "960x664"
+    }
+  },
+  "regression_host": {
+    "concert": {
+      "before": {
+        "median_footprint_bytes": {
+          "engine": 138494816,
+          "editor": 341394416,
+          "animated": 368542800,
+          "closed": 178602992
+        },
+        "median_of_profiles": {
+          "animation_frame_gap": {
+            "median_ms": 16.663209,
+            "p95_ms": 17.857583
+          },
+          "draw_cpu": {
+            "median_ms": 0.350042,
+            "p95_ms": 0.641584
+          }
+        }
+      },
+      "after": {
+        "median_footprint_bytes": {
+          "engine": 138462048,
+          "editor": 302007232,
+          "animated": 347685872,
+          "closed": 159744984
+        },
+        "median_of_profiles": {
+          "animation_frame_gap": {
+            "median_ms": 16.662667,
+            "p95_ms": 18.028792
+          },
+          "draw_cpu": {
+            "median_ms": 0.3245,
+            "p95_ms": 0.647333
+          }
+        }
+      }
+    },
+    "a000": {
+      "before": {
+        "median_footprint_bytes": {
+          "engine": 74908488,
+          "editor": 278528936,
+          "animated": 287327168,
+          "closed": 97158080
+        },
+        "median_of_profiles": {
+          "animation_frame_gap": {
+            "median_ms": 16.64775,
+            "p95_ms": 19.150583
+          },
+          "draw_cpu": {
+            "median_ms": 0.3545,
+            "p95_ms": 0.677083
+          }
+        }
+      },
+      "after": {
+        "median_footprint_bytes": {
+          "engine": 74924872,
+          "editor": 238191528,
+          "animated": 283837376,
+          "closed": 95863744
+        },
+        "median_of_profiles": {
+          "animation_frame_gap": {
+            "median_ms": 16.639875,
+            "p95_ms": 19.755833
+          },
+          "draw_cpu": {
+            "median_ms": 0.331291,
+            "p95_ms": 0.6465
+          }
+        }
+      }
+    }
+  }
+}

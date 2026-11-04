@@ -56,12 +56,12 @@ def main():
                   ('ctest',['ctest','--test-dir',str(build),'--output-on-failure'])]
         for name,command in commands:
             with (logs/(name+'.log')).open('w') as stream:subprocess.run(command,stdout=stream,stderr=subprocess.STDOUT,check=True)
-        assert '100% tests passed out of 8' in (logs/'ctest.log').read_text()
+        assert '100% tests passed out of 9' in (logs/'ctest.log').read_text()
         assert not (build/'CMakeCache.txt').read_text().find('Python3_EXECUTABLE:')>=0
         for name in ('SEGrand.samples','ConcertEqData.h','NativeVoiceData.h'):
             assert digest(build/'generated'/name)==digest(ROOT/'assets/concert-se-grand'/name)
     result=dict(scope='Disposable product-only engine checkout; no research, output, EXPCM001 or tools directory; Python3 discovery disabled',
-                runtime_asset_files=len(runtime['files'])+len(factory['files']),ARM_fixture_files=len(fixtures['files'])+len(program_fixtures['files'])+len(performance_fixtures['files'])+len(arp_fixtures['files']),isolated_CTest=[8,8],
+                runtime_asset_files=len(runtime['files'])+len(factory['files']),ARM_fixture_files=len(fixtures['files'])+len(program_fixtures['files'])+len(performance_fixtures['files'])+len(arp_fixtures['files']),isolated_CTest=[9,9],
                 source_sha256={str(p.relative_to(ROOT)):digest(p) for p in sources if p.is_file()},
                 log_sha256={str(p.relative_to(ROOT)):digest(p) for p in logs.glob('*.log')},
                 factory_manifest_sha256=digest(ROOT/'assets/program-library/manifest.json'),
@@ -69,7 +69,7 @@ def main():
                 fixture_manifest_sha256=digest(ROOT/'tests/fixtures/concert-se-grand/manifest.json'),
                 deployment='No plugin built or installed by this isolated check')
     (ROOT/'build/project-boundary-check.json').write_text(json.dumps(result,indent=2)+'\n')
-    print('PASS product-only build and 8 CTests with research/output/tools absent and Python discovery disabled')
+    print('PASS product-only build and 9 CTests with research/output/tools absent and Python discovery disabled')
 
 
 if __name__=='__main__':main()

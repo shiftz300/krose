@@ -1,0 +1,8 @@
+PID 25217
+MEMORY host footprint=10797872 resident=66011136
+PLUGIN Krose VERSION 0.1.0
+MEMORY engine footprint=139494288 resident=195395584
+VIEW 1472x648
+MEMORY editor footprint=239830000 resident=256327680
+MEMORY closed footprint=156156864 resident=203456512
+PASS default-preset idle memory measurement

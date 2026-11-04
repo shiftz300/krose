@@ -37,7 +37,11 @@ void NativePanel::OnInit() {
       krose::ResourceDirectory(static_cast<KrosePlugin *>(GetDelegate())->GetBundleID()).u8string();
   for (auto it = mData["fonts"].begin(); it != mData["fonts"].end(); ++it) {
     auto &f = mFonts[it.key()];
-    f.image = Image("font-" + it.key());
+    // These four export-only atlases have no native controls. Keep the active
+    // atlases preloaded so opening menus/pages never decodes during animation.
+    if (it.key() != "light16" && it.key() != "light14" && it.key() != "search15" &&
+        it.key() != "placeholder15")
+      f.image = Image("font-" + it.key());
     f.chars = Chars(it.value()["chars"]);
     f.advances = it.value()["advances"].get<std::vector<double>>();
     f.glyphs = it.value()["glyphs"].get<std::vector<std::array<float, 6>>>();
@@ -103,6 +107,8 @@ double NativePanel::TextWidth(const std::string &font, const std::string &s) con
 void NativePanel::Text(IGraphics &g, const std::string &font, const std::string &s, const IRECT &r,
                        int align) {
   auto &f = mFonts.at(font);
+  if (!f.image.IsValid())
+    f.image = Image("font-" + font);
   float x = align == 1   ? r.MW() - TextWidth(font, s) / 2
             : align == 2 ? r.R - TextWidth(font, s)
                          : r.L;
@@ -344,10 +350,10 @@ void NativePanel::ProgramRow(IGraphics &g) {
   std::string symbol = cat.rfind("SYNTH ", 0) == 0 ? "SYNTH" : cat;
   constexpr float sx = 542.f / 240.f, sy = 27.09375f / 12.f;
   const float left = 431, top = 139;
-  auto stamp = [&](const Json &rows, int width, int x, int y) {
+  auto stamp = [&](const Json &rows, int width, int x, int y, size_t firstRow = 0) {
     int j = 0;
-    for (auto row : rows) {
-      int bits = row;
+    for (size_t row = firstRow; row < rows.size(); ++row) {
+      int bits = rows[row];
       for (int i = 0; i < width;) {
         if (!(bits & (1 << (width - 1 - i)))) {
           ++i;
@@ -366,7 +372,7 @@ void NativePanel::ProgramRow(IGraphics &g) {
     }
   };
   if (mLCD["symbols"].contains(symbol)) {
-    auto icon = mLCD["symbols"][symbol];
+    const auto &icon = mLCD["symbols"][symbol];
     stamp(icon["rows"], icon["width"], 10, 0);
   }
   if (code.rfind("EXPCM00", 0) == 0)
@@ -376,11 +382,12 @@ void NativePanel::ProgramRow(IGraphics &g) {
   char index[16];
   std::snprintf(index, sizeof(index), "%03d", p[3].get<int>());
   std::string label = cat + ":" + index + " (" + code + ")";
-  auto glyph = [&](const std::string &ch) -> Json {
+  static const Json dash = Json::array({6, 0, 0, 0, 248, 0, 0, 0, 0, 0});
+  auto glyph = [&](const std::string &ch) -> const Json & {
     if (mLCD["font"]["glyphs"].contains(ch))
       return mLCD["font"]["glyphs"][ch];
     if (ch == "-")
-      return Json::array({6, 0, 0, 0, 248, 0, 0, 0, 0, 0});
+      return dash;
     return mLCD["font"]["glyphs"][" "];
   };
   int width = 0;
@@ -389,15 +396,14 @@ void NativePanel::ProgramRow(IGraphics &g) {
   int x = std::min(59, 154 - width);
   auto text = [&](std::string s, int x, int y) {
     for (auto ch : Chars(s)) {
-      auto a = glyph(ch);
+      const auto &a = glyph(ch);
       int advance = a[0];
-      a.erase(a.begin());
-      stamp(a, 8, x, y);
+      stamp(a, 8, x, y, 1);
       x += advance;
     }
   };
   text(label, x, 2);
-  auto sprites = mLCD["tempoReference"]["sprites"];
+  const auto &sprites = mLCD["tempoReference"]["sprites"];
   stamp(sprites["["], 3, 157, 1);
   stamp(sprites["note"], 4, 162, 2);
   stamp(sprites["="], 5, 169, 4);

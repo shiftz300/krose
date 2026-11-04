@@ -1,0 +1,12 @@
+{
+  "animation_frame_gap": {
+    "count": 148,
+    "median_ms": 16.652417,
+    "p95_ms": 18.575292
+  },
+  "draw_cpu": {
+    "count": 173,
+    "median_ms": 0.3545,
+    "p95_ms": 0.677083
+  }
+}

@@ -1,0 +1,8 @@
+PID 25184
+MEMORY host footprint=10683184 resident=65896448
+PLUGIN Couture VERSION 1.10.0
+MEMORY engine footprint=11436896 resident=67076096
+VIEW 626x487
+MEMORY editor footprint=96289776 resident=145096704
+MEMORY closed footprint=87917552 resident=137478144
+PASS default-preset idle memory measurement

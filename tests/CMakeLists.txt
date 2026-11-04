@@ -45,6 +45,11 @@ target_compile_options(test-sample-loading PRIVATE -UNDEBUG)
 set_target_properties(test-sample-loading PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 add_test(NAME sample-loading COMMAND test-sample-loading "${SEGRAND_GENERATED}/Factory.samples" "${SEGRAND_GENERATED}/SEGrand.samples")
 
+add_executable(test-image-memory test_image_memory.cpp)
+target_compile_options(test-image-memory PRIVATE -UNDEBUG)
+set_target_properties(test-image-memory PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+add_test(NAME image-memory COMMAND test-image-memory)
+
 add_executable(test-effects test_effects.cpp)
 target_link_libraries(test-effects PRIVATE segrand-engine)
 target_compile_options(test-effects PRIVATE -UNDEBUG)

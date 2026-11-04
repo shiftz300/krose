@@ -1,0 +1,8 @@
+PID 25206
+MEMORY host footprint=10814280 resident=66011136
+PLUGIN Grand Piano VERSION 2.9.3
+MEMORY engine footprint=121537448 resident=178077696
+VIEW 600x250
+MEMORY editor footprint=174343248 resident=230080512
+MEMORY closed footprint=169493584 resident=230457344
+PASS default-preset idle memory measurement

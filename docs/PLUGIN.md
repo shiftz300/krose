@@ -2,6 +2,8 @@
 
 > 采样已改为按当前音色后台加载，保留完整键区与力度层；首次加载时显示 `LOADING`，期间原音色继续播放。采样缓存、尾音保留、实际内存和效果 CPU 对照见 [采样与效果优化](SAMPLE_LOADING.md)。
 
+> 最新界面优化保持像素和动画，开窗实测约 238–302 MB；另提供同宿主下的 Analog Lab、Auburn 与 Grand Piano 对照，见 [插件内存测量](PLUGIN_MEMORY_COMPARISON.md)。
+
 > 2026-11-04 原生 UI：默认编辑器已切换为 C++ IGraphics / NanoVG，保留定稿面板和现有参数。网页源码仅供设计参考与资源导出。当前验收与平台范围见 [原生界面移植](NATIVE_UI_MIGRATION.md)。下文早期 WebKit 描述为历史记录。
 
 > 琶音增量：ARP、Latch、五种内置 Pattern、Resolution、Gate、Octave、Sort、Key Sync 和内部／宿主时钟已接入。编辑位置为 LCD 的 ARP 页，操作与剩余 Pattern 范围见 [琶音器](ARPEGGIATOR.md)。

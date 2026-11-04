@@ -11,3 +11,10 @@ elseif(WIN32)
 endif()
 include("${IPLUG2_DIR}/iPlug2.cmake")
 find_package(iPlug2 REQUIRED)
+
+# Opt into stb_image's allocation API without modifying the pinned dependency.
+# Keep all texture pixels, filtering, render buffers and refresh behavior intact.
+if(APPLE AND TARGET iPlug2_IGraphics_NanoVG_Metal_obj)
+  target_compile_options(iPlug2_IGraphics_NanoVG_Metal_obj PRIVATE
+    -include "${CMAKE_SOURCE_DIR}/src/plugin/editor/native/ImageMemory.h")
+endif()

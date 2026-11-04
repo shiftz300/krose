@@ -12,8 +12,13 @@
 namespace {
 void pump(double seconds = .15) {
   NSDate *end = [NSDate dateWithTimeIntervalSinceNow:seconds];
-  while (end.timeIntervalSinceNow > 0)
-    [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.01]];
+  while (end.timeIntervalSinceNow > 0) {
+    // A real Cocoa event loop drains transient objects each iteration. Keeping
+    // them until process exit inflated the old UI-memory measurements.
+    @autoreleasepool {
+      [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:.01]];
+    }
+  }
 }
 NSView *findNative(NSView *parent) {
   NSLog(@"Native view: %@", NSStringFromClass(parent.class));
@@ -89,9 +94,11 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
   };
   if(std::getenv("KROSE_UI_BENCH")) memory("engine");
   for (int pass = 0; pass < 2; ++pass) {
-    assert(view->attached((__bridge void *)window.contentView, Steinberg::kPlatformTypeNSView) ==
-           Steinberg::kResultOk);
-    pump(1);
+    @autoreleasepool {
+      assert(view->attached((__bridge void *)window.contentView, Steinberg::kPlatformTypeNSView) ==
+             Steinberg::kResultOk);
+      pump(1);
+    }
     NSView *v = findNative(window.contentView);
     assert(v);
     [window makeFirstResponder:v];
