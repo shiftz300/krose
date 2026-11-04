@@ -1,39 +1,42 @@
 {
-  "commit": "09a2225e7249ebe76641eef42476152c90389d93",
+  "commit": "3adc40a43b82a41b02d1ee92873861494a81bef9",
   "capture": "Actual macOS IGraphics Metal framebuffer, 2x, 1472x648 logical points",
   "comparison": "Original page before approved square-control and LCD pixel-grid revisions. Differences include those intentional changes.",
   "sha256": {
     "lcd-detail.png": "b2ff7b5544765103cd10f0b0f8fc4fb31314495dcfc0096a9092bb0d933f5dd4",
     "native-arp.png": "3966293e07eeb6ba83ee28c650db1d9b52ac29f08d06f5553234e05d774c6b64",
-    "native-filter-dropdown.png": "25fd4f5434467927f89e7b4afcfaf34218eb8fd40c92abc920aa47642f5f68f6",
+    "native-browser.png": "ad55011c306790084461ff015a33a4c97e25f793fe6130f77855a6bb496501fa",
+    "native-favorites.png": "b8f7b409e64db58c736440a5829e3c6dbebe1bd066a7638a4bd41bb183ebbeff",
+    "native-filter-dropdown.png": "6adee74ff69408c5c3a40e15d68c4acbb88cd0fb4ba1be7fc271d3c94702f296",
     "native-fx.png": "797eb8de6af0563dfbfc0f03e1069edee2a90eac2ad1724ea61a45810ba79d59",
     "native-lcd-dropdown.png": "e7efa1966d06df79cb23c0e062360b403e7fd24c0d489004d8ef3591b0dedbd0",
     "native-main.png": "1a90bc2a856386118b42a6bab406a4ba8c282052c536147f18bec01fcf62e52b",
     "native-numeric-max.png": "e174c0a85419ef7f92880de35646d73f2c05d558451acfbb448ac373e3a6234a",
-    "native-preset-dropdown.png": "88dd87d2d0d9874464a6c329c5d2f875ab6f45726e16fd296b259381d53d7ed4"
+    "native-preset-dropdown.png": "ff2cb5359906d50e19a12b9d8e80a7db6a90e657e160bcafcc2215e21e6c8e62",
+    "native-preset-secondary.png": "ab42e52e77ac6e2d8c63d49d18f990027cc21ca16fb438e5729b04ac8e25b2f3"
   },
   "tests": {
-    "plugin-ctest.log": "a130c6c58f6d92e32a0197456ca1f91ccb6dbd6d944f5c0ebf099abd908c4d2e",
-    "native-ui-test.log": "c2dd126373b025bd059862f48e8a72c152c58fce0089db22df05086523cc96cd",
-    "engine-sanitizer.log": "92935f5ecb8f1e4349b27ca4ff174298859da167775e7aa020e017d7099aaa59",
+    "plugin-ctest.log": "953a33119fd0faa87c60f9451cd33df5b9d140282a455b6a55dc8db0a7aca74d",
+    "native-ui-test.log": "1b54f1d780c6f6ce0d680c3f0119fecbe0a416000b0df16b4234a54fce7c0e98",
+    "engine-sanitizer.log": "d87999e38f860a4ee9b50733ef7cdbc0416d77448a5db6745abcbfdfa508f0d7",
     "official-validator.log": "76206e73ad0232d70d73814fb193940d4806c944b39e22e88dd44ec6ebf5728d"
   },
   "package_binaries": [
     {
       "file": "Krose.vst3",
-      "binary_sha256": "8b9bb8eec1c045a222cbc71715fcecebfa2c707f5db029006d1eec697d74e98d",
+      "binary_sha256": "54cd450d9eabb5ba02e5475df2534f0086e89d683cc077d8038635e982a3bad5",
       "architecture": "arm64"
     },
     {
       "file": "Krose.app",
-      "binary_sha256": "519471dd89ee085a2f9b8ade65cd9b14624a7f79920b0c7fcffa8f5c2037d7ee",
+      "binary_sha256": "00064b569d2f303c6698ee02d0630e7a3d5d44c8143f4f640abe3d9737253b3b",
       "architecture": "arm64"
     }
   ],
   "official_vst3_validator": "47 passed, 0 failed",
   "windows_compile": {
-    "url": "https://github.com/shiftz300/krose/actions/runs/41804763316",
-    "commit": "09a2225e7249ebe76641eef42476152c90389d93",
+    "url": "https://github.com/shiftz300/krose/actions/runs/41810686045",
+    "commit": "3adc40a43b82a41b02d1ee92873861494a81bef9",
     "targets": [
       "VST3",
       "standalone"
@@ -41,5 +44,17 @@
     "result": "passed",
     "runtime_acceptance": "not tested"
   },
-  "package_commit": "09a2225e7249ebe76641eef42476152c90389d93"
+  "package_commit": "3adc40a43b82a41b02d1ee92873861494a81bef9",
+  "optimization_baseline": {
+    "commit": "3a97a9a",
+    "unchanged_static_frames": [
+      "native-main.png",
+      "native-arp.png",
+      "native-fx.png"
+    ],
+    "comparison": "Each frame byte-identical in decoded RGBA pixels to baseline current screenshots; categories, hearts and favorites menus intentionally changed.",
+    "performance_files": "../performance/",
+    "memory_metric": "macOS task_vm_info.phys_footprint; same native test host, not standalone or DAW",
+    "audio_equivalence": "../performance/audio-equivalence.json"
+  }
 }
