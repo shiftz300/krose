@@ -2,7 +2,11 @@
 
 这里存放引擎、控制模型、效果核心和 VST3 测试的 C/C++ 源码。`fixtures/concert-se-grand/` 保存原 ARM 生成的独立期望结果与哈希清单；正常测试不加载固件、不执行 Unicorn。
 
-`tools/` 中同名旧路径是指向本目录的相对符号链接，保留历史脚本和报告兼容性。请编辑本目录中的真实文件。详见 [研究与产品边界](../docs/PROJECT_LAYOUT.md)。
+`core/` 验证音频核心；`ui/` 验证无宿主的图像内存和动画；`plugin/` 验证 VST3 与 Cocoa；`tools/` 验证资源归档、PGO 构建配置和 Universal 合并。夹具按原有来源分组。详见 [模块边界](../docs/PROJECT_LAYOUT.md)。
+
+`core/test_midi_queue.cpp` 检查相同时间戳的稳定顺序、块边界、跨块偏移、数据规范化与容量溢出。归档工具测试单独运行：`python3 tests/tools/test_runtime_assets.py`，不要求安装插件或下载采样。
+
+`python3 -B tests/tools/test_pgo_configuration.py` 检查 Release 默认训练、退出开关、Debug／Sanitizer、缺失工具及多架构保护，并实际构建多配置 Debug，确认不运行或构建训练程序。`python3 -B tests/tools/test_macos_merge.py` 检查原生切片、资源和版本一致性；两者均不读取完整采样。
 
 `test_program_engine.cpp` 覆盖共享库、原参数选样、双 OSC、两套鼓组、块划分一致、原 Concert 输出一致及实时零分配；编译后 VST3 测试另覆盖所有新 Program 的发声和状态保存。
 
@@ -14,4 +18,11 @@
 
 `test_sample_loading.cpp` 对比全库与按需加载的输出，覆盖旧声部持有采样、取消加载、暂停宿主反复选音色、文件读取失败、离线等待，以及实时线程零分配／释放。另验证大块匿名内存的解码边界与移动所有权；可单独启用 ThreadSanitizer。
 
-`test_effects.cpp` 对比共享干声 EQ 与独立效果处理，在五种采样率、奇数块长和自动化下检查逐样本相等、尾音与缓冲区边界。新旧算法独立基准及音频哈希见 [采样与效果优化](../docs/SAMPLE_LOADING.md)。
+`test_effects.cpp` 对比共享干声 EQ 与独立效果处理，在五种采样率、奇数块长和自动化下检查逐样本相等、尾音与缓冲区边界。采样格式和生命周期见 [采样存储](../docs/SAMPLES.md)。
+
+`modulation` 对照冻结的原 ARM LFO、Pitch EG、AMS Mixer、双 LFO 交叉调制及音高／滤波目标结果，并检查动态控制值与四种滤波连接。夹具来源、原实验输入和未接通项见 [调制链路](../docs/MODULATION.md)。`program-engine` 另按实际音色选取各 LFO 类型，在六种采样率、多种分块和跨通道控制事件下检查输出一致及实时零分配。
+## 独立程序与界面绑定回归
+
+`standalone` 直接编译产品使用的回调／恢复适配实现，使用设备替身检查 1–1025 帧输出边界、无设备、重试、采样率回退、首选设备重连及有界关流。`midi-timing` 检查源时间间隔、跨分段／跨回调偏移、重启代际、溢出清音和生产者／消费者并发，可独立使用 ASan／UBSan／TSan。`parameter-binding` 检查值量化、无变化写入、手势配对及宿主状态回写。
+
+原生 Cocoa 测试另通过 VST3 `IComponentHandler` 验证实际 UI 的 begin／perform／end 配对，并检查窗口打开时的宿主更新成为下一次拖动的起点。设备替身回归不等同于物理声卡拔插或睡眠唤醒验收。

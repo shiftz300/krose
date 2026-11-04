@@ -14,6 +14,8 @@ case "$app_archs" in
   *) echo "Unsupported architectures: $app_archs" >&2; exit 1 ;;
 esac
 stage="$build_dir/installer-root"
+# A fresh staging tree cannot retain resources removed from a previous build.
+rm -rf -- "$stage"
 mkdir -p "$stage/Applications" "$stage/Library/Audio/Plug-Ins/VST3" dist
 /usr/bin/ditto "$out/Krose.app" "$stage/Applications/Krose.app"
 /usr/bin/ditto "$out/Krose.vst3" "$stage/Library/Audio/Plug-Ins/VST3/Krose.vst3"
@@ -41,3 +43,4 @@ PYCODE
 pkgbuild --component-plist "$build_dir/installer-components.plist" --root "$stage" --identifier dev.LocalInstruments.Krose.installer \
   --version "$version" --install-location / "dist/Krose-$version-$platform.pkg"
 pkgutil --payload-files "dist/Krose-$version-$platform.pkg" > dist/macos-payload.txt
+rm -rf -- "$stage"

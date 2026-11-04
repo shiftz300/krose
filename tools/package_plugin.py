@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--skip-tests',action='store_true',help='Use previously completed CTest logs; do not rerun audio renders')
     args=parser.parse_args()
     build = ROOT / 'build/plugin'
-    output = ROOT / 'output/Krose'
+    output = ROOT / 'dist/portable'
     output.mkdir(parents=True, exist_ok=True)
     checks = [
         ('plugin-ctest.log', ['ctest', '--test-dir', str(build), '--output-on-failure']),
@@ -74,21 +74,18 @@ def main():
                 'source_sha256': {str(p.relative_to(ROOT)): digest(p) for p in sources if p.is_file()},
                 'verification': {'vst3_official_validator': result[0],
                                  'native_cocoa_ui':'passed',
-                                 'ctest': ['program-engine','piano-engine','native-voice','native-filter','performance','arpeggiator','sample-loading','image-memory','fx-motion','effects','vst3-host'], 'engine_asan_ubsan': 'passed',
-                                 'ableton_manual_acceptance': 'pending'},
-                'benchmark': json.loads((ROOT/'build/piano-benchmark.json').read_text()) if (ROOT/'build/piano-benchmark.json').exists() else None}
+                                 'ctest': ['program-engine','piano-engine','native-voice','native-filter','performance','arpeggiator','sample-loading','sample-codec','midi-queue','image-memory','fx-motion','effects','vst3-host'], 'engine_asan_ubsan': 'passed',
+                                 'ableton_manual_acceptance': 'pending'}}
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     shutil.copy(ROOT / 'docs/PLUGIN.md', output / 'README.md')
-    shutil.copy(ROOT/'docs/NATIVE_ARCHITECTURE.md',output/'NATIVE_ARCHITECTURE.md')
-    shutil.copy(ROOT/'docs/IMPLEMENTATION.md',output/'IMPLEMENTATION.md')
-    shutil.copy(ROOT/'docs/PERFORMANCE.md',output/'PERFORMANCE.md')
-    shutil.copy(ROOT/'docs/ARPEGGIATOR.md',output/'ARPEGGIATOR.md')
-    shutil.copy(ROOT/'docs/NATIVE_UI_MIGRATION.md',output/'NATIVE_UI_MIGRATION.md')
-    shutil.copy(ROOT/'docs/UI_OPTIMIZATION.md',output/'UI_OPTIMIZATION.md')
-    shutil.copy(ROOT/'docs/SAMPLE_LOADING.md',output/'SAMPLE_LOADING.md')
-    shutil.copy(ROOT/'docs/PLUGIN_MEMORY_COMPARISON.md',output/'PLUGIN_MEMORY_COMPARISON.md')
-    shutil.copy(ROOT/'docs/FX_ANIMATION.md',output/'FX_ANIMATION.md')
-    print('Packaged, signed and verified: output/Krose/{Krose.vst3,Krose.app}')
+    for name in ('LICENSE', 'NOTICE'):
+        shutil.copy(ROOT / name, output / name)
+    shutil.copy(ROOT / 'docs/LICENSING.md', output / 'LICENSING.md')
+    shutil.copytree(ROOT / 'licenses', output / 'licenses', dirs_exist_ok=True)
+    for name in ('ARCHITECTURE.md', 'PERFORMANCE.md', 'ARPEGGIATOR.md',
+                 'NATIVE_UI.md', 'SAMPLES.md', 'PROJECT_LAYOUT.md', 'RELEASE.md'):
+        shutil.copy(ROOT / 'docs' / name, output / name)
+    print('Packaged, signed and verified: dist/portable/{Krose.vst3,Krose.app}')
 
 
 if __name__ == '__main__':

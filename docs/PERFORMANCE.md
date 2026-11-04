@@ -1,6 +1,6 @@
 # 单音、连奏与滑音
 
-2026-11-04。Concert 与完整 Program 引擎共用 `Performance.h` 的按键记录和滑音累加器；页面只发送参数及 MIDI，关掉编辑器后继续演奏。
+Concert 与完整 Program 引擎共用 `Performance.h` 的按键记录和滑音累加器；编辑器只发送参数及 MIDI，关掉编辑器后继续演奏。
 
 ## 操作
 

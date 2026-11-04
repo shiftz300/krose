@@ -1,9 +1,0 @@
-PID 25198
-MEMORY host footprint=10732336 resident=65945600
-PLUGIN Analog Lab V VERSION 5.12.4.6686
-## ExtendedFilename : 0
-MEMORY engine footprint=168576464 resident=328433664
-VIEW 960x664
-MEMORY editor footprint=577963760 resident=535068672
-MEMORY closed footprint=389302000 resident=508198912
-PASS default-preset idle memory measurement

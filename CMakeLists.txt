@@ -17,7 +17,7 @@ endif()
 include(cmake/Optimization.cmake)
 include(CTest)
 include(cmake/Assets.cmake)
-add_subdirectory(src/instrument)
+add_subdirectory(src/core)
 
 if(BUILD_TESTING)
   add_subdirectory(tests)

@@ -1,9 +1,0 @@
-2026-11-04 19:07:16.925 test-vst3-host[21306:3871096] Native view: NSView
-2026-11-04 19:07:16.925 test-vst3-host[21306:3871096] Native view: IGraphicsView_vKrose_vst3
-Verified VST3 ARP host stop/start at 150 BPM
-Native editor ready pass 0
-2026-11-04 19:07:31.890 test-vst3-host[21306:3871096] Native view: NSView
-2026-11-04 19:07:31.890 test-vst3-host[21306:3871096] Native view: IGraphicsView_vKrose_vst3
-Native editor ready pass 1
-PASS native UI: Cocoa clicks, numeric editing, arp, voice, catalog search, FX folding, keyboard, panic and reopen
-PASS editor-only: state/transport/UI checks; full-bank render skipped

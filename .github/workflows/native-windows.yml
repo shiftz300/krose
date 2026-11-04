@@ -18,6 +18,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+        with:
+          arch: x64
+      - name: Select LLVM for PGO configuration checks
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          'C:/Program Files/LLVM/bin' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: PGO configuration and Universal guards
+        run: |
+          python -B tests/tools/test_pgo_configuration.py
+          python -B tests/tools/test_macos_merge.py
       - name: Read product version
         shell: bash
         run: |
@@ -27,6 +40,9 @@ jobs:
           version=re.search(r'project\(Krose VERSION ([0-9.]+)',Path('CMakeLists.txt').read_text())[1]
           with open(os.environ['GITHUB_ENV'],'a') as f:f.write('KROSE_VERSION='+version+'\n')
           PYCODE
+      # Tiny generated banks; independent of SDK/installer availability.
+      - name: Runtime archive regressions
+        run: python tests/tools/test_runtime_assets.py
       - name: Fetch pinned dependencies
         run: python tools/bootstrap_plugin.py
       - name: Stage compile-only assets
@@ -35,7 +51,7 @@ jobs:
         if: runner.os == 'Windows'
         run: >-
           cmake -S . -B build/ci -G "Visual Studio 17 2022" -A x64
-          -DKROSE_ENABLE_IPO=ON -DBUILD_TESTING=OFF -DSEGRAND_BUILD_TOOLS=OFF
+          -DKROSE_ENABLE_IPO=ON -DKROSE_ENABLE_PGO=OFF -DBUILD_TESTING=OFF -DSEGRAND_BUILD_TOOLS=OFF
           -DSEGRAND_ASSET_DIR="${{ github.workspace }}/build/compile-assets/concert-se-grand"
           -DKROSE_FACTORY_ASSET_DIR="${{ github.workspace }}/build/compile-assets/program-library"
       - name: Configure macOS universal
@@ -43,7 +59,7 @@ jobs:
         run: >-
           cmake -S . -B build/ci -G Xcode
           -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
-          -DKROSE_ENABLE_IPO=ON -DBUILD_TESTING=OFF -DSEGRAND_BUILD_TOOLS=OFF
+          -DKROSE_ENABLE_IPO=ON -DKROSE_ENABLE_PGO=OFF -DBUILD_TESTING=OFF -DSEGRAND_BUILD_TOOLS=OFF
           -DSEGRAND_ASSET_DIR="${{ github.workspace }}/build/compile-assets/concert-se-grand"
           -DKROSE_FACTORY_ASSET_DIR="${{ github.workspace }}/build/compile-assets/program-library"
       - name: Build Release

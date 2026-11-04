@@ -1,0 +1,27 @@
+Krose
+Copyright 2026 shiftz300 and Krose contributors
+
+Original Krose code and documentation are licensed under the Apache License,
+Version 2.0. See LICENSE for the unmodified license text and LICENSING.md
+(docs/LICENSING.md in the source tree) for the scope of this grant.
+
+The project license does not relicense third-party code, original manufacturer
+resources, or third-party material embedded in generated files. In particular,
+KORG firmware/ROM content, factory/GM/expansion samples and Program data,
+firmware-derived tables, LCD glyphs/icons and their generated representations
+are outside the project's Apache-2.0 grant. Their inclusion, conversion,
+compression, or use in tests does not establish permission to redistribute
+them. Rights remain with their respective holders to the extent applicable.
+This notice does not assert exclusive rights over facts or public-domain data.
+
+Krose uses iPlug2 and components supplied with it, the Steinberg VST3 SDK,
+and Roboto. Third-party code and fonts retain their own licenses and notices;
+see THIRD_PARTY.txt and Roboto-Apache-2.0.txt (under licenses/ in the source
+tree). Adapted iPlug2 resource templates retain the applicable upstream terms.
+
+KORG and KROSS are trademarks of their respective owners. The Apache-2.0
+grant does not grant rights to third-party trademarks or imply endorsement
+or affiliation with KORG or Steinberg.
+
+This NOTICE is informational and does not modify the Apache License 2.0
+or any third-party license.

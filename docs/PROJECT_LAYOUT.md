@@ -1,90 +1,101 @@
 # 项目结构与开发入口
 
-普通构建只依赖 `src/`、`assets/`、`cmake/`、`tests/` 和固定版本 SDK。界面源码和音色数据都有唯一的产品入口。`docs/` 保存说明与设计参考，研究原件与逆向证据独立发布于 `krose-source`。
-
-2026-11-05：研究代码及必要资源已提交至 [krose-source](https://github.com/shiftz300/krose-source)。完整本地仓库、Git LFS 对象和未去定位的原始照片已保存为相邻的 `krose-source-2026-11-05.tar.zst`，逐文件校验后删除展开目录及旧兼容链接。产品所需的冻结副本保留在 `assets/`、`tests/fixtures/`、原生界面资源及设计参考目录中。归档校验结果见相邻的 `.tar.zst.verification.json` 和 `.tar.zst.sha256`。显式运行下文研究或资源导出命令前，先将归档恢复到 `../krose-source/`，再用 `ln -s ../krose-source/research research` 恢复兼容路径。
+`src/core` 是独立音频核心，`src/plugin` 负责 iPlug2 生命周期、参数、宿主和原生界面。核心通过 CMake 目标 `krose::core` 使用，不依赖 iPlug2、图形库、Python 或研究目录。普通构建读取已经校验的冻结资源。
 
 ```text
 krose/
-  CMakeLists.txt                 选项和子项目编排
-  CMakePresets.json              plugin / engine / sanitize
-  .editorconfig                 文本格式约定
-  .clang-format                 C/C++ 格式约定
+  CMakeLists.txt / CMakePresets.json   构建编排与 plugin / engine / sanitize 预设
   src/
-    instrument/                 采样库、音符调度、单音/滑音、琶音时钟、包络和滤波控制
-    dsp/                        可独立使用的 C 效果内核
+    core/
+      EngineTypes.h                  控制值和 MIDI 事件等公共值类型
+      engine/                        播放、声部分配、音色路由与混音
+      samples/                       文件格式、解码、采样内存、缓存及后台加载
+      voice/                         原厂包络、增益斜坡和滤波控制
+      midi/                          事件队列、单音优先级、滑音和琶音调度
+      effects/                       可独立使用的 C EQ／合唱／混响内核
+      CMakeLists.txt                 krose-core 静态库及 krose::core 别名
     plugin/
-      KrosePlugin.cpp/.h        插件生命周期与音频/MIDI 入口
-      Parameters.cpp/.h        参数注册、固定 ID、旧状态迁移
-      editor/
-        WebEditor.cpp           WebKit 生命周期与消息边界
-        web/
-          panel.html            定稿面板结构
-          panel.css             面板材质与固定布局
-          font.css              内嵌点阵字体
-          panel.js              面板渲染与交互
-          host-bridge.js        宿主消息协议与参数手势
-          control-bindings.js   原生参数/MIDI 到控件的绑定
-          preset-browser.js     搜索、分类和音色选择
-          editor.html.in        随包页面模板
-      resources/               平台 plist、菜单、许可证资源引用
+      KrosePlugin.cpp/.h             插件生命周期与音频／MIDI 入口
+      Parameters.cpp/.h              参数注册、固定 ID、旧工程状态迁移
+      ResourcePath.h                便携／安装版资源定位
+      editor/NativeEditor.cpp       IGraphics 控件装配与输入路由
+      editor/native/                面板绘制、输入、菜单、收藏及 PNG 资源
+      resources/                    平台 plist、菜单、许可证引用
   assets/
-    concert-se-grand/            Concert 兼容路径的冻结数据
-    program-library/            全部出厂、GM、扩展音色及显示顺序
+    concert-se-grand/               Concert 引用索引、原参数和来源清单
+    program-library/               Factory／GM／扩展库及原厂目录顺序
   tests/
-    CMakeLists.txt               引擎测试目标
-    test_*.cpp / .mm             原生、宿主及真实 WebKit 测试
-    fixtures/                   从原固件观察结果冻结的独立输入
-  cmake/
-    Assets.cmake                校验与复制资源
-    RuntimeAssets.cmake         manifest 验证函数
-    EditorResources.cmake       合成内嵌界面及 Page 预览
-    PluginDependencies.cmake    iPlug2 构建配置
-    VST3Tests.cmake              固定版本 SDK 宿主和验证器
-    dependencies.json           依赖版本锁
-  tools/                        依赖准备、隔离检查、打包、音频工具
-  docs/                         产品说明、设计参考、验证记录
-  licenses/                     第三方声明
-  build/                        本机 SDK、缓存、生成页面和测试产物
-  output/Krose/                 本地交付的 app、VST3 和清单
+    core/                          独立引擎、MIDI、采样、声部及效果测试
+    ui/                            图像内存与 FX 动画的独立单元测试
+    plugin/                        VST3 宿主与原生 Cocoa 交互检查
+    tools/                         开发工具的归档／回滚测试
+    fixtures/                      原固件独立观察数据，按来源保存哈希
+  cmake/                           资源校验、原生资源嵌入、SDK、优化和宿主配置
+  tools/
+    audio/                         离线渲染、核心基准与构建期 PGO 训练
+    native-ui/                     开发期素材导出、原生内存测量和设计参考页面
+    resources/                     显式重建原厂编码资源
+    release/                       运行资源归档、macOS PKG 脚本
+    bootstrap_plugin.py            固定版本 SDK 准备
+    check_project_boundary.py      不含 SDK／tools／research 的隔离构建检查
+    package_plugin.py              本地便携交付与签名／校验记录
+  packaging/                       Windows NSIS 脚本及资源归档锁
+  docs/                            当前架构、使用与维护说明
+  licenses/                        第三方许可证
+  build/                           显式构建时生成，Git 忽略
+  dist/                            显式打包时生成，Git 忽略
+    portable/                      本地 app、VST3、交付清单
+    resources/                     已固定哈希的运行资源归档
+    Krose-*.pkg                     本地安装包
 ```
 
-## 构建和预览
+## 模块边界
 
-取得本地冻结采样包后，首次运行 `python3 tools/bootstrap_plugin.py` 准备固定版本 SDK。macOS 插件构建：
+```mermaid
+flowchart TD
+    Plugin[plugin：宿主与原生界面] --> Engine[core/engine：播放与路由]
+    Engine --> Midi[core/midi：事件与琶音]
+    Engine --> Voice[core/voice：包络与滤波]
+    Engine --> Samples[core/samples：不可变采样与后台加载]
+    Engine --> Effects[core/effects：音频处理]
+```
+
+- `SampleBank` 负责 Concert 文件和共享声道引用，文件读取已经从 `PianoEngine` 移出；`SampleLoader` 只依赖采样模块。
+- `ProgramLibrary` 保存采样、区域和 Program 元数据，提供选样所需的只读查询。预测解码、PCM 所有权和异步发布分别由专门模块处理。
+- `InstrumentEngine` 负责琶音、两条播放路径和跨音色尾音。`PianoEngine` 保留已验证的 Concert 三种空间与立体声三次插值；`ProgramEngine` 处理原 Program／双 OSC／鼓组。这两条路径的采样和滤波语义各有验证依据，分别维护。
+- 三套引擎共用固定容量 `EventQueue`：相同时间戳保持输入顺序，跨块事件保留偏移，溢出触发 Panic。播放线程不进行文件读取、锁操作或动态内存分配／释放。
+- MIDI／包络／滤波不依赖采样文件格式。`EngineTypes` 只引用轻量值类型；通用参数不再包含整个声部实现。
+- 原生界面按绘制、输入、浏览器、收藏拆分。现有边界足以支撑当前功能，布局和动画资源保持定稿。
+
+## 构建和工具
 
 ```sh
+python3 tools/bootstrap_plugin.py
 cmake --preset plugin
 cmake --build --preset plugin
 ctest --preset plugin
-build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor
+build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor-only
 ```
 
-无需 iPlug2 的引擎构建使用 `engine` preset；内存检查使用 `sanitize` preset。普通 CMake 不调用 Python 或固件提取器。目标名称及 `build/plugin/` 下原有工具入口保留。
+Release 默认自动训练并启用 PGO，要求 Clang／clang-cl 与匹配的 llvm-profdata；训练数据留在构建目录。`engine` 预设只构建核心和离线工具；`sanitize` 使用 ASan／UBSan 并关闭 PGO。离线工具的可执行文件名保持不变，例如 `build/plugin/benchmark-core`、`render-program`。
 
-构建配置阶段将 `editor/web/` 合成 `build/plugin/src/plugin/editor.html`，该文件直接装入 app 和 VST3。相同的面板源码还生成 `panel-preview.html`，可用于 Page／设计核对。不要修改生成文件；改动入口是对应 HTML、CSS 或 JS。`docs/design/` 只保存说明、布局索引和参考图。
+设计页面只用于开发期核对和 PNG／字体导出，入口为 `tools/native-ui/reference/`。单独生成：
 
-## 数据和代码约定
+```sh
+cmake -S tools/native-ui -B build/native-ui/preview
+python3 tools/native-ui/prepare.py
+```
 
-- 新参数只追加到 `Parameters.h`，既有编号明确写出。插件 ID、bundle ID、原资源文件名及音色索引保留，以兼容现有工程。
-- `instrument/` 和 `dsp/` 不依赖编辑器或宿主 SDK。音频线程禁止文件 I/O、锁和动态分配。
-- 完整库路径统一为 `assets/program-library/`。旧 CMake 默认缓存自动迁移；用户指定的外部资源路径保持原值。历史研究路径通过 `research/tools/layout.py` 解析。
-- 冻结资源由显式导出器生成；手工改 JSON／头文件会导致哈希校验失败。大型 `.samples`、原始固件和 WAV 不进入 Git。
-- HTML 结构、CSS 和面板逻辑此次按原内容拆分；视觉调整仍以定稿为准。字体内嵌数据单列在 `font.css`，无需逐行格式化。
-- `.editorconfig` 与 `.clang-format` 约束后续改动。保留未涉及的历史 DSP／研究文件格式，避免把格式差异混入声音修正。
+输出 `build/native-ui/preview/preview.html`，不进入插件资源或普通构建。原生程序仅使用 C++ 和冻结材质；开发工具的完整说明见 [tools/README.md](../tools/README.md)。
 
-导出入口：`research/tools/export_runtime_assets.py` 更新 Concert，`export_full_bank.py` 更新完整库，`export_program_checks.py` 更新独立选样 fixtures。`audit_resource_gaps.py` 核对剩余资源缺口和已有导入证据。
+## 验证与维护
 
-## 隔离和交付
+`python3 tools/check_project_boundary.py` 在临时目录构建核心并运行已注册测试，检查 SDK／UI 依赖和文件读取边界。隔离检查显式关闭 PGO，从而同时验证不含训练工具的核心构建。归档工具由 `python3 tests/tools/test_runtime_assets.py` 验证。原生交互检查和打包入口见 [使用与构建](PLUGIN.md)。
 
-`python3 tools/check_project_boundary.py` 在不复制 `research/`、`docs/`、`output/`、`tools/` 的临时目录里重建引擎并运行全部十项测试，同时检查产品代码和 CMake 的依赖边界。结果写入 `build/project-boundary-check.json`。
+构建日志、截图、基准输出及交付物只在显式运行工具时生成，放在 Git 忽略的 `build/` 或 `dist/`，不保存进程阶段报告。
 
-研究 Python 脚本已迁至 `krose-source`；本仓库仍保留 13 个产品工具脚本，供依赖准备、原生界面素材、隔离校验、运行资源归档和打包使用。CI 与 macOS 安装包脚本也会调用 Python。插件运行时不依赖 Python，移除研究目录不等于移除整个开发工具链中的 Python。
-
-`python3 tools/package_plugin.py` 运行测试、验证签名并生成 `output/Krose/`。已有本轮成功日志时，可使用 `--skip-tests`，打包器仍检查日志并运行官方 validator。正式发布签名、公证和实际 DAW 验收分别记录。
+参数编号、插件 ID、bundle ID、音色索引、原厂分类顺序及冻结资源哈希保持稳定。CMake 既有 `SEGRAND_*` 配置选项继续使用，避免使现有构建命令失效。内部 `segrand` 命名空间与冻结参数头一致；产品目标使用 `krose::core`。
 
 ## 研究资料
 
-`research/libraries/`、`downloads/`、`firmware/`、`EXPCM001/` 保存原件；`derived/` 保存解包、解析和原 ARM 执行结果；`output/` 保存解码 PCM 与试听；`tools/`、`docs/` 分别保存研究代码和说明。原始文件、报告正文与既有来源哈希不随目录重构改写。
-
-`research/RESOURCES.md` 中旧表保留其时间口径。当前产品覆盖以 [原生架构](NATIVE_ARCHITECTURE.md) 和 `assets/program-library/manifest.json` 为准；剩余缺口见 [资源复核](https://github.com/shiftz300/krose-source/blob/main/research/docs/architecture/RESOURCE_GAPS.md)。独立试听网站仍位于相邻的 `krose-website` 工程。
+原始固件与研究代码独立保存于 [krose-source](https://github.com/shiftz300/krose-source)。产品只保留冻结运行数据及独立测试夹具；需要重建资源时显式提供研究原件。普通构建不依赖研究目录。

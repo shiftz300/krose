@@ -1,8 +1,0 @@
-PID 25189
-MEMORY host footprint=10748744 resident=65945600
-PLUGIN Lens VERSION 1.4.0
-MEMORY engine footprint=12780408 resident=68419584
-VIEW 800x550
-MEMORY editor footprint=117851096 resident=163479552
-MEMORY closed footprint=117244888 resident=162955264
-PASS default-preset idle memory measurement

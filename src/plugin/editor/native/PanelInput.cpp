@@ -4,7 +4,9 @@
 namespace krose::ui {
 using namespace detail;
 void NativePanel::StepProgram(int delta) {
-  auto order = mBrowser["order"].get<std::vector<int>>();
+  const auto &order = mProgramOrder;
+  if (order.empty())
+    return;
   auto it = std::find(order.begin(), order.end(), int(Value(kParamProgram)));
   int n = int(it - order.begin());
   SetProgram(order[(n + delta + int(order.size())) % order.size()]);
@@ -39,10 +41,8 @@ void NativePanel::ReleaseHeld() {
   GetDelegate()->SendMidiMsgFromUI(IMidiMsg(0, 0xb0, 64, 0));
   GetDelegate()->SendMidiMsgFromUI(IMidiMsg(0, 0xe0, 0, 64));
   mPitch = 0;
-  if (mDrag >= 0) {
-    GetDelegate()->EndInformHostOfParamChangeFromUI(mDrag);
-    mDrag = -1;
-  }
+  mParameters.End(*GetDelegate());
+  mDrag = mDragNote = -1;
   SetDirty(false);
 }
 void NativePanel::FinishEdit() {
@@ -166,7 +166,7 @@ void NativePanel::OnMouseDown(float x, float y, const IMouseMod &) {
       mDragY = y;
       mDragValue = Value(h.id);
       mHover = h.action;
-      GetDelegate()->BeginInformHostOfParamChangeFromUI(h.id);
+      mParameters.Begin(*GetDelegate(), h.id);
       if (h.action == "fader")
         Set(h.id, 99 - 198 * std::clamp((y - 132) / 135.f, 0.f, 1.f), false);
     } else if (h.action == "note") {
@@ -196,8 +196,7 @@ void NativePanel::OnMouseDrag(float, float y, float, float, const IMouseMod &mod
   }
 }
 void NativePanel::OnMouseUp(float, float, const IMouseMod &) {
-  if (mDrag >= 0)
-    GetDelegate()->EndInformHostOfParamChangeFromUI(mDrag);
+  mParameters.End(*GetDelegate());
   if (mDrag == -2) {
     mPitch = 0;
     GetDelegate()->SendMidiMsgFromUI(IMidiMsg(0, 0xe0, 0, 64));

@@ -4,8 +4,8 @@
   "files": [
     {
       "file": "SEGrand.samples",
-      "bytes": 102683978,
-      "sha256": "e13c96752c73f1e6f4077e589e558a7572f07f0fff11a0909e08f3dcc9b07da8"
+      "bytes": 2720,
+      "sha256": "20a4cc4bc33b37678221361d14ec50dc478bcfca2629ce11d45afe2865863fee"
     },
     {
       "file": "ConcertEqData.h",
@@ -19,8 +19,8 @@
     },
     {
       "file": "assets.json",
-      "bytes": 11607,
-      "sha256": "35babad46c88323ca9b79e64e58634dd7d34b49b90a048bf91176caa7121cd79"
+      "bytes": 11699,
+      "sha256": "bfa77022865522ec899c680ff04618d39c959a6f7d81ab3cf0140bb0f35d9f24"
     },
     {
       "file": "voice-assets.json",
@@ -35,5 +35,7 @@
     "research/derived/firmware/KROSS2_V124/effects/007/concert-coefficients.json": "698ba3f14b420b021a75497bd3a3457df07a9c9b231e7c421896ce87c28c735d"
   },
   "exporter_sha256": "d48900111afaf347a0265568b38b96b0e77af85083badb4f2183396f4644ed5c",
-  "scope": "Frozen build/test input; provenance paths are references, not normal build dependencies"
+  "scope": "Frozen build/test input; provenance paths are references, not normal build dependencies",
+  "sample_storage": "SEGRAND1 version 2: 168 mono channel references into Factory.samples",
+  "pcm_baseline_sha256": "e13c96752c73f1e6f4077e589e558a7572f07f0fff11a0909e08f3dcc9b07da8"
 }

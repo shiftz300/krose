@@ -1,8 +1,8 @@
 {
   "pack": "SEGrand.samples",
-  "format": "SEGRAND1 v1, LE header32, 84 entries32, unchanged interleaved PCM24",
-  "sha256": "e13c96752c73f1e6f4077e589e558a7572f07f0fff11a0909e08f3dcc9b07da8",
-  "bytes": 102683978,
+  "format": "SEGRAND1 v2, LE header32, 84 entries32, Factory mono channel references",
+  "sha256": "20a4cc4bc33b37678221361d14ec50dc478bcfca2629ce11d45afe2865863fee",
+  "bytes": 2720,
   "sample_count": 84,
   "root_playback_rate_hz": 42017.578125,
   "eq_source_sha256": "698ba3f14b420b021a75497bd3a3457df07a9c9b231e7c421896ce87c28c735d",
@@ -343,5 +343,6 @@
       "file": "ff/ff_midi107_B7.wav",
       "sha256": "74ba2034f111918444cb5c8f44f873df83f21eb1b70b9426bd6750a931cf3688"
     }
-  ]
+  ],
+  "pcm_baseline_sha256": "e13c96752c73f1e6f4077e589e558a7572f07f0fff11a0909e08f3dcc9b07da8"
 }

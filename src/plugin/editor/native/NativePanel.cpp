@@ -12,7 +12,6 @@
 namespace krose::ui {
 using namespace detail;
 NativePanel::NativePanel() : IControl(R(0, 0, 1472, 648)) {
-  mLastValues.fill(-9999);
   // Buttons and keys must receive every press, including OS double-clicks.
   mDblAsSingleClick = true;
 }
@@ -36,6 +35,7 @@ void NativePanel::OnInit() {
   mData = Json::parse(kNativeData);
   mPrograms = Json::parse(kNativePrograms);
   mBrowser = Json::parse(kNativeBrowser);
+  mProgramOrder = mBrowser["order"].get<std::vector<int>>();
   mLCD = Json::parse(kNativeLCD);
   mResourceRoot =
       krose::ResourceDirectory(static_cast<KrosePlugin *>(GetDelegate())->GetBundleID()).u8string();
@@ -57,15 +57,8 @@ void NativePanel::OnInit() {
 }
 double NativePanel::Value(int id) { return GetDelegate()->GetParam(id)->Value(); }
 void NativePanel::Set(int id, double v, bool gesture) {
-  auto *p = GetDelegate()->GetParam(id);
-  v = std::clamp(v, p->GetMin(), p->GetMax());
-  v = std::round(v / p->GetStep()) * p->GetStep();
-  if (gesture)
-    GetDelegate()->BeginInformHostOfParamChangeFromUI(id);
-  GetDelegate()->SendParameterValueFromUI(id, p->ToNormalized(v));
-  if (gesture)
-    GetDelegate()->EndInformHostOfParamChangeFromUI(id);
-  SetDirty(false);
+  if (mParameters.Set(*GetDelegate(), id, v, gesture))
+    SetDirty(false);
 }
 void NativePanel::Refresh(double tempo, bool host, bool loading, bool loadFailed) {
   bool changed = tempo != mTempo || host != mHost || FoldProgress() != mRenderedFold ||
@@ -74,13 +67,7 @@ void NativePanel::Refresh(double tempo, bool host, bool loading, bool loadFailed
   mLoadFailed = loadFailed;
   mTempo = tempo;
   mHost = host;
-  for (int i = 0; i < 29; ++i) {
-    double v = Value(i);
-    if (v != mLastValues[i]) {
-      mLastValues[i] = v;
-      changed = true;
-    }
-  }
+  changed = mParameters.Changed(*GetDelegate()) || changed;
   if (changed)
     SetDirty(false);
 }
@@ -212,9 +199,8 @@ void NativePanel::Render(IGraphics &g) {
       mFXLayer = g.EndLayer();
       g.DrawLayer(mFXLayer);
     }
-    IBlend strip(EBlend::Default, 1 - folded);
-    auto &b = Image("expanded-strip");
-    g.DrawBitmap(b, R(0, 19, b.W(), b.H()), 1, &strip);
+    // The exposed material already includes its red rail. Keep the white rail
+    // from native-base everywhere outside the revealed FX region.
   }
   HitBox(R(38.5, 57.59375, 66, 54), "fold");
   struct KnobInfo {
@@ -429,7 +415,8 @@ void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &bou
   bool check = id == kArpSort || id == kArpKeySync;
   bool choice = id == kParamTone || id == kArpPattern || id == kArpResolution;
   float left = r.L < 700 ? 437 : mPage == 3 ? 711 : 713.5;
-  Text(g, font, label, R(left, r.T, r.L - left - 4, r.H()));
+  constexpr float textInset = 27.09375f / 12;
+  Text(g, font, label, R(left, r.T + textInset, r.L - left - 4, r.H()));
   if (check) {
     g.FillRect(Value(id) > 0 ? Ink : Paper, r);
     LCDFrame(g, r);
@@ -455,7 +442,7 @@ void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &bou
     const auto textBox = R(r.L + (choice ? 7 : 3), r.T, r.W() - (choice ? 31 : 24), r.H() - 2);
     g.PathClipRegion(textBox);
     Text(g, editing ? (mPage == 3 ? "light14" : "light16") : font, editing ? mEditText : text,
-         textBox, choice ? 0 : 2);
+         R(textBox.L, textBox.T + textInset, textBox.W(), textBox.H()), choice ? 0 : 2);
     g.PathClipRegion(R(424, 108, 556, 176));
   }
   if (enabled) {

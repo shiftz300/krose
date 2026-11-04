@@ -1,7 +1,8 @@
 # Build the SDK's unchanged CLI validator using Apple's Command Line Tools.
 # The SDK's top-level project insists on the Xcode IDE, which is unnecessary
 # for these command-line targets. This file supplies only the source/link setup.
-set(SDK_ROOT "${CMAKE_SOURCE_DIR}/build/deps/vst3sdk")
+set(KROSE_VST3_SDK_DIR "${CMAKE_SOURCE_DIR}/build/deps/vst3sdk" CACHE PATH "Pinned VST3 SDK for host checks")
+set(SDK_ROOT "${KROSE_VST3_SDK_DIR}")
 set(_sdk_sources
   base/source/baseiids.cpp base/source/fbuffer.cpp base/source/fdebug.cpp
   base/source/fdynlib.cpp base/source/fobject.cpp base/source/fstreamer.cpp
@@ -35,8 +36,8 @@ function(smtg_target_setup_universal_binary target)
   endif()
 endfunction()
 add_subdirectory("${SDK_ROOT}/public.sdk/samples/vst-hosting/validator" "${CMAKE_BINARY_DIR}/sdk-validator")
-set_source_files_properties(tests/test_editor_mac.mm PROPERTIES COMPILE_FLAGS "-fobjc-arc")
-add_executable(test-vst3-host tests/test_vst3_host.cpp tests/test_editor_mac.mm
+set_source_files_properties(tests/plugin/test_editor_mac.mm PROPERTIES COMPILE_FLAGS "-fobjc-arc")
+add_executable(test-vst3-host tests/plugin/test_vst3_host.cpp tests/plugin/test_editor_mac.mm
   "${SDK_ROOT}/public.sdk/source/vst/hosting/plugprovider.cpp"
   "${SDK_ROOT}/public.sdk/source/common/memorystream.cpp")
 target_link_libraries(test-vst3-host PRIVATE segrand-sdk-hosting)
@@ -44,7 +45,7 @@ target_compile_options(test-vst3-host PRIVATE -UNDEBUG)
 add_dependencies(test-vst3-host Krose-vst3)
 add_test(NAME vst3-host COMMAND test-vst3-host "$<TARGET_BUNDLE_DIR:Krose-vst3>")
 
-add_executable(benchmark-plugin-memory tools/benchmark_plugin_memory.mm
+add_executable(benchmark-plugin-memory tools/native-ui/benchmark_memory.mm
   "${SDK_ROOT}/public.sdk/source/vst/hosting/plugprovider.cpp")
-set_source_files_properties(tools/benchmark_plugin_memory.mm PROPERTIES COMPILE_FLAGS "-fobjc-arc")
+set_source_files_properties(tools/native-ui/benchmark_memory.mm PROPERTIES COMPILE_FLAGS "-fobjc-arc")
 target_link_libraries(benchmark-plugin-memory PRIVATE segrand-sdk-hosting)

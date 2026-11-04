@@ -1,5 +1,5 @@
-"""Losslessly package Factory PCM once; reconstruct the duplicate Concert bank in CI."""
-import argparse, base64, hashlib, io, json, lzma, mmap, struct, tarfile
+"""Package frozen runtime banks, preserving native encoding on disk and in CI."""
+import argparse, base64, hashlib, io, json, lzma, mmap, struct, tarfile, shutil, tempfile
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 FACTORY = 'assets/program-library/Factory.samples'
@@ -10,19 +10,35 @@ def digest(path):
     with path.open('rb') as stream:
         for chunk in iter(lambda: stream.read(8388608), b''): h.update(chunk)
     return h.hexdigest()
-def verify(root, name):
+def verify(root, name, actual=None):
     path = root / name
     manifest = json.loads((path.parent / 'manifest.json').read_text())
     entry = next(v for v in manifest['files'] if v['file'] == path.name)
-    if path.stat().st_size != entry['bytes'] or digest(path) != entry['sha256']:
+    actual = actual or path
+    if actual.stat().st_size != entry['bytes'] or digest(actual) != entry['sha256']:
         raise ValueError('Runtime bank mismatch: ' + name)
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('action', choices=['pack', 'extract'])
 p.add_argument('archive', type=Path)
 p.add_argument('--root', type=Path, default=ROOT)
+p.add_argument('--lock', type=Path, default=ROOT/'packaging/runtime-assets.json')
 a = p.parse_args(); root = a.root
 if a.action == 'pack':
     for name in [FACTORY, CONCERT]: verify(root, name)
+    with (root/FACTORY).open('rb') as stream:
+        native = stream.read(12) == b'KRPRG003\x03\0\0\0'
+    if native:
+        a.archive.parent.mkdir(parents=True, exist_ok=True)
+        incoming = a.archive.with_suffix(a.archive.suffix+'.incoming')
+        with lzma.LZMAFile(incoming, 'wb', preset=6) as compressed:
+            with tarfile.open(fileobj=compressed, mode='w|', format=tarfile.USTAR_FORMAT) as tar:
+                for name in [FACTORY, CONCERT]:
+                    info = tarfile.TarInfo(name); info.size = (root/name).stat().st_size
+                    with (root/name).open('rb') as stream: tar.addfile(info, stream)
+        incoming.replace(a.archive)
+        a.lock.write_text(json.dumps(dict(tag='runtime-assets-v2', file=a.archive.name, sha256=digest(a.archive)), indent=2)+'\n')
+        print('Verified native runtime archive:', a.archive)
+        raise SystemExit(0)
     with (root / FACTORY).open('rb') as f, (root / CONCERT).open('rb') as c:
         with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as fm, mmap.mmap(c.fileno(), 0, access=mmap.ACCESS_READ) as cm:
             count = struct.unpack_from('<I', fm, 12)[0]; table = 24 + 224*4 + 256*2 + 129*2
@@ -50,12 +66,28 @@ if a.action == 'pack':
             with (root/FACTORY).open('rb') as stream: tar.addfile(info, stream)
             info = tarfile.TarInfo(REFS); info.size = len(refs); tar.addfile(info, io.BytesIO(refs))
     lock = dict(tag='runtime-assets-v1', file=a.archive.name, sha256=digest(a.archive))
-    (ROOT/'packaging/runtime-assets.json').write_text(json.dumps(lock, indent=2)+'\n')
+    a.lock.write_text(json.dumps(lock, indent=2)+'\n')
 else:
-    lock = json.loads((ROOT/'packaging/runtime-assets.json').read_text())
+    lock = json.loads(a.lock.read_text())
     if digest(a.archive) != lock['sha256']: raise ValueError('Archive checksum mismatch')
     with tarfile.open(a.archive) as tar:
         members = tar.getmembers()
+        # Stage and verify BOTH native banks before touching either destination.
+        if sorted(m.name for m in members) == sorted([FACTORY, CONCERT]):
+            if not all(m.isfile() and 0 < m.size <= 512*1024*1024 for m in members):
+                raise ValueError('Invalid native archive members')
+            with tempfile.TemporaryDirectory(prefix='krose-runtime-') as scratch:
+                staged = []
+                for name in [FACTORY, CONCERT]:
+                    temporary = Path(scratch)/Path(name).name
+                    with tar.extractfile(name) as src, temporary.open('wb') as dst: shutil.copyfileobj(src, dst)
+                    verify(root, name, temporary); staged.append((name, temporary))
+                for name, temporary in staged:
+                    destination = root/name; destination.parent.mkdir(parents=True, exist_ok=True)
+                    incoming = destination.with_suffix('.incoming')
+                    shutil.copyfile(temporary, incoming); incoming.replace(destination)
+            print('Verified native runtime archive:', a.archive)
+            raise SystemExit(0)
         if sorted(m.name for m in members) != sorted([FACTORY, REFS]) or not all(m.isfile() for m in members):
             raise ValueError('Unexpected archive members')
         destination = root/FACTORY; destination.parent.mkdir(parents=True, exist_ok=True)

@@ -35,7 +35,8 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "SEGRAND_BUILD_TOOLS": "OFF",
-        "SEGRAND_SANITIZE": "ON"
+        "SEGRAND_SANITIZE": "ON",
+        "KROSE_ENABLE_PGO": "OFF"
       }
     }
   ],

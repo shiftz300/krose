@@ -1,0 +1,62 @@
+{
+  "source": "krose-source/research/derived/firmware/KROSS2_V124/architecture/stage04/voice-lfo-check.json",
+  "source_sha256": "2a709102bc62943995a80035fa428930705bb37b8404f9c4a05cef7b68a10dbe",
+  "firmware_sha256": "3005f0eca3f3772bcb810c526ceebb15562747d3cdcdf5d20faae4a539520c54",
+  "cases": 3072,
+  "files": [
+    {
+      "file": "lfo-factory.bin",
+      "bytes": 282628,
+      "sha256": "68c2aef79145142e291009ebb54e0ae870fe4a8d3ade8692c7992f5cb4892917"
+    },
+    {
+      "file": "pitch-lifecycle.bin",
+      "bytes": 28012,
+      "sha256": "4220627ba24381ff130c868033cbf60073e4dbeb7f3e08eee7ff9686fda55a84"
+    },
+    {
+      "file": "ams-mixers.bin",
+      "bytes": 577648,
+      "sha256": "fbadea25dd29149e5d9ccdac8abf7d1766e8d35b3dd5286422d9b8254f8a416b"
+    },
+    {
+      "file": "lfo-feedback.bin",
+      "bytes": 2048,
+      "sha256": "ea098d5f06495308ca87b28e5bcf22e17fde56103cc68edec010bd6f71ab40f1"
+    },
+    {
+      "file": "lfo-targets.bin",
+      "bytes": 12498,
+      "sha256": "64dadddf73de6665dd8f4a29e6fc2e13ee7c7f4eea8c9a5f02f9a67a609ad158"
+    },
+    {
+      "file": "eg-retriggers.bin",
+      "bytes": 2284,
+      "sha256": "12293c32a4433f465bb45bdc7ee0950015238c8f49b9a0e9ffb6c075c415f1fe"
+    }
+  ],
+  "normalization": "Core waveform fixture executed with Shape AMS disabled; stored parameter byte 9 is zeroed to match that original experiment.",
+  "pitch_source": {
+    "path": "envelopes-check.json",
+    "sha256": "0b288dd067236b3520bd868003c2684feb90cfd17c766deef2c8e6cfb7faa21a",
+    "updates": 3072
+  },
+  "mixer_source": {
+    "path": "ams-mixers-check.json",
+    "sha256": "75e0202db7ff62d8d49fc6443552cb32f309e28e525db2abb5577ee8ca8ff1ee",
+    "updates": 25500
+  },
+  "feedback_source": {
+    "path": "voice-lfo-integration-check.json",
+    "sha256": "cac565bdc80b334665d212ae2994ac026f0d3ba3968f6ff857028476be4e5d01",
+    "updates": 128
+  },
+  "targets_source": {
+    "path": "lfo-targets-check.json",
+    "sha256": "428c41541e313634a3241ae26c823dab86f29d93eec8a433092c453db180246e",
+    "cases": 432,
+    "depth_cases": 199
+  },
+  "format_version": 1,
+  "retrigger_normalization": "Use source ID 19 instead of probe ID 9 with the same injected integer values; all expected levels/stages are unmodified original observations."
+}

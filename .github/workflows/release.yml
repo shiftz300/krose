@@ -18,7 +18,11 @@ jobs:
       matrix:
         include:
           - os: macos-15
-            platform: macos-universal
+            platform: macos-arm64
+            arch: arm64
+          - os: macos-15-intel
+            platform: macos-x86_64
+            arch: x86_64
           - os: windows-2022
             platform: windows-x64
     runs-on: ${{ matrix.os }}
@@ -29,6 +33,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+        with:
+          arch: x64
+      - name: Select Windows LLVM tools
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $llvm = 'C:/Program Files/LLVM/bin'
+          foreach ($tool in 'clang-cl.exe', 'lld-link.exe', 'llvm-profdata.exe') {
+            if (!(Test-Path "$llvm/$tool")) { throw "Missing LLVM tool: $tool" }
+          }
+          $llvm | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Check release version
         shell: bash
         run: |
@@ -40,6 +57,21 @@ jobs:
           if os.environ['GITHUB_REF_TYPE']=='tag':
               assert os.environ['GITHUB_REF_NAME']=='v'+version, 'Tag and product version must match'
           with open(os.environ['GITHUB_ENV'],'a') as f:f.write('KROSE_VERSION='+version+'\n')
+          PY
+      - name: Runtime archive regressions
+        run: python tests/tools/test_runtime_assets.py
+      - name: Read runtime asset lock
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os,re
+          from pathlib import Path
+          lock=json.loads(Path('packaging/runtime-assets.json').read_text())
+          assert re.fullmatch(r'runtime-assets-v[0-9]+',lock['tag'])
+          assert re.fullmatch(r'[A-Za-z0-9._-]+',lock['file'])
+          with open(os.environ['GITHUB_ENV'],'a') as f:
+              f.write('KROSE_ASSET_TAG='+lock['tag']+'\n')
+              f.write('KROSE_ASSET_FILE='+lock['file']+'\n')
           PY
       - uses: actions/cache@v4
         id: pcm
@@ -53,33 +85,44 @@ jobs:
         shell: bash
         run: |
           mkdir -p build/downloads
-          gh release download runtime-assets-v1 --repo "$GITHUB_REPOSITORY" --pattern krose-runtime-v1.tar.xz --dir build/downloads
-          python tools/release/runtime_assets.py extract build/downloads/krose-runtime-v1.tar.xz
+          gh release download "$KROSE_ASSET_TAG" --repo "$GITHUB_REPOSITORY" --pattern "$KROSE_ASSET_FILE" --dir build/downloads
+          python tools/release/runtime_assets.py extract "build/downloads/$KROSE_ASSET_FILE"
+      - name: PGO configuration and Universal guards
+        run: |
+          python -B tests/tools/test_pgo_configuration.py
+          python -B tests/tools/test_macos_merge.py
       - name: Fetch pinned dependencies
         run: python tools/bootstrap_plugin.py
-      - name: Configure macOS universal Release
+      - name: Configure native macOS Release with PGO
         if: runner.os == 'macOS'
         run: >-
-          cmake -S . -B build/release -G Xcode
-          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
-          -DKROSE_ENABLE_IPO=ON -DSEGRAND_BUILD_TOOLS=OFF -DBUILD_TESTING=ON
+          cmake -S . -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+          -DKROSE_ENABLE_IPO=ON -DKROSE_ENABLE_PGO=ON -DSEGRAND_BUILD_TOOLS=OFF -DBUILD_TESTING=ON
       - name: Configure Windows x64 Release
         if: runner.os == 'Windows'
         run: >-
-          cmake -S . -B build/release -G "Visual Studio 17 2022" -A x64
-          -DKROSE_ENABLE_IPO=ON -DSEGRAND_BUILD_TOOLS=OFF -DBUILD_TESTING=OFF
+          cmake -S . -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_LINKER=lld-link
+          -DKROSE_ENABLE_IPO=ON -DKROSE_ENABLE_PGO=ON -DSEGRAND_BUILD_TOOLS=OFF -DBUILD_TESTING=ON
       - name: Build optimized plugin and standalone
         run: cmake --build build/release --config Release --parallel 3
-      - name: Engine and VST3 regressions
-        if: runner.os == 'macOS'
+      - name: Engine and available host regressions
         run: ctest --test-dir build/release -C Release --output-on-failure
-      - name: Package macOS installer
+      - name: Preserve native macOS bundles
         if: runner.os == 'macOS'
         shell: bash
         run: |
-          lipo -verify_arch arm64 x86_64 build/release/out/Release/Krose.app/Contents/MacOS/Krose
-          lipo -verify_arch arm64 x86_64 build/release/out/Release/Krose.vst3/Contents/MacOS/Krose
-          bash tools/release/package_macos.sh build/release "$KROSE_VERSION"
+          lipo build/release/out/Krose.app/Contents/MacOS/Krose -verify_arch "${{ matrix.arch }}"
+          lipo build/release/out/Krose.vst3/Contents/MacOS/Krose -verify_arch "${{ matrix.arch }}"
+          tar -cf "build/native-${{ matrix.arch }}.tar" -C build/release/out Krose.app Krose.vst3
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'macOS'
+        with:
+          name: Krose-native-${{ matrix.arch }}
+          path: build/native-${{ matrix.arch }}.tar
+          retention-days: 1
+          compression-level: 3
       - name: Package Windows NSIS installer
         if: runner.os == 'Windows'
         shell: pwsh
@@ -103,6 +146,7 @@ jobs:
           if (Test-Path "$env:ProgramFiles/Krose/Krose.exe") { throw 'Uninstall left app' }
           if (Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3") { throw 'Uninstall left plugin' }
       - uses: actions/upload-artifact@v4
+        if: runner.os == 'Windows'
         with:
           name: Krose-${{ matrix.platform }}
           path: |
@@ -110,17 +154,49 @@ jobs:
             dist/*.pkg
           if-no-files-found: error
           retention-days: 14
+  macos-universal:
+    needs: build
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: Krose-native-*
+          path: build/native
+          merge-multiple: true
+      - name: Merge trained slices and package Universal installer
+        shell: bash
+        run: |
+          mkdir -p build/arm64/out build/x86_64/out
+          tar -xf build/native/native-arm64.tar -C build/arm64/out
+          tar -xf build/native/native-x86_64.tar -C build/x86_64/out
+          python tools/release/merge_macos.py --arm64 build/arm64/out --x86-64 build/x86_64/out --output build/universal/out
+          version=$(python -c 'import re,pathlib; print(re.search(r"project\(Krose VERSION ([0-9.]+)", pathlib.Path("CMakeLists.txt").read_text())[1])')
+          bash tools/release/package_macos.sh build/universal "$version"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Krose-macos-universal
+          path: dist/*.pkg
+          if-no-files-found: error
+          retention-days: 14
   publish:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: [build, macos-universal]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/download-artifact@v4
         with:
+          name: Krose-windows-x64
           path: dist
-          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: Krose-macos-universal
+          path: dist
       - name: Publish installers and checksums
         env:
           GH_TOKEN: ${{ github.token }}

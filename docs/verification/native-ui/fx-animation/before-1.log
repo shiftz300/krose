@@ -1,9 +1,0 @@
-Verified VST3 ARP host stop/start at 150 BPM
-MEMORY engine footprint=138740600 resident=166723584
-2026-11-04 21:56:50.518 test-vst3-host[27930:4064364] Native view: NSView
-2026-11-04 21:56:50.518 test-vst3-host[27930:4064364] Native view: IGraphicsView_vKrose_vst3
-Native editor ready pass 0
-MEMORY editor footprint=302351296 resident=229507072
-MEMORY animated footprint=351896584 resident=232194048
-MEMORY closed footprint=160400368 resident=199540736
-PASS editor-only: state/transport/UI checks; full-bank render skipped

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
-#include "InstrumentEngine.h"
+#include "engine/InstrumentEngine.h"
 #include "Parameters.h"
 #include <array>
 #include <atomic>

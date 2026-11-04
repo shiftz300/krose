@@ -1,8 +1,0 @@
-PID 25163
-MEMORY host footprint=10978120 resident=66174976
-PLUGIN Panagement 2 VERSION 2.8.0
-MEMORY engine footprint=32555872 resident=88375296
-VIEW 824x584
-MEMORY editor footprint=138904560 resident=182026240
-MEMORY closed footprint=138396656 resident=181911552
-PASS default-preset idle memory measurement

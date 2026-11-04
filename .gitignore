@@ -1,14 +1,14 @@
+# Local build state and deliveries.
+/build/
+/dist/
+# Historical execution records do not belong in the source tree.
+/docs/verification/
+/CMakeUserPresets.json
+# Frozen binary banks are distributed through the verified runtime archive.
+/assets/concert-se-grand/SEGrand.samples
+/assets/program-library/Factory.samples
+# A manually restored research link is never product source.
+/research
 __pycache__/
 *.pyc
 .DS_Store
-/build/
-# Research and any restored compatibility link belong to krose-source.
-/research
-/assets/concert-se-grand/SEGrand.samples
-/output/
-
-/assets/program-library/Factory.samples
-
-/CMakeUserPresets.json
-
-/dist/

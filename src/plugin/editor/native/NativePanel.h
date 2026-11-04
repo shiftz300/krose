@@ -1,5 +1,7 @@
 #pragma once
 #include "FXMotion.h"
+#include "../ParameterBinding.h"
+#include "../../Parameters.h"
 #include "IControl.h"
 #include "json.hpp"
 #include <array>
@@ -86,7 +88,8 @@ private:
   std::vector<Hit> mHits;
   std::vector<int> mFiltered;
   std::array<bool, 128> mHeld{}, mLit{};
-  std::array<double, 29> mLastValues{};
+  ParameterBinding<kNumParams> mParameters;
+  std::vector<int> mProgramOrder;
   int mPage = 0, mEG = 0, mOctave = 0, mSlot = 0, mDrag = -1, mDragNote = -1, mEdit = -1,
       mScroll = 0, mGroup = -1, mCategory = -1, mFocus = -1;
   float mDragY = 0, mMouseX = 0, mMouseY = 0;

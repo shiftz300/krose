@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fetch pinned build dependencies into build/, preserving unknown local trees."""
 import hashlib
+import argparse
 import json
 import os
 from pathlib import Path
@@ -16,9 +17,12 @@ def run(*args):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-root', type=Path, default=ROOT/'build')
+    args = parser.parse_args()
     pins = json.loads((ROOT / 'cmake/dependencies.json').read_text())
-    deps = ROOT / 'build/deps'
-    downloads = ROOT / 'build/downloads'
+    deps = args.build_root / 'deps'
+    downloads = args.build_root / 'downloads'
     deps.mkdir(parents=True, exist_ok=True)
     downloads.mkdir(parents=True, exist_ok=True)
     pin = pins['iplug2']
@@ -79,7 +83,7 @@ def main():
             subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(sdk)], check=True)
         else:
             link.symlink_to(os.path.relpath(sdk, link.parent), target_is_directory=True)
-    print('Pinned iPlug2 and VST3 SDK ready in build/deps/')
+    print('Pinned iPlug2 and VST3 SDK ready in ' + str(deps))
 
 
 if __name__ == '__main__':

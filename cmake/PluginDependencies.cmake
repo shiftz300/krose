@@ -11,6 +11,7 @@ elseif(WIN32)
 endif()
 include("${IPLUG2_DIR}/iPlug2.cmake")
 find_package(iPlug2 REQUIRED)
+include("${CMAKE_CURRENT_LIST_DIR}/StandaloneHost.cmake")
 
 # Opt into stb_image's allocation API without modifying the pinned dependency.
 # Keep all texture pixels, filtering, render buffers and refresh behavior intact.

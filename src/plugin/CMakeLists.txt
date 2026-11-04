@@ -1,16 +1,20 @@
-include("${CMAKE_SOURCE_DIR}/cmake/EditorResources.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/NativeEditorResources.cmake")
+set(KROSE_LICENSE_RESOURCES
+  "${CMAKE_SOURCE_DIR}/LICENSE"
+  "${CMAKE_SOURCE_DIR}/NOTICE"
+  "${CMAKE_SOURCE_DIR}/docs/LICENSING.md"
+  "${CMAKE_SOURCE_DIR}/licenses/THIRD_PARTY.txt"
+  "${CMAKE_SOURCE_DIR}/licenses/Roboto-Apache-2.0.txt")
 iplug_add_plugin(Krose
   SOURCES
     KrosePlugin.cpp KrosePlugin.h
     Parameters.cpp Parameters.h
     editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp resources/resource.h
   RESOURCES ${KROSE_NATIVE_IMAGES} "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
-    "${CMAKE_SOURCE_DIR}/licenses/THIRD_PARTY.txt"
-    "${CMAKE_SOURCE_DIR}/licenses/Roboto-Apache-2.0.txt"
+    ${KROSE_LICENSE_RESOURCES}
     "${IPLUG2_DIR}/Examples/IPlugEffect/resources/fonts/Roboto-Regular.ttf"
   FORMATS VST3 APP
-  LINK segrand-engine)
+  LINK krose::core)
 add_dependencies(Krose-vst3 segrand-assets krose-factory-assets)
 add_dependencies(Krose-app segrand-assets krose-factory-assets)
 foreach(target Krose-vst3 Krose-app)
@@ -38,8 +42,7 @@ if(WIN32)
       COMMAND ${CMAKE_COMMAND} -E make_directory "${_destination}"
       COMMAND ${CMAKE_COMMAND} -E copy_if_different ${KROSE_NATIVE_IMAGES}
         "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
-        "${CMAKE_SOURCE_DIR}/licenses/THIRD_PARTY.txt"
-        "${CMAKE_SOURCE_DIR}/licenses/Roboto-Apache-2.0.txt" "${_destination}"
+        ${KROSE_LICENSE_RESOURCES} "${_destination}"
       VERBATIM)
     target_compile_options(${target} PRIVATE /utf-8)
   endforeach()
