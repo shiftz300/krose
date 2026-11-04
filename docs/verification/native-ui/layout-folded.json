@@ -1,0 +1,2564 @@
+{
+  "scale" : 2,
+  "size" : [
+    1472,
+    648
+  ],
+  "elements" : [
+    {
+      "color" : "rgb(97, 66, 57)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "fx-lettering",
+      "data" : {
+
+      },
+      "tag" : "BUTTON",
+      "rect" : [
+        38.5,
+        57.59375,
+        66,
+        54
+      ],
+      "text" : "",
+      "value" : "",
+      "disabled" : false,
+      "font" : "12px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(194, 200, 204)",
+      "id" : "",
+      "letterSpacing" : "0.3px",
+      "data" : {
+
+      },
+      "classes" : "caption",
+      "text" : "GLIDE",
+      "tag" : "LABEL",
+      "rect" : [
+        157.734375,
+        155,
+        34.515625,
+        14
+      ],
+      "font" : "11px \/ 14px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "data" : {
+
+      },
+      "letterSpacing" : "normal",
+      "classes" : "knob cursor-interaction",
+      "tag" : "BUTTON",
+      "text" : "",
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        151,
+        176,
+        48,
+        48
+      ]
+    },
+    {
+      "color" : "rgb(174, 188, 199)",
+      "letterSpacing" : "normal",
+      "classes" : "readout",
+      "id" : "kf-value-glide",
+      "data" : {
+
+      },
+      "text" : "",
+      "value" : "0",
+      "rect" : [
+        141,
+        231,
+        68,
+        22
+      ],
+      "font" : "",
+      "disabled" : false,
+      "tag" : "INPUT"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "classes" : "switch cursor-interaction",
+      "letterSpacing" : "0.5px",
+      "data" : {
+        "toggle" : "arp"
+      },
+      "text" : "ARP",
+      "value" : "",
+      "rect" : [
+        39,
+        268,
+        65,
+        34
+      ],
+      "font" : "10px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+        "toggle" : "latch"
+      },
+      "letterSpacing" : "0.5px",
+      "classes" : "switch cursor-interaction",
+      "id" : "",
+      "text" : "LATCH",
+      "value" : "",
+      "rect" : [
+        39,
+        314,
+        65,
+        34
+      ],
+      "font" : "10px Arial, Helvetica, sans-serif",
+      "tag" : "BUTTON",
+      "disabled" : false
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "program-picker",
+      "letterSpacing" : "normal",
+      "data" : {
+
+      },
+      "id" : "",
+      "text" : "PRESETA000  Kross Grand Piano 1A001  Kross Grand Piano 2A002  Stereo Grand PianoA003  Bright Grand Piano 1A004  Bright Grand Piano 2A005  Rock Grand PianoA006  Stage Grand Piano 1A007  Stage Grand Piano 2A008  Vivid Grand PianoA009  Warm Grand PianoA010  Dark Grand PianoA011  Pop Grand PianoA012  Reverb Grand PianoA013  Stereo A.PianoA014  Bright A.PianoA015  Chorus A.PianoA016  Upright Piano 1A017  Upright Piano 2A018  Upright Piano 3A019  Bar Room PianoA020  Monaural A.PianoA021  Bright Mono PianoA022  Dark Mono PianoA023  Bright Mono GrandA024  Dark Mono GrandA025  Comp Mono GrandA026  Hammer Mono PianoA027  Detuned PianoA028  Honkey TonkyA029  Old Story GrandA030  Very Old GrandA031  FortepianoA032  SG-1D Piano 1A033  SG-1D Piano 2A034  M1 PianoA035  Electric Grand 1A036  Electric Grand 2A037  Chorus E.Grand 1A038  Chorus E.Grand 2A039  Dual PianoA040  Chillout PianoA041  Sad PianoA042  Damper PianoA043  Piano Dub WheelA044  Lo FS Piano WheelA045  Piano + FM E.PianoA046  Alone PianoA047  Piano+Dyno E.PianoA048  Romance PianoA049  Sparkling PianoA050  A.Piano + StringsA051  A.Piano+Orch Pad 1A052  A.Piano+Orch Pad 2A053  Grand Piano+StringsA054  Grand Pf+Orch Pad1A055  Grand Pf+Orch Pad2A056  Grand Pf+Small Str.A057  Grand Pf+Str.Pad 1A058  Grand Pf+Str.Pad 2A059  A.Piano + Synth PadA060  90's PianoA061  CelestaA062  Toy PianoA063  Romance ToyPianoG001  GM Acoustic PianoG002  GM Bright PianoG003  GM E.Grand PianoG004  GM Honkey-TonkG009  GM Celestag1-001  GM Acoustic Piano wg1-002  GM Bright Piano wg1-003  GM E.Grand Piano wg1-004  GM Honkey-Tonk wg2-001  GM Acoustic Piano dEXPCM001:000  KROSS SE GrandEXPCM001:001  Brightness SE GrandEXPCM001:002  Concert SE GrandEXPCM001:003  Sharp SE GrandEXPCM001:004  Deep Rvb SE GrandEXPCM001:005  Classic SE GrandEXPCM001:006  Dark SE GrandEXPCM001:007  Warm SE GrandEXPCM001:008  Pure Stereo GrandEXPCM001:009  Smoky Air PianoEXPCM001:010  Old Record PianoEXPCM001:011  Ob-La-Da PianoEXPCM001:012  Lady \"M\" PianoEXPCM001:013  Sadie PianoEXPCM001:014  Delayed PianoEXPCM001:015  Repetition PianoEXPCM001:016  EDM PianoEXPCM001:017  Voices PianoEXPCM001:018  Rezo PianoEXPCM001:019  Hoarfrost PianoEXPCM001:020  Puff Out PianoEXPCM001:021  Floating PianoEXPCM001:022  Bleary PianoEXPCM001:023  Doze PianoEXPCM001:024  Piano & StringsEXPCM001:025  Melancholy PianoEXPCM001:026  Piano & Power PadEXPCM001:027  Holding Back LayerEXPCM001:028  Rockin' LayerEXPCM001:029  E.Grand LayerEXPCM001:030  MALLETY PianoEXPCM001:031  Tiny TOY PianoEX  Concert SE GrandA064  E.P.Suit R&B SW1\/2A065  E.P.Suit R&B PhaserA066  E.P.Suit PreampA067  E.P.Suit Dist. SW2A068  E.P.Suit Dist&PhaserA069  E.P.Suit 1984A070  E.P.Suit Classic BellA071  E.P.Suit Mark I LineA072  E.P.Suit Mark I SilverA073  E.P.Suit TremoloA074  E.P.Suit Cho&U-VibeA075  EP Suit U-Vibe&EchoA076  E.P.Suit BiPhase MWA077  E.P.Suit Phaser 1A078  E.P.Suit Phaser 2A079  E.P.Suit Preamp&WahA080  E.P.Suit WahWahA081  E.P.Suit BPM DelayA082  E.P.Suit Mark VA083  E.P.Suit HardA084  E.P.Dyno StudioA085  E.P.Dyno EQ\/ChorusA086  E.P.Dyno ChorusA087  EP Dyno Exciter\/ChoA088  E.P.Reed Wah WheelA089  E.P.Reed MellowA090  E.P.Reed TremoloA091  E.P.Reed OverdriveA092  E.P.Reed Rockin'A093  E.P.Reed ChorusA094  E.P.Reed PhaserA095  SuitPure E.P.+PadA096  SuitBright E.P.+Pad 1A097  SuitBright E.P.+Pad 2A098  SuitHard+FM E.PianoA099  FM E.Piano Deluxe 1A100  FM E.Piano Deluxe 2A101  FM E.Piano Classic 1A102  FM E.Piano Classic 2A103  FM E.Piano Classic 3A104  FM E.Piano + StringsA105  FM E.P. + E.P.Pad 1A106  FM E.P. + E.P.Pad 2A107  FM E.Piano+Syn PadA108  FM Suitcase E.P.A109  Chorus FM+Suit E.P.A110  FM E.P. + Dyno E.P.A111  Pad E.Piano 1A112  Pad E.Piano 2A113  Pad E.Piano 3A114  Hybrid Phaser E.P.A115  E.P.Pad + SynthA116  Super GrandA117  Phantom E.PianoA118  Tablet E.Piano SW2A119  Tablet E.Harpsi SW2A120  Clavi AC BrightA121  Clavi AC MellowA122  Clavi AC DistortionA123  Clavi AC Velo WahA124  Clavi AD BrightA125  Clavi AD MellowA126  Clavi AD DistortionA127  Clavi AD Velo WahB000  Clavi BC BrightB001  Clavi BC MellowB002  Clavi BC DistortionB003  Clavi BC Velo WahB004  Clavi BD BrightB005  Clavi BD MellowB006  Clavi BD DistortionB007  Clavi BD Velo WahB008  Clavi Touch WahB009  Higher Ground ClaviB010  Superstition ClaviB011  Kid Charlmagne ClaviB012  Trampled Under ClaviB013  Clavi Phaser SW1B014  WS Clavi VeloSwitchB015  Pure ClavichordB016  Harpsicord SingleB017  Harpsicord Double 1B018  Harpsicord Double 2G005  GM E.Piano 1G006  GM E.Piano 2G007  GM HarpsichordG008  GM Clavi.g1-005  GM Detuned E.P. 1g1-006  GM Detuned E.P. 2g1-007  GM Harpsi. Oct.Mixg1-008  GM Pulse Clavi.g2-005  GM E.Piano 1 vg2-006  GM E.Piano 2 vg2-007  GM Harpsichord wg3-005  GM 60's E.Pianog3-006  GM E.Piano Legendg3-007  GM Harpsi. Key Offg4-006  GM E.Piano PhaseEXPCM002:000  E.P.Mark I 8WayEXPCM002:001  E.P.Mark I HardTouchEXPCM002:002  E.P.Mark I Mid TouchEXPCM002:003  E.P.Mark I SoftTouchEXPCM002:004  Psychedelic Mark IEXPCM002:005  Not In Love SuitEXPCM002:006  1\/4 PHASE SuitEXPCM002:007  MARK I & Syn PadEXPCM002:008  E.P.Dyno 8WayEXPCM002:009  E.P.Dyno Hard TouchEXPCM002:010  E.P.Dyno Mid TouchEXPCM002:011  E.P.Dyno Soft TouchEXPCM002:012  Ballade DynoMyEXPCM002:013  Greatest DynoMyEXPCM002:014  DynoMy&Syn StringsEXPCM002:015  E.P.Mark V 8WayEXPCM002:016  E.P.Mark V HardTouchEXPCM002:017  E.PMark V Mid TouchEXPCM002:018  E.PMark V SoftTouchEXPCM002:019  Mark V OverDriveEXPCM002:020  Still Crazy SuitEXPCM002:021  Ballade Hard SuitEXPCM002:022  MARK V & SynStringsEXPCM002:023  E.P.200A 8WayEXPCM002:024  E.P.200A Hard TouchEXPCM002:025  E.P.200A Mid TouchEXPCM002:026  E.P.200A Soft TouchEXPCM002:027  E.P.200A OverDriveEXPCM002:028  Top of the WurlyEXPCM002:029  You're My BestWurlyEXPCM002:030  The Walrus E.P.EXPCM002:031  Wurly & Syn PadB019  E.Organ Jazz Perc.1B020  E.Organ Jazz Perc.2B021  E.Organ Jazz Perc.3B022  E.Organ CX3 Perc.B023  E.Organ Mondo Perc.B024  E.Organ 88 Perc.B025  E.Organ EntertainerB026  E.Organ 888B027  E.Organ Warm ODB028  E.Organ BossaB029  E.Organ Love SongsB030  E.Organ GospelB031  E.Organ Comp.B032  E.Org Drawbars 1 MWB033  E.Org Drawbars 2 MWB034  E.Organ Manual Comp.B035  E.Org Vibrato\/ChorusB036  E.Organ 800000048B037  E.Organ 880000048B038  E.Organ WarmGospelB039  E.Organ TremoloB040  E.Organ Full->SoftB041  E.Organ BX3 FullB042  E.Organ Rock FullB043  E.Organ VintageB044  E.Organ ChurchB045  E.Organ BalladB046  E.Organ Blues\/SlowB047  E.Organ Blues\/FastB048  E.Organ Rock ODB049  E.Organ Rock Prec.B050  E.Organ Master RockB051  E.Organ Gospel Perc.B052  M1 OrganB053  E.Organ Vox FullB054  E.Organ VoxTabs SW2B055  E.Organ 60's SoundB056  E.Organ FarPro 1B057  E.Organ FarPro 2B058  E.Organ ComboB059  FollowYou\/Me OrganB060  SineWheel OrganB061  VS Church OrganB062  DWGS Pop OrganB063  DWGS Church OrganB064  SineWheel 16'B065  SineWheel 5+1\/3'B066  SineWheel 8'B067  SineWheel 4'B068  SineWheel 2+2\/3'B069  SineWheel 2'B070  SineWheel 1+3\/5'B071  SineWheel 1+1\/3'B072  SineWheel 1'\/Perc.B073  Pipe Organ MediumB074  Pipe Organ Full 1B075  Pipe Organ Full 2B076  Pipe Organ MixtureB077  Pipe Organ PositiveB078  Pipe Positive\/MixtureB079  Pipe Organ ReedB080  Street OrganB081  Accordion 8'+8'B082  Accordion 8'+4'B083  Accordion Stylish 1B084  Accordion Stylish 2B085  Musette + PrincipalB086  BandoneonB087  Fisa 1B088  Fisa 2B089  Fisa 3B090  Pump\/Reed OrganB091  Key FluteG017  GM Drawbar Organ 1G018  GM Perc-Organ 1G019  GM Rock OrganG020  GM Church OrganG021  GM Reed OrganG022  GM Accordion 1G024  GM Bandoneong1-017  GM Det.Drawbar Org.g1-018  GM Det.Perc-Organg1-020  GM Church Org. Oct.g1-021  GM Puff Organg1-022  GM Accordion 2g2-017  GM Italian 60s Organg2-018  GM Perc-Organ 2g2-020  GM Det.Church Org.g3-017  GM Drawbar Organ 2B092  Ensemble BellsB093  Puffle BellsB094  Breathy BellsB095  Heaven BellsB096  Soft Ensemble BellsB097  DWGS Bells 1B098  DWGS Bells 2B099  Tinkle BellsB100  Magic BellsB101  Lo FS BellsB102  Delayed BellsB103  Pure Satin BellsB104  FM Metal BellsB105  FM Glass Bells 1B106  FM Glass Bells 2B107  FM Tubular BellsB108  FM BellsB109  Krystal BellsB110  Cathedral BellsB111  Tubular BellsB112  Toy Hand BellsB113  Music BoxB114  Plated BellsB115  GlockenspielB116  VibraphoneB117  Steel Tongue DrumB118  Steel DrumB119  GamelanB120  Sarna BellB121  KalimbaB122  XylophoneB123  MarimbaB124  MondoRimbaB125  Skull MalletsB126  Tribal MalletsB127  Log DrumC000  AngklungG010  GM GlockenspielG011  GM Music BoxG012  GM VibraphoneG013  GM MarimbaG014  GM XylophoneG015  GM Tubular BellsG099  GM CrystalG109  GM KalimbaG113  GM Tinkle BellG115  GM Steel Drumsg1-012  GM Vibraphone wg1-013  GM Marimba wg1-015  GM Church Bellg1-103  GM Echo Bellg2-015  GM CarillonEXPCM004:051  Shaper of KalimbaEXPCM004:052  Kalimba DropsEXPCM004:053  Tribal PluckC001  Stereo Strings 1C002  Stereo Strings 2C003  Lush Strings 1C004  Lush Strings 2C005  Bright StringsC006  Arco Stereo StringsC007  Legato Strings 1C008  Legato Strings 2C009  Symphonic StringsC010  Slow StringsC011  Platinum StringsC012  Camera StringsC013  Few Bows StringsC014  Intimate StringsC015  Arco Pop StringsC016  Pop StringsC017  Octave StringsC018  Maestoso StringsC019  Pizz Ensemble SW2C020  Pizz\/Str.Quartet SW1C021  Str.Quartet\/Pizz SW1C022  Violin 1 SW1C023  Violin 2 SW1C024  Viola 1 SW1C025  Viola 2 SW1C026  Cello 1 SW1C027  Cello 2 SW1C028  Contrabass 1 SW1C029  Contrabass 2 SW1C030  New Age StringsC031  Synth String PadC032  Pure Analog PadC033  Super Analog PadC034  Analog StringsC035  Ana-2-Real StringsC036  Hybrid String PadC037  Progressive Ana Str.C038  Mello MK II StringsC039  Mello 400S StringsC040  C-Berlin Strings 1C041  C-Berlin Strings 2C042  Tape Str.Oct.MixedC043  Tape Strings DualC044  Tronical StringsC045  Aaah Voices StereoC046  Aah Voises DynamicC047  Oooh Voices StereoC048  Ooh L&R Airy VoicesC049  Ooh Voices LightC050  Light ChoirC051  Choir Of AngelsC052  Classical ChoirC053  Backing VocalsC054  Twilight ChoirC055  Cathedral ChoirC056  Splash ChoirC057  Soundtrack ChoirC058  Mixed RegistersC059  Professional ChoirC060  Morphing VoicesC061  Infinite ChoirC062  Take VoiceC063  V.Switch VocalsC064  Mello Style ChoirC065  Mello 8Voice ChoirC066  Mello Classic ChoirC067  Mello Stereo ChoirC068  Vocoder Machine 1C069  Vocoder Machine 2C070  Vocoder AhC071  Fresh VoxC072  Full VoxC073  Arctic VoicesC074  Tranquil SW2C075  Voice DooC076  VoxologyC077  Velo VoxsterG041  GM ViolinG042  GM ViolaG043  GM CelloG044  GM ContrabassG045  GM Tremolo StringsG046  GM Pizzicato StringsG049  GM StringsG050  GM Slow StringsG051  GM Synth Strings 1G052  GM Synth Strings 2G053  GM Choir Aahs 1G054  GM Voice OohsG055  GM Synth VoxG086  GM Air VoiceG095  GM Halo PadG103  GM Echo DropsG111  GM Fiddleg1-041  GM Slow Violing1-049  GM Strings & Brassg1-051  GM Synth Strings 3g1-053  GM Choir Aahs 2g1-054  GM Hummingg1-055  GM Analog Voiceg1-092  GM Itopiag2-049  GM 60's StringsEXPCM004:024  Aye Voice ShotEXPCM004:025  Tropical Voice ShotEXPCM004:026  Babe Voice ShotEXPCM004:027  EDM Voice ShotEXPCM004:028  PluckDoo VoiceEXPCM004:029  VOICEYC078  Open BrassC079  Sharp BrassC080  Tight BrassC081  Big BrassC082  Session BrassC083  Expressive BrassC084  Brass SectionC085  Trumpets X-fadeC086  Warm BrassC087  Film BrassC088  Sforzando BrassC089  Octave Brass 1C090  Octave Brass 2C091  Trombone EnsembleC092  Tp\/Tb MutedC093  Tp\/Tb Muted OctC094  French Horn EnsC095  Horns & EnsembleC096  Brass Ens & TubasC097  Orchestral BrassC098  Sforzando OrchestraC099  T.O.P SectionC100  Brass & ReedC101  Brass&SaxophonesC102  Brass&Octave SaxC103  Trumpets DynamicC104  Trumpets OctaveC105  Trombones 4-WayC106  Trumpet SensitiveC107  Trumpet OverblownC108  Trumpet MutedC109  FlugelhornC110  TromboneC111  Trombone MutedC112  French HornC113  TubaC114  Flute VibratoC115  Silver FluteC116  Attack FluteC117  Voice FluteC118  Piccolo FluteC119  Mello MK II FlutesC120  ClarinetC121  Double Reed FamilyC122  OboeC123  English HornC124  BassoonC125  Sax EnsembleC126  Soprano SaxC127  Alto Sax SoftD000  Alto Sax HardD001  Tenor Sax SoftD002  Tenor Sax HardD003  Baritone SaxD004  HarmonicaD005  RecorderD006  ShakuhachiD007  ZEN Priest SplitD008  Spit BottleG023  GM HarmonicaG057  GM TrumpetG058  GM Trombone 1G059  GM TubaG060  GM Muted Trumpet 1G061  GM French HornG062  GM Brass Section 1G065  GM Soprano SaxG066  GM Alto SaxG067  GM Tenor SaxG068  GM Baritone SaxG069  GM OboeG070  GM English HornG071  GM BassoonG072  GM ClarinetG073  GM PiccoloG074  GM FluteG075  GM RecorderG076  GM Pan FluteG077  GM Blown BottleG078  GM ShakuhachiG079  GM WhistleG080  GM OcarinaG110  GM BagpipeG112  GM ShanaiG122  GM Breath Noiseg1-057  GM Soft Trumpetg1-058  GM Trombone 2g1-060  GM Muted Trumpet 2g1-061  GM Warm Fr.Horng1-062  GM Brass Section 2g1-122  GM Flute Key Clickg2-058  GM Bright TromboneD009  Memory Lead SW2D010  DW8000 Lead 1D011  Espress LeadD012  Sweet MG LeadD013  Fat Saw LeadD014  Glide LeadD015  PWM LeadD016  DW8000 Lead 2D017  Lucky Man LeadD018  Old Square Lead SW1D019  Bright Square LeadD020  Unison Square LeadD021  Simple Square LeadD022  Simple Pulse LeadD023  Sine LeadD024  InfinityLead MW&SWD025  Rude LeadD026  Wailing LeadD027  Cold Water LeadD028  BIG LeadD029  Rapper's D'light LeadD030  The Executor LeadD031  Anthem LeadD032  Bigroom LeadD033  Unison Saw LeadD034  Dist EDM LeadD035  EDM Voice LeadD036  Progressive LeadD037  Hip Hop LeadD038  Deep Soul Lead SW2D039  Simple 5th Saw LeadD040  Vintage LeadD041  Cheap Lead WheelD042  Reso LeadD043  Operator LeadD044  Tom Sawyer Bs\/LeadD045  Bass & Lead BoysD046  Fat Sync LeadD047  MS2K FastSync LeadD048  Deep 5th EDM LeadD049  Eletrik Piano LeadD050  Tropical Lead 1D051  Tropical Lead 2D052  Noisy Stabber NeoD053  Unison Power SynthD054  Bold Anthem SynthD055  Transer SynthD056  Anthem Trans MWD057  Fast Unison SynthD058  Leader of TranceD059  Velo TwangD060  Rat ChordsD061  Bold OctavesD062  Power PadD063  Velo Power PadD064  Unison PadD065  Old Poly Synth 1D066  Old Poly Synth 2D067  Saw Ensemble SynthD068  Chip Tune SynthD069  Disco Synth PadD070  Jump SynBrassD071  Final SynBrassD072  Synth FanfareD073  Saw Synth BrassD074  HyperComped ChordsD075  Gargle SynthD076  Olive Anthem ChordsD077  Sugar Smash PadD078  Cannon Poly SynthD079  Cannon Synth E.P.D080  Ripper Anthem SynthD081  Different Ways PolyD082  Huge Planet Syn SW1D083  Vintage Saw SynthD084  Detuned Poly SynthD085  Later Progressive LdD086  Follow You LeadD087  Tricky MODDetune LdD088  Oxygen LeadD089  80's Square PolyD090  Gliding Square LeadD091  Pop Synth PadD092  Future PadD093  Rezbo PadD094  CheapCool 80's PolyD095  Shynth Ex ClaviD096  Mean Rez ClaviD097  EDM Chordplay 1D098  EDM Chordplay 2D099  Futur ChordalD100  Fuzz FeltD101  Pro SyncD102  EP Annihilation SW2G063  GM Synth Brass 1G064  GM Synth Brass 2G081  GM Detuned SquareG082  GM Detuned SawG083  GM Synth CalliopeG084  GM Chiff LeadG087  GM 5th SawtoothG088  GM Bass & LeadG100  GM Atmosphereg1-063  GM Synth Brass 3g1-064  GM Synth Brass 4g1-081  GM Simple Squareg1-082  GM Simple Sawtoothg1-085  GM Wire Leadg1-088  GM Soft Wrlg2-063  GM Analog Brass 1g2-064  GM Analog Brass 2g2-081  GM Simple Sineg2-082  GM Sawtooth+Pulseg3-063  GM Jump Brassg3-082  GM Double SawtoothEXPCM004:000  Hyper Pad BrightEXPCM004:001  Fiesta StabEXPCM004:002  Noisy Stabber UltraEXPCM004:003  Legend Epic PolyEXPCM004:004  Sweep Down PadEXPCM004:005  Oct Saw StabEXPCM004:006  Gliging PadEXPCM004:007  Vintage Brass SynthEXPCM004:008  Vintage FanfareEXPCM004:009  Glide Square PadEXPCM004:030  Soulfully LeadEXPCM004:031  Oldschool LeadEXPCM004:032  sAxy LeadEXPCM004:033  Party LeadEXPCM004:034  Excision LeadEXPCM004:035  Velo Reso LeadEXPCM004:036  Pow Voice LeadD103  Sine PadD104  Swirl Sine PadD105  Synth Filter PadD106  Search PadD107  Dark Brass PadD108  Sine On PadD109  Prayer PadD110  Tinklin PadD111  Squ Voice PadD112  Square Pad SW1D113  5th Pad SW1\/2D114  String Res PadD115  Flashy AnaHarpyD116  Angelic ChoirD117  The PadD118  The E.P.PadsD119  Attacky PadD120  Poppin' PadD121  Africa BrassD122  80 Pad SW2\/PW\/MWD123  Soft SynBrassD124  Progressive SynBrsD125  Matrix CrispyD126  ChronologieD127  Aero PadE000  Bad Dream WaltzerE001  Alexa PadE002  Solaris PadE003  The X PadE004  Swish PadE005  Sweet PadE006  Givin' PopE007  Cosmic SynthE008  Syn SweeperE009  Fine HPF SweepE010  Rez DownE011  MirroredE012  Wave PadE013  MeditatorE014  ChantE015  1984 SplitE016  Surprising PadE017  Pods in the PadE018  Dolphin PadE019  Shimmer Sparkle PadE020  Steelish PadE021  Widescreen PadE022  FlyingE023  Aqua PhonicsE024  Flare PadE025  Palawan PadE026  Moon CyclesE027  Swirl PadE028  New VoyageE029  Great WallE030  Off Beat Dark PadE031  Off Beat Bright PadE032  Pump PadE033  ClayPot-VoxTripletsE034  Chilly Pulsar LoveE035  U-Vibe PadE036  Butterfly PadE037  Vox PulseE038  BPM Flashlight PadE039  eMoTiOnE040  Loco MotivE041  Atmospheric PulseE042  Rhythm LeadE043  LFO 5th WaveE044  ToneWheel MotionE045  Minimal SeqE046  8BIT LandE047  Dancing VoiceE048  Spectral Wave DanceE049  Kross Wave MotionE050  Wave SequencerE051  Bell Wave SeqE052  Pad & Bell Wave SeqE053  LFO Run Pad SW1G089  GM FantasiaG090  GM Warm PadG091  GM Poly SynthG092  GM Space VoiceG093  GM Bowed GlassG094  GM Metallic PadG096  GM Sweep PadG097  GM Ice RainG098  GM Sound TrackG101  GM BrightnessG102  GM GoblinsG104  GM Star Themeg1-090  GM Sine Padg2-103  GM Echo PanEXPCM004:010  Atmos Metalic PadEXPCM004:011  Str.Machine1 SW1EXPCM004:012  Str.Machine2 SW1EXPCM004:013  Synth Gothic OrchEXPCM004:014  Hyper Pad DarkEXPCM004:015  VINTAGE PadEXPCM004:016  Deep Voice PadEXPCM004:017  Hamming PadEXPCM004:018  Palawan-X PadEXPCM004:019  Lore Magic PadEXPCM004:020  Devastate PadEXPCM004:021  Atmos Voice PadEXPCM004:022  Atmospher's PadEXPCM004:023  Cathedral MotionE054  Nylon Guitar 1E055  Nylon Guitar 2E056  Flamenco GuitarE057  Nylon Gtr.StudioE058  Nylon Guitar&StringsE059  A.Guitar Large BodyE060  A.Guitar+Noise SW1E061  A.Gtr.Dynamic PickE062  A.Guitar FingerE063  Sitar GuitarE064  AcoustishE065  A.Guitar 12 StringE066  E.Guitar+TwinE067  E.Guitar Dynamic 1E068  E.Guitar Dynamic 2E069  E.Guitar FunkyE070  E.Guitar DelayE071  E.Guitar CrunchE072  E.Guitar ChorusE073  E.Guitar VolumeSwellE074  E.Guitar TremoloE075  E.Guitar Semi Dist.E076  E.Guitar Rotary FXE077  E.Gtr.Tweed PhaserE078  E.Guitar U-VibeE079  E.Guitar Auto WahE080  E.Gtr.Screaming TubeE081  E.Guitar FilthyE082  E.Guitar Mute Dist.E083  E.Guitar Wet Dist.E084  E.Guitar PowerChordE085  E.Gtuitar Vox WahE086  E.Guitar JazzE087  E.Guitar Pedal SteelE088  Psyco GuitarE089  Electronica GuitarE090  UkuleleE091  BanjoE092  MandolinE093  SanturE094  Sitar & TamburaE095  Koto Velo.BendE096  Harp 1E097  Harp 2G016  GM SanturG025  GM Nylon Guitar 1G026  GM Steel GuitarG027  GM Jazz GuitarG028  GM Clean GuitarG029  GM Muted GuitarG030  GM Overdrive GuitarG031  GM Dist.Guitar 1G032  GM Guitar HarmonicsG047  GM Orchestral HarpG085  GM CharangG105  GM Sitar 1G106  GM BanjoG107  GM ShamisenG108  GM KotoG121  GM Guitar Fret Noiseg1-025  GM Ukuleleg1-026  GM 12-String Guitarg1-027  GM Pedal Steel Gtr.g1-028  GM Det.Clean Guitarg1-029  GM Funky Guitarg1-030  GM Guitar Pinchg1-031  GM Dist.Guitar 2g1-032  GM Guitar Feedbackg1-047  GM Yang Ching1-105  GM Sitar 2g1-108  GM Taisho Kotog1-121  GM Gt.Cutting Noiseg2-025  GM N.Guitar Key Offg2-026  GM Mandoling2-028  GM Mid Tone Guitarg2-029  GM Muted Guitar vg2-031  GM Dist.Rhythm Gtr.g3-025  GM Nylon Guitar 2g3-026  GM Steel Guitar Bodyg3-029  GM Jazz ManE098  E.Bass Finger 1E099  E.Bass Finger 2E100  E.Bass Finger 3E101  E.Bass Finger 4E102  E.Bass Pick 1E103  E.Bass Pick 2E104  E.Bass Pick 3E105  E.Bass Pick 4E106  E.Bass Pick BedE107  E.Bass SaturatedE108  E.Bass Thumb 1E109  E.Bass Thumb 2E110  E.Bass Fretless 1E111  E.Bass Fretless 2E112  E.Bass Fretless OctE113  Acoustic Bass1 SW2E114  Acoustic Bass2 SW2E115  Acoustic Bass3 SW2E116  Acoustic Bass OldE117  Kick Bass\/DecayE118  Decayed BassE119  THAT SubBass KickE120  Kick Bass\/GateE121  Deep KIK SubSynthE122  Sine Bass SW1E123  Deep Triangle BassE124  Dark R&B BassE125  Digi BassE126  Boost Synth BassE127  Tight Bass SW2F000  Saw BassF001  800DV Saw BassF002  Solid BassF003  Octave BassF004  Analog Funk BassF005  Octave MG BassF006  Greasy Synth BassF007  VeloBark BassF008  Acid Syn BassF009  Square BassF010  Popin' Squ BassF011  800DV Square BassF012  Growler BassF013  Euro 8va Seq BassF014  Hard Square BassF015  Detuned Euro BassF016  Vintage 80's BassF017  Snappy 5ths BassF018  Dub Tempest BsF019  Dub PsyClone BsF020  Ducking BassF021  DS Hold Bass SW2F022  Bs Pulse Mod WheelF023  Wobble Nation BassF024  Bs Pulse Triplet MWF025  Nasty BassF026  Widow BassF027  Octa Quak BassF028  Ruff'Blade BassF029  Hard Synth BassF030  Hard Sync BassF031  Organ BassF032  Housey BassG033  GM Acoustic BassG034  GM Fingered BassG035  GM Picked BassG036  GM Fretless BassG037  GM Slap Bass 1G038  GM Slap Bass 2G039  GM Synth Bass 1G040  GM Synth Bass 2g1-034  GM Finger Slap Bassg1-039  GM Warm Synth Bassg1-040  GM Synth Bass 4g2-039  GM Synth Bass 3g2-040  GM Rubber Bassg2-121  GM Bass String Slapg3-039  GM Clavi.Bassg3-040  GM Attack Pulseg4-039  GM HammerEXPCM004:037  SynTHE Bass 24EXPCM004:038  LogDrum BassEXPCM004:039  Ripper BassEXPCM004:040  Off Beat WOBBLEF033  Rock Kit 1F034  Rock Kit 1 MonoF035  Rock Kit 2F036  Jazz KitF037  Jazz Kit MonoF038  Jazz\/Brush KitF039  Wild KitF040  Power Kit 1F041  Power Kit 2F042  Basic Kit 1F043  Basic Kit 2F044  Jazzy Hop KitF045  Urban Hip Hop KitF046  Hip Hop Kit 1F047  Hip Hop Kit 2F048  Trapper KitF049  Electronic R&B KitF050  Nu R&B KitF051  R&B KitF052  Breakbeat KitF053  Drum'n'Bass KitF054  Breaks KitF055  Bigroom KitF056  Nu EDM KitF057  Dubstep KitF058  Moombahton KitF059  Tropical KitF060  Trance KitF061  House KitF062  Tekno Klub KitF063  Minimal KitF064  Nica\/Glitch KitF065  Analog KitF066  Mad Analog KitF067  Tricki KitF068  Human Beat Box KitF069  Percussion KitF070  Orch&Ethno KitF071  Nippon KitF072  BD&SD Catalog 1F073  BD&SD Catalog 2F074  Cymbal CatalogF075  Saw PizzF076  Short Square ArpF077  Bit Chip SW1\/2F078  ChipTriangle SW\/MWF079  ChipSquare SW\/MWF080  ChipPulse 1 SW\/MWF081  ChipPulse 2 SW\/MWF082  Analog Bell\/HarpF083  Square\/Pulse SynF084  Comp E.P. SW1\/2F085  Organ Perc.ShotF086  Synth Mallets 5thF087  Metallic HitterF088  Tropical PizzF089  Tropical MalletF090  Horn Chord HitsF091  Disco Strings HitF092  Chord Set 1 SW2F093  Chord Set 2 SW1F094  HipHop HitsF095  Trapper HitF096  Pizz HitF097  Power Band HitF098  Impact Band HitF099  Drama Hit WheelF100  Monster Hit WheelF101  Chipper HitF102  Helium VoiceF103  Yahi VoiceF104  Nippon Set (C#2-A5)F105  Shamisen GaisyaF106  Soul of TsugaruF107  Shakuhachi MondouF108  KOTO FuryuF109  Miyabi Hit (E3,D6,D7)F110  Ring Mod RiserF111  Siren SFX WheelF112  MonsterF113  Crypt-onF114  Stereo Flange SweepF115  Sonic BlastF116  SoundscapesF117  Steam SweepsF118  AndroidF119  New North WindF120  Outside ElementsF121  Lore of the JungleF122  Mega Drum HitF123  GongF124  Vocoder Vel ChoirF125  SqrSaw VocoderF126  Mic & ReverbF127  Mic & DoubledG048  GM TimpaniG056  GM Orchestra HitG114  GM AgogoG116  GM WoodblockG117  GM TaikoG118  GM Melodic Tom 1G119  GM Synth DrumG120  GM Reverse CymbalG123  GM SeashoreG124  GM Bird Tweet 1G125  GM Telephone Ring 1G126  GM HelicopterG127  GM ApplauseG128  GM Gun Shotg1-056  GM Bass Hit Plusg1-099  GM Synth Malletg1-116  GM Castanetsg1-117  GM Concert Bass Dr.g1-118  GM Melodic Tom 2g1-119  GM Analog Tomg1-123  GM Raing1-124  GM Dogg1-125  GM Telephone Ring 2g1-126  GM Car Engineg1-127  GM Laughingg1-128  GM Machine Gung2-056  GM 6th Hitg2-119  GM Electric Drumg2-123  GM Thunderg2-124  GM Horse Gallopg2-125  GM Door Creakingg2-126  GM Car Stopg2-127  GM Screamingg2-128  GM Lasergung3-056  GM Euro Hitg3-123  GM Windg3-124  GM Bird Tweet 2g3-125  GM Door Slammingg3-126  GM Car Passg3-127  GM Punchg3-128  GM Explosiong4-082  GM Seq.Analogg4-123  GM Streamg4-125  GM Scratchg4-126  GM Car Crashg4-127  GM Heart Beatg5-123  GM Bubbleg5-125  GM Wind Chimeg5-126  GM Sireng5-127  GM Footstepsg6-126  GM Traing7-126  GM Jetplaneg8-126  GM Starshipg9-126  GM Burst Noisegd-001  GM STANDARD Kitgd-009  GM ROOM Kitgd-017  GM POWER Kitgd-025  GM ELECTRONIC Kitgd-026  GM ANALOG Kitgd-033  GM JAZZ Kitgd-041  GM BRUSH Kitgd-049  GM ORCHESTRA Kitgd-057  GM SFX KitEXPCM004:041  Nu Pop KitEXPCM004:042  Nu DISCO KitEXPCM004:043  Electric Beats KitEXPCM004:044  Industrial KitEXPCM004:045  Hypr PluckEXPCM004:046  Hypr SQU DecayEXPCM004:047  Hyper PoppingEXPCM004:048  Tropical DropEXPCM004:049  Ripper PluckEXPCM004:050  Sync PluckedEXPCM004:054  Neo Orch HitEXPCM004:055  Ending HitEXPCM004:056  Moody HitEXPCM004:057  Percussive HitEXPCM004:058  Short Arco Str&BrsEXPCM004:059  Brass ShotEXPCM004:060  Symphonic Brs&StrEXPCM004:061  Industrial Set 1EXPCM004:062  Industrial Set 2EXPCM004:063  Industrial Set 3",
+      "tag" : "DIV",
+      "rect" : [
+        414,
+        51,
+        576,
+        32
+      ],
+      "font" : "12px \/ 14.4px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(227, 227, 227)",
+      "data" : {
+
+      },
+      "classes" : "",
+      "id" : "kf-program",
+      "letterSpacing" : "normal",
+      "text" : "A000  Kross Grand Piano 1A001  Kross Grand Piano 2A002  Stereo Grand PianoA003  Bright Grand Piano 1A004  Bright Grand Piano 2A005  Rock Grand PianoA006  Stage Grand Piano 1A007  Stage Grand Piano 2A008  Vivid Grand PianoA009  Warm Grand PianoA010  Dark Grand PianoA011  Pop Grand PianoA012  Reverb Grand PianoA013  Stereo A.PianoA014  Bright A.PianoA015  Chorus A.PianoA016  Upright Piano 1A017  Upright Piano 2A018  Upright Piano 3A019  Bar Room PianoA020  Monaural A.PianoA021  Bright Mono PianoA022  Dark Mono PianoA023  Bright Mono GrandA024  Dark Mono GrandA025  Comp Mono GrandA026  Hammer Mono PianoA027  Detuned PianoA028  Honkey TonkyA029  Old Story GrandA030  Very Old GrandA031  FortepianoA032  SG-1D Piano 1A033  SG-1D Piano 2A034  M1 PianoA035  Electric Grand 1A036  Electric Grand 2A037  Chorus E.Grand 1A038  Chorus E.Grand 2A039  Dual PianoA040  Chillout PianoA041  Sad PianoA042  Damper PianoA043  Piano Dub WheelA044  Lo FS Piano WheelA045  Piano + FM E.PianoA046  Alone PianoA047  Piano+Dyno E.PianoA048  Romance PianoA049  Sparkling PianoA050  A.Piano + StringsA051  A.Piano+Orch Pad 1A052  A.Piano+Orch Pad 2A053  Grand Piano+StringsA054  Grand Pf+Orch Pad1A055  Grand Pf+Orch Pad2A056  Grand Pf+Small Str.A057  Grand Pf+Str.Pad 1A058  Grand Pf+Str.Pad 2A059  A.Piano + Synth PadA060  90's PianoA061  CelestaA062  Toy PianoA063  Romance ToyPianoG001  GM Acoustic PianoG002  GM Bright PianoG003  GM E.Grand PianoG004  GM Honkey-TonkG009  GM Celestag1-001  GM Acoustic Piano wg1-002  GM Bright Piano wg1-003  GM E.Grand Piano wg1-004  GM Honkey-Tonk wg2-001  GM Acoustic Piano dEXPCM001:000  KROSS SE GrandEXPCM001:001  Brightness SE GrandEXPCM001:002  Concert SE GrandEXPCM001:003  Sharp SE GrandEXPCM001:004  Deep Rvb SE GrandEXPCM001:005  Classic SE GrandEXPCM001:006  Dark SE GrandEXPCM001:007  Warm SE GrandEXPCM001:008  Pure Stereo GrandEXPCM001:009  Smoky Air PianoEXPCM001:010  Old Record PianoEXPCM001:011  Ob-La-Da PianoEXPCM001:012  Lady \"M\" PianoEXPCM001:013  Sadie PianoEXPCM001:014  Delayed PianoEXPCM001:015  Repetition PianoEXPCM001:016  EDM PianoEXPCM001:017  Voices PianoEXPCM001:018  Rezo PianoEXPCM001:019  Hoarfrost PianoEXPCM001:020  Puff Out PianoEXPCM001:021  Floating PianoEXPCM001:022  Bleary PianoEXPCM001:023  Doze PianoEXPCM001:024  Piano & StringsEXPCM001:025  Melancholy PianoEXPCM001:026  Piano & Power PadEXPCM001:027  Holding Back LayerEXPCM001:028  Rockin' LayerEXPCM001:029  E.Grand LayerEXPCM001:030  MALLETY PianoEXPCM001:031  Tiny TOY PianoEX  Concert SE GrandA064  E.P.Suit R&B SW1\/2A065  E.P.Suit R&B PhaserA066  E.P.Suit PreampA067  E.P.Suit Dist. SW2A068  E.P.Suit Dist&PhaserA069  E.P.Suit 1984A070  E.P.Suit Classic BellA071  E.P.Suit Mark I LineA072  E.P.Suit Mark I SilverA073  E.P.Suit TremoloA074  E.P.Suit Cho&U-VibeA075  EP Suit U-Vibe&EchoA076  E.P.Suit BiPhase MWA077  E.P.Suit Phaser 1A078  E.P.Suit Phaser 2A079  E.P.Suit Preamp&WahA080  E.P.Suit WahWahA081  E.P.Suit BPM DelayA082  E.P.Suit Mark VA083  E.P.Suit HardA084  E.P.Dyno StudioA085  E.P.Dyno EQ\/ChorusA086  E.P.Dyno ChorusA087  EP Dyno Exciter\/ChoA088  E.P.Reed Wah WheelA089  E.P.Reed MellowA090  E.P.Reed TremoloA091  E.P.Reed OverdriveA092  E.P.Reed Rockin'A093  E.P.Reed ChorusA094  E.P.Reed PhaserA095  SuitPure E.P.+PadA096  SuitBright E.P.+Pad 1A097  SuitBright E.P.+Pad 2A098  SuitHard+FM E.PianoA099  FM E.Piano Deluxe 1A100  FM E.Piano Deluxe 2A101  FM E.Piano Classic 1A102  FM E.Piano Classic 2A103  FM E.Piano Classic 3A104  FM E.Piano + StringsA105  FM E.P. + E.P.Pad 1A106  FM E.P. + E.P.Pad 2A107  FM E.Piano+Syn PadA108  FM Suitcase E.P.A109  Chorus FM+Suit E.P.A110  FM E.P. + Dyno E.P.A111  Pad E.Piano 1A112  Pad E.Piano 2A113  Pad E.Piano 3A114  Hybrid Phaser E.P.A115  E.P.Pad + SynthA116  Super GrandA117  Phantom E.PianoA118  Tablet E.Piano SW2A119  Tablet E.Harpsi SW2A120  Clavi AC BrightA121  Clavi AC MellowA122  Clavi AC DistortionA123  Clavi AC Velo WahA124  Clavi AD BrightA125  Clavi AD MellowA126  Clavi AD DistortionA127  Clavi AD Velo WahB000  Clavi BC BrightB001  Clavi BC MellowB002  Clavi BC DistortionB003  Clavi BC Velo WahB004  Clavi BD BrightB005  Clavi BD MellowB006  Clavi BD DistortionB007  Clavi BD Velo WahB008  Clavi Touch WahB009  Higher Ground ClaviB010  Superstition ClaviB011  Kid Charlmagne ClaviB012  Trampled Under ClaviB013  Clavi Phaser SW1B014  WS Clavi VeloSwitchB015  Pure ClavichordB016  Harpsicord SingleB017  Harpsicord Double 1B018  Harpsicord Double 2G005  GM E.Piano 1G006  GM E.Piano 2G007  GM HarpsichordG008  GM Clavi.g1-005  GM Detuned E.P. 1g1-006  GM Detuned E.P. 2g1-007  GM Harpsi. Oct.Mixg1-008  GM Pulse Clavi.g2-005  GM E.Piano 1 vg2-006  GM E.Piano 2 vg2-007  GM Harpsichord wg3-005  GM 60's E.Pianog3-006  GM E.Piano Legendg3-007  GM Harpsi. Key Offg4-006  GM E.Piano PhaseEXPCM002:000  E.P.Mark I 8WayEXPCM002:001  E.P.Mark I HardTouchEXPCM002:002  E.P.Mark I Mid TouchEXPCM002:003  E.P.Mark I SoftTouchEXPCM002:004  Psychedelic Mark IEXPCM002:005  Not In Love SuitEXPCM002:006  1\/4 PHASE SuitEXPCM002:007  MARK I & Syn PadEXPCM002:008  E.P.Dyno 8WayEXPCM002:009  E.P.Dyno Hard TouchEXPCM002:010  E.P.Dyno Mid TouchEXPCM002:011  E.P.Dyno Soft TouchEXPCM002:012  Ballade DynoMyEXPCM002:013  Greatest DynoMyEXPCM002:014  DynoMy&Syn StringsEXPCM002:015  E.P.Mark V 8WayEXPCM002:016  E.P.Mark V HardTouchEXPCM002:017  E.PMark V Mid TouchEXPCM002:018  E.PMark V SoftTouchEXPCM002:019  Mark V OverDriveEXPCM002:020  Still Crazy SuitEXPCM002:021  Ballade Hard SuitEXPCM002:022  MARK V & SynStringsEXPCM002:023  E.P.200A 8WayEXPCM002:024  E.P.200A Hard TouchEXPCM002:025  E.P.200A Mid TouchEXPCM002:026  E.P.200A Soft TouchEXPCM002:027  E.P.200A OverDriveEXPCM002:028  Top of the WurlyEXPCM002:029  You're My BestWurlyEXPCM002:030  The Walrus E.P.EXPCM002:031  Wurly & Syn PadB019  E.Organ Jazz Perc.1B020  E.Organ Jazz Perc.2B021  E.Organ Jazz Perc.3B022  E.Organ CX3 Perc.B023  E.Organ Mondo Perc.B024  E.Organ 88 Perc.B025  E.Organ EntertainerB026  E.Organ 888B027  E.Organ Warm ODB028  E.Organ BossaB029  E.Organ Love SongsB030  E.Organ GospelB031  E.Organ Comp.B032  E.Org Drawbars 1 MWB033  E.Org Drawbars 2 MWB034  E.Organ Manual Comp.B035  E.Org Vibrato\/ChorusB036  E.Organ 800000048B037  E.Organ 880000048B038  E.Organ WarmGospelB039  E.Organ TremoloB040  E.Organ Full->SoftB041  E.Organ BX3 FullB042  E.Organ Rock FullB043  E.Organ VintageB044  E.Organ ChurchB045  E.Organ BalladB046  E.Organ Blues\/SlowB047  E.Organ Blues\/FastB048  E.Organ Rock ODB049  E.Organ Rock Prec.B050  E.Organ Master RockB051  E.Organ Gospel Perc.B052  M1 OrganB053  E.Organ Vox FullB054  E.Organ VoxTabs SW2B055  E.Organ 60's SoundB056  E.Organ FarPro 1B057  E.Organ FarPro 2B058  E.Organ ComboB059  FollowYou\/Me OrganB060  SineWheel OrganB061  VS Church OrganB062  DWGS Pop OrganB063  DWGS Church OrganB064  SineWheel 16'B065  SineWheel 5+1\/3'B066  SineWheel 8'B067  SineWheel 4'B068  SineWheel 2+2\/3'B069  SineWheel 2'B070  SineWheel 1+3\/5'B071  SineWheel 1+1\/3'B072  SineWheel 1'\/Perc.B073  Pipe Organ MediumB074  Pipe Organ Full 1B075  Pipe Organ Full 2B076  Pipe Organ MixtureB077  Pipe Organ PositiveB078  Pipe Positive\/MixtureB079  Pipe Organ ReedB080  Street OrganB081  Accordion 8'+8'B082  Accordion 8'+4'B083  Accordion Stylish 1B084  Accordion Stylish 2B085  Musette + PrincipalB086  BandoneonB087  Fisa 1B088  Fisa 2B089  Fisa 3B090  Pump\/Reed OrganB091  Key FluteG017  GM Drawbar Organ 1G018  GM Perc-Organ 1G019  GM Rock OrganG020  GM Church OrganG021  GM Reed OrganG022  GM Accordion 1G024  GM Bandoneong1-017  GM Det.Drawbar Org.g1-018  GM Det.Perc-Organg1-020  GM Church Org. Oct.g1-021  GM Puff Organg1-022  GM Accordion 2g2-017  GM Italian 60s Organg2-018  GM Perc-Organ 2g2-020  GM Det.Church Org.g3-017  GM Drawbar Organ 2B092  Ensemble BellsB093  Puffle BellsB094  Breathy BellsB095  Heaven BellsB096  Soft Ensemble BellsB097  DWGS Bells 1B098  DWGS Bells 2B099  Tinkle BellsB100  Magic BellsB101  Lo FS BellsB102  Delayed BellsB103  Pure Satin BellsB104  FM Metal BellsB105  FM Glass Bells 1B106  FM Glass Bells 2B107  FM Tubular BellsB108  FM BellsB109  Krystal BellsB110  Cathedral BellsB111  Tubular BellsB112  Toy Hand BellsB113  Music BoxB114  Plated BellsB115  GlockenspielB116  VibraphoneB117  Steel Tongue DrumB118  Steel DrumB119  GamelanB120  Sarna BellB121  KalimbaB122  XylophoneB123  MarimbaB124  MondoRimbaB125  Skull MalletsB126  Tribal MalletsB127  Log DrumC000  AngklungG010  GM GlockenspielG011  GM Music BoxG012  GM VibraphoneG013  GM MarimbaG014  GM XylophoneG015  GM Tubular BellsG099  GM CrystalG109  GM KalimbaG113  GM Tinkle BellG115  GM Steel Drumsg1-012  GM Vibraphone wg1-013  GM Marimba wg1-015  GM Church Bellg1-103  GM Echo Bellg2-015  GM CarillonEXPCM004:051  Shaper of KalimbaEXPCM004:052  Kalimba DropsEXPCM004:053  Tribal PluckC001  Stereo Strings 1C002  Stereo Strings 2C003  Lush Strings 1C004  Lush Strings 2C005  Bright StringsC006  Arco Stereo StringsC007  Legato Strings 1C008  Legato Strings 2C009  Symphonic StringsC010  Slow StringsC011  Platinum StringsC012  Camera StringsC013  Few Bows StringsC014  Intimate StringsC015  Arco Pop StringsC016  Pop StringsC017  Octave StringsC018  Maestoso StringsC019  Pizz Ensemble SW2C020  Pizz\/Str.Quartet SW1C021  Str.Quartet\/Pizz SW1C022  Violin 1 SW1C023  Violin 2 SW1C024  Viola 1 SW1C025  Viola 2 SW1C026  Cello 1 SW1C027  Cello 2 SW1C028  Contrabass 1 SW1C029  Contrabass 2 SW1C030  New Age StringsC031  Synth String PadC032  Pure Analog PadC033  Super Analog PadC034  Analog StringsC035  Ana-2-Real StringsC036  Hybrid String PadC037  Progressive Ana Str.C038  Mello MK II StringsC039  Mello 400S StringsC040  C-Berlin Strings 1C041  C-Berlin Strings 2C042  Tape Str.Oct.MixedC043  Tape Strings DualC044  Tronical StringsC045  Aaah Voices StereoC046  Aah Voises DynamicC047  Oooh Voices StereoC048  Ooh L&R Airy VoicesC049  Ooh Voices LightC050  Light ChoirC051  Choir Of AngelsC052  Classical ChoirC053  Backing VocalsC054  Twilight ChoirC055  Cathedral ChoirC056  Splash ChoirC057  Soundtrack ChoirC058  Mixed RegistersC059  Professional ChoirC060  Morphing VoicesC061  Infinite ChoirC062  Take VoiceC063  V.Switch VocalsC064  Mello Style ChoirC065  Mello 8Voice ChoirC066  Mello Classic ChoirC067  Mello Stereo ChoirC068  Vocoder Machine 1C069  Vocoder Machine 2C070  Vocoder AhC071  Fresh VoxC072  Full VoxC073  Arctic VoicesC074  Tranquil SW2C075  Voice DooC076  VoxologyC077  Velo VoxsterG041  GM ViolinG042  GM ViolaG043  GM CelloG044  GM ContrabassG045  GM Tremolo StringsG046  GM Pizzicato StringsG049  GM StringsG050  GM Slow StringsG051  GM Synth Strings 1G052  GM Synth Strings 2G053  GM Choir Aahs 1G054  GM Voice OohsG055  GM Synth VoxG086  GM Air VoiceG095  GM Halo PadG103  GM Echo DropsG111  GM Fiddleg1-041  GM Slow Violing1-049  GM Strings & Brassg1-051  GM Synth Strings 3g1-053  GM Choir Aahs 2g1-054  GM Hummingg1-055  GM Analog Voiceg1-092  GM Itopiag2-049  GM 60's StringsEXPCM004:024  Aye Voice ShotEXPCM004:025  Tropical Voice ShotEXPCM004:026  Babe Voice ShotEXPCM004:027  EDM Voice ShotEXPCM004:028  PluckDoo VoiceEXPCM004:029  VOICEYC078  Open BrassC079  Sharp BrassC080  Tight BrassC081  Big BrassC082  Session BrassC083  Expressive BrassC084  Brass SectionC085  Trumpets X-fadeC086  Warm BrassC087  Film BrassC088  Sforzando BrassC089  Octave Brass 1C090  Octave Brass 2C091  Trombone EnsembleC092  Tp\/Tb MutedC093  Tp\/Tb Muted OctC094  French Horn EnsC095  Horns & EnsembleC096  Brass Ens & TubasC097  Orchestral BrassC098  Sforzando OrchestraC099  T.O.P SectionC100  Brass & ReedC101  Brass&SaxophonesC102  Brass&Octave SaxC103  Trumpets DynamicC104  Trumpets OctaveC105  Trombones 4-WayC106  Trumpet SensitiveC107  Trumpet OverblownC108  Trumpet MutedC109  FlugelhornC110  TromboneC111  Trombone MutedC112  French HornC113  TubaC114  Flute VibratoC115  Silver FluteC116  Attack FluteC117  Voice FluteC118  Piccolo FluteC119  Mello MK II FlutesC120  ClarinetC121  Double Reed FamilyC122  OboeC123  English HornC124  BassoonC125  Sax EnsembleC126  Soprano SaxC127  Alto Sax SoftD000  Alto Sax HardD001  Tenor Sax SoftD002  Tenor Sax HardD003  Baritone SaxD004  HarmonicaD005  RecorderD006  ShakuhachiD007  ZEN Priest SplitD008  Spit BottleG023  GM HarmonicaG057  GM TrumpetG058  GM Trombone 1G059  GM TubaG060  GM Muted Trumpet 1G061  GM French HornG062  GM Brass Section 1G065  GM Soprano SaxG066  GM Alto SaxG067  GM Tenor SaxG068  GM Baritone SaxG069  GM OboeG070  GM English HornG071  GM BassoonG072  GM ClarinetG073  GM PiccoloG074  GM FluteG075  GM RecorderG076  GM Pan FluteG077  GM Blown BottleG078  GM ShakuhachiG079  GM WhistleG080  GM OcarinaG110  GM BagpipeG112  GM ShanaiG122  GM Breath Noiseg1-057  GM Soft Trumpetg1-058  GM Trombone 2g1-060  GM Muted Trumpet 2g1-061  GM Warm Fr.Horng1-062  GM Brass Section 2g1-122  GM Flute Key Clickg2-058  GM Bright TromboneD009  Memory Lead SW2D010  DW8000 Lead 1D011  Espress LeadD012  Sweet MG LeadD013  Fat Saw LeadD014  Glide LeadD015  PWM LeadD016  DW8000 Lead 2D017  Lucky Man LeadD018  Old Square Lead SW1D019  Bright Square LeadD020  Unison Square LeadD021  Simple Square LeadD022  Simple Pulse LeadD023  Sine LeadD024  InfinityLead MW&SWD025  Rude LeadD026  Wailing LeadD027  Cold Water LeadD028  BIG LeadD029  Rapper's D'light LeadD030  The Executor LeadD031  Anthem LeadD032  Bigroom LeadD033  Unison Saw LeadD034  Dist EDM LeadD035  EDM Voice LeadD036  Progressive LeadD037  Hip Hop LeadD038  Deep Soul Lead SW2D039  Simple 5th Saw LeadD040  Vintage LeadD041  Cheap Lead WheelD042  Reso LeadD043  Operator LeadD044  Tom Sawyer Bs\/LeadD045  Bass & Lead BoysD046  Fat Sync LeadD047  MS2K FastSync LeadD048  Deep 5th EDM LeadD049  Eletrik Piano LeadD050  Tropical Lead 1D051  Tropical Lead 2D052  Noisy Stabber NeoD053  Unison Power SynthD054  Bold Anthem SynthD055  Transer SynthD056  Anthem Trans MWD057  Fast Unison SynthD058  Leader of TranceD059  Velo TwangD060  Rat ChordsD061  Bold OctavesD062  Power PadD063  Velo Power PadD064  Unison PadD065  Old Poly Synth 1D066  Old Poly Synth 2D067  Saw Ensemble SynthD068  Chip Tune SynthD069  Disco Synth PadD070  Jump SynBrassD071  Final SynBrassD072  Synth FanfareD073  Saw Synth BrassD074  HyperComped ChordsD075  Gargle SynthD076  Olive Anthem ChordsD077  Sugar Smash PadD078  Cannon Poly SynthD079  Cannon Synth E.P.D080  Ripper Anthem SynthD081  Different Ways PolyD082  Huge Planet Syn SW1D083  Vintage Saw SynthD084  Detuned Poly SynthD085  Later Progressive LdD086  Follow You LeadD087  Tricky MODDetune LdD088  Oxygen LeadD089  80's Square PolyD090  Gliding Square LeadD091  Pop Synth PadD092  Future PadD093  Rezbo PadD094  CheapCool 80's PolyD095  Shynth Ex ClaviD096  Mean Rez ClaviD097  EDM Chordplay 1D098  EDM Chordplay 2D099  Futur ChordalD100  Fuzz FeltD101  Pro SyncD102  EP Annihilation SW2G063  GM Synth Brass 1G064  GM Synth Brass 2G081  GM Detuned SquareG082  GM Detuned SawG083  GM Synth CalliopeG084  GM Chiff LeadG087  GM 5th SawtoothG088  GM Bass & LeadG100  GM Atmosphereg1-063  GM Synth Brass 3g1-064  GM Synth Brass 4g1-081  GM Simple Squareg1-082  GM Simple Sawtoothg1-085  GM Wire Leadg1-088  GM Soft Wrlg2-063  GM Analog Brass 1g2-064  GM Analog Brass 2g2-081  GM Simple Sineg2-082  GM Sawtooth+Pulseg3-063  GM Jump Brassg3-082  GM Double SawtoothEXPCM004:000  Hyper Pad BrightEXPCM004:001  Fiesta StabEXPCM004:002  Noisy Stabber UltraEXPCM004:003  Legend Epic PolyEXPCM004:004  Sweep Down PadEXPCM004:005  Oct Saw StabEXPCM004:006  Gliging PadEXPCM004:007  Vintage Brass SynthEXPCM004:008  Vintage FanfareEXPCM004:009  Glide Square PadEXPCM004:030  Soulfully LeadEXPCM004:031  Oldschool LeadEXPCM004:032  sAxy LeadEXPCM004:033  Party LeadEXPCM004:034  Excision LeadEXPCM004:035  Velo Reso LeadEXPCM004:036  Pow Voice LeadD103  Sine PadD104  Swirl Sine PadD105  Synth Filter PadD106  Search PadD107  Dark Brass PadD108  Sine On PadD109  Prayer PadD110  Tinklin PadD111  Squ Voice PadD112  Square Pad SW1D113  5th Pad SW1\/2D114  String Res PadD115  Flashy AnaHarpyD116  Angelic ChoirD117  The PadD118  The E.P.PadsD119  Attacky PadD120  Poppin' PadD121  Africa BrassD122  80 Pad SW2\/PW\/MWD123  Soft SynBrassD124  Progressive SynBrsD125  Matrix CrispyD126  ChronologieD127  Aero PadE000  Bad Dream WaltzerE001  Alexa PadE002  Solaris PadE003  The X PadE004  Swish PadE005  Sweet PadE006  Givin' PopE007  Cosmic SynthE008  Syn SweeperE009  Fine HPF SweepE010  Rez DownE011  MirroredE012  Wave PadE013  MeditatorE014  ChantE015  1984 SplitE016  Surprising PadE017  Pods in the PadE018  Dolphin PadE019  Shimmer Sparkle PadE020  Steelish PadE021  Widescreen PadE022  FlyingE023  Aqua PhonicsE024  Flare PadE025  Palawan PadE026  Moon CyclesE027  Swirl PadE028  New VoyageE029  Great WallE030  Off Beat Dark PadE031  Off Beat Bright PadE032  Pump PadE033  ClayPot-VoxTripletsE034  Chilly Pulsar LoveE035  U-Vibe PadE036  Butterfly PadE037  Vox PulseE038  BPM Flashlight PadE039  eMoTiOnE040  Loco MotivE041  Atmospheric PulseE042  Rhythm LeadE043  LFO 5th WaveE044  ToneWheel MotionE045  Minimal SeqE046  8BIT LandE047  Dancing VoiceE048  Spectral Wave DanceE049  Kross Wave MotionE050  Wave SequencerE051  Bell Wave SeqE052  Pad & Bell Wave SeqE053  LFO Run Pad SW1G089  GM FantasiaG090  GM Warm PadG091  GM Poly SynthG092  GM Space VoiceG093  GM Bowed GlassG094  GM Metallic PadG096  GM Sweep PadG097  GM Ice RainG098  GM Sound TrackG101  GM BrightnessG102  GM GoblinsG104  GM Star Themeg1-090  GM Sine Padg2-103  GM Echo PanEXPCM004:010  Atmos Metalic PadEXPCM004:011  Str.Machine1 SW1EXPCM004:012  Str.Machine2 SW1EXPCM004:013  Synth Gothic OrchEXPCM004:014  Hyper Pad DarkEXPCM004:015  VINTAGE PadEXPCM004:016  Deep Voice PadEXPCM004:017  Hamming PadEXPCM004:018  Palawan-X PadEXPCM004:019  Lore Magic PadEXPCM004:020  Devastate PadEXPCM004:021  Atmos Voice PadEXPCM004:022  Atmospher's PadEXPCM004:023  Cathedral MotionE054  Nylon Guitar 1E055  Nylon Guitar 2E056  Flamenco GuitarE057  Nylon Gtr.StudioE058  Nylon Guitar&StringsE059  A.Guitar Large BodyE060  A.Guitar+Noise SW1E061  A.Gtr.Dynamic PickE062  A.Guitar FingerE063  Sitar GuitarE064  AcoustishE065  A.Guitar 12 StringE066  E.Guitar+TwinE067  E.Guitar Dynamic 1E068  E.Guitar Dynamic 2E069  E.Guitar FunkyE070  E.Guitar DelayE071  E.Guitar CrunchE072  E.Guitar ChorusE073  E.Guitar VolumeSwellE074  E.Guitar TremoloE075  E.Guitar Semi Dist.E076  E.Guitar Rotary FXE077  E.Gtr.Tweed PhaserE078  E.Guitar U-VibeE079  E.Guitar Auto WahE080  E.Gtr.Screaming TubeE081  E.Guitar FilthyE082  E.Guitar Mute Dist.E083  E.Guitar Wet Dist.E084  E.Guitar PowerChordE085  E.Gtuitar Vox WahE086  E.Guitar JazzE087  E.Guitar Pedal SteelE088  Psyco GuitarE089  Electronica GuitarE090  UkuleleE091  BanjoE092  MandolinE093  SanturE094  Sitar & TamburaE095  Koto Velo.BendE096  Harp 1E097  Harp 2G016  GM SanturG025  GM Nylon Guitar 1G026  GM Steel GuitarG027  GM Jazz GuitarG028  GM Clean GuitarG029  GM Muted GuitarG030  GM Overdrive GuitarG031  GM Dist.Guitar 1G032  GM Guitar HarmonicsG047  GM Orchestral HarpG085  GM CharangG105  GM Sitar 1G106  GM BanjoG107  GM ShamisenG108  GM KotoG121  GM Guitar Fret Noiseg1-025  GM Ukuleleg1-026  GM 12-String Guitarg1-027  GM Pedal Steel Gtr.g1-028  GM Det.Clean Guitarg1-029  GM Funky Guitarg1-030  GM Guitar Pinchg1-031  GM Dist.Guitar 2g1-032  GM Guitar Feedbackg1-047  GM Yang Ching1-105  GM Sitar 2g1-108  GM Taisho Kotog1-121  GM Gt.Cutting Noiseg2-025  GM N.Guitar Key Offg2-026  GM Mandoling2-028  GM Mid Tone Guitarg2-029  GM Muted Guitar vg2-031  GM Dist.Rhythm Gtr.g3-025  GM Nylon Guitar 2g3-026  GM Steel Guitar Bodyg3-029  GM Jazz ManE098  E.Bass Finger 1E099  E.Bass Finger 2E100  E.Bass Finger 3E101  E.Bass Finger 4E102  E.Bass Pick 1E103  E.Bass Pick 2E104  E.Bass Pick 3E105  E.Bass Pick 4E106  E.Bass Pick BedE107  E.Bass SaturatedE108  E.Bass Thumb 1E109  E.Bass Thumb 2E110  E.Bass Fretless 1E111  E.Bass Fretless 2E112  E.Bass Fretless OctE113  Acoustic Bass1 SW2E114  Acoustic Bass2 SW2E115  Acoustic Bass3 SW2E116  Acoustic Bass OldE117  Kick Bass\/DecayE118  Decayed BassE119  THAT SubBass KickE120  Kick Bass\/GateE121  Deep KIK SubSynthE122  Sine Bass SW1E123  Deep Triangle BassE124  Dark R&B BassE125  Digi BassE126  Boost Synth BassE127  Tight Bass SW2F000  Saw BassF001  800DV Saw BassF002  Solid BassF003  Octave BassF004  Analog Funk BassF005  Octave MG BassF006  Greasy Synth BassF007  VeloBark BassF008  Acid Syn BassF009  Square BassF010  Popin' Squ BassF011  800DV Square BassF012  Growler BassF013  Euro 8va Seq BassF014  Hard Square BassF015  Detuned Euro BassF016  Vintage 80's BassF017  Snappy 5ths BassF018  Dub Tempest BsF019  Dub PsyClone BsF020  Ducking BassF021  DS Hold Bass SW2F022  Bs Pulse Mod WheelF023  Wobble Nation BassF024  Bs Pulse Triplet MWF025  Nasty BassF026  Widow BassF027  Octa Quak BassF028  Ruff'Blade BassF029  Hard Synth BassF030  Hard Sync BassF031  Organ BassF032  Housey BassG033  GM Acoustic BassG034  GM Fingered BassG035  GM Picked BassG036  GM Fretless BassG037  GM Slap Bass 1G038  GM Slap Bass 2G039  GM Synth Bass 1G040  GM Synth Bass 2g1-034  GM Finger Slap Bassg1-039  GM Warm Synth Bassg1-040  GM Synth Bass 4g2-039  GM Synth Bass 3g2-040  GM Rubber Bassg2-121  GM Bass String Slapg3-039  GM Clavi.Bassg3-040  GM Attack Pulseg4-039  GM HammerEXPCM004:037  SynTHE Bass 24EXPCM004:038  LogDrum BassEXPCM004:039  Ripper BassEXPCM004:040  Off Beat WOBBLEF033  Rock Kit 1F034  Rock Kit 1 MonoF035  Rock Kit 2F036  Jazz KitF037  Jazz Kit MonoF038  Jazz\/Brush KitF039  Wild KitF040  Power Kit 1F041  Power Kit 2F042  Basic Kit 1F043  Basic Kit 2F044  Jazzy Hop KitF045  Urban Hip Hop KitF046  Hip Hop Kit 1F047  Hip Hop Kit 2F048  Trapper KitF049  Electronic R&B KitF050  Nu R&B KitF051  R&B KitF052  Breakbeat KitF053  Drum'n'Bass KitF054  Breaks KitF055  Bigroom KitF056  Nu EDM KitF057  Dubstep KitF058  Moombahton KitF059  Tropical KitF060  Trance KitF061  House KitF062  Tekno Klub KitF063  Minimal KitF064  Nica\/Glitch KitF065  Analog KitF066  Mad Analog KitF067  Tricki KitF068  Human Beat Box KitF069  Percussion KitF070  Orch&Ethno KitF071  Nippon KitF072  BD&SD Catalog 1F073  BD&SD Catalog 2F074  Cymbal CatalogF075  Saw PizzF076  Short Square ArpF077  Bit Chip SW1\/2F078  ChipTriangle SW\/MWF079  ChipSquare SW\/MWF080  ChipPulse 1 SW\/MWF081  ChipPulse 2 SW\/MWF082  Analog Bell\/HarpF083  Square\/Pulse SynF084  Comp E.P. SW1\/2F085  Organ Perc.ShotF086  Synth Mallets 5thF087  Metallic HitterF088  Tropical PizzF089  Tropical MalletF090  Horn Chord HitsF091  Disco Strings HitF092  Chord Set 1 SW2F093  Chord Set 2 SW1F094  HipHop HitsF095  Trapper HitF096  Pizz HitF097  Power Band HitF098  Impact Band HitF099  Drama Hit WheelF100  Monster Hit WheelF101  Chipper HitF102  Helium VoiceF103  Yahi VoiceF104  Nippon Set (C#2-A5)F105  Shamisen GaisyaF106  Soul of TsugaruF107  Shakuhachi MondouF108  KOTO FuryuF109  Miyabi Hit (E3,D6,D7)F110  Ring Mod RiserF111  Siren SFX WheelF112  MonsterF113  Crypt-onF114  Stereo Flange SweepF115  Sonic BlastF116  SoundscapesF117  Steam SweepsF118  AndroidF119  New North WindF120  Outside ElementsF121  Lore of the JungleF122  Mega Drum HitF123  GongF124  Vocoder Vel ChoirF125  SqrSaw VocoderF126  Mic & ReverbF127  Mic & DoubledG048  GM TimpaniG056  GM Orchestra HitG114  GM AgogoG116  GM WoodblockG117  GM TaikoG118  GM Melodic Tom 1G119  GM Synth DrumG120  GM Reverse CymbalG123  GM SeashoreG124  GM Bird Tweet 1G125  GM Telephone Ring 1G126  GM HelicopterG127  GM ApplauseG128  GM Gun Shotg1-056  GM Bass Hit Plusg1-099  GM Synth Malletg1-116  GM Castanetsg1-117  GM Concert Bass Dr.g1-118  GM Melodic Tom 2g1-119  GM Analog Tomg1-123  GM Raing1-124  GM Dogg1-125  GM Telephone Ring 2g1-126  GM Car Engineg1-127  GM Laughingg1-128  GM Machine Gung2-056  GM 6th Hitg2-119  GM Electric Drumg2-123  GM Thunderg2-124  GM Horse Gallopg2-125  GM Door Creakingg2-126  GM Car Stopg2-127  GM Screamingg2-128  GM Lasergung3-056  GM Euro Hitg3-123  GM Windg3-124  GM Bird Tweet 2g3-125  GM Door Slammingg3-126  GM Car Passg3-127  GM Punchg3-128  GM Explosiong4-082  GM Seq.Analogg4-123  GM Streamg4-125  GM Scratchg4-126  GM Car Crashg4-127  GM Heart Beatg5-123  GM Bubbleg5-125  GM Wind Chimeg5-126  GM Sireng5-127  GM Footstepsg6-126  GM Traing7-126  GM Jetplaneg8-126  GM Starshipg9-126  GM Burst Noisegd-001  GM STANDARD Kitgd-009  GM ROOM Kitgd-017  GM POWER Kitgd-025  GM ELECTRONIC Kitgd-026  GM ANALOG Kitgd-033  GM JAZZ Kitgd-041  GM BRUSH Kitgd-049  GM ORCHESTRA Kitgd-057  GM SFX KitEXPCM004:041  Nu Pop KitEXPCM004:042  Nu DISCO KitEXPCM004:043  Electric Beats KitEXPCM004:044  Industrial KitEXPCM004:045  Hypr PluckEXPCM004:046  Hypr SQU DecayEXPCM004:047  Hyper PoppingEXPCM004:048  Tropical DropEXPCM004:049  Ripper PluckEXPCM004:050  Sync PluckedEXPCM004:054  Neo Orch HitEXPCM004:055  Ending HitEXPCM004:056  Moody HitEXPCM004:057  Percussive HitEXPCM004:058  Short Arco Str&BrsEXPCM004:059  Brass ShotEXPCM004:060  Symphonic Brs&StrEXPCM004:061  Industrial Set 1EXPCM004:062  Industrial Set 2EXPCM004:063  Industrial Set 3",
+      "tag" : "SELECT",
+      "value" : "1",
+      "font" : "14px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        507.015625,
+        52,
+        481.984375,
+        30
+      ]
+    },
+    {
+      "color" : "rgb(213, 216, 214)",
+      "letterSpacing" : "0.3px",
+      "classes" : "caption",
+      "data" : {
+
+      },
+      "id" : "",
+      "rect" : [
+        234.609375,
+        155,
+        36.765625,
+        14
+      ],
+      "tag" : "SPAN",
+      "text" : "VALUE",
+      "font" : "11px \/ 14px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+
+      },
+      "letterSpacing" : "normal",
+      "classes" : "knob cursor-interaction",
+      "id" : "kf-value",
+      "rect" : [
+        229,
+        176,
+        48,
+        48
+      ],
+      "value" : "",
+      "text" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(213, 216, 214)",
+      "data" : {
+
+      },
+      "letterSpacing" : "0.3px",
+      "id" : "",
+      "classes" : "caption",
+      "rect" : [
+        151.890625,
+        257,
+        46.203125,
+        14
+      ],
+      "text" : "CUTOFF",
+      "tag" : "LABEL",
+      "font" : "11px \/ 14px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "knob cursor-interaction",
+      "data" : {
+
+      },
+      "text" : "",
+      "value" : "",
+      "tag" : "BUTTON",
+      "rect" : [
+        151,
+        278,
+        48,
+        48
+      ],
+      "disabled" : false,
+      "font" : "12px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(174, 188, 199)",
+      "id" : "kf-value-cutoff",
+      "data" : {
+
+      },
+      "letterSpacing" : "normal",
+      "classes" : "readout",
+      "text" : "",
+      "value" : "+00",
+      "rect" : [
+        141,
+        333,
+        68,
+        22
+      ],
+      "font" : "",
+      "disabled" : false,
+      "tag" : "INPUT"
+    },
+    {
+      "color" : "rgb(213, 216, 214)",
+      "id" : "",
+      "classes" : "caption",
+      "data" : {
+
+      },
+      "letterSpacing" : "0.3px",
+      "tag" : "LABEL",
+      "text" : "RESONANCE",
+      "rect" : [
+        216.796875,
+        257,
+        72.390625,
+        14
+      ],
+      "font" : "11px \/ 14px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "knob cursor-interaction",
+      "data" : {
+
+      },
+      "letterSpacing" : "normal",
+      "id" : "",
+      "text" : "",
+      "value" : "",
+      "rect" : [
+        229,
+        278,
+        48,
+        48
+      ],
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "tag" : "BUTTON",
+      "disabled" : false
+    },
+    {
+      "color" : "rgb(174, 188, 199)",
+      "data" : {
+
+      },
+      "id" : "kf-value-resonance",
+      "letterSpacing" : "normal",
+      "classes" : "readout",
+      "tag" : "INPUT",
+      "rect" : [
+        219,
+        333,
+        68,
+        22
+      ],
+      "text" : "",
+      "font" : "",
+      "disabled" : false,
+      "value" : "+00"
+    },
+    {
+      "color" : "rgb(213, 216, 214)",
+      "data" : {
+
+      },
+      "id" : "",
+      "classes" : "caption",
+      "letterSpacing" : "0.3px",
+      "tag" : "LABEL",
+      "rect" : [
+        302.59375,
+        257,
+        56.8125,
+        14
+      ],
+      "text" : "VELOCITY",
+      "font" : "11px \/ 14px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "data" : {
+
+      },
+      "classes" : "knob cursor-interaction",
+      "rect" : [
+        307,
+        278,
+        48,
+        48
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "text" : "",
+      "disabled" : false,
+      "font" : "12px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(174, 188, 199)",
+      "id" : "kf-value-velocity",
+      "classes" : "readout",
+      "data" : {
+
+      },
+      "letterSpacing" : "normal",
+      "tag" : "INPUT",
+      "value" : "1.00×",
+      "rect" : [
+        297,
+        333,
+        68,
+        22
+      ],
+      "font" : "",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(213, 216, 214)",
+      "letterSpacing" : "0.3px",
+      "data" : {
+
+      },
+      "classes" : "caption",
+      "id" : "",
+      "tag" : "LABEL",
+      "rect" : [
+        319.640625,
+        155,
+        22.703125,
+        14
+      ],
+      "text" : "PAN",
+      "font" : "11px \/ 14px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "knob cursor-interaction",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "data" : {
+
+      },
+      "rect" : [
+        307,
+        176,
+        48,
+        48
+      ],
+      "value" : "",
+      "text" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(174, 188, 199)",
+      "id" : "kf-value-pan",
+      "classes" : "readout",
+      "letterSpacing" : "normal",
+      "data" : {
+
+      },
+      "tag" : "INPUT",
+      "rect" : [
+        297,
+        231,
+        68,
+        22
+      ],
+      "value" : "C",
+      "font" : "",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "lcd-bezel",
+      "letterSpacing" : "normal",
+      "data" : {
+
+      },
+      "id" : "",
+      "tag" : "DIV",
+      "text" : "\n    PROGMAINTONEFXARP\n    PIANO (A000)Kross Grand Piano 1INT 120.00\n    Kross Grand Piano 1\n    Cutoff: Resonance: Pan: Velocity: Tone ConcertWarmWideRelease Space \n    \n     I1 EQI2 EQI5 LimM2 Hall\n      On\n      IFX\n      MFX\n     \n     BandB1 PeakB2 PeakB3 PeakB4 ShelfFreq HzGain dBQ\n    \n    \n     Pattern: UPDOWNALT 1ALT 2RANDOM\n     Resolution: 1\/32T1\/321\/16T1\/161\/8T1\/81\/4T1\/4\n     Gate (%): \n     Tempo: \n     Octave: \n     Sort: \n     Key Sync: \n     Swing (%): \n    ARP OFF · LATCH OFF\n    Voice: POLYI1 EQ \/ I2 M.Lim \/ I5 Lim \/ M2 Hall\n   ",
+      "rect" : [
+        402,
+        90,
+        600,
+        212
+      ],
+      "font" : "12px \/ 14.4px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(57, 78, 98)",
+      "data" : {
+        "page" : "main"
+      },
+      "letterSpacing" : "normal",
+      "classes" : "lcd",
+      "id" : "",
+      "text" : "\n    PROGMAINTONEFXARP\n    PIANO (A000)Kross Grand Piano 1INT 120.00\n    Kross Grand Piano 1\n    Cutoff: Resonance: Pan: Velocity: Tone ConcertWarmWideRelease Space \n    \n     I1 EQI2 EQI5 LimM2 Hall\n      On\n      IFX\n      MFX\n     \n     BandB1 PeakB2 PeakB3 PeakB4 ShelfFreq HzGain dBQ\n    \n    \n     Pattern: UPDOWNALT 1ALT 2RANDOM\n     Resolution: 1\/32T1\/321\/16T1\/161\/8T1\/81\/4T1\/4\n     Gate (%): \n     Tempo: \n     Octave: \n     Sort: \n     Key Sync: \n     Swing (%): \n    ARP OFF · LATCH OFF\n    Voice: POLYI1 EQ \/ I2 M.Lim \/ I5 Lim \/ M2 Hall\n   ",
+      "tag" : "DIV",
+      "rect" : [
+        423,
+        107,
+        558,
+        178
+      ],
+      "font" : "16px KroseLCDPixel, monospace"
+    },
+    {
+      "color" : "rgb(57, 78, 98)",
+      "classes" : "lcd-tab cursor-interaction",
+      "id" : "",
+      "data" : {
+        "page" : "main"
+      },
+      "letterSpacing" : "normal",
+      "tag" : "BUTTON",
+      "value" : "",
+      "rect" : [
+        667,
+        116,
+        76,
+        20
+      ],
+      "font" : "15px \/ 20px KroseLCDPixel, monospace",
+      "disabled" : false,
+      "text" : "MAIN"
+    },
+    {
+      "color" : "rgb(57, 78, 98)",
+      "data" : {
+        "page" : "tone"
+      },
+      "classes" : "lcd-tab cursor-interaction",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "text" : "TONE",
+      "value" : "",
+      "rect" : [
+        743,
+        116,
+        76,
+        20
+      ],
+      "font" : "15px \/ 20px KroseLCDPixel, monospace",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(57, 78, 98)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "lcd-tab cursor-interaction",
+      "data" : {
+        "page" : "fx"
+      },
+      "tag" : "BUTTON",
+      "text" : "FX",
+      "value" : "",
+      "rect" : [
+        819,
+        116,
+        76,
+        20
+      ],
+      "disabled" : false,
+      "font" : "15px \/ 20px KroseLCDPixel, monospace"
+    },
+    {
+      "color" : "rgb(57, 78, 98)",
+      "classes" : "lcd-tab cursor-interaction",
+      "letterSpacing" : "normal",
+      "data" : {
+        "page" : "arp"
+      },
+      "id" : "",
+      "text" : "ARP",
+      "tag" : "BUTTON",
+      "rect" : [
+        895,
+        116,
+        76,
+        20
+      ],
+      "font" : "15px \/ 20px KroseLCDPixel, monospace",
+      "disabled" : false,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(57, 78, 98)",
+      "data" : {
+
+      },
+      "classes" : "lcd-top",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "rect" : [
+        431,
+        139,
+        542,
+        27.09375
+      ],
+      "text" : "PIANO (A000)Kross Grand Piano 1INT 120.00",
+      "tag" : "DIV",
+      "font" : "16px KroseLCDPixel, monospace"
+    },
+    {
+      "color" : "rgba(0, 0, 0, 0)",
+      "letterSpacing" : "normal",
+      "data" : {
+        "toggle" : "host"
+      },
+      "classes" : "",
+      "id" : "kf-tempo",
+      "tag" : "BUTTON",
+      "value" : "",
+      "rect" : [
+        783.3125,
+        139,
+        189.6875,
+        27.09375
+      ],
+      "text" : "INT 120.00",
+      "disabled" : false,
+      "font" : "0px KroseLCDPixel, monospace"
+    },
+    {
+      "color" : "rgb(57, 78, 98)",
+      "letterSpacing" : "normal",
+      "classes" : "preset-title",
+      "data" : {
+
+      },
+      "id" : "kf-preset",
+      "rect" : [
+        436,
+        187.5,
+        532,
+        35
+      ],
+      "text" : "Kross Grand Piano 1",
+      "tag" : "DIV",
+      "font" : "35px \/ 35px KroseLCDPixel, monospace"
+    },
+    {
+      "color" : "rgb(57, 78, 98)",
+      "data" : {
+
+      },
+      "letterSpacing" : "normal",
+      "classes" : "lcd-footer",
+      "id" : "kf-route",
+      "rect" : [
+        436,
+        250,
+        532,
+        28
+      ],
+      "tag" : "DIV",
+      "text" : "Voice: POLYI1 EQ \/ I2 M.Lim \/ I5 Lim \/ M2 Hall",
+      "font" : "15px KroseLCDPixel, monospace"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+
+      },
+      "letterSpacing" : "0.5px",
+      "id" : "kf-prev",
+      "classes" : "switch cursor-interaction",
+      "text" : "◀",
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "11px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        414,
+        314,
+        65,
+        34
+      ]
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+
+      },
+      "letterSpacing" : "0.5px",
+      "id" : "kf-next",
+      "classes" : "switch cursor-interaction",
+      "tag" : "BUTTON",
+      "value" : "",
+      "text" : "▶",
+      "rect" : [
+        491,
+        314,
+        65,
+        34
+      ],
+      "disabled" : false,
+      "font" : "11px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "kf-browse",
+      "data" : {
+
+      },
+      "letterSpacing" : "0.5px",
+      "classes" : "switch cursor-interaction",
+      "text" : "BROWSE",
+      "rect" : [
+        568,
+        314,
+        110,
+        34
+      ],
+      "value" : "",
+      "font" : "11px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+
+      },
+      "id" : "kf-save",
+      "classes" : "switch cursor-interaction",
+      "letterSpacing" : "0.5px",
+      "rect" : [
+        790,
+        314,
+        84,
+        34
+      ],
+      "tag" : "BUTTON",
+      "text" : "SAVE",
+      "font" : "11px Arial, Helvetica, sans-serif",
+      "disabled" : true,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "switch cursor-interaction",
+      "letterSpacing" : "0.5px",
+      "id" : "kf-compare",
+      "data" : {
+
+      },
+      "tag" : "BUTTON",
+      "rect" : [
+        886,
+        314,
+        104,
+        34
+      ],
+      "value" : "",
+      "font" : "11px Arial, Helvetica, sans-serif",
+      "disabled" : true,
+      "text" : "COMPARE"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "classes" : "switch cursor-interaction",
+      "data" : {
+        "eg" : "amp"
+      },
+      "letterSpacing" : "0.5px",
+      "tag" : "BUTTON",
+      "value" : "",
+      "text" : "AMP",
+      "rect" : [
+        1115,
+        51,
+        65,
+        32
+      ],
+      "disabled" : false,
+      "font" : "11px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+        "eg" : "filter"
+      },
+      "classes" : "switch cursor-interaction",
+      "letterSpacing" : "0.5px",
+      "id" : "",
+      "rect" : [
+        1188,
+        51,
+        65,
+        32
+      ],
+      "value" : "",
+      "text" : "FILTER",
+      "font" : "11px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(213, 216, 214)",
+      "classes" : "caption",
+      "data" : {
+
+      },
+      "id" : "",
+      "letterSpacing" : "0.4px",
+      "tag" : "LABEL",
+      "rect" : [
+        1036.8125,
+        109,
+        40.375,
+        12
+      ],
+      "text" : "ATTACK",
+      "font" : "10px \/ 12px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "classes" : "fader-track",
+      "id" : "",
+      "data" : {
+
+      },
+      "rect" : [
+        1041,
+        132,
+        32,
+        135
+      ],
+      "tag" : "DIV",
+      "text" : "",
+      "font" : "12px \/ 14.4px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+
+      },
+      "id" : "kf-attack",
+      "letterSpacing" : "normal",
+      "classes" : "",
+      "text" : "",
+      "value" : "0",
+      "rect" : [
+        1042.5,
+        123,
+        29,
+        153
+      ],
+      "font" : "12px \/ 14.4px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "INPUT"
+    },
+    {
+      "color" : "rgb(174, 188, 199)",
+      "data" : {
+
+      },
+      "classes" : "",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "text" : "+00",
+      "value" : "+00",
+      "tag" : "OUTPUT",
+      "font" : "12px ui-monospace, Menlo, monospace",
+      "rect" : [
+        1045.859375,
+        278,
+        22.265625,
+        15
+      ]
+    },
+    {
+      "color" : "rgb(213, 216, 214)",
+      "data" : {
+
+      },
+      "id" : "",
+      "classes" : "caption",
+      "letterSpacing" : "0.4px",
+      "text" : "DECAY",
+      "rect" : [
+        1099.140625,
+        109,
+        35.71875,
+        12
+      ],
+      "tag" : "LABEL",
+      "font" : "10px \/ 12px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "data" : {
+
+      },
+      "classes" : "fader-track",
+      "tag" : "DIV",
+      "text" : "",
+      "rect" : [
+        1101,
+        132,
+        32,
+        135
+      ],
+      "font" : "12px \/ 14.4px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "",
+      "letterSpacing" : "normal",
+      "data" : {
+
+      },
+      "id" : "kf-decay",
+      "text" : "",
+      "tag" : "INPUT",
+      "rect" : [
+        1102.5,
+        123,
+        29,
+        153
+      ],
+      "font" : "12px \/ 14.4px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "value" : "0"
+    },
+    {
+      "color" : "rgb(174, 188, 199)",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "data" : {
+
+      },
+      "classes" : "",
+      "rect" : [
+        1105.859375,
+        278,
+        22.265625,
+        15
+      ],
+      "value" : "+00",
+      "text" : "+00",
+      "font" : "12px ui-monospace, Menlo, monospace",
+      "tag" : "OUTPUT"
+    },
+    {
+      "color" : "rgb(213, 216, 214)",
+      "classes" : "caption",
+      "id" : "",
+      "letterSpacing" : "0.4px",
+      "data" : {
+
+      },
+      "rect" : [
+        1154.296875,
+        109,
+        45.40625,
+        12
+      ],
+      "tag" : "LABEL",
+      "text" : "SUSTAIN",
+      "font" : "10px \/ 12px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "classes" : "fader-track",
+      "id" : "",
+      "data" : {
+
+      },
+      "text" : "",
+      "tag" : "DIV",
+      "rect" : [
+        1161,
+        132,
+        32,
+        135
+      ],
+      "font" : "12px \/ 14.4px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+
+      },
+      "letterSpacing" : "normal",
+      "classes" : "",
+      "id" : "kf-sustain",
+      "tag" : "INPUT",
+      "value" : "0",
+      "rect" : [
+        1162.5,
+        123,
+        29,
+        153
+      ],
+      "font" : "12px \/ 14.4px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(174, 188, 199)",
+      "data" : {
+
+      },
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "",
+      "text" : "+00",
+      "tag" : "OUTPUT",
+      "rect" : [
+        1165.859375,
+        278,
+        22.265625,
+        15
+      ],
+      "font" : "12px ui-monospace, Menlo, monospace",
+      "value" : "+00"
+    },
+    {
+      "color" : "rgb(213, 216, 214)",
+      "data" : {
+
+      },
+      "letterSpacing" : "0.4px",
+      "classes" : "caption",
+      "id" : "",
+      "rect" : [
+        1212.53125,
+        109,
+        48.9375,
+        12
+      ],
+      "text" : "RELEASE",
+      "tag" : "LABEL",
+      "font" : "10px \/ 12px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "classes" : "fader-track",
+      "data" : {
+
+      },
+      "letterSpacing" : "normal",
+      "rect" : [
+        1221,
+        132,
+        32,
+        135
+      ],
+      "tag" : "DIV",
+      "text" : "",
+      "font" : "12px \/ 14.4px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+
+      },
+      "id" : "kf-release",
+      "classes" : "",
+      "letterSpacing" : "normal",
+      "rect" : [
+        1222.5,
+        123,
+        29,
+        153
+      ],
+      "value" : "0",
+      "text" : "",
+      "font" : "12px \/ 14.4px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "INPUT"
+    },
+    {
+      "color" : "rgb(174, 188, 199)",
+      "classes" : "",
+      "data" : {
+
+      },
+      "id" : "",
+      "letterSpacing" : "normal",
+      "text" : "+00",
+      "value" : "+00",
+      "rect" : [
+        1225.859375,
+        278,
+        22.265625,
+        15
+      ],
+      "font" : "12px ui-monospace, Menlo, monospace",
+      "tag" : "OUTPUT"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "classes" : "switch cursor-interaction",
+      "data" : {
+        "voice" : "poly"
+      },
+      "letterSpacing" : "0.5px",
+      "rect" : [
+        1042,
+        314,
+        65,
+        34
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "text" : "POLY",
+      "disabled" : false,
+      "font" : "10px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "letterSpacing" : "0.5px",
+      "classes" : "switch cursor-interaction",
+      "data" : {
+        "voice" : "mono"
+      },
+      "rect" : [
+        1115,
+        314,
+        65,
+        34
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "10px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : "MONO"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "0.5px",
+      "classes" : "switch cursor-interaction",
+      "id" : "",
+      "data" : {
+        "voice" : "legato"
+      },
+      "rect" : [
+        1188,
+        314,
+        65,
+        34
+      ],
+      "tag" : "BUTTON",
+      "text" : "LEGATO",
+      "font" : "10px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(172, 190, 202)",
+      "data" : {
+        "toggle" : "sustain",
+        "hardwareLabel" : "SUSTAIN"
+      },
+      "id" : "",
+      "classes" : "switch cursor-interaction",
+      "letterSpacing" : "0.5px",
+      "text" : "SUSTAIN",
+      "tag" : "BUTTON",
+      "value" : "",
+      "font" : "10px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        1280,
+        314,
+        65,
+        34
+      ]
+    },
+    {
+      "color" : "rgb(172, 190, 202)",
+      "id" : "kf-panic",
+      "data" : {
+        "hardwareLabel" : "PANIC"
+      },
+      "letterSpacing" : "0.5px",
+      "classes" : "switch cursor-interaction",
+      "tag" : "BUTTON",
+      "rect" : [
+        1353,
+        314,
+        65,
+        34
+      ],
+      "text" : "PANIC",
+      "value" : "",
+      "disabled" : false,
+      "font" : "10px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(213, 216, 214)",
+      "classes" : "caption",
+      "id" : "",
+      "letterSpacing" : "0.3px",
+      "data" : {
+
+      },
+      "rect" : [
+        1369.859375,
+        155,
+        48.265625,
+        14
+      ],
+      "text" : "VOLUME",
+      "tag" : "LABEL",
+      "font" : "11px \/ 14px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "classes" : "knob cursor-interaction",
+      "id" : "",
+      "data" : {
+
+      },
+      "rect" : [
+        1370,
+        176,
+        48,
+        48
+      ],
+      "text" : "",
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(174, 188, 199)",
+      "data" : {
+
+      },
+      "classes" : "readout",
+      "letterSpacing" : "normal",
+      "id" : "kf-value-output",
+      "rect" : [
+        1360,
+        231,
+        68,
+        22
+      ],
+      "value" : "-6.0 dB",
+      "tag" : "INPUT",
+      "font" : "",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "classes" : "switch cursor-interaction",
+      "data" : {
+        "toggle" : "sw1"
+      },
+      "letterSpacing" : "0.5px",
+      "tag" : "BUTTON",
+      "value" : "",
+      "text" : "1",
+      "font" : "11px Arial, Helvetica, sans-serif",
+      "disabled" : true,
+      "rect" : [
+        39,
+        390,
+        65,
+        34
+      ]
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "switch cursor-interaction",
+      "data" : {
+        "toggle" : "sw2"
+      },
+      "letterSpacing" : "0.5px",
+      "id" : "",
+      "rect" : [
+        111,
+        390,
+        65,
+        34
+      ],
+      "text" : "2",
+      "tag" : "BUTTON",
+      "font" : "11px Arial, Helvetica, sans-serif",
+      "disabled" : true,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "kf-pitch",
+      "data" : {
+
+      },
+      "letterSpacing" : "normal",
+      "classes" : "wheel cursor-interaction",
+      "rect" : [
+        57,
+        433,
+        29,
+        127
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "wheel cursor-interaction",
+      "data" : {
+
+      },
+      "id" : "kf-mod",
+      "letterSpacing" : "normal",
+      "rect" : [
+        129,
+        433,
+        29,
+        127
+      ],
+      "tag" : "BUTTON",
+      "text" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : true,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(187, 196, 201)",
+      "letterSpacing" : "normal",
+      "id" : "kf-oct-down",
+      "classes" : "",
+      "data" : {
+
+      },
+      "tag" : "BUTTON",
+      "rect" : [
+        39,
+        592,
+        40,
+        32
+      ],
+      "text" : "−",
+      "value" : "",
+      "disabled" : false,
+      "font" : "16px ui-monospace, Menlo, monospace"
+    },
+    {
+      "color" : "rgb(187, 196, 201)",
+      "letterSpacing" : "normal",
+      "classes" : "",
+      "id" : "kf-oct-up",
+      "data" : {
+
+      },
+      "text" : "+",
+      "rect" : [
+        135.984375,
+        592,
+        40,
+        32
+      ],
+      "tag" : "BUTTON",
+      "font" : "16px ui-monospace, Menlo, monospace",
+      "disabled" : false,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "classes" : "white-key cursor-interaction",
+      "data" : {
+        "midi" : "36"
+      },
+      "id" : "",
+      "letterSpacing" : "normal",
+      "tag" : "BUTTON",
+      "rect" : [
+        198,
+        396,
+        34,
+        216
+      ],
+      "text" : "C2",
+      "value" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "data" : {
+        "midi" : "37"
+      },
+      "classes" : "black-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "text" : "",
+      "rect" : [
+        221.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "data" : {
+        "midi" : "38"
+      },
+      "text" : "",
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        232,
+        396,
+        34,
+        216
+      ]
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "black-key cursor-interaction",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "39"
+      },
+      "rect" : [
+        255.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "tag" : "BUTTON",
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "data" : {
+        "midi" : "40"
+      },
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "text" : "",
+      "tag" : "BUTTON",
+      "value" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        266,
+        396,
+        34,
+        216
+      ]
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "id" : "",
+      "classes" : "white-key cursor-interaction",
+      "data" : {
+        "midi" : "41"
+      },
+      "letterSpacing" : "normal",
+      "rect" : [
+        300,
+        396,
+        34,
+        216
+      ],
+      "tag" : "BUTTON",
+      "value" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "classes" : "black-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "42"
+      },
+      "text" : "",
+      "rect" : [
+        323.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "letterSpacing" : "normal",
+      "classes" : "white-key cursor-interaction",
+      "id" : "",
+      "data" : {
+        "midi" : "43"
+      },
+      "rect" : [
+        334,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "text" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "data" : {
+        "midi" : "44"
+      },
+      "classes" : "black-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "text" : "",
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        357.796875,
+        396,
+        20.390625,
+        134
+      ]
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "data" : {
+        "midi" : "45"
+      },
+      "classes" : "white-key cursor-interaction",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "rect" : [
+        368,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "text" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "46"
+      },
+      "id" : "",
+      "classes" : "black-key cursor-interaction",
+      "tag" : "BUTTON",
+      "value" : "",
+      "rect" : [
+        391.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "text" : "",
+      "disabled" : false,
+      "font" : "12px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "id" : "",
+      "data" : {
+        "midi" : "47"
+      },
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "tag" : "BUTTON",
+      "value" : "",
+      "rect" : [
+        402,
+        396,
+        34,
+        216
+      ],
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "white-key cursor-interaction",
+      "data" : {
+        "midi" : "48"
+      },
+      "rect" : [
+        436,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : "C3"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "classes" : "black-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "49"
+      },
+      "rect" : [
+        459.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "tag" : "BUTTON",
+      "text" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "50"
+      },
+      "classes" : "white-key cursor-interaction",
+      "id" : "",
+      "rect" : [
+        470,
+        396,
+        34,
+        216
+      ],
+      "text" : "",
+      "value" : "",
+      "tag" : "BUTTON",
+      "disabled" : false,
+      "font" : "9px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+        "midi" : "51"
+      },
+      "id" : "",
+      "classes" : "black-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "rect" : [
+        493.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "value" : "",
+      "text" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "classes" : "white-key cursor-interaction",
+      "data" : {
+        "midi" : "52"
+      },
+      "rect" : [
+        504,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "53"
+      },
+      "classes" : "white-key cursor-interaction",
+      "id" : "",
+      "rect" : [
+        538,
+        396,
+        34,
+        216
+      ],
+      "text" : "",
+      "value" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "tag" : "BUTTON",
+      "disabled" : false
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "black-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "data" : {
+        "midi" : "54"
+      },
+      "rect" : [
+        561.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "text" : "",
+      "tag" : "BUTTON",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "classes" : "white-key cursor-interaction",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "55"
+      },
+      "rect" : [
+        572,
+        396,
+        34,
+        216
+      ],
+      "tag" : "BUTTON",
+      "value" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+        "midi" : "56"
+      },
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "black-key cursor-interaction",
+      "text" : "",
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        595.796875,
+        396,
+        20.390625,
+        134
+      ]
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "data" : {
+        "midi" : "57"
+      },
+      "text" : "",
+      "rect" : [
+        606,
+        396,
+        34,
+        216
+      ],
+      "tag" : "BUTTON",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "classes" : "black-key cursor-interaction",
+      "data" : {
+        "midi" : "58"
+      },
+      "tag" : "BUTTON",
+      "rect" : [
+        629.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "classes" : "white-key cursor-interaction",
+      "data" : {
+        "midi" : "59"
+      },
+      "text" : "",
+      "tag" : "BUTTON",
+      "rect" : [
+        640,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "disabled" : false,
+      "font" : "9px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "data" : {
+        "midi" : "60"
+      },
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "rect" : [
+        674,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "text" : "C4",
+      "disabled" : false,
+      "font" : "9px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "data" : {
+        "midi" : "61"
+      },
+      "classes" : "black-key cursor-interaction",
+      "rect" : [
+        697.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "id" : "",
+      "data" : {
+        "midi" : "62"
+      },
+      "letterSpacing" : "normal",
+      "classes" : "white-key cursor-interaction",
+      "rect" : [
+        708,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "black-key cursor-interaction",
+      "data" : {
+        "midi" : "63"
+      },
+      "text" : "",
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "rect" : [
+        731.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "disabled" : false
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "id" : "",
+      "data" : {
+        "midi" : "64"
+      },
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "text" : "",
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        742,
+        396,
+        34,
+        216
+      ]
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "id" : "",
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "65"
+      },
+      "text" : "",
+      "value" : "",
+      "rect" : [
+        776,
+        396,
+        34,
+        216
+      ],
+      "tag" : "BUTTON",
+      "disabled" : false,
+      "font" : "9px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+        "midi" : "66"
+      },
+      "classes" : "black-key cursor-interaction",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "rect" : [
+        799.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "tag" : "BUTTON",
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "classes" : "white-key cursor-interaction",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "67"
+      },
+      "tag" : "BUTTON",
+      "text" : "",
+      "value" : "",
+      "rect" : [
+        810,
+        396,
+        34,
+        216
+      ],
+      "disabled" : false,
+      "font" : "9px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "68"
+      },
+      "classes" : "black-key cursor-interaction",
+      "id" : "",
+      "text" : "",
+      "rect" : [
+        833.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "tag" : "BUTTON",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "value" : "",
+      "disabled" : false
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "data" : {
+        "midi" : "69"
+      },
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "text" : "",
+      "rect" : [
+        844,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "black-key cursor-interaction",
+      "data" : {
+        "midi" : "70"
+      },
+      "rect" : [
+        867.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "text" : "",
+      "disabled" : false,
+      "font" : "12px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "id" : "",
+      "classes" : "white-key cursor-interaction",
+      "data" : {
+        "midi" : "71"
+      },
+      "letterSpacing" : "normal",
+      "rect" : [
+        878,
+        396,
+        34,
+        216
+      ],
+      "text" : "",
+      "tag" : "BUTTON",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "72"
+      },
+      "id" : "",
+      "classes" : "white-key cursor-interaction",
+      "text" : "C5",
+      "tag" : "BUTTON",
+      "rect" : [
+        912,
+        396,
+        34,
+        216
+      ],
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "classes" : "black-key cursor-interaction",
+      "data" : {
+        "midi" : "73"
+      },
+      "text" : "",
+      "value" : "",
+      "rect" : [
+        935.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "tag" : "BUTTON",
+      "disabled" : false
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "classes" : "white-key cursor-interaction",
+      "id" : "",
+      "data" : {
+        "midi" : "74"
+      },
+      "letterSpacing" : "normal",
+      "rect" : [
+        946,
+        396,
+        34,
+        216
+      ],
+      "text" : "",
+      "value" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+        "midi" : "75"
+      },
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "black-key cursor-interaction",
+      "text" : "",
+      "rect" : [
+        969.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "tag" : "BUTTON",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "classes" : "white-key cursor-interaction",
+      "data" : {
+        "midi" : "76"
+      },
+      "text" : "",
+      "rect" : [
+        980,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "disabled" : false,
+      "font" : "9px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "data" : {
+        "midi" : "77"
+      },
+      "rect" : [
+        1014,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "black-key cursor-interaction",
+      "data" : {
+        "midi" : "78"
+      },
+      "text" : "",
+      "rect" : [
+        1037.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "id" : "",
+      "data" : {
+        "midi" : "79"
+      },
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "tag" : "BUTTON",
+      "value" : "",
+      "text" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        1048,
+        396,
+        34,
+        216
+      ]
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "black-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "80"
+      },
+      "id" : "",
+      "tag" : "BUTTON",
+      "text" : "",
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        1071.796875,
+        396,
+        20.390625,
+        134
+      ]
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "id" : "",
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "81"
+      },
+      "text" : "",
+      "rect" : [
+        1082,
+        396,
+        34,
+        216
+      ],
+      "tag" : "BUTTON",
+      "value" : "",
+      "disabled" : false,
+      "font" : "9px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "data" : {
+        "midi" : "82"
+      },
+      "classes" : "black-key cursor-interaction",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "text" : "",
+      "rect" : [
+        1105.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "classes" : "white-key cursor-interaction",
+      "data" : {
+        "midi" : "83"
+      },
+      "id" : "",
+      "letterSpacing" : "normal",
+      "rect" : [
+        1116,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "classes" : "white-key cursor-interaction",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "84"
+      },
+      "tag" : "BUTTON",
+      "value" : "",
+      "text" : "C6",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        1150,
+        396,
+        34,
+        216
+      ]
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "classes" : "black-key cursor-interaction",
+      "data" : {
+        "midi" : "85"
+      },
+      "id" : "",
+      "tag" : "BUTTON",
+      "text" : "",
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        1173.796875,
+        396,
+        20.390625,
+        134
+      ]
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "letterSpacing" : "normal",
+      "classes" : "white-key cursor-interaction",
+      "id" : "",
+      "data" : {
+        "midi" : "86"
+      },
+      "rect" : [
+        1184,
+        396,
+        34,
+        216
+      ],
+      "text" : "",
+      "value" : "",
+      "tag" : "BUTTON",
+      "disabled" : false,
+      "font" : "9px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "black-key cursor-interaction",
+      "data" : {
+        "midi" : "87"
+      },
+      "letterSpacing" : "normal",
+      "id" : "",
+      "text" : "",
+      "tag" : "BUTTON",
+      "rect" : [
+        1207.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "data" : {
+        "midi" : "88"
+      },
+      "id" : "",
+      "classes" : "white-key cursor-interaction",
+      "letterSpacing" : "normal",
+      "rect" : [
+        1218,
+        396,
+        34,
+        216
+      ],
+      "tag" : "BUTTON",
+      "value" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "white-key cursor-interaction",
+      "data" : {
+        "midi" : "89"
+      },
+      "rect" : [
+        1252,
+        396,
+        34,
+        216
+      ],
+      "text" : "",
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "letterSpacing" : "normal",
+      "id" : "",
+      "classes" : "black-key cursor-interaction",
+      "data" : {
+        "midi" : "90"
+      },
+      "tag" : "BUTTON",
+      "value" : "",
+      "rect" : [
+        1275.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "text" : ""
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "classes" : "white-key cursor-interaction",
+      "data" : {
+        "midi" : "91"
+      },
+      "letterSpacing" : "normal",
+      "id" : "",
+      "text" : "",
+      "rect" : [
+        1286,
+        396,
+        34,
+        216
+      ],
+      "value" : "",
+      "tag" : "BUTTON",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "data" : {
+        "midi" : "92"
+      },
+      "classes" : "black-key cursor-interaction",
+      "text" : "",
+      "tag" : "BUTTON",
+      "value" : "",
+      "rect" : [
+        1309.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "disabled" : false,
+      "font" : "12px Arial, Helvetica, sans-serif"
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "data" : {
+        "midi" : "93"
+      },
+      "classes" : "white-key cursor-interaction",
+      "id" : "",
+      "letterSpacing" : "normal",
+      "rect" : [
+        1320,
+        396,
+        34,
+        216
+      ],
+      "tag" : "BUTTON",
+      "text" : "",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "value" : ""
+    },
+    {
+      "color" : "rgb(219, 224, 227)",
+      "classes" : "black-key cursor-interaction",
+      "data" : {
+        "midi" : "94"
+      },
+      "letterSpacing" : "normal",
+      "id" : "",
+      "text" : "",
+      "rect" : [
+        1343.796875,
+        396,
+        20.390625,
+        134
+      ],
+      "value" : "",
+      "font" : "12px Arial, Helvetica, sans-serif",
+      "tag" : "BUTTON",
+      "disabled" : false
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "classes" : "white-key cursor-interaction",
+      "data" : {
+        "midi" : "95"
+      },
+      "letterSpacing" : "normal",
+      "id" : "",
+      "text" : "",
+      "value" : "",
+      "rect" : [
+        1354,
+        396,
+        34,
+        216
+      ],
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "tag" : "BUTTON"
+    },
+    {
+      "color" : "rgb(98, 117, 112)",
+      "data" : {
+        "midi" : "96"
+      },
+      "letterSpacing" : "normal",
+      "classes" : "white-key cursor-interaction",
+      "id" : "",
+      "tag" : "BUTTON",
+      "value" : "",
+      "text" : "C7",
+      "font" : "9px Arial, Helvetica, sans-serif",
+      "disabled" : false,
+      "rect" : [
+        1388,
+        396,
+        34,
+        216
+      ]
+    }
+  ]
+}

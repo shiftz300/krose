@@ -3,7 +3,7 @@ iplug_add_plugin(Krose
   SOURCES
     KrosePlugin.cpp KrosePlugin.h
     Parameters.cpp Parameters.h
-    editor/WebEditor.cpp resources/resource.h
+    editor/WebEditor.cpp editor/native/BitmapControls.cpp resources/resource.h
   RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/editor.html" "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
     "${CMAKE_SOURCE_DIR}/licenses/THIRD_PARTY.txt"
     "${CMAKE_SOURCE_DIR}/licenses/Roboto-Apache-2.0.txt"

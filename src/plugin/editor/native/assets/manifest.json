@@ -1,0 +1,435 @@
+{
+  "scale": 2,
+  "assets": [
+    {
+      "name": "knob-shell",
+      "selector": "[data-control=glide] .knob",
+      "rect": [
+        143,
+        168,
+        64,
+        64
+      ],
+      "file": "knob-shell@2x.png",
+      "sha256": "a1d1710b3c795dfb3db074c89ae5fe20616525fc76f46e36b843d5e7e7fa37b8"
+    },
+    {
+      "name": "knob-pointer",
+      "selector": "[data-control=glide] .pointer",
+      "rect": [
+        151,
+        176,
+        48,
+        48
+      ],
+      "file": "knob-pointer@2x.png",
+      "sha256": "4eaf1fd15b4b7d2085a97b1aad1ef4e65dce163fb69efe3fdbdc1b35cdef32c1"
+    },
+    {
+      "name": "button-arp-off",
+      "selector": "[data-toggle=arp]",
+      "rect": [
+        36,
+        265,
+        71,
+        40
+      ],
+      "file": "button-arp-off@2x.png",
+      "sha256": "3d3040d12dcd4acdbd1a378bc62f12ab78e28a5e1d0df2d510da6a753c0a66a7"
+    },
+    {
+      "name": "button-arp-on",
+      "selector": "[data-toggle=arp]",
+      "rect": [
+        36,
+        265,
+        71,
+        40
+      ],
+      "file": "button-arp-on@2x.png",
+      "sha256": "1bae788c2762cdd272023575a185c4b13627cb49bed801dc57e6474e4bffa0e8"
+    },
+    {
+      "name": "button-latch-off",
+      "selector": "[data-toggle=latch]",
+      "rect": [
+        36,
+        311,
+        71,
+        40
+      ],
+      "file": "button-latch-off@2x.png",
+      "sha256": "4377abf1a6a76bc53bd1fad3f74573719c9c20eae72cf6d359be5c8f0fc60d70"
+    },
+    {
+      "name": "button-latch-on",
+      "selector": "[data-toggle=latch]",
+      "rect": [
+        36,
+        311,
+        71,
+        40
+      ],
+      "file": "button-latch-on@2x.png",
+      "sha256": "3fd3dfc17eaf21ada99c91a3a0cbd3704e3b0162a8408047cea3d8812bc1e619"
+    },
+    {
+      "name": "button-kf-prev-off",
+      "selector": "#kf-prev",
+      "rect": [
+        411,
+        311,
+        71,
+        40
+      ],
+      "file": "button-kf-prev-off@2x.png",
+      "sha256": "7435703d947863300d32cb3525f873ec788697e3e2e363a6a0f34fb308fc917e"
+    },
+    {
+      "name": "button-kf-prev-on",
+      "selector": "#kf-prev",
+      "rect": [
+        411,
+        311,
+        71,
+        40
+      ],
+      "file": "button-kf-prev-on@2x.png",
+      "sha256": "79baa48df8729c2ff70fe88b94e9a12189e524797c2cd60ddb1eb07ade9a0fbf"
+    },
+    {
+      "name": "button-kf-next-off",
+      "selector": "#kf-next",
+      "rect": [
+        488,
+        311,
+        71,
+        40
+      ],
+      "file": "button-kf-next-off@2x.png",
+      "sha256": "eee9448271ec294ff3b0147fadee84f96bd5065e9b88416ac0499951f8596841"
+    },
+    {
+      "name": "button-kf-next-on",
+      "selector": "#kf-next",
+      "rect": [
+        488,
+        311,
+        71,
+        40
+      ],
+      "file": "button-kf-next-on@2x.png",
+      "sha256": "bf624d8c4bcd699117d2a1553d41e3afdfab9b4ca30a1482fbe19ad4b6b0ed18"
+    },
+    {
+      "name": "button-kf-browse-off",
+      "selector": "#kf-browse",
+      "rect": [
+        565,
+        311,
+        116,
+        40
+      ],
+      "file": "button-kf-browse-off@2x.png",
+      "sha256": "1982c471ef8000e220464e3d721d536551229116b164363cb6e73d57e3442f36"
+    },
+    {
+      "name": "button-kf-browse-on",
+      "selector": "#kf-browse",
+      "rect": [
+        565,
+        311,
+        116,
+        40
+      ],
+      "file": "button-kf-browse-on@2x.png",
+      "sha256": "e13b894207d0cd808bb94866ff8619bfe5a6f463006fe08cbe14e83daa847156"
+    },
+    {
+      "name": "button-kf-save-off",
+      "selector": "#kf-save",
+      "rect": [
+        787,
+        311,
+        90,
+        40
+      ],
+      "file": "button-kf-save-off@2x.png",
+      "sha256": "4a4ccd763b5497c40d8f58161b19a383f90ed5a9c5a51a44e87733c3f107e355"
+    },
+    {
+      "name": "button-kf-save-on",
+      "selector": "#kf-save",
+      "rect": [
+        787,
+        311,
+        90,
+        40
+      ],
+      "file": "button-kf-save-on@2x.png",
+      "sha256": "9e69fe2ab70e2c75aba5cb0be8cc8caf5a4b1e4a2ce69f2d7e28410154f78e2c"
+    },
+    {
+      "name": "button-kf-compare-off",
+      "selector": "#kf-compare",
+      "rect": [
+        883,
+        311,
+        110,
+        40
+      ],
+      "file": "button-kf-compare-off@2x.png",
+      "sha256": "5df1c0175f989b94520dee7537c04768ee40d52f7c0db715bef095c6f21f07a7"
+    },
+    {
+      "name": "button-kf-compare-on",
+      "selector": "#kf-compare",
+      "rect": [
+        883,
+        311,
+        110,
+        40
+      ],
+      "file": "button-kf-compare-on@2x.png",
+      "sha256": "4ce99edcd2286b6a074411508c5a6449c4c3faaef0a368056540ca1abeb4d833"
+    },
+    {
+      "name": "button-amp-off",
+      "selector": "[data-eg=amp]",
+      "rect": [
+        1112,
+        48,
+        71,
+        38
+      ],
+      "file": "button-amp-off@2x.png",
+      "sha256": "4b58532fca98388ea388c528f5cd9075e631fd57d9b9c714189fee402537ccd8"
+    },
+    {
+      "name": "button-amp-on",
+      "selector": "[data-eg=amp]",
+      "rect": [
+        1112,
+        48,
+        71,
+        38
+      ],
+      "file": "button-amp-on@2x.png",
+      "sha256": "2803037151f29a54129c958de59a7aa31756f910968bcfbe9f08390729f06ccb"
+    },
+    {
+      "name": "button-filter-off",
+      "selector": "[data-eg=filter]",
+      "rect": [
+        1185,
+        48,
+        71,
+        38
+      ],
+      "file": "button-filter-off@2x.png",
+      "sha256": "6426267947dade2b228af7c659b65dee5207e8f6573d69d22c66b2f9308071ef"
+    },
+    {
+      "name": "button-filter-on",
+      "selector": "[data-eg=filter]",
+      "rect": [
+        1185,
+        48,
+        71,
+        38
+      ],
+      "file": "button-filter-on@2x.png",
+      "sha256": "ce1c2ae2ed17d13d677cb29240b65c50cd3fd6b599ab31780f5e7a1f85791f29"
+    },
+    {
+      "name": "button-poly-off",
+      "selector": "[data-voice=poly]",
+      "rect": [
+        1039,
+        311,
+        71,
+        40
+      ],
+      "file": "button-poly-off@2x.png",
+      "sha256": "9ccfe4e0c6ff7db855b10df3f10b91ef1af4755a550d99fbd1d8d2d496f6aec7"
+    },
+    {
+      "name": "button-poly-on",
+      "selector": "[data-voice=poly]",
+      "rect": [
+        1039,
+        311,
+        71,
+        40
+      ],
+      "file": "button-poly-on@2x.png",
+      "sha256": "54ac6c18ec35214cadfefd82239f4c598c87354e9ea2c5cedbb7f47e87eebdd0"
+    },
+    {
+      "name": "button-mono-off",
+      "selector": "[data-voice=mono]",
+      "rect": [
+        1112,
+        311,
+        71,
+        40
+      ],
+      "file": "button-mono-off@2x.png",
+      "sha256": "3fe9c1b2b9a58117d05e6719e758bb0a9ff080859cdf4add74787a243b34a513"
+    },
+    {
+      "name": "button-mono-on",
+      "selector": "[data-voice=mono]",
+      "rect": [
+        1112,
+        311,
+        71,
+        40
+      ],
+      "file": "button-mono-on@2x.png",
+      "sha256": "e87848f0c6a25abe4848fa6eeaf043f45e7807382e7adb89f0500d89963a2630"
+    },
+    {
+      "name": "button-legato-off",
+      "selector": "[data-voice=legato]",
+      "rect": [
+        1185,
+        311,
+        71,
+        40
+      ],
+      "file": "button-legato-off@2x.png",
+      "sha256": "1aee626e055a402e10f812a371284f3e49ed34851710a289042b69318940f1a2"
+    },
+    {
+      "name": "button-legato-on",
+      "selector": "[data-voice=legato]",
+      "rect": [
+        1185,
+        311,
+        71,
+        40
+      ],
+      "file": "button-legato-on@2x.png",
+      "sha256": "d673c2bfc40af08d41247d982273819a351f84f85a2ddef1390a7db4fd9af1ea"
+    },
+    {
+      "name": "button-sustain-off",
+      "selector": "[data-toggle=sustain]",
+      "rect": [
+        1277,
+        311,
+        71,
+        40
+      ],
+      "file": "button-sustain-off@2x.png",
+      "sha256": "9593526a328c90afafa71d31e3495a55e0b201c4709356de9ddffba95a16fd76"
+    },
+    {
+      "name": "button-sustain-on",
+      "selector": "[data-toggle=sustain]",
+      "rect": [
+        1277,
+        311,
+        71,
+        40
+      ],
+      "file": "button-sustain-on@2x.png",
+      "sha256": "8df0daa8c587a817547a52e55f22cd3febb66ceb30b5efa64e142b9349213a72"
+    },
+    {
+      "name": "button-kf-panic-off",
+      "selector": "#kf-panic",
+      "rect": [
+        1350,
+        311,
+        71,
+        40
+      ],
+      "file": "button-kf-panic-off@2x.png",
+      "sha256": "d0df074a55843074987b75fd4dbf4dedaf724f17eab6508fda228f46b68d2265"
+    },
+    {
+      "name": "button-kf-panic-on",
+      "selector": "#kf-panic",
+      "rect": [
+        1350,
+        311,
+        71,
+        40
+      ],
+      "file": "button-kf-panic-on@2x.png",
+      "sha256": "9c67559de0f2cfbc29173899535db98340b1210319e091203996a396774d85b9"
+    },
+    {
+      "name": "button-sw1-off",
+      "selector": "[data-toggle=sw1]",
+      "rect": [
+        36,
+        387,
+        71,
+        40
+      ],
+      "file": "button-sw1-off@2x.png",
+      "sha256": "ac0286a4c2097a2b581d8bc044dca2f6c2401d57bf90bdfe66048644972d2fd3"
+    },
+    {
+      "name": "button-sw1-on",
+      "selector": "[data-toggle=sw1]",
+      "rect": [
+        36,
+        387,
+        71,
+        40
+      ],
+      "file": "button-sw1-on@2x.png",
+      "sha256": "e1eb8aa733d0b51c9dbce165ab9b8d9d9a7c9c7cbbfc16f36a34f68cb2268288"
+    },
+    {
+      "name": "button-sw2-off",
+      "selector": "[data-toggle=sw2]",
+      "rect": [
+        108,
+        387,
+        71,
+        40
+      ],
+      "file": "button-sw2-off@2x.png",
+      "sha256": "2cdd41eb12e893eab071b67380f273f36dd9f84823d1df957fa6bae0e365a244"
+    },
+    {
+      "name": "button-sw2-on",
+      "selector": "[data-toggle=sw2]",
+      "rect": [
+        108,
+        387,
+        71,
+        40
+      ],
+      "file": "button-sw2-on@2x.png",
+      "sha256": "f83ef12ca42a3f49e1f788d85162eee7aa3348de9863e0047afe441551340ad3"
+    },
+    {
+      "name": "material-expanded",
+      "file": "material-expanded@2x.png",
+      "rect": [
+        0,
+        0,
+        1472,
+        648
+      ],
+      "sha256": "8f23d30fd7a353b8e20e8bfe9b7368143618ae55e4c773a54b52acc4795924cf"
+    },
+    {
+      "name": "material-folded",
+      "file": "material-folded@2x.png",
+      "rect": [
+        0,
+        0,
+        1472,
+        648
+      ],
+      "sha256": "a3b976b0b4bd18b45de37c8dc4789edb3d30cb6f5924d14aae8f33f7191293d5"
+    }
+  ]
+}

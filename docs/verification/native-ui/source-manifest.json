@@ -1,0 +1,24 @@
+{
+  "inputs": {
+    "src/plugin/editor/web/control-bindings.js": "fbc9ebe92918266e8e819c45e5b1c27e9054ad039ddf6f921308a6ddd1f6ea74",
+    "src/plugin/editor/web/editor.html.in": "da9bcd4a2dbec1b140534c5818e49ff5a27050a16e183971ff661bfb0b9c6b99",
+    "src/plugin/editor/web/font.css": "975f4fac2e1d3a09c66626ba405eaed0007faf87b122ca5a4ef398205e252e30",
+    "src/plugin/editor/web/host-bridge.js": "4a8e293dd2541e98fd48f13ac980443ad9ea66ca57a167766ff1509b68195317",
+    "src/plugin/editor/web/panel.css": "dd553a05a2b32fb20109300fa1fde5ab4a03587cd7e2d610df50a2c332c206f0",
+    "src/plugin/editor/web/panel.html": "199030417ce367d3d5e4f87dd3d15f102dd8fe0ab7ac5c34e34b52d5bf38bcfb",
+    "src/plugin/editor/web/panel.js": "bbed76bc66ef5fb95149541cde35631a97fd6e4e62590dd916c0f361f607c2ee",
+    "src/plugin/editor/web/preset-browser.js": "a2a0be20b381010149a5c32f8c8af1df6f48d2ade80a3ecd9c9b221c578cc089"
+  },
+  "logicalSize": [
+    1472,
+    648
+  ],
+  "capture": "WKWebView at native display scale; no stylesheet or layout modifications",
+  "referencePrograms": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ]
+}
