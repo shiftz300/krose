@@ -35,6 +35,10 @@ void NativeFilter::StartProgram(const uint8_t* program,const NativeVoice& amplit
   mLevel=std::clamp(Signed(eg[4])*330+12*Mod(Signed(eg[14]),(eg[13]<mSources.size()?mSources[eg[13]]:0)),-32767,32767);
   Prepare(0);AdvanceEnvelope();UpdateWords();UpdateAudio(0);
 }
+void NativeFilter::Retune(const NativeVoice& amplitude) noexcept {
+  for(unsigned i=0;i<mSources.size();++i)mSources[i]=amplitude.Source(i);
+  UpdateWords();UpdateAudio(unsigned(mRate/kNativeControlHz));
+}
 void NativeFilter::Prepare(int phase) noexcept {
   const auto p=mOsc+0xD8;
   const int depth=phase==0?Signed(p[15]):phase==1?Signed(p[16]):0;

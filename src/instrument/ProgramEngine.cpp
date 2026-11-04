@@ -23,13 +23,19 @@ void ProgramEngine::Prepare(double rate){
  mRoom=std::move(room);mRate=rate;mSmooth=1-std::exp(-1/(rate*.02));mOutput=mTarget;Panic();
 }
 void ProgramEngine::Panic() noexcept{
- mVoices={};mTails={};mEventCount=0;mOverflow=false;mSustain.fill(false);mBend.fill(1);mVolume.fill(1);mExpression.fill(1);mSoft.fill(1);
+ mMono.Reset();mVoices={};mTails={};mEventCount=0;mOverflow=false;mSustain.fill(false);mBend.fill(1);mVolume.fill(1);mExpression.fill(1);mSoft.fill(1);
  concert_effects_reset(mRoom.get());
 }
-void ProgramEngine::SetProgram(unsigned index) noexcept{if(index<mLibrary->programs.size())mProgram=index;}
+void ProgramEngine::SetProgram(unsigned index) noexcept{
+ if(index>=mLibrary->programs.size()||index==mProgram)return;
+ if(mControls.voiceMode){mMono.Reset();for(auto& voice:mVoices)if(voice.region)Tail(voice);}
+ mProgram=index;
+}
 void ProgramEngine::SetControls(const Controls& c) noexcept{
  if(!std::isfinite(c.outputDb)||!std::isfinite(c.space)||!std::isfinite(c.velocityCurve)||!std::isfinite(c.releaseSeconds))return;
- mControls=c;mControls.space=std::clamp(c.space,0.,2.);mControls.velocityCurve=std::clamp(c.velocityCurve,.5,3.);mControls.releaseSeconds=std::clamp(c.releaseSeconds,.03,2.);
+ const int mode=std::clamp(c.voiceMode,0,2);
+ if(mode!=mControls.voiceMode){mMono.Reset();for(auto& voice:mVoices)if(voice.region)Tail(voice);}
+ mControls=c;mControls.voiceMode=mode;mControls.glide=std::clamp(c.glide,0,127);mControls.space=std::clamp(c.space,0.,2.);mControls.velocityCurve=std::clamp(c.velocityCurve,.5,3.);mControls.releaseSeconds=std::clamp(c.releaseSeconds,.03,2.);
  mTarget=std::pow(10,std::clamp(c.outputDb,-60.,6.)/20);concert_effects_set_wet(mRoom.get(),.12*mControls.space,0);
 }
 unsigned ProgramEngine::ActiveVoices() const noexcept{unsigned n=0;for(const auto& v:mVoices)if(v.region)++n;return n;}
@@ -41,13 +47,32 @@ void ProgramEngine::Release(Voice& voice) noexcept{
  voice.down=false;if(!voice.region||voice.program->drum||voice.released)return;
  voice.released=true;voice.amplitude.ReleaseProgram(mControls.releaseSeconds/kNativeReleaseBaseSeconds);voice.filter.Release();
 }
-void ProgramEngine::NoteOn(int note,int velocity,int channel) noexcept{
+void ProgramEngine::SelectMono(int note,int velocity,int channel,bool connected) noexcept{
+ int previous=-1;bool reused=false;
+ for(auto& v:mVoices)if(v.region&&v.channel==channel){
+  if(connected&&v.down&&!v.released){
+   previous=v.glide.CurrentPitch();
+   if(mControls.voiceMode==2&&!v.program->drum){
+    if(v.note==note){reused=true;continue;}
+    v.note=note;
+    for(int side=0;side<2;++side)if(v.region->sample[side]!=UINT32_MAX)v.step[side]=mLibrary->Step(*v.program,*v.region,side,note,mRate);
+    v.glide.Start(previous,note,mControls.glide);v.glideRatio=v.glide.Ratio();
+    v.amplitude.Retune(note);v.filter.Retune(v.amplitude);v.slew.SetTarget(v.amplitude.Gain());
+    reused=true;continue;
+   }
+  }
+  Tail(v);
+ }
+ if(!reused)NoteOn(note,velocity,channel,previous);
+}
+void ProgramEngine::NoteOn(int note,int velocity,int channel,int previousPitch) noexcept{
  const auto& p=mLibrary->programs[mProgram];
  std::array<int32_t,8> indices;indices.fill(-1);unsigned selected=0;
  for(int osc=0;osc<2;++osc)for(int slot=0;slot<4;++slot){
   const auto* b=p.controls.data()+0x564+380*osc;
   if(velocity<std::min(b[0x2d],b[0x2e])||velocity>std::max(b[0x2d],b[0x2e]))continue;
-  const auto index=p.lookup[osc][note][slot];
+  const int selection=!p.drum&&mControls.glide&&previousPitch>=0?std::max(note,previousPitch/65536):note;
+  const auto index=p.lookup[osc][selection][slot];
   if(index>=0&&mLibrary->LayerWeight(mLibrary->regions[unsigned(index)],velocity)>0)indices[selected++]=index;
  }
  unsigned needed=0;for(auto i:indices)if(i>=0)++needed;if(!needed)return;
@@ -61,6 +86,7 @@ void ProgramEngine::NoteOn(int note,int velocity,int channel) noexcept{
   if(index<0)continue;const auto& r=mLibrary->regions[unsigned(index)];
   auto it=std::find_if(mVoices.begin(),mVoices.end(),[](const Voice& v){return !v.region;});if(it==mVoices.end())return;
   auto& v=*it;v={};v.region=&r;v.program=&p;v.note=note;v.channel=channel;v.down=true;v.age=age;
+  v.glide.Start(p.drum?-1:previousPitch,note,mControls.glide);v.glideRatio=v.glide.Ratio();
   const int weight=mLibrary->LayerWeight(r,velocity);
   v.velocityTrim=p.drum?std::pow(velocity/127.,1.4)*weight/32768.:std::pow(velocity/127.,mControls.velocityCurve-1);
   const double pan=std::clamp((r.pan-64)/63.,-1.,1.);
@@ -77,6 +103,9 @@ void ProgramEngine::Queue(MidiEvent event) noexcept{
 }
 void ProgramEngine::Midi(const MidiEvent& e) noexcept{
  const int ch=e.status&15,type=e.status&240,note=e.data1,value=e.data2;
+ if(mControls.voiceMode&&mMono.Handle(e,std::min(2,int((mLibrary->programs[mProgram].controls[0x509]>>2)&3)),
+     [this](int n,int v,int c,bool held){SelectMono(n,v,c,held);},
+     [this](int c){for(auto& v:mVoices)if(v.region&&v.channel==c&&v.down){v.down=false;if(!mSustain[c])Release(v);}}))return;
  if(type==0x90&&value){NoteOn(note,value,ch);return;}
  if(type==0x80||(type==0x90&&!value)){
   uint64_t age=UINT64_MAX;for(const auto& v:mVoices)if(v.region&&v.note==note&&v.channel==ch&&v.down)age=std::min(age,v.age);
@@ -101,8 +130,9 @@ void ProgramEngine::RenderVoice(Voice& v,double& left,double& right) noexcept{
   if(pos<0||pos>=sample.pcm.size()){v.region=nullptr;return;}
   audio[ch]=Read(sample,pos);
   if(loop&&pos>sample.loopEnd-cross){const double blend=(pos-(sample.loopEnd-cross))/cross;const double from=sample.loopStart+pos-(sample.loopEnd-cross);audio[ch]+=(Read(sample,from)-audio[ch])*blend;}
-  pos+=(reverse?-1:1)*v.step[ch]*mBend[v.channel];
+  pos+=(reverse?-1:1)*v.step[ch]*mBend[v.channel]*v.glideRatio;
  }
+ v.glideRatio=v.glide.Advance(mRate);
  double l=audio[0],rr=r.sample[1]==UINT32_MAX?audio[0]:audio[1];
  double level=v.program->drum?.75:v.slew.Current()/65536.;
  if(!v.program->drum&&mControls.filterEnabled)v.filter.Process(l,rr);

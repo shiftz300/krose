@@ -18,6 +18,7 @@ public:
   void SetOffsets(EnvelopeOffsets offsets) noexcept {mOffsets=offsets;}
   void Start(int note,int velocity,int oscillator,int slotLevel) noexcept;
   void StartProgram(const uint8_t* program,int note,int velocity,int oscillator,int slotLevel) noexcept;
+  void Retune(int note) noexcept;
   void ReleaseProgram(double scale=1) noexcept;
   void Tick() noexcept;
   void Release(double baseSeconds=kNativeReleaseBaseSeconds) noexcept;
@@ -34,6 +35,8 @@ public:
 private:
   EnvelopeOffsets mOffsets;
   const uint8_t* mOsc=nullptr;
+  const uint8_t* mProgram=nullptr;
+  int mStartVelocity=0,mStartSlot=0,mOscillator=0;
   std::array<int,46> mSources{};
   uint32_t mBaseGain=0,mTotal=0,mProgress=0,mCoefficient=0,mAsymptote=0;
   int64_t mRemaining=0;

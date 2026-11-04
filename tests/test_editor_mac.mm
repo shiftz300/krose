@@ -29,7 +29,7 @@ id eval(WKWebView* web, NSString* script) {
   return result;
 }
 }
-void verifyEditor(Steinberg::IPlugView* view,const std::function<double()>& velocity,const std::function<double()>& program) {
+void verifyEditor(Steinberg::IPlugView* view,const std::function<double()>& velocity,const std::function<double()>& program,const std::function<double()>& mode,const std::function<double()>& glide) {
   [NSApplication sharedApplication];
   Steinberg::ViewRect rect{};
   assert(view->getSize(&rect)==Steinberg::kResultOk && rect.getWidth()==1472 && rect.getHeight()==648);
@@ -44,6 +44,12 @@ void verifyEditor(Steinberg::IPlugView* view,const std::function<double()>& velo
     assert(![eval(web,@"!!document.documentElement.dataset.scriptError") boolValue]);
     assert([eval(web,@"document.querySelector('#kf-program').options.length") intValue]==1162);
     if(pass==0){
+      waitFor([&]{return [eval(web,@"document.querySelector('[data-voice=legato]').getAttribute('aria-pressed')") isEqualToString:@"true"];});
+      assert(![eval(web,@"document.querySelector('#kf-value-glide').disabled") boolValue]);
+      eval(web,@"document.querySelector('[data-voice=mono]').click()");
+      waitFor([&]{return std::abs(mode()-.5)<1e-8;});
+      eval(web,@"(()=>{const e=document.querySelector('#kf-value-glide');e.value='80';e.dispatchEvent(new Event('change'));})()");
+      waitFor([&]{return std::abs(glide()-80./127.)<1e-8;});
       eval(web,@"(()=>{const e=document.querySelector('#kf-value-velocity');e.value='2';e.dispatchEvent(new Event('change'));})()");
       waitFor([&]{return std::abs(velocity()-.6)<1e-6;});
       eval(web,@"document.querySelector('#kf-browse').click()");
@@ -60,6 +66,8 @@ void verifyEditor(Steinberg::IPlugView* view,const std::function<double()>& velo
       waitFor([&]{return std::abs(program()-1.)<1e-6;});
       assert(![eval(web,@"!!document.documentElement.dataset.scriptError") boolValue]);
     }else{
+      waitFor([&]{return [eval(web,@"document.querySelector('[data-voice=mono]').getAttribute('aria-pressed')") isEqualToString:@"true"];});
+      assert([eval(web,@"document.querySelector('#kf-value-glide').value") intValue]==80);
       waitFor([&]{return [eval(web,@"document.querySelector('#kf-value-velocity').value") doubleValue]==2.;});
       waitFor([&]{return [eval(web,@"document.querySelector('#kf-program').value") intValue]==1161;});
     }

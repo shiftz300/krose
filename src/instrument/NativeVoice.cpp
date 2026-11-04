@@ -59,6 +59,7 @@ void NativeVoice::Start(int note,int velocity,int oscillator,int slotLevel) noex
   StartProgram(native_data::kProgram,note,velocity,oscillator,slotLevel);
 }
 void NativeVoice::StartProgram(const uint8_t* program,int note,int velocity,int oscillator,int slotLevel) noexcept {
+  mProgram=program;mStartVelocity=velocity;mStartSlot=slotLevel;mOscillator=oscillator;
   mOsc=program+0x564+380*std::clamp(oscillator,0,1);
   note=std::clamp(note,0,127);velocity=std::clamp(velocity,1,127);slotLevel=std::clamp(slotLevel,0,127);
   mSources.fill(0);mSources[14]=(129*velocity+1)>>2;mSources[15]=(native_data::kExpVelocity[velocity]+1)>>3;
@@ -86,6 +87,13 @@ void NativeVoice::StartProgram(const uint8_t* program,int note,int velocity,int 
   const int target=std::clamp(int(eg[2])*330+12*Mod(S8(eg[14]),Source(eg[12])),0,32767);
   Prepare(0,target,native_data::kEgTime[std::clamp(eg[1]+mOffsets.attack,0,99)]);
   Tick(); // original note-on setup includes one segment advance
+}
+void NativeVoice::Retune(int note) noexcept {
+  NativeVoice updated;
+  updated.SetOffsets(mOffsets);
+  updated.StartProgram(mProgram,note,mStartVelocity,mOscillator,mStartSlot);
+  mSources=updated.mSources;
+  mBaseGain=updated.mBaseGain;
 }
 uint16_t NativeVoice::Gain() const noexcept {return uint16_t(std::min<uint64_t>(32767,(uint64_t(mBaseGain)*unsigned(mLevel))>>14));}
 void NativeVoice::Prepare(int phase,int target,uint32_t baseTime) noexcept {

@@ -20,6 +20,9 @@ void KrosePlugin::InitializeParameters() {
   for (int i = 0; i < 8; ++i)
     GetParam(kAmpAttack + i)->InitInt(offsets[i], 0, -99, 99);
 
+  GetParam(kVoiceMode)->InitEnum("Voice Mode",0,3,"",IParam::kFlagsNone,"","Poly","Mono","Legato");
+  GetParam(kGlide)->InitInt("Glide",0,0,127);
+
   MakeDefaultPreset("Concert");
   MakePresetFromNamedParams("Warm", 1, kParamTone, 1);
   MakePresetFromNamedParams("Wide", 1, kParamTone, 2);
@@ -29,20 +32,17 @@ void KrosePlugin::InitializeParameters() {
 }
 
 int KrosePlugin::UnserializeState(const IByteChunk& chunk, int startPos) {
-  // Original projects stored six doubles, with a trailing bypass int in VST3.
-  constexpr int legacyBytes = 6 * sizeof(double);
-  const int available = chunk.Size() - startPos;
-  if (startPos >= 0 &&
-      (available == legacyBytes || available == legacyBytes + int(sizeof(int32_t)))) {
+  // Historical releases stored 6 or 17 doubles, followed by a VST3 bypass int.
+  if(startPos<0||startPos>chunk.Size())return -1;
+  const int available=chunk.Size()-startPos;
+  for(int count:{6,17}){
+    const int bytes=count*int(sizeof(double));
+    if(available!=bytes&&available!=bytes+int(sizeof(int32_t)))continue;
     IByteChunk upgraded;
-    upgraded.PutBytes(chunk.GetData() + startPos, legacyBytes);
-    for (int i = kParamPan; i < kNumParams; ++i) {
-      const double value = GetParam(i)->GetDefault();
-      upgraded.Put(&value);
-    }
-    if (UnserializeParams(upgraded, 0) < 0)
-      return -1;
-    return startPos + legacyBytes;
+    upgraded.PutBytes(chunk.GetData()+startPos,bytes);
+    for(int id=count;id<kNumParams;++id){const double value=GetParam(id)->GetDefault();upgraded.Put(&value);}
+    if(UnserializeParams(upgraded,0)<0)return -1;
+    return startPos+bytes;
   }
-  return Plugin::UnserializeState(chunk, startPos);
+  return Plugin::UnserializeState(chunk,startPos);
 }

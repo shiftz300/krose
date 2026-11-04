@@ -1,0 +1,25 @@
+{
+  "format_version": 1,
+  "sources": {
+    "research/derived/firmware/KROSS2_V124/architecture/stage03/mono-keys-check.json": "d0e6ccf505efc7699c5db20fc084492b181b34172451c7daacb7e4e935482808",
+    "research/derived/firmware/KROSS2_V124/architecture/stage03/voice-reuse-check.json": "9968092e04c058e3da1a810f73ac11d0427bb6b2787bfc9c55d11a0d71319301"
+  },
+  "files": [
+    {
+      "file": "keys.tsv",
+      "bytes": 1389,
+      "sha256": "9c1ab0db10d8a54f7b393a44e499478bf06674196835df56601efb7eaa5d850a"
+    },
+    {
+      "file": "glide.tsv",
+      "bytes": 1490,
+      "sha256": "3d74be28f3985937dc052c829244a74e2d84073690437fedab459f59b43cc369"
+    },
+    {
+      "file": "coefficients.tsv",
+      "bytes": 759,
+      "sha256": "c4fc2cc855acfca2b784bd4fe696fa3feff141672dd41563a967c24fd67fed22"
+    }
+  ],
+  "scope": "Frozen original ARM list/accumulator observations; audio timing and rendering tested separately"
+}

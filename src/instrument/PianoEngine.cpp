@@ -97,7 +97,7 @@ void PianoEngine::Prepare(double rate) {
   Panic();
 }
 void PianoEngine::Panic() noexcept {
-  mVoices={};mTails={};mSustain.fill(false);mBend.fill(1);mVolume.fill(1);mExpression.fill(1);mSoft.fill(1);
+  mMono.Reset();mVoices={};mTails={};mSustain.fill(false);mBend.fill(1);mVolume.fill(1);mExpression.fill(1);mSoft.fill(1);
   mEventCount=0;mOverflow=false;
   for(auto& effect:mEffects)concert_effects_reset(effect.get());
 }
@@ -110,6 +110,8 @@ void PianoEngine::SetControls(const Controls& incoming) {
   mOutputTarget=std::pow(10,c.outputDb/20);
   const double wet[3]={0.15,0.12,0.23},chorus[3]={0,0,0.18};
   for(int i=0;i<3;++i)concert_effects_set_wet(mEffects[i].get(),wet[i]*c.space,chorus[i]);
+  c.voiceMode=std::clamp(c.voiceMode,0,2);c.glide=std::clamp(c.glide,0,127);
+  if(c.voiceMode!=mControls.voiceMode){mMono.Reset();for(auto& voice:mVoices)if(voice.sample)Tail(voice);}
   mControls=c;
 }
 void PianoEngine::Queue(MidiEvent event) noexcept {
@@ -124,7 +126,31 @@ void PianoEngine::Release(Voice& voice) noexcept {
   for(auto& native:voice.native)native.Release(mControls.releaseSeconds);
   for(auto& filter:voice.filter)filter.Release();
 }
-void PianoEngine::NoteOn(int note,int velocity,int channel) noexcept {
+void PianoEngine::Tail(Voice& voice) noexcept {
+  auto tail=std::find_if(mTails.begin(),mTails.end(),[](const Voice& v){return !v.sample;});
+  if(tail==mTails.end())tail=mTails.begin();
+  *tail=voice;tail->forcedRemaining=96;voice={};
+}
+void PianoEngine::SelectMono(int note,int velocity,int channel,bool connected) noexcept {
+  int previous=-1;
+  bool reused=false;
+  for(auto& voice:mVoices)if(voice.sample&&voice.channel==channel){
+    if(connected&&voice.keyDown&&!voice.released){
+      previous=voice.glide.CurrentPitch();
+      if(mControls.voiceMode==2){
+        if(voice.note==note){reused=true;continue;}
+        voice.note=note;
+        voice.step=mBank->rootRate/mRate*std::exp2((note-int(voice.sample->root))/12.);
+        voice.glide.Start(previous,note,mControls.glide);voice.glideRatio=voice.glide.Ratio();
+        for(int osc=0;osc<2;++osc){voice.native[osc].Retune(note);voice.filter[osc].Retune(voice.native[osc]);voice.slew[osc].SetTarget(voice.native[osc].Gain());}
+        reused=true;continue;
+      }
+    }
+    Tail(voice);
+  }
+  if(!reused)NoteOn(note,velocity,channel,previous);
+}
+void PianoEngine::NoteOn(int note,int velocity,int channel,int previousPitch) noexcept {
   auto it=std::find_if(mVoices.begin(),mVoices.end(),[](const Voice& v){return !v.sample;});
   if(it==mVoices.end()){
     it=std::min_element(mVoices.begin(),mVoices.end(),[](const Voice& a,const Voice& b){
@@ -136,9 +162,11 @@ void PianoEngine::NoteOn(int note,int velocity,int channel) noexcept {
     *tail=*it;tail->forcedRemaining=96;tail->released=false;
   }
   const int layer=VelocityLayer(velocity);
-  const Sample& sample=mBank->Select(layer,note);
+  const int selection=mControls.glide&&previousPitch>=0?std::max(note,previousPitch/65536):note;
+  const Sample& sample=mBank->Select(layer,selection);
   *it={};it->sample=&sample;it->note=note;it->channel=channel;it->keyDown=true;it->age=++mAge;
   it->step=mBank->rootRate/mRate*std::pow(2,(note-int(sample.root))/12.0);
+  it->glide.Start(previousPitch,note,mControls.glide);it->glideRatio=it->glide.Ratio();
   // Native velocity/slot/AMS/keyboard response is the baseline. This optional
   // host trim changes loudness response, leaving the verified layer edges fixed.
   it->velocityTrim=std::pow(velocity/127.0,mControls.velocityCurve-1);
@@ -153,6 +181,9 @@ void PianoEngine::NoteOn(int note,int velocity,int channel) noexcept {
 }
 void PianoEngine::Midi(const MidiEvent& event) noexcept {
   const int ch=event.status&15,type=event.status&240,note=event.data1,value=event.data2;
+  if(mControls.voiceMode&&mMono.Handle(event,2,
+      [this](int n,int v,int c,bool held){SelectMono(n,v,c,held);},
+      [this](int c){for(auto& v:mVoices)if(v.sample&&v.channel==c&&v.keyDown){v.keyDown=false;if(!mSustain[c])Release(v);}}))return;
   if(type==0x90&&value){NoteOn(note,value,ch);return;}
   if(type==0x80||(type==0x90&&!value)){
     Voice* selected=nullptr;
@@ -198,7 +229,8 @@ void PianoEngine::RenderVoice(Voice& voice,double& left,double& right) noexcept 
   double level=0.4*voice.velocityTrim*mVolume[voice.channel]*mExpression[voice.channel]*mSoft[voice.channel];
   if(voice.forcedRemaining){level*=voice.forcedRemaining/96.0;if(!--voice.forcedRemaining)voice.sample=nullptr;}
   left+=filteredL*level;right+=filteredR*level;
-  voice.position+=voice.step*mBend[voice.channel];
+  voice.position+=voice.step*mBend[voice.channel]*voice.glideRatio;
+  voice.glideRatio=voice.glide.Advance(mRate);
   // Continuous per-voice clocks make the result independent of host block
   // partitioning. TG slew advances on a nominal 48 kHz grid at every host rate.
   voice.nativeAudioPhase+=mNativeAudioIncrement;

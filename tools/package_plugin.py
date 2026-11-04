@@ -65,13 +65,14 @@ def main():
                 'dependencies': json.loads((ROOT / 'cmake/dependencies.json').read_text()),
                 'source_sha256': {str(p.relative_to(ROOT)): digest(p) for p in sources if p.is_file()},
                 'verification': {'vst3_official_validator': result[0],
-                                 'ctest': ['program-engine','piano-engine','native-voice','native-filter','vst3-host'], 'engine_asan_ubsan': 'passed',
+                                 'ctest': ['program-engine','piano-engine','native-voice','native-filter','performance','vst3-host'], 'engine_asan_ubsan': 'passed',
                                  'ableton_manual_acceptance': 'pending'},
                 'benchmark': json.loads((ROOT/'build/piano-benchmark.json').read_text()) if (ROOT/'build/piano-benchmark.json').exists() else None}
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     shutil.copy(ROOT / 'docs/PLUGIN.md', output / 'README.md')
     shutil.copy(ROOT/'docs/NATIVE_ARCHITECTURE.md',output/'NATIVE_ARCHITECTURE.md')
     shutil.copy(ROOT/'docs/IMPLEMENTATION.md',output/'IMPLEMENTATION.md')
+    shutil.copy(ROOT/'docs/PERFORMANCE.md',output/'PERFORMANCE.md')
     print('Packaged, signed and verified: output/Krose/{Krose.vst3,Krose.app}')
 
 

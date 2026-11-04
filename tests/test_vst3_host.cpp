@@ -19,7 +19,7 @@
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
-void verifyEditor(IPlugView*,const std::function<double()>&,const std::function<double()>&);
+void verifyEditor(IPlugView*,const std::function<double()>&,const std::function<double()>&,const std::function<double()>&,const std::function<double()>&);
 
 int main(int argc,char** argv){
   const bool openEditor=argc==3 && std::string(argv[2])=="--editor";
@@ -109,10 +109,34 @@ int main(int argc,char** argv){
   assert(component->setState(&legacy)==kResultOk);
   assert(std::abs(controller->getParamNormalized(ids.at("Program"))-3./1161.)<1e-8);
   assert(std::abs(controller->getParamNormalized(ids.at("Pan"))-64./127.)<1e-8);
+  // Upgrade the immediately previous 17-parameter release as well as the
+  // original six-parameter state. Appended controls must use their defaults.
+  assert(ids.at("Voice Mode")==17&&ids.at("Glide")==18);
+  MemoryStream previous;
+  double previousValues[]={2.,-9.,45.,410.,1.25,3.,-17.,12.,4.,1.,2.,3.,4.,5.,6.,7.,8.};
+  assert(previous.write(previousValues,sizeof(previousValues),nullptr)==kResultOk);
+  assert(previous.write(&bypass,sizeof(bypass),nullptr)==kResultOk);
+  controller->setParamNormalized(ids.at("Voice Mode"),1.);
+  controller->setParamNormalized(ids.at("Glide"),.75);
+  previous.seek(0,IBStream::kIBSeekSet,nullptr);
+  assert(component->setState(&previous)==kResultOk);
+  assert(controller->getParamNormalized(ids.at("Voice Mode"))==0.);
+  assert(controller->getParamNormalized(ids.at("Glide"))==0.);
+  assert(std::abs(controller->getParamNormalized(ids.at("Filter Release"))-107./198.)<1e-8);
+  controller->setParamNormalized(ids.at("Voice Mode"),1.);
+  controller->setParamNormalized(ids.at("Glide"),64./127.);
+  MemoryStream performanceState;
+  assert(component->getState(&performanceState)==kResultOk);
+  controller->setParamNormalized(ids.at("Voice Mode"),0.);
+  controller->setParamNormalized(ids.at("Glide"),0.);
+  performanceState.seek(0,IBStream::kIBSeekSet,nullptr);
+  assert(component->setState(&performanceState)==kResultOk);
+  assert(controller->getParamNormalized(ids.at("Voice Mode"))==1.);
+  assert(std::abs(controller->getParamNormalized(ids.at("Glide"))-64./127.)<1e-8);
   FUnknownPtr<IMidiMapping> mapping(controller);assert(mapping);ParamID sustain=0;
   assert(mapping->getMidiControllerAssignment(0,0,kCtrlSustainOnOff,sustain)==kResultOk);
   auto* view=controller->createView(ViewType::kEditor);assert(view);
-  if(openEditor) verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);},[&]{return controller->getParamNormalized(ids["Program"]);});
+  if(openEditor) verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);},[&]{return controller->getParamNormalized(ids["Program"]);},[&]{return controller->getParamNormalized(ids["Voice Mode"]);},[&]{return controller->getParamNormalized(ids["Glide"]);});
   view->release();
   std::cout<<"PASS compiled VST3: self-contained sample bank, MIDI offsets/audio, three rates/tones, parameter state round-trip, sustain mapping and editor creation\n";
 }

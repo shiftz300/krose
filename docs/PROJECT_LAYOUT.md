@@ -9,7 +9,7 @@ krose/
   .editorconfig                 文本格式约定
   .clang-format                 C/C++ 格式约定
   src/
-    instrument/                 采样库、音符调度、包络和滤波控制
+    instrument/                 采样库、音符调度、单音/滑音、包络和滤波控制
     dsp/                        可独立使用的 C 效果内核
     plugin/
       KrosePlugin.cpp/.h        插件生命周期与音频/MIDI 入口
@@ -76,7 +76,7 @@ build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor
 
 ## 隔离和交付
 
-`python3 tools/check_project_boundary.py` 在不复制 `research/`、`docs/`、`output/`、`tools/` 的临时目录里重建引擎并运行全部四项测试，同时检查产品代码和 CMake 的依赖边界。结果写入 `build/project-boundary-check.json`。
+`python3 tools/check_project_boundary.py` 在不复制 `research/`、`docs/`、`output/`、`tools/` 的临时目录里重建引擎并运行全部五项测试，同时检查产品代码和 CMake 的依赖边界。结果写入 `build/project-boundary-check.json`。
 
 `python3 tools/package_plugin.py` 运行测试、验证签名并生成 `output/Krose/`。已有本轮成功日志时，可使用 `--skip-tests`，打包器仍检查日志并运行官方 validator。正式发布签名、公证和实际 DAW 验收分别记录。
 

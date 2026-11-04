@@ -63,3 +63,7 @@ build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor
 ```
 
 前两步只在更新本地研究数据时执行。日常构建使用既有冻结包。`export_factory_bank.py` 作为旧命令别名，也导出完整库。
+
+## 演奏模式
+
+POLY 保留原复音路径；MONO 与 LEGATO 使用共用的按键优先级及滑音模块。面板选择作为全局覆盖保存，切换 Program 保留该选择。新模式的实现范围、原始观察和宿主插值边界见 [PERFORMANCE.md](PERFORMANCE.md)。

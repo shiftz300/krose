@@ -16,10 +16,11 @@ window.kroseNative.mount = function(root,state,render) {
     lcd.append(label);
   }
   // Only expose actions that are connected to the processor in this phase.
-  for(const el of root.querySelectorAll('[data-toggle=arp],[data-toggle=latch],[data-toggle=sw1],[data-toggle=sw2],[data-toggle=host],[data-voice],[data-bind=gate],[data-bind=swing],[data-fx],#kf-pan,#kf-save,#kf-compare,#kf-mod,#kf-pattern,#kf-rate')){
+  for(const el of root.querySelectorAll('[data-toggle=arp],[data-toggle=latch],[data-toggle=sw1],[data-toggle=sw2],[data-toggle=host],[data-bind=gate],[data-bind=swing],[data-fx],#kf-pan,#kf-save,#kf-compare,#kf-mod,#kf-pattern,#kf-rate')){
     el.disabled=true;
   }
-  for(const el of root.querySelectorAll('[data-control=glide] button,[data-control=glide] input')) el.disabled=true;
+  for(const el of root.querySelectorAll('[data-voice]'))
+    el.addEventListener('click',()=>bridge.set('Voice Mode',['poly','mono','legato'].indexOf(state.voice)));
   const notes=new Map();
   const keyFor=e=>e.target.closest('[data-midi]');
   function start(key){
@@ -73,7 +74,8 @@ window.kroseNative.mount = function(root,state,render) {
       state.preset=value;
       legacy.Tone.disabled=value!==0;
     }else if(name==='Output') state.values.output=value;
-    else if(['Velocity','Pan','Cutoff','Resonance'].includes(name)) state.values[name.toLowerCase()]=value;
+    else if(name==='Voice Mode') state.voice=['poly','mono','legato'][value];
+    else if(['Velocity','Pan','Cutoff','Resonance','Glide'].includes(name)) state.values[name.toLowerCase()]=value;
     else if(name.includes(' ')){
       const [eg,stage]=name.toLowerCase().split(' ');
       if(state.envelopes[eg] && stage in state.envelopes[eg])state.envelopes[eg][stage]=value;

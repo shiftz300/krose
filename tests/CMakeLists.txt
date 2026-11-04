@@ -24,3 +24,10 @@ add_test(NAME native-filter COMMAND test-native-filter
 
 set_target_properties(test-program-engine test-piano-engine test-native-voice test-native-filter
   PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+segrand_check_asset_bundle("${CMAKE_SOURCE_DIR}/tests/fixtures/performance")
+add_executable(test-performance test_performance.cpp)
+target_link_libraries(test-performance PRIVATE segrand-engine)
+target_compile_options(test-performance PRIVATE -UNDEBUG)
+set_target_properties(test-performance PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+add_test(NAME performance COMMAND test-performance "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples" "${CMAKE_SOURCE_DIR}/tests/fixtures/performance")

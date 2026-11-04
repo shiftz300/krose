@@ -19,5 +19,7 @@ enum EParams {
   kFilterDecay = 14,
   kFilterSustain = 15,
   kFilterRelease = 16,
-  kNumParams = 17
+  kVoiceMode = 17,
+  kGlide = 18,
+  kNumParams = 19
 };

@@ -57,6 +57,8 @@ void KrosePlugin::ProcessBlock(sample**, sample** outputs, int nFrames) {
   }
 
   segrand::Controls controls;
+  controls.voiceMode = GetParam(kVoiceMode)->Int();
+  controls.glide = GetParam(kGlide)->Int();
   controls.program = GetParam(kParamProgram)->Int();
   controls.preset = GetParam(kParamTone)->Int();
   controls.outputDb = GetParam(kParamOutput)->Value();

@@ -1,4 +1,5 @@
 #pragma once
+#include "Performance.h"
 #include "EngineTypes.h"
 #include "NativeFilter.h"
 #include "ProgramLibrary.h"
@@ -20,6 +21,8 @@ public:
  unsigned ActiveVoices() const noexcept;
 private:
  struct Voice {
+  PitchGlide glide;
+  double glideRatio=1;
   const ProgramRegion* region=nullptr;
   const InstrumentProgram* program=nullptr;
   std::array<double,2> position{},step{};
@@ -40,12 +43,14 @@ private:
  std::array<bool,16> mSustain{};
  std::array<double,16> mBend{},mVolume{},mExpression{},mSoft{};
  Controls mControls;
+ MonoPerformance mMono;
  double mRate=48000,mOutput=0.5,mTarget=0.5,mSmooth=0;
  unsigned mProgram=0,mEventCount=0;
  uint64_t mAge=0;
  bool mOverflow=false;
  void Midi(const MidiEvent& event) noexcept;
- void NoteOn(int note,int velocity,int channel) noexcept;
+ void NoteOn(int note,int velocity,int channel,int previousPitch=-1) noexcept;
+ void SelectMono(int note,int velocity,int channel,bool connected) noexcept;
  void Release(Voice& voice) noexcept;
  void Tail(Voice& voice) noexcept;
  void RenderVoice(Voice& voice,double& left,double& right) noexcept;

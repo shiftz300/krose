@@ -12,6 +12,7 @@ public:
   void SetOffsets(EnvelopeOffsets eg,int cutoff,int resonance) noexcept {mOffsets=eg;mCutoff=cutoff;mResonance=resonance;}
   void Start(const NativeVoice& amplitude,int oscillator,int velocity,double sampleRate) noexcept;
   void StartProgram(const uint8_t* program,const NativeVoice& amplitude,int oscillator,int velocity,double sampleRate) noexcept;
+  void Retune(const NativeVoice& amplitude) noexcept;
   void Tick() noexcept;
   void Release() noexcept;
   uint16_t Word(int branch,int field) const noexcept {return mWords[branch*4+field];}
