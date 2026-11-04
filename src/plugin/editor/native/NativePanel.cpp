@@ -11,7 +11,11 @@
 
 namespace krose::ui {
 using namespace detail;
-NativePanel::NativePanel() : IControl(R(0, 0, 1472, 648)) { mLastValues.fill(-9999); }
+NativePanel::NativePanel() : IControl(R(0, 0, 1472, 648)) {
+  mLastValues.fill(-9999);
+  // Buttons and keys must receive every press, including OS double-clicks.
+  mDblAsSingleClick = true;
+}
 NativePanel::~NativePanel() {
   if (const char *path = std::getenv("KROSE_UI_PROFILE")) {
     Json result;
@@ -224,7 +228,7 @@ void NativePanel::Render(IGraphics &g) {
     Bitmap(g, "knob-shell", k.x - 8, k.y - 8);
     g.DrawRotatedBitmap(Image("knob-pointer"), k.x + 24, k.y + 24,
                         -135 + 270 * GetDelegate()->GetParam(k.id)->GetNormalized());
-    HitBox(R(k.x, k.y, 48, 48), "knob", k.id);
+    HitBox(R(k.x - 8, k.y - 8, 64, 64), "knob", k.id);
     double v = Value(k.id);
     std::string s = k.id == kParamOutput     ? Format(v, 1) + " dB"
                     : k.id == kParamVelocity ? Format(v, 2) + "×"
@@ -238,7 +242,7 @@ void NativePanel::Render(IGraphics &g) {
   }
   Bitmap(g, "knob-shell", 221, 168);
   Bitmap(g, "knob-pointer", 229, 176);
-  HitBox(R(229, 176, 48, 48), "step", -1, 1);
+  HitBox(R(221, 168, 64, 64), "step", -1, 1);
   Button(g, "arp", Value(kArpEnabled) > 0, "toggle", kArpEnabled);
   Button(g, "latch", Value(kArpLatch) > 0, "toggle", kArpLatch);
   Button(g, "amp", mEG == 0, "eg", -1, 0);

@@ -1,0 +1,5 @@
+2026-11-04 22:19:56.698 test-vst3-host[29887:4106837] Native view: NSView
+2026-11-04 22:19:56.698 test-vst3-host[29887:4106837] Native view: IGraphicsView_vKrose_vst3
+Verified VST3 ARP host stop/start at 150 BPM
+Native editor ready pass 0
+Assertion failed: (parameter("Arp") == 0.), function verifyEditor, file test_editor_mac.mm, line 148.

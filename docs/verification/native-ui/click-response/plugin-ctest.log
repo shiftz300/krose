@@ -1,0 +1,27 @@
+Test project /Users/shiftz/dev/krose/build/plugin
+      Start  1: vst3-host
+ 1/11 Test  #1: vst3-host ........................   Passed   45.78 sec
+      Start  2: program-engine
+ 2/11 Test  #2: program-engine ...................   Passed   28.38 sec
+      Start  3: piano-engine
+ 3/11 Test  #3: piano-engine .....................   Passed    0.33 sec
+      Start  4: native-voice
+ 4/11 Test  #4: native-voice .....................   Passed    0.01 sec
+      Start  5: native-filter
+ 5/11 Test  #5: native-filter ....................   Passed    0.08 sec
+      Start  6: performance
+ 6/11 Test  #6: performance ......................   Passed    0.80 sec
+      Start  7: arpeggiator
+ 7/11 Test  #7: arpeggiator ......................   Passed    0.76 sec
+      Start  8: sample-loading
+ 8/11 Test  #8: sample-loading ...................   Passed    1.39 sec
+      Start  9: image-memory
+ 9/11 Test  #9: image-memory .....................   Passed    0.00 sec
+      Start 10: fx-motion
+10/11 Test #10: fx-motion ........................   Passed    0.01 sec
+      Start 11: effects
+11/11 Test #11: effects ..........................   Passed    0.12 sec
+
+100% tests passed out of 11
+
+Total Test time (real) =  77.67 sec

@@ -20,6 +20,7 @@ public:
   void OnInit() override;
   void Draw(IGraphics &) override;
   bool IsDirty() override;
+  bool IsParameterHit(float x, float y) const;
   void OnMouseDown(float, float, const IMouseMod &) override;
   void OnMouseDrag(float, float, float, float, const IMouseMod &) override;
   void OnMouseUp(float, float, const IMouseMod &) override;

@@ -30,24 +30,28 @@ NSView *findNative(NSView *parent) {
       return v;
   return nil;
 }
-void click(NSView *v, float x, float y) {
+void mouse(NSView *v, float x, float y, NSEventType type, NSInteger count = 1) {
   NSPoint p = [v convertPoint:NSMakePoint(x, v.isFlipped ? y : v.bounds.size.height - y)
                        toView:nil];
-  for (NSEventType type : {NSEventTypeLeftMouseDown, NSEventTypeLeftMouseUp}) {
-    NSEvent *e = [NSEvent mouseEventWithType:type
-                                    location:p
-                               modifierFlags:0
-                                   timestamp:0
-                                windowNumber:v.window.windowNumber
-                                     context:nil
-                                 eventNumber:0
-                                  clickCount:1
-                                    pressure:1];
-    if (type == NSEventTypeLeftMouseDown)
-      [v mouseDown:e];
-    else
-      [v mouseUp:e];
-  }
+  NSEvent *e = [NSEvent mouseEventWithType:type
+                                  location:p
+                             modifierFlags:0
+                                 timestamp:0
+                              windowNumber:v.window.windowNumber
+                                   context:nil
+                               eventNumber:0
+                                clickCount:count
+                                  pressure:1];
+  if (type == NSEventTypeLeftMouseDown)
+    [v mouseDown:e];
+  else if (type == NSEventTypeLeftMouseDragged)
+    [v mouseDragged:e];
+  else
+    [v mouseUp:e];
+}
+void click(NSView *v, float x, float y, NSInteger count = 1) {
+  mouse(v, x, y, NSEventTypeLeftMouseDown, count);
+  mouse(v, x, y, NSEventTypeLeftMouseUp, count);
   pump();
 }
 void key(NSView *v, NSString *s, unsigned short code = 0) {
@@ -142,6 +146,36 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       return;
     }
     if (pass == 0) {
+      if (!std::getenv("KROSE_NATIVE_CAPTURE")) {
+        // Compare actual Metal frames: the second note must light while held
+        // and return to the released frame on mouse-up (capture must survive).
+        const auto path = "/tmp/krose-click-note-" + std::to_string(getpid()) + ".pam";
+        setenv("KROSE_NATIVE_CAPTURE", path.c_str(), 1);
+        auto noteFrame = [&](NSEventType type, NSInteger count) {
+          mouse(v, 210, 560, type, count);
+          pump(.08);
+          std::ifstream stream(path, std::ios::binary);
+          std::string frame((std::istreambuf_iterator<char>(stream)), {});
+          assert(!frame.empty());
+          return frame;
+        };
+        const auto pressed = noteFrame(NSEventTypeLeftMouseDown, 1);
+        const auto released = noteFrame(NSEventTypeLeftMouseUp, 1);
+        assert(pressed != released);
+        assert(noteFrame(NSEventTypeLeftMouseDown, 2) == pressed);
+        assert(noteFrame(NSEventTypeLeftMouseUp, 2) == released);
+        unsetenv("KROSE_NATIVE_CAPTURE");
+        std::filesystem::remove(path);
+      }
+      click(v, 70, 285);
+      assert(parameter("Arp") == 1.);
+      click(v, 70, 285, 2);
+      assert(parameter("Arp") == 0.); // The OS double-click is still a second button press.
+      for (int count = 1; count <= 6; ++count) {
+        mouse(v, 70, 285, NSEventTypeLeftMouseDown, count);
+        assert(parameter("Arp") == double(count % 2)); // Applied before the next redraw.
+        mouse(v, 70, 285, NSEventTypeLeftMouseUp, count);
+      }
       click(v, 70, 285);
       assert(parameter("Arp") == 1.);
       click(v, 70, 331);
@@ -151,6 +185,9 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       assert(parameter("Arp Host Sync") == 0.);
       number(v, 930, 199, @"143.25");
       assert(std::abs(parameter("Arp Tempo") - 123.25 / 280.) < 1e-8);
+      click(v, 956, 194);
+      click(v, 956, 194, 2);
+      assert(std::abs(parameter("Arp Tempo") - 123.27 / 280.) < 1e-8);
       number(v, 930, 199, @"300.00");
       click(v, 956, 194);
       assert(parameter("Arp Tempo") == 1.);
@@ -177,6 +214,22 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       assert(std::abs(mode() - .5) < 1e-8);
       number(v, 175, 241, @"80");
       assert(std::abs(glide() - 80. / 127.) < 1e-8);
+      click(v, 175, 200);
+      click(v, 175, 200, 2);
+      assert(glide() == 0.); // Knob double-click still resets the parameter.
+      mouse(v, 146, 200, NSEventTypeLeftMouseDown);
+      mouse(v, 146, 180, NSEventTypeLeftMouseDragged);
+      mouse(v, 146, 180, NSEventTypeLeftMouseUp);
+      assert(glide() > 0.); // The visible outer edge of the knob accepts dragging.
+      number(v, 175, 241, @"80");
+      click(v, 1057, 150);
+      assert(parameter("Amp Attack") > .5);
+      click(v, 1057, 150, 2);
+      assert(parameter("Amp Attack") == .5);
+      click(v, 253, 200);
+      const auto firstStep = program();
+      click(v, 253, 200, 2);
+      assert(program() != firstStep);
       number(v, 330, 343, @"2");
       assert(std::abs(velocity() - .6) < 1e-6);
       click(v, 700, 67);
@@ -202,7 +255,7 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       key(v, @"\r", 36);
       assert(std::abs(program() - 1.) < 1e-8);
       click(v, 71, 85);
-      click(v, 71, 85);
+      click(v, 71, 85, 2);
       pump(.6); // The second click reverses the transition before it settles.
       click(v, 215, 460);
       click(v, 1305, 331);
@@ -230,5 +283,5 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
   [window orderOut:nil];
   if(ownFavorites){std::filesystem::remove(favoritesFile);unsetenv("KROSE_FAVORITES_FILE");}
   std::cout << "PASS native UI: Cocoa clicks, numeric editing, arp, voice, catalog search, FX "
-               "folding, keyboard, panic and reopen\n";
+               "folding, keyboard, panic, double-click routing, knob edge dragging and reopen\n";
 }

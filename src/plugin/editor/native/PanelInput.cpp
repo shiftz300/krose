@@ -208,10 +208,17 @@ void NativePanel::OnMouseUp(float, float, const IMouseMod &) {
   mDragNote = -1;
   SetDirty(false);
 }
+bool NativePanel::IsParameterHit(float x, float y) const {
+  for (auto it = mHits.rbegin(); it != mHits.rend(); ++it)
+    if (it->r.Contains(x, y))
+      return it->action == "knob" || it->action == "fader";
+  return false;
+}
 void NativePanel::OnMouseDblClick(float x, float y, const IMouseMod &) {
   for (auto it = mHits.rbegin(); it != mHits.rend(); ++it)
-    if (it->r.Contains(x, y) && (it->action == "knob" || it->action == "fader")) {
-      Set(it->id, GetDelegate()->GetParam(it->id)->GetDefault());
+    if (it->r.Contains(x, y)) {
+      if (it->action == "knob" || it->action == "fader")
+        Set(it->id, GetDelegate()->GetParam(it->id)->GetDefault());
       return;
     }
 }
