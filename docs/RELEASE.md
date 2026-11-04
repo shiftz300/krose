@@ -8,7 +8,7 @@
 
 完整采样未纳入 Git。`packaging/runtime-assets.json` 固定资源包名称、草稿 Release 标签及 SHA-256。资源上传需明确授权；没有完整资源时，仅编译／安装结构 CI 可运行，不能发行可用音源。
 
-授权后，在有完整资源的工作区执行：
+授权后，在有完整资源的工作区执行（生成或更换归档后，需提交更新后的锁文件）：
 
 ```sh
 python3 tools/release/runtime_assets.py pack /tmp/krose-runtime-v1.tar.xz

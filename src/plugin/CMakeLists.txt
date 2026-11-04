@@ -38,7 +38,8 @@ if(WIN32)
       COMMAND ${CMAKE_COMMAND} -E make_directory "${_destination}"
       COMMAND ${CMAKE_COMMAND} -E copy_if_different ${KROSE_NATIVE_IMAGES}
         "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
-        "${CMAKE_SOURCE_DIR}/licenses/THIRD_PARTY.txt" "${_destination}"
+        "${CMAKE_SOURCE_DIR}/licenses/THIRD_PARTY.txt"
+        "${CMAKE_SOURCE_DIR}/licenses/Roboto-Apache-2.0.txt" "${_destination}"
       VERBATIM)
     target_compile_options(${target} PRIVATE /utf-8)
   endforeach()
