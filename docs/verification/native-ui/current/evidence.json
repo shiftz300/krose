@@ -12,31 +12,32 @@
   },
   "tests": {
     "plugin-ctest.log": "a130c6c58f6d92e32a0197456ca1f91ccb6dbd6d944f5c0ebf099abd908c4d2e",
-    "native-ui-test.log": "a68c66edf49568d3587f0b05479a5bccc14eee0bea3204e0684441872ef600af",
+    "native-ui-test.log": "0a03bbc70040bd772a2de119b209a058c15045ba6828e340f4cf0cb90697e264",
     "engine-sanitizer.log": "92935f5ecb8f1e4349b27ca4ff174298859da167775e7aa020e017d7099aaa59",
     "official-validator.log": "76206e73ad0232d70d73814fb193940d4806c944b39e22e88dd44ec6ebf5728d"
   },
   "package_binaries": [
     {
       "file": "Krose.vst3",
-      "binary_sha256": "25a2e4e0ab319cbb9ad92f8d47dbb8b483e2103ac03b82863ef2d4a0607728a9",
+      "binary_sha256": "ed632e982afa9285efe359128f864ba5ef53b19f669f947bbaf87cde92e80e2b",
       "architecture": "arm64"
     },
     {
       "file": "Krose.app",
-      "binary_sha256": "3c37064f0b49ee41e1fe13040ab8331eb6ebe18486ae1a8ce0fa4c1ed3b99c0a",
+      "binary_sha256": "59549b0251ef9f73856a9637083c1eb45a12af3ffe8ffd8476f77c4bbf3c0088",
       "architecture": "arm64"
     }
   ],
   "official_vst3_validator": "47 passed, 0 failed",
   "windows_compile": {
-    "url": "https://github.com/shiftz300/krose/actions/runs/41788198973",
-    "commit": "d6ecaa5237ded8ac3afa28714bcd6db7c047e751",
+    "url": "https://github.com/shiftz300/krose/actions/runs/41788798938",
+    "commit": "393e0c565748fac0864db42f6f43d2c6eec2edee",
     "targets": [
       "VST3",
       "standalone"
     ],
     "result": "passed",
     "runtime_acceptance": "not tested"
-  }
+  },
+  "package_commit": "393e0c565748fac0864db42f6f43d2c6eec2edee"
 }
