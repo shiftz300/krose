@@ -1,0 +1,47 @@
+{
+  "source_commit": "3eb1ec8acc24aad7d70f4150f58f51f854485004",
+  "source_worktree_dirty": false,
+  "bundles": [
+    {
+      "file": "Krose.vst3",
+      "binary_sha256": "85999e87481bfd4c707f8629ad544f1b32d7791e03a2167232ce904c67d7c0e1",
+      "architecture": "arm64"
+    },
+    {
+      "file": "Krose.app",
+      "binary_sha256": "39748c8bb2cf8b43ed2569f97afd28266699e4666feda657dec0b21c281d8746",
+      "architecture": "arm64"
+    }
+  ],
+  "verification": {
+    "vst3_official_validator": "Result: 47 tests passed, 0 tests failed",
+    "native_cocoa_ui": "passed",
+    "ctest": [
+      "program-engine",
+      "piano-engine",
+      "native-voice",
+      "native-filter",
+      "performance",
+      "arpeggiator",
+      "sample-loading",
+      "image-memory",
+      "fx-motion",
+      "effects",
+      "vst3-host"
+    ],
+    "engine_asan_ubsan": "passed",
+    "ableton_manual_acceptance": "pending"
+  },
+  "test_logs": {
+    "plugin-ctest.log": "2461a184fdf9c8a12ed4d251406a5ffdf33d0d471dd5021d1dccbe9bf112fd70",
+    "engine-sanitizer.log": "c58e0eb617d7dd5a7dbcf849742efe31575c2b98bbbf02cc5b3f5c826a111191",
+    "native-ui-test.log": "9ba0f0142ee09c91b02a51c1240e69a7ee0d904ed6919e05c8f10af6a8ff25ca"
+  },
+  "sanitizer_scope": "Reused passing engine suite from 09a9be0; audio engine and standalone motion/image-memory code unchanged.",
+  "static_images_identical": 10,
+  "windows_compile": {
+    "url": "https://github.com/shiftz300/krose/actions/runs/41847932544",
+    "conclusion": "success",
+    "runtime_GUI_tested": false
+  }
+}
