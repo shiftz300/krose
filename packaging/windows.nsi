@@ -33,7 +33,11 @@ Section "Standalone application" App
   SetShellVarContext all
   SetOutPath "$INSTDIR"
   File "${PAYLOAD}\Krose.exe"
-  File /r "${PAYLOAD}\Resources"
+  File /r /x *.samples "${PAYLOAD}\Resources"
+  SetOutPath "$COMMONFILES64\Krose\Samples\${VERSION}"
+  File "${PAYLOAD}\Resources\Factory.samples"
+  File "${PAYLOAD}\Resources\SEGrand.samples"
+  SetOutPath "$INSTDIR"
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateDirectory "$SMPROGRAMS\Krose"
   CreateShortcut "$SMPROGRAMS\Krose\Krose.lnk" "$INSTDIR\Krose.exe"
@@ -46,7 +50,7 @@ Section "Standalone application" App
 SectionEnd
 Section "VST3 plugin" VST3
   SetOutPath "$COMMONFILES64\VST3\Krose.vst3"
-  File /r "${PAYLOAD}\Krose.vst3\*.*"
+  File /r /x *.samples "${PAYLOAD}\Krose.vst3\*.*"
 SectionEnd
 Section "Uninstall"
   SetRegView 64
@@ -55,6 +59,11 @@ Section "Uninstall"
   Delete "$INSTDIR\Uninstall.exe"
   RMDir /r "$INSTDIR\Resources"
   RMDir "$INSTDIR"
+  Delete "$COMMONFILES64\Krose\Samples\${VERSION}\Factory.samples"
+  Delete "$COMMONFILES64\Krose\Samples\${VERSION}\SEGrand.samples"
+  RMDir "$COMMONFILES64\Krose\Samples\${VERSION}"
+  RMDir "$COMMONFILES64\Krose\Samples"
+  RMDir "$COMMONFILES64\Krose"
   RMDir /r "$COMMONFILES64\VST3\Krose.vst3"
   Delete "$SMPROGRAMS\Krose\Krose.lnk"
   RMDir "$SMPROGRAMS\Krose"

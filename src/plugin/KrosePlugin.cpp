@@ -9,7 +9,7 @@ KrosePlugin::KrosePlugin(const InstanceInfo &info)
     : Plugin(info, MakeConfig(kNumParams, segrand::kInstrumentProgramCount + 2)) {
   InitializeParameters();
   try {
-    const auto resources = krose::ResourceDirectory(GetBundleID());
+    const auto resources = krose::SampleDirectory(krose::ResourceDirectory(GetBundleID()));
     auto concert = segrand::SampleBank::Load((resources / "SEGrand.samples").u8string(), false);
     auto programs = segrand::ProgramLibrary::Load((resources / "Factory.samples").u8string(), false);
     mEngine = std::make_unique<segrand::InstrumentEngine>(std::move(concert), std::move(programs));

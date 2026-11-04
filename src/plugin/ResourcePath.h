@@ -1,6 +1,8 @@
 #pragma once
 #include "IPlugPaths.h"
 #include <filesystem>
+#include <cstdlib>
+#include "config.h"
 #include <stdexcept>
 
 namespace krose {
@@ -25,6 +27,24 @@ inline std::filesystem::path ResourceDirectory(const char *bundleID) {
 #else
   iplug::BundleResourcePath(path, bundleID);
   return std::filesystem::path(path.Get());
+#endif
+}
+// Portable bundles keep samples beside images. Installed app and VST3 share
+// one versioned sample directory; only construction touches the filesystem.
+inline std::filesystem::path SampleDirectory(const std::filesystem::path& resources) {
+  if (std::filesystem::exists(resources / "Factory.samples") &&
+      std::filesystem::exists(resources / "SEGrand.samples"))
+    return resources;
+#if defined(OS_WIN)
+  if (const auto* overridePath = _wgetenv(L"KROSE_SAMPLE_DIRECTORY"))
+    return std::filesystem::path(overridePath);
+  const auto* common = _wgetenv(L"CommonProgramFiles");
+  if (!common) throw std::runtime_error("CommonProgramFiles is unavailable");
+  return std::filesystem::path(common) / "Krose" / "Samples" / PLUG_VERSION_STR;
+#else
+  if (const auto* overridePath = std::getenv("KROSE_SAMPLE_DIRECTORY"))
+    return std::filesystem::u8path(overridePath);
+  return std::filesystem::path("/Library/Application Support/Krose/Samples") / PLUG_VERSION_STR;
 #endif
 }
 } // namespace krose

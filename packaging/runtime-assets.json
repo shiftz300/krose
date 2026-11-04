@@ -1,5 +1,5 @@
 {
   "tag": "runtime-assets-v1",
-  "file": "krose-runtime-v1.tar.gz",
-  "sha256": "13cf99d8e5239aaa7b9cbc3eac0898aa09946c679daea0a3a2f4bc6c5099ba73"
+  "file": "krose-runtime-v1.tar.xz",
+  "sha256": "1a468608380c6e682d60069134e7fbb3959364da88884147ac8da44ef04585e1"
 }

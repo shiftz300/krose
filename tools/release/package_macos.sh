@@ -2,8 +2,10 @@
 set -euo pipefail
 build_dir="$1"
 version="$2"
-app_archs=$(lipo -archs "$build_dir/out/Krose.app/Contents/MacOS/Krose")
-plugin_archs=$(lipo -archs "$build_dir/out/Krose.vst3/Contents/MacOS/Krose")
+out="$build_dir/out"
+if [[ ! -d "$out/Krose.app" && -d "$out/Release/Krose.app" ]]; then out="$out/Release"; fi
+app_archs=$(lipo -archs "$out/Krose.app/Contents/MacOS/Krose")
+plugin_archs=$(lipo -archs "$out/Krose.vst3/Contents/MacOS/Krose")
 [[ "$app_archs" == "$plugin_archs" ]]
 case "$app_archs" in
   *arm64*x86_64*|*x86_64*arm64*) platform=macos-universal ;;
@@ -13,8 +15,14 @@ case "$app_archs" in
 esac
 stage="$build_dir/installer-root"
 mkdir -p "$stage/Applications" "$stage/Library/Audio/Plug-Ins/VST3" dist
-/usr/bin/ditto "$build_dir/out/Krose.app" "$stage/Applications/Krose.app"
-/usr/bin/ditto "$build_dir/out/Krose.vst3" "$stage/Library/Audio/Plug-Ins/VST3/Krose.vst3"
+/usr/bin/ditto "$out/Krose.app" "$stage/Applications/Krose.app"
+/usr/bin/ditto "$out/Krose.vst3" "$stage/Library/Audio/Plug-Ins/VST3/Krose.vst3"
+samples="$stage/Library/Application Support/Krose/Samples/$version"
+mkdir -p "$samples"
+for bank in Factory.samples SEGrand.samples; do
+  /usr/bin/ditto "$stage/Applications/Krose.app/Contents/Resources/$bank" "$samples/$bank"
+  rm "$stage/Applications/Krose.app/Contents/Resources/$bank" "$stage/Library/Audio/Plug-Ins/VST3/Krose.vst3/Contents/Resources/$bank"
+done
 for bundle in "$stage/Applications/Krose.app" "$stage/Library/Audio/Plug-Ins/VST3/Krose.vst3"; do
   codesign --force --sign - "$bundle"
   codesign --verify --deep --strict "$bundle"

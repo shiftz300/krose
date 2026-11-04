@@ -53,8 +53,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p build/downloads
-          gh release download runtime-assets-v1 --repo "$GITHUB_REPOSITORY" --pattern krose-runtime-v1.tar.gz --dir build/downloads
-          python tools/release/runtime_assets.py extract build/downloads/krose-runtime-v1.tar.gz
+          gh release download runtime-assets-v1 --repo "$GITHUB_REPOSITORY" --pattern krose-runtime-v1.tar.xz --dir build/downloads
+          python tools/release/runtime_assets.py extract build/downloads/krose-runtime-v1.tar.xz
       - name: Fetch pinned dependencies
         run: python tools/bootstrap_plugin.py
       - name: Configure macOS universal Release
@@ -77,8 +77,8 @@ jobs:
         if: runner.os == 'macOS'
         shell: bash
         run: |
-          lipo -verify_arch arm64 x86_64 build/release/out/Krose.app/Contents/MacOS/Krose
-          lipo -verify_arch arm64 x86_64 build/release/out/Krose.vst3/Contents/MacOS/Krose
+          lipo -verify_arch arm64 x86_64 build/release/out/Release/Krose.app/Contents/MacOS/Krose
+          lipo -verify_arch arm64 x86_64 build/release/out/Release/Krose.vst3/Contents/MacOS/Krose
           bash tools/release/package_macos.sh build/release "$KROSE_VERSION"
       - name: Package Windows NSIS installer
         if: runner.os == 'Windows'
@@ -98,7 +98,7 @@ jobs:
           $p = Start-Process "dist/Krose-$env:KROSE_VERSION-windows-x64-setup.exe" -ArgumentList /S -Wait -PassThru
           if ($p.ExitCode -ne 0) { throw 'Install failed' }
           if (!(Test-Path "$env:ProgramFiles/Krose/Krose.exe")) { throw 'Missing app' }
-          if (!(Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3/Contents/Resources/Factory.samples")) { throw 'Missing VST3 samples' }
+          if (!(Test-Path "$env:CommonProgramFiles/Krose/Samples/0.1.0/Factory.samples")) { throw 'Missing VST3 samples' }
           $p = Start-Process "$env:ProgramFiles/Krose/Uninstall.exe" -ArgumentList '/S', '_?=C:\Program Files\Krose' -Wait -PassThru
           if (Test-Path "$env:ProgramFiles/Krose/Krose.exe") { throw 'Uninstall left app' }
           if (Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3") { throw 'Uninstall left plugin' }

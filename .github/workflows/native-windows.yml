@@ -53,7 +53,7 @@ jobs:
           $p = Start-Process ./Krose-0.1.0-windows-x64-setup.exe -ArgumentList /S -Wait -PassThru
           if ($p.ExitCode -ne 0) { throw 'Install failed' }
           if (!(Test-Path "$env:ProgramFiles/Krose/Krose.exe")) { throw 'Missing app' }
-          if (!(Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3/Contents/Resources/Factory.samples")) { throw 'Missing plugin bank' }
+          if (!(Test-Path "$env:CommonProgramFiles/Krose/Samples/0.1.0/Factory.samples")) { throw 'Missing plugin bank' }
           Start-Process "$env:ProgramFiles/Krose/Uninstall.exe" -ArgumentList '/S', '_?=C:\Program Files\Krose' -Wait
           if (Test-Path "$env:ProgramFiles/Krose/Krose.exe") { throw 'Uninstall left app' }
           if (Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3") { throw 'Uninstall left plugin' }
