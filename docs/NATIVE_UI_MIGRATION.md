@@ -7,7 +7,7 @@
 - 原生面板已成为 VST3 和独立程序的默认编辑器。运行时使用 C++ / iPlug2 / IGraphics / NanoVG；macOS 使用 Metal，Windows 配置为 OpenGL 2。产品不再链接 WebKit。
 - 已接入旋钮、两套包络推子、61 键键盘、弯音、延音、Panic、LCD 四页、FX 收放、1162 项音色及原厂分类顺序。参数 ID 和声音核心保留。
 - 顶部 PRESET 先显示 Favorites 与 11 个原厂大类，点击大类才展开右侧音色列表；分类及音色保持原厂顺序。LCD 和浏览器筛选菜单按输入框左边与宽度展开。LCD 内无圆角，下拉框使用直角像素边框及点阵箭头。
-- 本机原生窗口的 Cocoa 事件测试通过，包括参数编辑、音色搜索、下拉选择和关窗重开；10 项 CTest 通过。原生帧缓冲与冻结页面的对比保存在 `build/native-ui/comparison/`。像素差分仍非零，不能宣称逐像素完全一致。
+- 本机原生窗口的 Cocoa 事件测试通过，包括参数编辑、音色搜索、下拉选择和关窗重开；11 项 CTest 通过。原生帧缓冲与冻结页面的对比保存在 `build/native-ui/comparison/`。像素差分仍非零，不能宣称逐像素完全一致。
 - Windows x64 的 VST3 和独立程序已通过 MSVC 编译：[构建记录](https://github.com/shiftz300/krose/actions/runs/41840350201)。CI 使用独立的编译占位包，不包含 PCM，不作可试听产物发布。Windows 窗口与宿主运行尚未实机验收。
 - LCD 菜单保持与输入框同宽，限制在屏幕内部，超出可见行数时滚动；Home/End、方向键与回车均可选择。数值微调按钮使用点阵箭头，清除了系统圆角底图。浏览器的搜索文字和行点击范围按可见区域裁剪，末尾音色可完整滚入视野。
 
@@ -22,6 +22,8 @@ PRESET 第一层只列分类；点分类后，右侧显示音色。列表支持�
 界面按需加载图片，字体图集去除透明空白并保留原像素。FX 收放复用离屏纹理，并跟随 60 Hz 绘制时钟。音频采样保持原始 24 位存储，按当前音色在后台加载；未就绪时 PRESET 显示 `LOADING`，失败显示 `LOAD FAILED`。面板布局不变。测量方式和前后数据见 [内存与动画优化](UI_OPTIMIZATION.md)、[采样与效果优化](SAMPLE_LOADING.md)。
 
 ## 文件组织
+
+FX 收放采用连续速度的临界阻尼缓动，快速反向时承接当前运动；到达终点后停止动画重绘。实测与动作范围见 [FX 动画](FX_ANIMATION.md)。
 
 - `src/plugin/editor/native/NativePanel.cpp`：整机与 LCD 绘制；`PanelInput.cpp`：宿主参数及输入；`PanelBrowser.cpp`：浏览器与通用菜单；`PanelFavorites.cpp`：二级 PRESET 菜单及收藏。
 - `src/plugin/editor/native/assets/`：运行时 PNG 材质与坐标清单。
@@ -47,7 +49,7 @@ python3 tools/native-ui/publish_complete.py
 
 ## 验证与交付
 
-- macOS arm64：官方 VST3 验证器 47/47，10/10 CTest，通过全部音色渲染、状态恢复与声音核心回归；原生 Cocoa 事件测试另行验证控件、搜索、菜单、FX 收放和编辑器重开。声音核心通过 9/9 ASan/UBSan 检查，包括全部 24 位数值转换、采样末尾边界、按需加载及零实时分配／释放；加载线程另通过 ThreadSanitizer。
+- macOS arm64：官方 VST3 验证器 47/47，11/11 CTest，通过全部音色渲染、状态恢复、声音核心及 FX 运动回归；原生 Cocoa 事件测试另行验证控件、搜索、菜单、FX 收放和编辑器重开。引擎与独立工具通过 10/10 ASan/UBSan 检查，包括全部 24 位数值转换、采样末尾边界、按需加载、零实时分配／释放和动画反向；加载线程另通过 ThreadSanitizer。
 - 原生实际渲染图保存在 [current](verification/native-ui/current/)，包括整机、ARP、FX 与三处菜单。历史 `reference-*.png` 保留，不覆盖原稿。
 - 当前图与原稿的差分包含已授权的像素边框修订，以及文字栅格化等差异。MAE 与超阈值像素占比见 `current/comparison.json`；这些数值不能换算成移植完成率，也不表示逐像素完全一致。
 - 本机交付：`output/Krose/Krose.vst3`、`Krose.app`。打包时重新签名、校验并运行官方 VST3 验证器，精确二进制、资源和测试日志哈希写入 `manifest.json`。

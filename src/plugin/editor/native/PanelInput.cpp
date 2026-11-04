@@ -73,9 +73,9 @@ void NativePanel::Activate(const Hit &h) {
   else if (h.action == "step")
     StepProgram(int(h.value));
   else if (h.action == "fold") {
-    mFoldFrom = FoldProgress();
     mFold = !mFold;
-    mFoldStarted = std::chrono::steady_clock::now();
+    mFXMotion.Target(mFold, std::chrono::duration<double>(
+                               std::chrono::steady_clock::now().time_since_epoch()).count());
   } else if (h.action == "browse") {
     ReleaseHeld();
     mBrowsing = true;

@@ -179,10 +179,8 @@ bool NativePanel::IsDirty() {
   return IControl::IsDirty() || FoldProgress() != mRenderedFold;
 }
 double NativePanel::FoldProgress() const {
-  double t = std::clamp(
-      std::chrono::duration<double>(std::chrono::steady_clock::now() - mFoldStarted).count() / .22,
-      0., 1.);
-  return mFoldFrom + (double(mFold) - mFoldFrom) * (1 - std::pow(1 - t, 3));
+  return mFXMotion.At(std::chrono::duration<double>(
+                         std::chrono::steady_clock::now().time_since_epoch()).count()).position;
 }
 void NativePanel::Render(IGraphics &g) {
   Bitmap(g, "native-base", 0, 0);

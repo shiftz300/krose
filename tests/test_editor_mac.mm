@@ -105,7 +105,7 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
     std::cout << "Native editor ready pass " << pass << std::endl;
     if (std::getenv("KROSE_UI_BENCH")) {
       memory("editor");
-      for(int n=0;n<12;++n){click(v,71,85);pump(.2);}
+      for(int n=0;n<12;++n){click(v,71,85);pump(.45);}
       memory("animated");
       view->removed();pump(.3);memory("closed");
       [window orderOut:nil];return;
@@ -115,7 +115,7 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
         std::string path = std::string(directory) + "/native-" + name + ".pam";
         setenv("KROSE_NATIVE_CAPTURE", path.c_str(), 1);
         click(v, x, y);
-        pump(.2);
+        pump(.6); // Include the final settled frame of a reversed FX transition.
         unsetenv("KROSE_NATIVE_CAPTURE");
       };
       capture("main", 700, 125);
@@ -203,6 +203,7 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       assert(std::abs(program() - 1.) < 1e-8);
       click(v, 71, 85);
       click(v, 71, 85);
+      pump(.6); // The second click reverses the transition before it settles.
       click(v, 215, 460);
       click(v, 1305, 331);
       click(v, 1380, 331);

@@ -50,6 +50,11 @@ target_compile_options(test-image-memory PRIVATE -UNDEBUG)
 set_target_properties(test-image-memory PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 add_test(NAME image-memory COMMAND test-image-memory)
 
+add_executable(test-fx-motion test_fx_motion.cpp)
+target_compile_options(test-fx-motion PRIVATE -UNDEBUG)
+set_target_properties(test-fx-motion PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+add_test(NAME fx-motion COMMAND test-fx-motion)
+
 add_executable(test-effects test_effects.cpp)
 target_link_libraries(test-effects PRIVATE segrand-engine)
 target_compile_options(test-effects PRIVATE -UNDEBUG)

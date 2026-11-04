@@ -1,4 +1,5 @@
 #pragma once
+#include "FXMotion.h"
 #include "IControl.h"
 #include "json.hpp"
 #include <array>
@@ -102,10 +103,9 @@ private:
   std::vector<int> mPresetItems;
   std::set<std::string> mFavorites;
   bool mKeyboardFocus = false;
-  double mFoldFrom = 0;
+  FXMotion mFXMotion;
   double mRenderedFold = 0;
   ILayerPtr mFXLayer;
-  std::chrono::steady_clock::time_point mFoldStarted{};
   std::vector<double> mDrawTimes, mFrameGaps;
   std::chrono::steady_clock::time_point mPreviousFrame{};
   bool mPreviousAnimating = false;
