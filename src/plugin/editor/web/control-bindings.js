@@ -16,11 +16,24 @@ window.kroseNative.mount = function(root,state,render) {
     lcd.append(label);
   }
   // Only expose actions that are connected to the processor in this phase.
-  for(const el of root.querySelectorAll('[data-toggle=arp],[data-toggle=latch],[data-toggle=sw1],[data-toggle=sw2],[data-toggle=host],[data-bind=gate],[data-bind=swing],[data-fx],#kf-pan,#kf-save,#kf-compare,#kf-mod,#kf-pattern,#kf-rate')){
+  for(const el of root.querySelectorAll('[data-toggle=sw1],[data-toggle=sw2],[data-bind=swing],[data-fx],#kf-pan,#kf-save,#kf-compare,#kf-mod')){
     el.disabled=true;
   }
   for(const el of root.querySelectorAll('[data-voice]'))
     el.addEventListener('click',()=>bridge.set('Voice Mode',['poly','mono','legato'].indexOf(state.voice)));
+  const arpPatterns=['UP','DOWN','ALT 1','ALT 2','RANDOM'];
+  const arpRates=['1/32T','1/32','1/16T','1/16','1/8T','1/8','1/4T','1/4'];
+  const arpInputs={gate:'Arp Gate',tempo:'Arp Tempo',arpOctaves:'Arp Octaves'};
+  for(const [key,name] of Object.entries({arp:'Arp',latch:'Arp Latch',host:'Arp Host Sync'}))
+    for(const el of root.querySelectorAll('[data-toggle='+key+']'))
+      el.addEventListener('click',()=>bridge.set(name,+state.toggles[key]));
+  for(const [key,name] of Object.entries(arpInputs))
+    q('#kf-arp [data-bind='+key+']').addEventListener('change',()=>bridge.set(name,state.values[key]));
+  for(const [key,name] of Object.entries({sort:'Arp Sort',keySync:'Arp Key Sync'}))
+    q('[data-arp-check='+key+']').addEventListener('change',()=>bridge.set(name,+state.toggles[key]));
+  q('#kf-pattern').addEventListener('change',()=>bridge.set('Arp Pattern',arpPatterns.indexOf(state.pattern)));
+  q('#kf-rate').addEventListener('change',()=>bridge.set('Arp Resolution',arpRates.indexOf(state.rate)));
+  bridge.tempo=(value,host)=>{state.effectiveTempo=value;state.clockHost=host;render();};
   const notes=new Map();
   const keyFor=e=>e.target.closest('[data-midi]');
   function start(key){
@@ -74,6 +87,16 @@ window.kroseNative.mount = function(root,state,render) {
       state.preset=value;
       legacy.Tone.disabled=value!==0;
     }else if(name==='Output') state.values.output=value;
+    else if(name==='Arp') state.toggles.arp=!!value;
+    else if(name==='Arp Latch') state.toggles.latch=!!value;
+    else if(name==='Arp Host Sync') state.toggles.host=!!value;
+    else if(name==='Arp Sort') state.toggles.sort=!!value;
+    else if(name==='Arp Key Sync') state.toggles.keySync=!!value;
+    else if(name==='Arp Pattern') state.pattern=arpPatterns[value];
+    else if(name==='Arp Resolution') state.rate=arpRates[value];
+    else if(name==='Arp Gate') state.values.gate=value;
+    else if(name==='Arp Tempo') state.values.tempo=value;
+    else if(name==='Arp Octaves') state.values.arpOctaves=value;
     else if(name==='Voice Mode') state.voice=['poly','mono','legato'][value];
     else if(['Velocity','Pan','Cutoff','Resonance','Glide'].includes(name)) state.values[name.toLowerCase()]=value;
     else if(name.includes(' ')){

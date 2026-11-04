@@ -21,5 +21,15 @@ enum EParams {
   kFilterRelease = 16,
   kVoiceMode = 17,
   kGlide = 18,
-  kNumParams = 19
+  kArpEnabled = 19,
+  kArpLatch = 20,
+  kArpPattern = 21,
+  kArpResolution = 22,
+  kArpGate = 23,
+  kArpHostSync = 24,
+  kArpTempo = 25,
+  kArpOctaves = 26,
+  kArpSort = 27,
+  kArpKeySync = 28,
+  kNumParams = 29
 };

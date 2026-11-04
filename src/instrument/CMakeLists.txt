@@ -2,6 +2,7 @@ add_library(segrand-engine STATIC
   ProgramLibrary.cpp
   ProgramEngine.cpp
   InstrumentEngine.cpp
+  Arpeggiator.cpp
   PianoEngine.cpp
   NativeVoice.cpp
   NativeFilter.cpp

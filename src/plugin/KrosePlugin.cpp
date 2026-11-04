@@ -75,6 +75,22 @@ void KrosePlugin::ProcessBlock(sample**, sample** outputs, int nFrames) {
   controls.ampEg = envelope(kAmpAttack);
   controls.filterEg = envelope(kFilterAttack);
   mEngine->SetControls(controls);
+  segrand::ArpControls arp;
+  arp.enabled=GetParam(kArpEnabled)->Bool();arp.latch=GetParam(kArpLatch)->Bool();
+  arp.pattern=GetParam(kArpPattern)->Int();arp.resolution=GetParam(kArpResolution)->Int();
+  arp.gate=GetParam(kArpGate)->Int();arp.hostSync=GetParam(kArpHostSync)->Bool();
+  arp.tempo=GetParam(kArpTempo)->Value();arp.octaves=GetParam(kArpOctaves)->Int();
+  arp.sort=GetParam(kArpSort)->Bool();arp.keySync=GetParam(kArpKeySync)->Bool();
+  mEngine->SetArpeggiator(arp);
+  segrand::Transport transport;
+#if defined(VST3_API)
+  // iPlug2 marks sample position valid when VST3 supplies musical position.
+  transport.available=GetSamplePos()!=-1. && GetTempo()>0;
+  transport.running=GetTransportIsRunning();transport.tempo=GetTempo();transport.ppq=GetPPQPos();
+#endif
+  mEngine->SetTransport(transport);
+  mDisplayTempo.store(mEngine->Tempo(),std::memory_order_relaxed);
+  mDisplayHost.store(arp.hostSync&&transport.available,std::memory_order_relaxed);
 
   // Fixed stack buffers support arbitrary host block lengths without allocation.
   std::array<float, 256> left, right;

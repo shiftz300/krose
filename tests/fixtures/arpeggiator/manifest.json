@@ -1,0 +1,18 @@
+{
+  "format_version": 1,
+  "source": "research/derived/firmware/KROSS2_V124/architecture/stage04/arpeggio-sync-check.json",
+  "source_sha256": "1efdbfc46709eed8102421e82f64a19ab63d08da7b514a9ca223f3b9d09e01cd",
+  "files": [
+    {
+      "file": "presets.tsv",
+      "bytes": 65484,
+      "sha256": "854c14ad570078126fd883fc7846632f7f9ea0c2a0c724fb6e02607e30e711e4"
+    },
+    {
+      "file": "events.tsv",
+      "bytes": 3500,
+      "sha256": "8892ceebad04a1ffb4a8c6ee19341879bdbaf7a18a0ad51bfe2f5da1b24c01cc"
+    }
+  ],
+  "scope": "Original five built-in generators; 200 cases, 9600 notes and five continuous clock traces"
+}

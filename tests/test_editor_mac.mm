@@ -4,6 +4,8 @@
 #include "pluginterfaces/gui/iplugview.h"
 #include <cassert>
 #include <functional>
+#include <iostream>
+#include <cstdlib>
 
 namespace {
 WKWebView* findWebView(NSView* parent) {
@@ -29,7 +31,20 @@ id eval(WKWebView* web, NSString* script) {
   return result;
 }
 }
-void verifyEditor(Steinberg::IPlugView* view,const std::function<double()>& velocity,const std::function<double()>& program,const std::function<double()>& mode,const std::function<double()>& glide) {
+void snapshotEditor(WKWebView* web) {
+  const char* destination=std::getenv("KROSE_UI_SNAPSHOT_PATH");
+  if(!destination)return;
+  NSString* path=[NSString stringWithUTF8String:destination];
+  bool done=false;bool* completed=&done;
+  [web takeSnapshotWithConfiguration:nil completionHandler:^(NSImage* image,NSError* error){
+    assert(image&&!error);
+    NSBitmapImageRep* rep=[NSBitmapImageRep imageRepWithData:image.TIFFRepresentation];
+    NSData* png=[rep representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
+    assert([png writeToFile:path atomically:YES]);*completed=true;
+  }];
+  waitFor([&]{return done;});
+}
+void verifyEditor(Steinberg::IPlugView* view,const std::function<double()>& velocity,const std::function<double()>& program,const std::function<double()>& mode,const std::function<double()>& glide,const std::function<double(const char*)>& parameter) {
   [NSApplication sharedApplication];
   Steinberg::ViewRect rect{};
   assert(view->getSize(&rect)==Steinberg::kResultOk && rect.getWidth()==1472 && rect.getHeight()==648);
@@ -43,7 +58,26 @@ void verifyEditor(Steinberg::IPlugView* view,const std::function<double()>& velo
     waitFor([&]{return [eval(web,@"!!document.querySelector('#krose-fixed-ui[data-ready]')") boolValue];});
     assert(![eval(web,@"!!document.documentElement.dataset.scriptError") boolValue]);
     assert([eval(web,@"document.querySelector('#kf-program').options.length") intValue]==1162);
+    std::cout<<"Editor ready pass "<<pass<<std::endl;
     if(pass==0){
+      eval(web,@"document.querySelector('[data-page=arp]').click()");
+      assert(![eval(web,@"document.querySelector('[data-toggle=arp]').disabled") boolValue]);
+      assert([eval(web,@"document.querySelector('#kf-rate').options.length") intValue]==8);
+      eval(web,@"document.querySelector('[data-toggle=arp]').click()");
+      waitFor([&]{return parameter("Arp")==1.;});
+      eval(web,@"document.querySelector('[data-toggle=latch]').click()");
+      waitFor([&]{return parameter("Arp Latch")==1.;});
+      eval(web,@"document.querySelector('[data-toggle=host]').click()");
+      waitFor([&]{return parameter("Arp Host Sync")==0.;});
+      eval(web,@"(()=>{const e=document.querySelector('#kf-arp [data-bind=tempo]');e.value='143.25';e.dispatchEvent(new Event('change'));})()");
+      waitFor([&]{return std::abs(parameter("Arp Tempo")-123.25/280.)<1e-8;});
+      eval(web,@"(()=>{const e=document.querySelector('#kf-pattern');e.value='RANDOM';e.dispatchEvent(new Event('change'));})()");
+      waitFor([&]{return parameter("Arp Pattern")==1.;});
+      std::cout<<"ARP values written; tempo "<<[[eval(web,@"document.querySelector('#kf-tempo').textContent") description] UTF8String]<<std::endl;
+      assert([eval(web,@"document.querySelector('#kf-tempo').textContent") isEqualToString:@"INT 143.25"]);
+      assert([eval(web,@"(()=>{const screen=document.querySelector('.lcd').getBoundingClientRect();return [...document.querySelectorAll('#kf-arp input,#kf-arp select')].every(e=>{const r=e.getBoundingClientRect();return r.bottom<=screen.bottom-6&&r.left>=screen.left&&r.right<=screen.right;});})()") boolValue]);
+      snapshotEditor(web);
+      eval(web,@"document.querySelector('[data-page=main]').click()");
       waitFor([&]{return [eval(web,@"document.querySelector('[data-voice=legato]').getAttribute('aria-pressed')") isEqualToString:@"true"];});
       assert(![eval(web,@"document.querySelector('#kf-value-glide').disabled") boolValue]);
       eval(web,@"document.querySelector('[data-voice=mono]').click()");
@@ -66,6 +100,10 @@ void verifyEditor(Steinberg::IPlugView* view,const std::function<double()>& velo
       waitFor([&]{return std::abs(program()-1.)<1e-6;});
       assert(![eval(web,@"!!document.documentElement.dataset.scriptError") boolValue]);
     }else{
+      waitFor([&]{return [eval(web,@"document.querySelector('[data-toggle=arp]').getAttribute('aria-pressed')") isEqualToString:@"true"];});
+      assert([eval(web,@"document.querySelector('#kf-pattern').value") isEqualToString:@"RANDOM"]);
+      assert([eval(web,@"document.querySelector('#kf-arp [data-bind=tempo]').value") doubleValue]==143.25);
+      assert([eval(web,@"document.querySelector('[data-toggle=latch]').getAttribute('aria-pressed')") isEqualToString:@"true"]);
       waitFor([&]{return [eval(web,@"document.querySelector('[data-voice=mono]').getAttribute('aria-pressed')") isEqualToString:@"true"];});
       assert([eval(web,@"document.querySelector('#kf-value-glide').value") intValue]==80);
       waitFor([&]{return [eval(web,@"document.querySelector('#kf-value-velocity').value") doubleValue]==2.;});

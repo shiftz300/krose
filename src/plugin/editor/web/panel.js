@@ -55,6 +55,7 @@ const native=window.kroseNative;
 const presets=native?.presets||[['A000','Kross GrandPiano 1','PIANO',0],['A061','Celesta','PIANO',61],['B097','DWGS Bells 1','BELL',5],['C001','Stereo Strings 1','STRINGS',0]];
 const presetOrder=native?.browser.order||presets.map((_,i)=>i);
 const lcdResources={"source":"KROSS2 v1.2.4 KROSSAPP.bin","row_encoding":"Each integer is one row, most significant visible bit at left.","symbols":{"PIANO":{"offset":"0x38e219","width":14,"height":12,"rows":[4064,8176,8188,16383,16383,16383,16383,10837,10837,8193,16383,4290]},"E.PIANO":{"offset":"0x38e231","width":14,"height":12,"rows":[8190,16383,12291,16383,10837,10837,8193,16383,8190,2052,4098,8193]},"ORGAN":{"offset":"0x38e249","width":14,"height":12,"rows":[16383,10927,11007,16383,10837,10837,8193,16383,10837,10837,8193,16383]},"BELL":{"offset":"0x38e261","width":14,"height":12,"rows":[6,11,255,270,524,7180,4872,4504,4784,2656,3168,992]},"STRINGS":{"offset":"0x38e279","width":14,"height":12,"rows":[1804,2192,5728,8896,8496,12872,7784,1840,2488,4349,8199,11]},"BRASS":{"offset":"0x38e291","width":14,"height":12,"rows":[0,8192,8360,12288,14504,16383,14764,12970,8874,8706,508,0]},"SYNTH":{"offset":"0x38e2a9","width":14,"height":12,"rows":[16383,12125,16383,11093,16383,16213,11263,16383,11093,11093,16129,16383]},"SYNTH_ALT":{"offset":"0x38e2c1","width":14,"height":12,"rows":[16383,16383,16383,11221,15999,10837,16383,16383,10837,10837,8193,16383]},"GUITAR":{"offset":"0x38e2d9","width":14,"height":12,"rows":[14,30,60,1904,1120,6528,8608,10272,11360,9920,4288,3968]},"BASS":{"offset":"0x38e2f1","width":14,"height":12,"rows":[7,398,600,560,7272,8396,8460,9228,11832,7216,6192,10176]},"DRUM/SFX":{"offset":"0x38e309","width":14,"height":12,"rows":[4100,14350,4100,6004,6014,4574,4654,5140,5140,5140,14894,10698]},"AC":{"offset":"0x38e209","width":13,"height":8,"rows":[2040,4088,3279,6840,6328,2767,4088,2040]}},"aliases":{"SYNTH LEAD":"SYNTH","SYNTH PAD":"SYNTH"},"font":{"offset":"0x394f84","stride":10,"glyphs":{" ":[3,0,0,0,0,0,0,0,0,0],"(":[6,16,32,64,64,64,64,64,32,16],")":[6,64,32,16,16,16,16,16,32,64],":":[4,0,0,0,64,0,0,0,64,0],".":[4,0,0,0,0,0,0,0,64,0],"0":[6,0,112,136,152,168,200,136,112,0],"1":[6,0,32,96,32,32,32,32,32,0],"2":[6,0,112,136,136,16,32,64,248,0],"3":[6,0,112,136,8,48,8,136,112,0],"4":[6,0,16,48,80,144,248,16,16,0],"5":[6,0,248,128,240,8,8,136,112,0],"6":[6,0,112,128,240,136,136,136,112,0],"7":[6,0,248,8,16,32,32,32,32,0],"8":[6,0,112,136,136,112,136,136,112,0],"9":[6,0,112,136,136,136,120,8,112,0],"A":[6,0,32,80,80,136,248,136,136,0],"B":[6,0,240,136,136,240,136,136,240,0],"C":[6,0,112,136,128,128,128,136,112,0],"D":[6,0,240,136,136,136,136,136,240,0],"E":[6,0,248,128,128,240,128,128,248,0],"F":[6,0,248,128,128,240,128,128,128,0],"G":[6,0,120,128,128,152,136,136,120,0],"H":[6,0,136,136,136,248,136,136,136,0],"I":[2,0,128,128,128,128,128,128,128,0],"J":[5,0,16,16,16,16,16,144,96,0],"K":[6,0,136,144,160,192,160,144,136,0],"L":[6,0,128,128,128,128,128,128,248,0],"M":[8,0,130,198,170,170,146,146,130,0],"N":[6,0,136,200,200,168,152,152,136,0],"O":[6,0,112,136,136,136,136,136,112,0],"P":[6,0,240,136,136,240,128,128,128,0],"Q":[6,0,112,136,136,136,168,144,104,0],"R":[6,0,240,136,136,240,160,144,136,0],"S":[6,0,112,136,128,112,8,136,112,0],"T":[6,0,248,32,32,32,32,32,32,0],"U":[6,0,136,136,136,136,136,136,120,0],"V":[6,0,136,136,80,80,80,32,32,0],"W":[8,0,130,146,84,84,84,40,40,0],"X":[6,0,136,136,80,32,80,136,136,0],"Y":[6,0,136,136,80,32,32,32,32,0],"Z":[6,0,248,8,16,32,64,128,248,0],"/":[5,0,16,16,32,32,64,64,128,128]}},"tempoReference":{"origin":"User MAIN status-row photo","bpm":"125.00","sprites":{"[":[6,4,4,4,4,4,4,4,6],"]":[6,2,2,2,2,2,2,2,6],"note":[1,1,1,1,1,7,15,14],"=":[31,0,31],"1":[7,3,3,3,3],"2":[63,3,63,48,63],"5":[63,48,63,3,63],".":[3],"0":[30,51,51,51,30]}}};
+function displayTempo(){return native&&state.toggles.host&&state.clockHost?state.effectiveTempo:state.values.tempo;}
 function drawProgramRow(p){
  const [code,,category,index]=p;
  const displayCode=code.toUpperCase().replace(/^EXPCM00([124]):/,'E$1-');
@@ -70,15 +71,19 @@ function drawProgramRow(p){
  let x=Math.min(59,154-letters.reduce((n,g)=>n+g[0],0));
  for(const [advance,...rows] of letters){stamp(rows,8,x,2);x+=advance;}
  const sample=lcdResources.tempoReference.sprites;
- for(const [ch,width,dx,y] of [['[',3,0,1],['note',4,5,2],['=',5,12,4],['1',3,20,3],['2',6,27,3],['5',6,35,3],['.',2,43,7],['0',6,49,3],['0',6,57,3],[']',3,65,1]]){
+ for(const [ch,width,dx,y] of [['[',3,0,1],['note',4,5,2],['=',5,12,4],[']',3,65,1]]){
   stamp(sample[ch],width,157+dx,y);
  }
+ let tempoX=178;
+ for(const ch of displayTempo().toFixed(2)){
+  const [advance,...rows]=lcdResources.font.glyphs[ch];stamp(rows,8,tempoX,0);tempoX+=advance;
+ }
  stamp(symbols.AC.rows,symbols.AC.width,227,2);
- canvas.setAttribute('aria-label',label+' · 125.00 BPM · AC');
+ canvas.setAttribute('aria-label',label+' · '+displayTempo().toFixed(2)+' BPM · AC');
 }
-const defaults={output:-6,cutoff:0,resonance:0,velocity:1,pan:0,glide:0,gate:80,swing:0};
+const defaults={output:-6,cutoff:0,resonance:0,velocity:1,pan:0,glide:0,gate:80,swing:0,tempo:120,arpOctaves:1};
 const keyGeometry={whitePitch:34,whiteLength:216,blackWidth:20.4,blackLength:134};
-let state={version:1,values:{...defaults},toggles:{arp:true,latch:false,host:true,sustain:false,sw1:false,sw2:false},fx:{insert:true,master:true},fxEdits:{},fxFolded:false,eg:'amp',envelopes:{amp:{attack:0,decay:0,sustain:0,release:0},filter:{attack:0,decay:0,sustain:0,release:0}},voice:'poly',preset:0,page:'main',octave:0,rate:'1/16',pattern:'UP',wheels:{pitch:0,mod:0}};
+let state={version:1,values:{...defaults},toggles:{arp:true,latch:false,host:true,sustain:false,sw1:false,sw2:false,sort:true,keySync:true},fx:{insert:true,master:true},fxEdits:{},fxFolded:false,eg:'amp',envelopes:{amp:{attack:0,decay:0,sustain:0,release:0},filter:{attack:0,decay:0,sustain:0,release:0}},voice:'poly',preset:0,page:'main',octave:0,rate:'1/16',pattern:'UP',wheels:{pitch:0,mod:0}};
 let compare=null;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const signed=n=>(n>=0?'+':'−')+String(Math.abs(n)).padStart(2,'0');
@@ -471,6 +476,7 @@ function paintPageStrip(){
 function render(){
 $$('[data-control]').forEach(paintKnob);
 $$('[data-toggle]').forEach(b=>{const on=!!state.toggles[b.dataset.toggle];b.setAttribute('aria-pressed',on);});
+$$('[data-arp-check]').forEach(e=>e.addEventListener('change',()=>{state.toggles[e.dataset.arpCheck]=e.checked;render();persist();}));
 $$('[data-eg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.eg===state.eg));
 $$('[data-voice]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.voice===state.voice));
 $$('[data-fader]').forEach(f=>{const v=clamp(+state.envelopes[state.eg][f.dataset.fader]||0,-99,99);f.querySelector('input').value=v;f.querySelector('output').textContent=signed(v);});
@@ -482,11 +488,12 @@ $$('[data-fx]').forEach(input=>{input.checked=state.fx[input.dataset.fx]!==false
 if(state.page==='fx')renderEffects();else paintEffectView();
 $$('.lcd-tab[data-page]').forEach(b=>{const on=b.dataset.page===state.page;b.setAttribute('aria-selected',on);$('#kf-'+b.dataset.page).hidden=!on;});
 $('#kf-route').hidden=state.page!=='main';$('#kf-routing').textContent=programEffects[p[0]].map(slot=>slot.slot.replace('FX','')+' '+slot.name).join(' / ');
-$('#kf-arp-state').textContent='ARP '+(state.toggles.arp?'ON':'OFF')+' · LATCH '+(state.toggles.latch?'ON':'OFF');$('#kf-tempo').textContent=(state.toggles.host?'HOST':'INT')+' 125.00';$('#kf-tempo').title=$('#kf-tempo').textContent;$('#kf-octave').textContent='OCT'+(state.octave<0?'−':state.octave>0?'+':' ')+Math.abs(state.octave);$('#kf-rate').value=state.rate;$('#kf-pattern').value=state.pattern;
+$('#kf-arp-state').textContent='ARP '+(state.toggles.arp?'ON':'OFF')+' · LATCH '+(state.toggles.latch?'ON':'OFF');$('#kf-tempo').textContent=((native?state.toggles.host&&state.clockHost:state.toggles.host)?'HOST':'INT')+' '+displayTempo().toFixed(2);$('#kf-tempo').title=$('#kf-tempo').textContent;$('#kf-octave').textContent='OCT'+(state.octave<0?'−':state.octave>0?'+':' ')+Math.abs(state.octave);$('#kf-rate').value=state.rate;$('#kf-pattern').value=state.pattern;$$('[data-arp-check]').forEach(e=>e.checked=state.toggles[e.dataset.arpCheck]);
 ['pitch','mod'].forEach(k=>{const b=$('#kf-'+k),v=state.wheels[k];b.setAttribute('aria-valuenow',v);b.style.setProperty('--wheel',(k==='pitch'?50-v/8192*42:92-v/127*84)+'%');});
 $('#kf-compare').setAttribute('aria-pressed',!!compare);
 }
 $$('[data-toggle]').forEach(b=>b.addEventListener('click',()=>{state.toggles[b.dataset.toggle]=!state.toggles[b.dataset.toggle];render();persist();}));
+$$('[data-arp-check]').forEach(e=>e.addEventListener('change',()=>{state.toggles[e.dataset.arpCheck]=e.checked;render();persist();}));
 $$('[data-eg]').forEach(b=>b.addEventListener('click',()=>{state.eg=b.dataset.eg;render();persist();}));
 $$('[data-voice]').forEach(b=>b.addEventListener('click',()=>{state.voice=b.dataset.voice;render();persist();}));
 $$('.lcd-tab[data-page]').forEach(b=>b.addEventListener('click',()=>{state.page=b.dataset.page;render();persist();}));

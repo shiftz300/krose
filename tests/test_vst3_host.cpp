@@ -19,10 +19,11 @@
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
-void verifyEditor(IPlugView*,const std::function<double()>&,const std::function<double()>&,const std::function<double()>&,const std::function<double()>&);
+void verifyEditor(IPlugView*,const std::function<double()>&,const std::function<double()>&,const std::function<double()>&,const std::function<double()>&,const std::function<double(const char*)>&);
 
 int main(int argc,char** argv){
-  const bool openEditor=argc==3 && std::string(argv[2])=="--editor";
+  const bool editorOnly=argc==3 && std::string(argv[2])=="--editor-only";
+  const bool openEditor=editorOnly||(argc==3 && std::string(argv[2])=="--editor");
   assert(argc==2 || openEditor);
   std::string error;
   auto module=VST3::Hosting::Module::create(argv[1],error);
@@ -43,7 +44,7 @@ int main(int argc,char** argv){
   assert(processor->setBusArrangements(nullptr,0,&stereo,1)==kResultOk);
   component->activateBus(kAudio,kOutput,0,true);component->activateBus(kEvent,kInput,0,true);
   std::vector<double> signatures;
-  for(double rate:{44100.,48000.,96000.}){
+  for(double rate:{44100.,48000.,96000.})if(!editorOnly){
     for(int tone=0;tone<3;++tone){
       ProcessSetup setup{};setup.processMode=kOffline;setup.symbolicSampleSize=kSample32;setup.maxSamplesPerBlock=512;setup.sampleRate=rate;
       assert(processor->setupProcessing(setup)==kResultOk);
@@ -78,9 +79,9 @@ int main(int argc,char** argv){
       std::cout<<"VST3 rendered "<<rate<<" Hz tone "<<tone<<", energy "<<energy<<", peak "<<peak<<'\n';
     }
   }
-  assert(std::abs(signatures[0]-signatures[1])>0.001&&std::abs(signatures[1]-signatures[2])>0.001);
+  if(!editorOnly)assert(std::abs(signatures[0]-signatures[1])>0.001&&std::abs(signatures[1]-signatures[2])>0.001);
   // Exercise every newly packaged factory Program through the compiled plugin.
-  for(int program=1;program<=1161;++program){
+  for(int program=1;!editorOnly&&program<=1161;++program){
     ProcessSetup setup{};setup.processMode=kOffline;setup.symbolicSampleSize=kSample32;setup.maxSamplesPerBlock=512;setup.sampleRate=48000;
     assert(processor->setupProcessing(setup)==kResultOk);assert(component->setActive(true)==kResultOk);processor->setProcessing(true);
     std::vector<float> l(512),r(512);float* channels[2]={l.data(),r.data()};AudioBusBuffers bus{};bus.numChannels=2;bus.channelBuffers32=channels;
@@ -91,6 +92,30 @@ int main(int argc,char** argv){
     double energy=0;for(int block=0;block<100;++block){assert(processor->process(data)==kResultOk);for(int i=0;i<512;++i){assert(std::isfinite(l[i])&&std::isfinite(r[i]));energy+=l[i]*l[i]+r[i]*r[i];}events.clear();changes.clearQueue();}
     if(energy<=1e-9){std::cerr<<"Silent VST3 Program "<<program<<" energy "<<energy<<std::endl;std::abort();}MemoryStream state;assert(component->getState(&state)==kResultOk);state.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&state)==kResultOk);assert(std::abs(controller->getParamNormalized(ids["Program"])-program/1161.)<1e-6);
     processor->setProcessing(false);component->setActive(false);if(program%128==0||program==1161)std::cout<<"Verified VST3 Program "<<program<<'\n';
+  }
+  // Actual VST3 musical context gates the arpeggiator when the host stops.
+  {
+    ProcessSetup setup{};setup.processMode=kOffline;setup.symbolicSampleSize=kSample32;setup.maxSamplesPerBlock=512;setup.sampleRate=48000;
+    assert(processor->setupProcessing(setup)==kResultOk);assert(component->setActive(true)==kResultOk);processor->setProcessing(true);
+    std::vector<float> left(512),right(512);float* channels[2]={left.data(),right.data()};AudioBusBuffers bus{};bus.numChannels=2;bus.channelBuffers32=channels;
+    EventList events;ParameterChanges changes;int index=0,point=0;
+    for(auto pair:{std::pair<const char*,double>{"Program",0.},{"Space",0.},{"Arp",1.},{"Arp Host Sync",1.}})
+      changes.addParameterData(ids.at(pair.first),index)->addPoint(0,pair.second,point);
+    Event on{};on.type=Event::kNoteOnEvent;on.noteOn.channel=0;on.noteOn.pitch=60;on.noteOn.velocity=.9;events.addEvent(on);
+    ProcessContext context{};context.sampleRate=48000;context.tempo=150;context.state=ProcessContext::kProjectTimeMusicValid|ProcessContext::kTempoValid;
+    ProcessData data{};data.processMode=kOffline;data.symbolicSampleSize=kSample32;data.numOutputs=1;data.outputs=&bus;data.inputEvents=&events;data.inputParameterChanges=&changes;data.processContext=&context;data.numSamples=512;
+    assert(processor->process(data)==kResultOk);
+    for(int i=0;i<512;++i)assert(left[i]==0&&right[i]==0);
+    events.clear();changes.clearQueue();context.state|=ProcessContext::kPlaying;
+    double energy=0;
+    for(int block=0;block<16;++block){
+      context.projectTimeSamples=block*512;context.projectTimeMusic=context.projectTimeSamples*150./(60*48000);
+      assert(processor->process(data)==kResultOk);
+      for(int i=0;i<512;++i)energy+=left[i]*left[i]+right[i]*right[i];
+    }
+    assert(energy>.01);
+    processor->setProcessing(false);component->setActive(false);
+    std::cout<<"Verified VST3 ARP host stop/start at 150 BPM\n";
   }
   controller->setParamNormalized(ids["Tone"],0.5);controller->setParamNormalized(ids["Release"],0.7);
   MemoryStream saved;assert(component->getState(&saved)==kResultOk&&saved.getSize()>0);
@@ -135,8 +160,25 @@ int main(int argc,char** argv){
   assert(std::abs(controller->getParamNormalized(ids.at("Glide"))-64./127.)<1e-8);
   FUnknownPtr<IMidiMapping> mapping(controller);assert(mapping);ParamID sustain=0;
   assert(mapping->getMidiControllerAssignment(0,0,kCtrlSustainOnOff,sustain)==kResultOk);
+  MemoryStream nineteen;
+  double values19[]={2.,-9.,45.,410.,1.25,3.,-17.,12.,4.,1.,2.,3.,4.,5.,6.,7.,8.,2.,64.};
+  assert(nineteen.write(values19,sizeof(values19),nullptr)==kResultOk);
+  assert(nineteen.write(&bypass,sizeof(bypass),nullptr)==kResultOk);
+  controller->setParamNormalized(ids.at("Arp"),1.);
+  nineteen.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&nineteen)==kResultOk);
+  assert(controller->getParamNormalized(ids.at("Arp"))==0.);
+  assert(controller->getParamNormalized(ids.at("Glide"))==64./127.);
+  assert(ids.at("Arp")==19&&ids.at("Arp Key Sync")==28);
+  controller->setParamNormalized(ids.at("Arp Pattern"),.75);
+  controller->setParamNormalized(ids.at("Arp Tempo"),123.25/280.);
+  MemoryStream arpState;assert(component->getState(&arpState)==kResultOk);
+  controller->setParamNormalized(ids.at("Arp Pattern"),0.);controller->setParamNormalized(ids.at("Arp Tempo"),0.);
+  arpState.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&arpState)==kResultOk);
+  assert(controller->getParamNormalized(ids.at("Arp Pattern"))==.75);
+  assert(std::abs(controller->getParamNormalized(ids.at("Arp Tempo"))-123.25/280.)<1e-8);
   auto* view=controller->createView(ViewType::kEditor);assert(view);
-  if(openEditor) verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);},[&]{return controller->getParamNormalized(ids["Program"]);},[&]{return controller->getParamNormalized(ids["Voice Mode"]);},[&]{return controller->getParamNormalized(ids["Glide"]);});
+  if(openEditor) verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);},[&]{return controller->getParamNormalized(ids["Program"]);},[&]{return controller->getParamNormalized(ids["Voice Mode"]);},[&]{return controller->getParamNormalized(ids["Glide"]);},[&](const char* name){return controller->getParamNormalized(ids.at(name));});
   view->release();
-  std::cout<<"PASS compiled VST3: self-contained sample bank, MIDI offsets/audio, three rates/tones, parameter state round-trip, sustain mapping and editor creation\n";
+  if(editorOnly)std::cout<<"PASS editor-only: state/transport/UI checks; full-bank render skipped\n";
+  else std::cout<<"PASS compiled VST3: self-contained sample bank, MIDI offsets/audio, three rates/tones, parameter state round-trip, sustain mapping and editor creation\n";
 }

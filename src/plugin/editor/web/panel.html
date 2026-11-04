@@ -34,7 +34,16 @@
      </div>
      <div id="kf-fx-fields" class="lcd-fields"></div>
     </div>
-    <div id="kf-arp" class="lcd-panel" hidden><div class="lcd-fields"><label>Pattern: <select id="kf-pattern" aria-label="ARP Pattern"><option>UP</option><option>DOWN</option><option>ALT 1</option><option>ALT 2</option><option>RANDOM</option></select></label><label>Resolution: <select id="kf-rate" aria-label="ARP Rate"><option>1/32</option><option selected>1/16</option><option>1/8</option><option>1/4</option></select></label><label>Gate (%): <input type="number" min="1" max="100" data-bind="gate" aria-label="ARP Gate"></label><label>Swing (%): <input type="number" min="-100" max="100" data-bind="swing" aria-label="ARP Swing"></label></div><span id="kf-arp-state" hidden></span></div>
+    <div id="kf-arp" class="lcd-panel" hidden><div class="lcd-fields">
+     <label>Pattern: <select id="kf-pattern" aria-label="ARP Pattern"><option>UP</option><option>DOWN</option><option>ALT 1</option><option>ALT 2</option><option>RANDOM</option></select></label>
+     <label>Resolution: <select id="kf-rate" aria-label="ARP Rate"><option>1/32T</option><option>1/32</option><option>1/16T</option><option selected>1/16</option><option>1/8T</option><option>1/8</option><option>1/4T</option><option>1/4</option></select></label>
+     <label>Gate (%): <input type="number" min="1" max="100" data-bind="gate" aria-label="ARP Gate"></label>
+     <label>Tempo: <input type="number" min="20" max="300" step="0.01" data-bind="tempo" aria-label="ARP Tempo"></label>
+     <label>Octave: <input type="number" min="1" max="4" data-bind="arpOctaves" aria-label="ARP Octaves"></label>
+     <label>Sort: <input type="checkbox" data-arp-check="sort" aria-label="ARP Sort"></label>
+     <label>Key Sync: <input type="checkbox" data-arp-check="keySync" aria-label="ARP Key Sync"></label>
+     <label title="原琴内置五种 Pattern 忽略 Swing">Swing (%): <input type="number" min="-100" max="100" data-bind="swing" aria-label="ARP Swing" disabled></label>
+    </div><span id="kf-arp-state" hidden></span></div>
     <div class="lcd-footer" id="kf-route"><span id="kf-status"></span><span id="kf-routing"></span></div>
    </div></div>
    <div class="below-lcd"><button class="switch cursor-interaction" id="kf-prev" aria-label="上一个音色" type="button">◀</button><button class="switch cursor-interaction" id="kf-next" aria-label="下一个音色" type="button">▶</button><button class="switch cursor-interaction" id="kf-browse" aria-label="浏览音色" type="button">BROWSE</button><button class="switch cursor-interaction" id="kf-save" aria-label="保存原型状态" type="button">SAVE</button><button class="switch cursor-interaction" id="kf-compare" aria-label="对比预置" aria-pressed="false" type="button">COMPARE</button></div>

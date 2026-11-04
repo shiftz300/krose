@@ -23,6 +23,17 @@ void KrosePlugin::InitializeParameters() {
   GetParam(kVoiceMode)->InitEnum("Voice Mode",0,3,"",IParam::kFlagsNone,"","Poly","Mono","Legato");
   GetParam(kGlide)->InitInt("Glide",0,0,127);
 
+  GetParam(kArpEnabled)->InitBool("Arp",false);
+  GetParam(kArpLatch)->InitBool("Arp Latch",false);
+  GetParam(kArpPattern)->InitEnum("Arp Pattern",0,5,"",IParam::kFlagsNone,"","UP","DOWN","ALT 1","ALT 2","RANDOM");
+  GetParam(kArpResolution)->InitEnum("Arp Resolution",3,8,"",IParam::kFlagsNone,"","1/32T","1/32","1/16T","1/16","1/8T","1/8","1/4T","1/4");
+  GetParam(kArpGate)->InitInt("Arp Gate",80,1,100,"%");
+  GetParam(kArpHostSync)->InitBool("Arp Host Sync",true);
+  GetParam(kArpTempo)->InitDouble("Arp Tempo",120,20,300,.01,"BPM");
+  GetParam(kArpOctaves)->InitInt("Arp Octaves",1,1,4);
+  GetParam(kArpSort)->InitBool("Arp Sort",true);
+  GetParam(kArpKeySync)->InitBool("Arp Key Sync",true);
+
   MakeDefaultPreset("Concert");
   MakePresetFromNamedParams("Warm", 1, kParamTone, 1);
   MakePresetFromNamedParams("Wide", 1, kParamTone, 2);
@@ -32,10 +43,10 @@ void KrosePlugin::InitializeParameters() {
 }
 
 int KrosePlugin::UnserializeState(const IByteChunk& chunk, int startPos) {
-  // Historical releases stored 6 or 17 doubles, followed by a VST3 bypass int.
+  // Historical releases stored 6, 17 or 19 doubles, followed by a VST3 bypass int.
   if(startPos<0||startPos>chunk.Size())return -1;
   const int available=chunk.Size()-startPos;
-  for(int count:{6,17}){
+  for(int count:{6,17,19}){
     const int bytes=count*int(sizeof(double));
     if(available!=bytes&&available!=bytes+int(sizeof(int32_t)))continue;
     IByteChunk upgraded;

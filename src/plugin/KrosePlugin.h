@@ -4,6 +4,7 @@
 #include "InstrumentEngine.h"
 #include "Parameters.h"
 #include <array>
+#include <atomic>
 #include <memory>
 #include <string>
 
@@ -21,6 +22,7 @@ public:
   void OnReset() override;
 #endif
 #if IPLUG_EDITOR
+  void OnIdle() override;
   void OnUIClose() override;
   void OnParamChangeUI(int paramIdx, EParamSource source = kUnknown) override;
 #endif
@@ -38,4 +40,8 @@ private:
   std::unique_ptr<segrand::InstrumentEngine> mEngine;
   std::string mError;
   bool mPrepared = true;
+  std::atomic<double> mDisplayTempo{120.};
+  double mLastDisplayTempo = -1;
+  std::atomic<bool> mDisplayHost{false};
+  bool mLastDisplayHost = false;
 };

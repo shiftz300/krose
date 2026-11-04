@@ -49,7 +49,18 @@ void KrosePlugin::OnParamChangeUI(int id, EParamSource) {
   web->EvaluateJavaScript(script.c_str());
 }
 
+void KrosePlugin::OnIdle() {
+  const double tempo=mDisplayTempo.load(std::memory_order_relaxed);
+  const bool host=mDisplayHost.load(std::memory_order_relaxed);
+  if(!GetUI()||(std::abs(tempo-mLastDisplayTempo)<.005&&host==mLastDisplayHost))return;
+  auto* web=static_cast<IWebViewControl*>(GetUI()->GetControlWithTag(kEditorTag));
+  if(!web)return;
+  mLastDisplayTempo=tempo;mLastDisplayHost=host;
+  auto script="window.kroseNative?.tempo?.("+std::to_string(tempo)+","+(host?"true":"false")+")";
+  web->EvaluateJavaScript(script.c_str());
+}
 void KrosePlugin::OnUIClose() {
+  mLastDisplayTempo=-1;
   for (int note = 0; note < 128; ++note)
     if (mEditorNotes[note])
       SendMidiMsgFromUI(IMidiMsg(0, 0x80, note, 0));
@@ -70,6 +81,7 @@ void KrosePlugin::HandleEditorMessage(const char* text) {
   if (type == message.end() || !type->is_string())
     return;
   if (*type == "ready") {
+    mLastDisplayTempo=-1;
     for (int id = 0; id < kNumParams; ++id)
       OnParamChangeUI(id);
     return;

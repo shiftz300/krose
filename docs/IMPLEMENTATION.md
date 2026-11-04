@@ -31,4 +31,10 @@ POLY／MONO／LEGATO 与 GLIDE 已接入宿主参数，追加 ID 17、18。Mono 
 
 GLIDE 采用原 128 项系数表的 Time 模式，作用于 Mono／Legato 重叠按键及回退，0 关闭；控制访问按当前主机模型的 62.5 Hz 调度，并做连续音高插值。原 OSC 各自的 Rate／Time、Fingered、控制器覆盖、Offset Legato、Unison 仍未完整接入。具体行为及证据边界见 [演奏实现](PERFORMANCE.md)。
 
-旧 6 参数和 17 参数工程均迁移到新参数布局，新参数缺省为 Poly、Glide 0。SW1/2 的按音色分配、琶音器与完整效果编辑继续保留在后续增量；此次未更改面板布局。
+旧 6 参数和 17 参数工程均迁移到新参数布局，新参数缺省为 Poly、Glide 0。SW1/2 的按音色分配与完整效果编辑继续保留在后续增量，琶音进度见下节；此次未更改面板布局。
+
+## 阶段 3 · 内置琶音增量
+
+五种原厂内置 Pattern 已接入原生事件链：UP、DOWN、ALT 1、ALT 2、RANDOM。支持 ARP、Latch、八种 Resolution、Gate、1–4 Octave、Sort、Key Sync、内部速度及 VST3 宿主同步。新参数追加 ID 19–28，兼容旧 6／17／19 参数状态。LCD 显示实际速度，内部编辑项保持在原屏幕范围内。
+
+原 9,600 个生成音符与五条连续事件轨迹已冻结并对照。停止、跳转、变速、踏板、Latch 换和弦、跨块一致和实际 VST3 ProcessContext 有独立测试。内置模式遵守原琴忽略 Swing 的行为；1,280 条用户 Pattern、Flam／固定音高／连音／Swing 及外部 MIDI Clock 后续接入。详细操作与同步边界见 [琶音实现](ARPEGGIATOR.md)。

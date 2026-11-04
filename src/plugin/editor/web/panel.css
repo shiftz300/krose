@@ -351,3 +351,7 @@
 #krose-fixed-ui .upper-controls .control>.caption,#krose-fixed-ui .value-control>.caption{height:14px;line-height:14px}
 #krose-fixed-ui .sustain .switch:after{content:none}
 #krose-fixed-ui .arp-switches .switch,#krose-fixed-ui .voice-modes .switch,#krose-fixed-ui .sustain .switch{font-size:10px}
+
+/* Keep ARP editing inside the existing LCD, above its status footer. */
+#krose-fixed-ui #kf-arp .lcd-fields{gap:4px 18px;font-size:14px}
+#krose-fixed-ui #kf-arp input,#krose-fixed-ui #kf-arp select{height:18px}

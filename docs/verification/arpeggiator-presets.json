@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-04",
+  "baseline_commit": "d4c857a2404509333890664e23105f6f7d98f12d",
+  "scope": "Phase 3 increment: five built-in generators and native host/internal timing",
+  "parameters": {
+    "first": 19,
+    "last": 28,
+    "total": 29
+  },
+  "checks": {
+    "ctest": "7/7 passed",
+    "asan_ubsan": "6/6 passed",
+    "product_only_isolation": "6/6 passed without research/docs/tools",
+    "official_validator": "Result: 47 tests passed, 0 tests failed",
+    "original_generators": {
+      "cases": 200,
+      "notes": 9600,
+      "continuous_traces": 5,
+      "random_nonzero_period": 65535
+    },
+    "scheduler": "Eight resolutions; three sample rates; fractional BPM; gates; block invariance; latch/pedal/channel isolation; host stop/start/seek/tempo change; zero audio allocations",
+    "compiled_vst3": "Actual ProcessContext: stopped silent, running at 150 BPM audible",
+    "state": "6/17/19 parameter migration and 29 parameter round-trip",
+    "native_editor": "Eight fields within LCD bounds; ARP/Latch/Pattern/tempo host writeback and reopen; existing browser/category and performance checks retained",
+    "arp_disabled_baseline": "Nine VST3 energy/peak signatures unchanged",
+    "visual": "Actual WKWebView screenshot inspected; outer control layout retained"
+  },
+  "remaining": [
+    "1280 user Patterns and their Flam/tie/fixed-note/Swing paths",
+    "Original Program ARP assignments",
+    "External MIDI Clock and original dual-engine synchronization",
+    "SW1/SW2 mappings",
+    "Full FX editing and save/compare",
+    "Manual DAW long-run acceptance"
+  ],
+  "logs_sha256": {
+    "ctest": "e6cc3f6a0ad18c180288569b4f26c8a8ea9128e4d6ec834d766d97dcecb38c36",
+    "asan_ubsan": "5802754539dec3eee45fd5705e87b47a3f9d64367feebbd08f7cc5d735d8c607",
+    "native_editor": "d27cd2fd7dc7f9945cd48f275a018133693953b6869d7471de5be09c9970ea5e",
+    "isolated_engine": "f1f9bf0bcd7b96f5809200ed1f6fc3a2011458c0f00ad5244e13a88e27162949",
+    "official_validator": "76206e73ad0232d70d73814fb193940d4806c944b39e22e88dd44ec6ebf5728d"
+  },
+  "fixture_manifest_sha256": "f94d86dbb0ee50d74cbf5b0c91e0bbaf1bf56f21226fae60e3c3bae3bd6786c4",
+  "package_manifest_sha256": "bb0c742ba618454fb76d21eab3745fed5def3a84d9a3332c5792c7f8c17cdee0",
+  "screenshot": {
+    "path": "output/Krose/editor-arp.png",
+    "sha256": "16ef3189be222e208d70e5f526fceb7f1b3453ce3fc5b0cbedc68ce41ee4ac3c"
+  }
+}

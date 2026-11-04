@@ -67,3 +67,5 @@ build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor
 ## 演奏模式
 
 POLY 保留原复音路径；MONO 与 LEGATO 使用共用的按键优先级及滑音模块。面板选择作为全局覆盖保存，切换 Program 保留该选择。新模式的实现范围、原始观察和宿主插值边界见 [PERFORMANCE.md](PERFORMANCE.md)。
+
+原生内置琶音发生器已接入两套引擎，支持五种 Pattern、Latch、内部与宿主时钟。范围和用户 Pattern 缺口见 [琶音器](ARPEGGIATOR.md)。
