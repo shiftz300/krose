@@ -16,28 +16,27 @@
     "native-preset-secondary.png": "ab42e52e77ac6e2d8c63d49d18f990027cc21ca16fb438e5729b04ac8e25b2f3"
   },
   "tests": {
-    "plugin-ctest.log": "99a87fb98ae767d458fa9780ee4a5d457e60fb36877dfd49800b9e9fa08a69a2",
-    "native-ui-test.log": "1d4eb92e4471578db40e0c412163d17fa4da2b1e342a558f3f8b16fbc8a4bb50",
-    "engine-sanitizer.log": "45b30080b3920702d4a4d577e3468d21104b30c9162b1730ecc29d31fd320dd9",
-    "official-validator.log": "76206e73ad0232d70d73814fb193940d4806c944b39e22e88dd44ec6ebf5728d",
-    "thread-sanitizer.log": "07efa78dd8b045fafc3ed2791901dd5c5739abe6f15f985b239160b5c3a2cda0"
+    "plugin-ctest.log": "3baba67c7a3a83bbc686d7844a431f4181ec683212b0b348522af9c455b27017",
+    "native-ui-test.log": "92c8d688c19d46ae5940ec6c5a4bf8c844923770371450d37bc39df6a714e746",
+    "engine-sanitizer.log": "a76137ea8354fcb8a32c01f4493bbedae5ae12e4c13fe0cbbe2ce54cf48fb3d2",
+    "official-validator.log": "76206e73ad0232d70d73814fb193940d4806c944b39e22e88dd44ec6ebf5728d"
   },
   "package_binaries": [
     {
       "file": "Krose.vst3",
-      "binary_sha256": "38c574269d13331b226deb5430f7f5c515c61beee98153b58e4ebeb923482f90",
+      "binary_sha256": "4124535709880cdd441af5aad834c34d7906e54c22631d78519698ca78f081f2",
       "architecture": "arm64"
     },
     {
       "file": "Krose.app",
-      "binary_sha256": "522adc664aad77742a574af00c444d25b7fd9fc98eaac8fda335a91df51b7f0a",
+      "binary_sha256": "2e0009a6cbf1d29ceca0910a767f0c954a65a11a121d2184d39e68cc866ac636",
       "architecture": "arm64"
     }
   ],
   "official_vst3_validator": "47 passed, 0 failed",
   "windows_compile": {
-    "url": "https://github.com/shiftz300/krose/actions/runs/41819043126",
-    "commit": "9506c138778696f1e8bf64cf739e8eed1e6e171b",
+    "url": "https://github.com/shiftz300/krose/actions/runs/41840350201",
+    "commit": "d4e654c5373da3141042df3de90cfd682b2b216b",
     "targets": [
       "VST3",
       "standalone"
@@ -45,7 +44,7 @@
     "result": "passed",
     "runtime_acceptance": "not tested"
   },
-  "package_commit": "9506c138778696f1e8bf64cf739e8eed1e6e171b",
+  "package_commit": "d4e654c5373da3141042df3de90cfd682b2b216b",
   "optimization_baseline": {
     "commit": "3a97a9a",
     "unchanged_static_frames": [
@@ -73,5 +72,18 @@
     "static_frames": "main, arp, fx RGBA identical to 3adc40a current captures",
     "package_source_worktree_dirty": false,
     "audio_equivalence": "../on-demand/audio-equivalence.json"
+  },
+  "ui_memory_followup": {
+    "commit": "d4e654c5373da3141042df3de90cfd682b2b216b",
+    "baseline_commit": "9506c138778696f1e8bf64cf739e8eed1e6e171b",
+    "evidence_directory": "../memory-followup/",
+    "tests": {
+      "CTest": "10/10",
+      "ASan_UBSan": "9/9",
+      "product_only": "9/9",
+      "static_frames": "10 existing RGBA captures unchanged"
+    },
+    "native_bench": "3 fresh runs per patch/version, same corrected host, median; full-size 2x images and 60 Hz unchanged",
+    "installed_plugin_bench": "Default instances in fresh common host; Analog Lab also tested with eight-note chord and release; not hardware/DAW acceptance"
   }
 }
