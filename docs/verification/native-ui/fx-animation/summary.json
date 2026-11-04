@@ -23,6 +23,11 @@
     "draw_cpu": {
       "median_ms": 0.356166,
       "p95_ms": 0.632375
+    },
+    "physical_footprint_MB": {
+      "editor": 302.3,
+      "animated": 348.01,
+      "closed": 160.12
     }
   },
   "after": {
@@ -33,6 +38,11 @@
     "draw_cpu": {
       "median_ms": 0.336125,
       "p95_ms": 0.606625
+    },
+    "physical_footprint_MB": {
+      "editor": 302.15,
+      "animated": 348.0,
+      "closed": 159.93
     }
   }
 }

@@ -20,10 +20,14 @@
 | 动画 Draw 间隔 P95 | 18.90 ms | 19.83 ms |
 | 单次绘制 CPU 中位数 | 0.356 ms | 0.336 ms |
 | 单次绘制 CPU P95 | 0.632 ms | 0.607 ms |
+| 打开编辑器的物理内存 | 302.30 MB | 302.15 MB |
+| 收放 12 次后的物理内存 | 348.01 MB | 348.00 MB |
 
 目标刷新率仍为 60 Hz。测量未显示帧间隔波动改善；新曲线改善的是起步和反向的连贯性。收尾更长，因此每次操作的绘制帧数增加。Draw 间隔不等于屏幕实际呈现间隔，表内 CPU 时间不包含 GPU 完成时间。
 
 10 张实际静态帧与上一版逐像素一致，包含整机、LCD、数值上限、分类、收藏及菜单。原生 Cocoa 测试覆盖中途反向、参数操作和关窗重开。原始日志与汇总见 [fx-animation](verification/native-ui/fx-animation/)。
+
+本机交付包来自 `09a9be0` 的干净工作区；11 项 CTest、10 项 ASan/UBSan、10 项独立产品检查及官方 VST3 验证器 47 项检查均通过。二进制哈希见 [打包记录](verification/native-ui/fx-animation/package-verification.json)。
 
 复测：
 
@@ -33,4 +37,4 @@ KROSE_UI_BENCH=1 KROSE_UI_PROFILE=/tmp/krose-motion.json \
   build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor-only
 ```
 
-测量时避免同时编译或进行音频压力测试。Windows 的窗口流畅度和不同刷新率显示器仍需实机验证。
+测量时避免同时编译或进行音频压力测试。Windows x64 VST3 与独立程序已通过[编译检查](https://github.com/shiftz300/krose/actions/runs/41843549932)。CI 使用占位采样；Windows 的窗口流畅度和不同刷新率显示器仍需实机验证。
