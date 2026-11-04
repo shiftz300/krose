@@ -1,0 +1,14 @@
+{
+  "factory_bytes": 391461343,
+  "concert_bytes": 102683978,
+  "factory_samples": 4920,
+  "factory_exact_duplicate_bytes": 473298,
+  "concert_channels_already_in_factory_bytes": 102681258,
+  "probe_bytes": 16249697,
+  "compressed_probes": {
+    "xz": 15139200,
+    "xz_delta3": 13986068,
+    "gzip1": 15593641,
+    "gzip9": 15562569
+  }
+}

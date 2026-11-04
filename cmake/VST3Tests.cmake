@@ -42,7 +42,7 @@ add_executable(test-vst3-host tests/test_vst3_host.cpp tests/test_editor_mac.mm
 target_link_libraries(test-vst3-host PRIVATE segrand-sdk-hosting)
 target_compile_options(test-vst3-host PRIVATE -UNDEBUG)
 add_dependencies(test-vst3-host Krose-vst3)
-add_test(NAME vst3-host COMMAND test-vst3-host "${CMAKE_BINARY_DIR}/out/Krose.vst3")
+add_test(NAME vst3-host COMMAND test-vst3-host "$<TARGET_BUNDLE_DIR:Krose-vst3>")
 
 add_executable(benchmark-plugin-memory tools/benchmark_plugin_memory.mm
   "${SDK_ROOT}/public.sdk/source/vst/hosting/plugprovider.cpp")

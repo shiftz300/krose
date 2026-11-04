@@ -2,7 +2,7 @@
 
 普通 push 和 Pull Request 构建 Windows x64、macOS Universal（Apple Silicon + Intel），开启 Release 与 LTO。编译检查使用单独的占位采样目录，验证 NSIS 安装／卸载和 macOS PKG 结构，不上传占位成品。
 
-真实安装包流程位于 `.github/workflows/release.yml`：完整采样逐包 SHA-256 校验后构建，macOS 运行引擎及 VST3 回归，再生成 Windows NSIS EXE 和 macOS PKG。普通构建的真实安装包保留为 Actions artifact 14 天；推送 `v版本号` 标签时，两个平台均成功后自动创建 GitHub Release，附安装包和 SHA256SUMS.txt。标签须与 CMake、插件版本一致。
+真实安装包流程位于 `.github/workflows/release.yml`：资源包采用三字节差分 + XZ 压缩，只保存 Factory 波形一次和 Concert 引用索引；CI 无损重建并逐包 SHA-256 校验后构建，macOS 运行引擎及 VST3 回归，再生成 Windows NSIS EXE 和 macOS PKG。普通构建的真实安装包保留为 Actions artifact 14 天；推送 `v版本号` 标签时，两个平台均成功后自动创建 GitHub Release，附安装包和 SHA256SUMS.txt。标签须与 CMake、插件版本一致。
 
 ## 首次接入完整资源
 
@@ -11,9 +11,9 @@
 授权后，在有完整资源的工作区执行：
 
 ```sh
-python3 tools/release/runtime_assets.py pack /tmp/krose-runtime-v1.tar.gz
+python3 tools/release/runtime_assets.py pack /tmp/krose-runtime-v1.tar.xz
 gh release create runtime-assets-v1 --draft --prerelease --title 'Frozen runtime assets v1' --notes 'CI input banks'
-gh release upload runtime-assets-v1 /tmp/krose-runtime-v1.tar.gz
+gh release upload runtime-assets-v1 /tmp/krose-runtime-v1.tar.xz
 gh variable set KROSE_RELEASE_ASSETS_READY --body true
 ```
 
@@ -28,7 +28,7 @@ git tag -a v0.1.0 -m 'Krose 0.1.0'
 git push origin v0.1.0
 ```
 
-Windows NSIS 默认安装独立程序到 `Program Files\Krose`、VST3 到 `Common Files\VST3\Krose.vst3`，支持组件选择、开始菜单、系统卸载及 `/S` 静默安装；卸载保留用户收藏。macOS PKG 安装到 `/Applications/Krose.app` 和 `/Library/Audio/Plug-Ins/VST3/Krose.vst3`，关闭 bundle 重定位。
+Windows NSIS 默认安装独立程序到 `Program Files\Krose`、VST3 到 `Common Files\VST3\Krose.vst3`，支持组件选择、开始菜单、系统卸载及 `/S` 静默安装；采样共用 `Common Files\Krose\Samples\版本号`，卸载保留用户收藏。macOS PKG 安装到 `/Applications/Krose.app` 和 `/Library/Audio/Plug-Ins/VST3/Krose.vst3`，关闭 bundle 重定位，采样共用 `/Library/Application Support/Krose/Samples/版本号`。便携 bundle 优先使用内置采样，安装版也可用 `KROSE_SAMPLE_DIRECTORY` 指定自定义位置。
 
 当前没有发行证书：macOS bundle 使用 ad-hoc 签名，PKG 未签名／公证，Windows EXE 未做 Authenticode 签名。Release 说明明确标注此状态。
 

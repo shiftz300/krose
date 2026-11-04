@@ -18,6 +18,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - name: Read product version
+        shell: bash
+        run: |
+          python - <<'PYCODE'
+          import os,re
+          from pathlib import Path
+          version=re.search(r'project\(Krose VERSION ([0-9.]+)',Path('CMakeLists.txt').read_text())[1]
+          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('KROSE_VERSION='+version+'\n')
+          PYCODE
       - name: Fetch pinned dependencies
         run: python tools/bootstrap_plugin.py
       - name: Stage compile-only assets
@@ -41,19 +50,19 @@ jobs:
         run: cmake --build build/ci --config Release --target Krose-vst3 Krose-app --parallel 3
       - name: Check macOS installer structure
         if: runner.os == 'macOS'
-        run: bash tools/release/package_macos.sh build/ci 0.1.0
+        run: bash tools/release/package_macos.sh build/ci "$KROSE_VERSION"
       - name: Check NSIS install and uninstall
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           choco install nsis --no-progress -y
           $payload = (Resolve-Path build/ci/out).Path
-          & "${env:ProgramFiles(x86)}/NSIS/makensis.exe" /NOCD /DVERSION=0.1.0 "/DPAYLOAD=$payload" packaging/windows.nsi
+          & "${env:ProgramFiles(x86)}/NSIS/makensis.exe" /NOCD "/DVERSION=$env:KROSE_VERSION" "/DPAYLOAD=$payload" packaging/windows.nsi
           if ($LASTEXITCODE -ne 0) { throw 'NSIS failed' }
-          $p = Start-Process ./Krose-0.1.0-windows-x64-setup.exe -ArgumentList /S -Wait -PassThru
+          $p = Start-Process "./Krose-$env:KROSE_VERSION-windows-x64-setup.exe" -ArgumentList /S -Wait -PassThru
           if ($p.ExitCode -ne 0) { throw 'Install failed' }
           if (!(Test-Path "$env:ProgramFiles/Krose/Krose.exe")) { throw 'Missing app' }
-          if (!(Test-Path "$env:CommonProgramFiles/Krose/Samples/0.1.0/Factory.samples")) { throw 'Missing plugin bank' }
+          if (!(Test-Path "$env:CommonProgramFiles/Krose/Samples/$env:KROSE_VERSION/Factory.samples")) { throw 'Missing plugin bank' }
           Start-Process "$env:ProgramFiles/Krose/Uninstall.exe" -ArgumentList '/S', '_?=C:\Program Files\Krose' -Wait
           if (Test-Path "$env:ProgramFiles/Krose/Krose.exe") { throw 'Uninstall left app' }
           if (Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3") { throw 'Uninstall left plugin' }

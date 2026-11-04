@@ -1,0 +1,21 @@
+VST3 rendered 44100 Hz tone 0, energy 68.7319, peak 0.160415
+VST3 rendered 44100 Hz tone 1, energy 65.6927, peak 0.158655
+VST3 rendered 44100 Hz tone 2, energy 76.0565, peak 0.159592
+VST3 rendered 48000 Hz tone 0, energy 75.1311, peak 0.160477
+VST3 rendered 48000 Hz tone 1, energy 71.7532, peak 0.158685
+VST3 rendered 48000 Hz tone 2, energy 83.3351, peak 0.159591
+VST3 rendered 96000 Hz tone 0, energy 151.53, peak 0.161686
+VST3 rendered 96000 Hz tone 1, energy 144.479, peak 0.159182
+VST3 rendered 96000 Hz tone 2, energy 168.581, peak 0.160136
+Verified VST3 Program 128
+Verified VST3 Program 256
+Verified VST3 Program 384
+Verified VST3 Program 512
+Verified VST3 Program 640
+Verified VST3 Program 768
+Verified VST3 Program 896
+Verified VST3 Program 1024
+Verified VST3 Program 1152
+Verified VST3 Program 1161
+Verified VST3 ARP host stop/start at 150 BPM
+PASS compiled VST3: self-contained sample bank, MIDI offsets/audio, three rates/tones, parameter state round-trip, sustain mapping and editor creation
