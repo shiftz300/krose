@@ -1,4 +1,8 @@
 set(_native "${CMAKE_CURRENT_SOURCE_DIR}/editor/native/assets")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+  "${_native}/native-data.json" "${_native}/lcd-resources.json"
+  "${KROSE_FACTORY_ASSET_DIR}/FactoryPrograms.json"
+  "${KROSE_FACTORY_ASSET_DIR}/FactoryBrowser.json")
 file(GLOB KROSE_NATIVE_IMAGES CONFIGURE_DEPENDS "${_native}/*@2x.png")
 file(READ "${_native}/native-data.json" _data)
 file(READ "${KROSE_FACTORY_ASSET_DIR}/FactoryPrograms.json" _programs)
