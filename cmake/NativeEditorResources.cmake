@@ -11,5 +11,15 @@ foreach(_image IN LISTS KROSE_NATIVE_IMAGES)
   string(APPEND _names "\"${_name}\",")
 endforeach()
 string(REGEX REPLACE ",$" "]" _names "${_names}")
-file(CONFIGURE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/NativeData.h" CONTENT
-  "#pragma once\ninline constexpr char kNativeData[]=R\"json(${_data})json\";\ninline constexpr char kNativePrograms[]=R\"json(${_programs})json\";\ninline constexpr char kNativeBrowser[]=R\"json(${_browser})json\";\ninline constexpr char kNativeLCD[]=R\"json(${_lcd})json\";\ninline constexpr char kNativeImageNames[]=R\"json(${_names})json\";\n")
+# Large JSON literals exceed MSVC's string-literal limit. Byte initializers also
+# preserve the UTF-8 source bytes without relying on a compiler execution charset.
+set(_header "#pragma once\n")
+foreach(_pair IN ITEMS "Data|_data" "Programs|_programs" "Browser|_browser" "LCD|_lcd" "ImageNames|_names")
+  string(REPLACE "|" ";" _pair "${_pair}")
+  list(GET _pair 0 _symbol)
+  list(GET _pair 1 _variable)
+  string(HEX "${${_variable}}" _hex)
+  string(REGEX REPLACE "(..)" "char(0x\\1),\n" _bytes "${_hex}")
+  string(APPEND _header "inline constexpr char kNative${_symbol}[]={\n${_bytes}0};\n")
+endforeach()
+file(CONFIGURE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/NativeData.h" CONTENT "${_header}" @ONLY)

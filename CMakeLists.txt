@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.25)
 project(Krose VERSION 0.1.0 LANGUAGES C CXX)
+# Match iPlug2's static CRT for every engine and plugin target on Windows.
+if(MSVC)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

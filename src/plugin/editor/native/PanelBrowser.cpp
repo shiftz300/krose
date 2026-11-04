@@ -84,8 +84,10 @@ void NativePanel::Browser(IGraphics &g) {
   g.FillRect(IColor(26, 0, 0, 0), mRECT);
   Bitmap(g, "browser-base", 431, 129);
   HitBox(R(995, 150, 25, 26), "close");
+  g.PathClipRegion(R(481, 183, 185, 31));
   Text(g, mSearch.empty() ? "placeholder15" : "search15", mSearch.empty() ? "名称或编号" : mSearch,
        R(481, 183, 185, 31));
+  g.PathClipRegion();
   HitBox(R(452, 183, 227, 31), "search");
   for (auto r : {R(687, 183, 197, 31), R(892, 183, 128, 31)}) {
     g.FillRect(IColor(255, 35, 38, 40), r);
@@ -101,7 +103,9 @@ void NativePanel::Browser(IGraphics &g) {
   Chevron(g, R(892, 183, 128, 31), IColor(255, 227, 227, 227));
   HitBox(R(892, 183, 128, 31), "category");
   g.PathClipRegion(R(452, 226, 568, 292));
-  int maxScroll = std::max(0, int(mFiltered.size()) - 8);
+  // Seven complete rows and part of an eighth fit in the viewport. Allow the
+  // final row to scroll fully into view, and limit clicks to visible row pixels.
+  int maxScroll = std::max(0, int(mFiltered.size()) - 7);
   mScroll = std::clamp(mScroll, 0, maxScroll);
   for (int row = 0; row < 8 && mScroll + row < int(mFiltered.size()); ++row) {
     int i = mFiltered[mScroll + row];
@@ -114,13 +118,14 @@ void NativePanel::Browser(IGraphics &g) {
     if (p.size() > 5 && !p[5].get<std::string>().empty())
       s += " · " + p[5].get<std::string>();
     Text(g, "arial15", s, b.GetPadded(-10));
+    b.B = std::min(b.B, 518.f);
     HitBox(b, "program", -1, i);
   }
   if (mFiltered.empty())
     Text(g, "arial15", "没有匹配的音色", R(452, 226, 568, 33));
   g.PathClipRegion();
-  if (mFiltered.size() > 8) {
-    float h = std::max(18.f, 280.f * 8 / mFiltered.size());
+  if (mFiltered.size() > 7) {
+    float h = std::max(18.f, 280.f * 7 / mFiltered.size());
     g.FillRoundRect(IColor(150, 170, 175, 177),
                     R(1024, 226 + (280 - h) * mScroll / std::max(1, maxScroll), 4, h), 2);
   }

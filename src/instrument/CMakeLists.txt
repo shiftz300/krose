@@ -13,4 +13,8 @@ target_include_directories(segrand-engine PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}"
   "${CMAKE_CURRENT_SOURCE_DIR}/../dsp"
   "${SEGRAND_GENERATED}")
-target_compile_options(segrand-engine PRIVATE -Wall -Wextra -Werror)
+if(MSVC)
+  target_compile_options(segrand-engine PRIVATE /W4 /utf-8)
+else()
+  target_compile_options(segrand-engine PRIVATE -Wall -Wextra -Werror)
+endif()
