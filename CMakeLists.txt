@@ -30,7 +30,7 @@ add_custom_command(OUTPUT "${SEGRAND_GENERATED}/NativeVoiceData.h" "${SEGRAND_GE
   DEPENDS "${SEGRAND_ASSET_DIR}/NativeVoiceData.h" "${SEGRAND_ASSET_DIR}/voice-assets.json"
   VERBATIM)
 add_custom_target(segrand-voice-assets DEPENDS "${SEGRAND_GENERATED}/NativeVoiceData.h")
-# Frozen factory starter assets are an explicit offline handoff, not a firmware build step.
+# Frozen complete factory/GM/expansion assets are an explicit offline handoff, not a firmware build step.
 set(KROSE_FACTORY_ASSET_DIR "${CMAKE_SOURCE_DIR}/assets/factory-starter" CACHE PATH "Frozen shared factory library")
 segrand_check_asset_bundle("${KROSE_FACTORY_ASSET_DIR}")
 add_custom_command(OUTPUT "${SEGRAND_GENERATED}/Factory.samples" "${SEGRAND_GENERATED}/FactoryPrograms.h"
@@ -50,7 +50,8 @@ segrand_check_asset_bundle("${SEGRAND_FIXTURE_DIR}")
 add_executable(test-program-engine tests/test_program_engine.cpp)
 target_link_libraries(test-program-engine PRIVATE segrand-engine)
 target_compile_options(test-program-engine PRIVATE -UNDEBUG)
-add_test(NAME program-engine COMMAND test-program-engine "${SEGRAND_GENERATED}/Factory.samples" "${SEGRAND_GENERATED}/SEGrand.samples")
+segrand_check_asset_bundle("${CMAKE_SOURCE_DIR}/tests/fixtures/full-programs")
+add_test(NAME program-engine COMMAND test-program-engine "${SEGRAND_GENERATED}/Factory.samples" "${SEGRAND_GENERATED}/SEGrand.samples" "${CMAKE_SOURCE_DIR}/tests/fixtures/full-programs")
 add_executable(test-piano-engine tests/test_piano_engine.cpp)
 target_link_libraries(test-piano-engine PRIVATE segrand-engine)
 target_compile_options(test-piano-engine PRIVATE -UNDEBUG)

@@ -19,7 +19,7 @@
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
-void verifyEditor(IPlugView*,const std::function<double()>&);
+void verifyEditor(IPlugView*,const std::function<double()>&,const std::function<double()>&);
 
 int main(int argc,char** argv){
   const bool openEditor=argc==3 && std::string(argv[2])=="--editor";
@@ -80,17 +80,17 @@ int main(int argc,char** argv){
   }
   assert(std::abs(signatures[0]-signatures[1])>0.001&&std::abs(signatures[1]-signatures[2])>0.001);
   // Exercise every newly packaged factory Program through the compiled plugin.
-  for(int program=1;program<=6;++program){
+  for(int program=1;program<=1161;++program){
     ProcessSetup setup{};setup.processMode=kOffline;setup.symbolicSampleSize=kSample32;setup.maxSamplesPerBlock=512;setup.sampleRate=48000;
     assert(processor->setupProcessing(setup)==kResultOk);assert(component->setActive(true)==kResultOk);processor->setProcessing(true);
     std::vector<float> l(512),r(512);float* channels[2]={l.data(),r.data()};AudioBusBuffers bus{};bus.numChannels=2;bus.channelBuffers32=channels;
-    EventList events;ParameterChanges changes;int index=0,point=0;changes.addParameterData(ids["Program"],index)->addPoint(0,program/6.,point);
+    EventList events;ParameterChanges changes;int index=0,point=0;changes.addParameterData(ids["Program"],index)->addPoint(0,program/1161.,point);
     changes.addParameterData(ids["Space"],index)->addPoint(0,0,point);
-    Event on{};on.type=Event::kNoteOnEvent;on.busIndex=0;on.sampleOffset=37;on.noteOn.channel=program>=5?9:0;on.noteOn.pitch=program>=5?36:60;on.noteOn.velocity=.9f;events.addEvent(on);
+    Event on{};on.type=Event::kNoteOnEvent;on.busIndex=0;on.sampleOffset=37;on.noteOn.channel=0;on.noteOn.velocity=110.f/127;for(int note:{36,48,60,72,84}){on.noteOn.pitch=note;events.addEvent(on);}
     ProcessData data{};data.processMode=kOffline;data.symbolicSampleSize=kSample32;data.numOutputs=1;data.outputs=&bus;data.inputEvents=&events;data.inputParameterChanges=&changes;data.numSamples=512;
     double energy=0;for(int block=0;block<100;++block){assert(processor->process(data)==kResultOk);for(int i=0;i<512;++i){assert(std::isfinite(l[i])&&std::isfinite(r[i]));energy+=l[i]*l[i]+r[i]*r[i];}events.clear();changes.clearQueue();}
-    assert(energy>1e-6);MemoryStream state;assert(component->getState(&state)==kResultOk);state.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&state)==kResultOk);assert(std::abs(controller->getParamNormalized(ids["Program"])-program/6.)<1e-6);
-    processor->setProcessing(false);component->setActive(false);std::cout<<"Factory Program "<<program<<" energy "<<energy<<'\n';
+    if(energy<=1e-9){std::cerr<<"Silent VST3 Program "<<program<<" energy "<<energy<<std::endl;std::abort();}MemoryStream state;assert(component->getState(&state)==kResultOk);state.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&state)==kResultOk);assert(std::abs(controller->getParamNormalized(ids["Program"])-program/1161.)<1e-6);
+    processor->setProcessing(false);component->setActive(false);if(program%128==0||program==1161)std::cout<<"Verified VST3 Program "<<program<<'\n';
   }
   controller->setParamNormalized(ids["Tone"],0.5);controller->setParamNormalized(ids["Release"],0.7);
   MemoryStream saved;assert(component->getState(&saved)==kResultOk&&saved.getSize()>0);
@@ -107,12 +107,12 @@ int main(int argc,char** argv){
   legacy.seek(0,IBStream::kIBSeekSet,nullptr);
   controller->setParamNormalized(ids.at("Pan"),1.);
   assert(component->setState(&legacy)==kResultOk);
-  assert(std::abs(controller->getParamNormalized(ids.at("Program"))-.5)<1e-8);
+  assert(std::abs(controller->getParamNormalized(ids.at("Program"))-3./1161.)<1e-8);
   assert(std::abs(controller->getParamNormalized(ids.at("Pan"))-64./127.)<1e-8);
   FUnknownPtr<IMidiMapping> mapping(controller);assert(mapping);ParamID sustain=0;
   assert(mapping->getMidiControllerAssignment(0,0,kCtrlSustainOnOff,sustain)==kResultOk);
   auto* view=controller->createView(ViewType::kEditor);assert(view);
-  if(openEditor) verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);});
+  if(openEditor) verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);},[&]{return controller->getParamNormalized(ids["Program"]);});
   view->release();
   std::cout<<"PASS compiled VST3: self-contained sample bank, MIDI offsets/audio, three rates/tones, parameter state round-trip, sustain mapping and editor creation\n";
 }

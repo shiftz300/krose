@@ -1,7 +1,7 @@
 # 产品运行资源
 
-`concert-se-grand/` 是已验证数据的冻结导出，供普通 CMake 构建使用。包含采样包、控制表、EQ 系数及来源清单；不含完整固件或研究执行环境。
+`concert-se-grand/` 保留独立 Concert 路径的采样包、控制表、EQ 系数与来源清单。显式更新命令为 `python3 research/tools/export_runtime_assets.py`。
 
-修改研究结果后，显式运行 `python3 tools/export_runtime_assets.py` 更新。不要手工修改导出文件。大型 `SEGrand.samples` 仅保留本地，取得源码后需另备完整资源包。详见 [目录与导出流程](../docs/PROJECT_LAYOUT.md)。
+`factory-starter/` 现为完整共享库：768 个出厂、265 个 GM、128 个扩展 Program；4,920 段采样和 42,980 个区域。目录名为兼容现有构建路径保留。`FactoryPrograms.json` 与 `FactoryPrograms.h` 统一提供浏览器和宿主目录；manifest 记录来源、校验和及缺失层。更新命令为 `python3 research/tools/export_full_bank.py`。`native-starter.json` 仅固定最早六个音色的兼容顺序。
 
-`factory-starter/`：独立冻结的首批板载共享库（357 份单声道采样、6 个 Program、418 个区域），包含带版本的 PCM24/参数包与 manifest。显式导出：`python3 research/tools/export_factory_bank.py`，选择来源为 `research/config/native-starter.json`。产品构建只检查并复制已有资源，不执行导出器。
+CMake 校验冻结包后直接复制，不执行研究脚本。两个大型 `.samples` 文件只保留本地；纯源码副本需要另备资源包。导出数据不要手工编辑。范围与已知限制见 [原生引擎结构](../docs/NATIVE_ARCHITECTURE.md)。

@@ -1,0 +1,31 @@
+{
+  "format_version": 1,
+  "files": [
+    {
+      "file": "selection.tsv",
+      "bytes": 129279,
+      "sha256": "96205f126731265c64fb05eb6c00c579a60c4ed92041d44a75ff6204ef7afb47"
+    },
+    {
+      "file": "voices.tsv",
+      "bytes": 284183,
+      "sha256": "475393ad14c953c08a746ab1b63c6247d2133beb1acbba1ead4566f35eb7d187"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "research/derived/firmware/KROSS2_V124/architecture/stage04/factory-voice-chain-check.json",
+      "sha256": "81e1fd4df1baad001484deb65e33767565267a7750ea9e7087e71c0a442a7b0f"
+    },
+    {
+      "path": "research/derived/firmware/KROSS2_V124/architecture/stage04/gm-programs-check.json",
+      "sha256": "7c4025775cba7b870194967b627c18c0264a96359d0cc31b26daee90a3017e95"
+    },
+    {
+      "path": "research/derived/firmware/KROSS2_V124/architecture/stage04/expansion-voices-check.json",
+      "sha256": "035ada79dc7240ca25e8ed393f1c845d9cbb6f5cd18077045e2a3f6d81660d45"
+    }
+  ],
+  "voices": 8900,
+  "selections": 8944
+}

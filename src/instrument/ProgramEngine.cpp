@@ -43,7 +43,13 @@ void ProgramEngine::Release(Voice& voice) noexcept{
 }
 void ProgramEngine::NoteOn(int note,int velocity,int channel) noexcept{
  const auto& p=mLibrary->programs[mProgram];
- std::array<int32_t,2> indices{{p.lookup[0][note][velocity],p.lookup[1][note][velocity]}};
+ std::array<int32_t,8> indices;indices.fill(-1);unsigned selected=0;
+ for(int osc=0;osc<2;++osc)for(int slot=0;slot<4;++slot){
+  const auto* b=p.controls.data()+0x564+380*osc;
+  if(velocity<std::min(b[0x2d],b[0x2e])||velocity>std::max(b[0x2d],b[0x2e]))continue;
+  const auto index=p.lookup[osc][note][slot];
+  if(index>=0&&mLibrary->LayerWeight(mLibrary->regions[unsigned(index)],velocity)>0)indices[selected++]=index;
+ }
  unsigned needed=0;for(auto i:indices)if(i>=0)++needed;if(!needed)return;
  if(p.drum){const int group=mLibrary->regions[unsigned(indices[0])].exclusive;if(group)for(auto& v:mVoices)if(v.region&&v.channel==channel&&v.program==&p&&v.region->exclusive==group)Tail(v);}
  while(kVoices-ActiveVoices()<needed){
@@ -55,12 +61,13 @@ void ProgramEngine::NoteOn(int note,int velocity,int channel) noexcept{
   if(index<0)continue;const auto& r=mLibrary->regions[unsigned(index)];
   auto it=std::find_if(mVoices.begin(),mVoices.end(),[](const Voice& v){return !v.region;});if(it==mVoices.end())return;
   auto& v=*it;v={};v.region=&r;v.program=&p;v.note=note;v.channel=channel;v.down=true;v.age=age;
-  v.velocityTrim=p.drum?std::pow(velocity/127.,1.4):std::pow(velocity/127.,mControls.velocityCurve-1);
+  const int weight=mLibrary->LayerWeight(r,velocity);
+  v.velocityTrim=p.drum?std::pow(velocity/127.,1.4)*weight/32768.:std::pow(velocity/127.,mControls.velocityCurve-1);
   const double pan=std::clamp((r.pan-64)/63.,-1.,1.);
   if(r.sample[1]==UINT32_MAX){v.panL=std::cos((pan+1)*.7853981633974483);v.panR=std::sin((pan+1)*.7853981633974483);}
   else {v.panL=pan>0?1-pan:1;v.panR=pan<0?1+pan:1;}
-  for(int ch=0;ch<2;++ch)if(r.sample[ch]!=UINT32_MAX){v.step[ch]=mLibrary->Step(r,ch,note,mRate);if(r.flags&1)v.position[ch]=mLibrary->samples[r.sample[ch]].pcm.size()-1;}
-  if(!p.drum){v.amplitude.SetOffsets(mControls.ampEg);v.filter.SetOffsets(mControls.filterEg,mControls.cutoff,mControls.resonance);v.amplitude.StartProgram(p.controls.data(),note,velocity,r.oscillator,r.slotLevel);v.slew.Reset(v.amplitude.InitialGain());v.slew.SetTarget(v.amplitude.Gain());v.filter.StartProgram(p.controls.data(),v.amplitude,r.oscillator,velocity,mRate);}
+  for(int ch=0;ch<2;++ch)if(r.sample[ch]!=UINT32_MAX){v.step[ch]=mLibrary->Step(p,r,ch,note,mRate);if(r.flags&1)v.position[ch]=mLibrary->samples[r.sample[ch]].pcm.size()-1;}
+  if(!p.drum){v.amplitude.SetOffsets(mControls.ampEg);v.filter.SetOffsets(mControls.filterEg,mControls.cutoff,mControls.resonance);v.amplitude.StartProgram(p.controls.data(),note,velocity,r.oscillator,r.slotLevel*weight/32768);v.slew.Reset(v.amplitude.InitialGain());v.slew.SetTarget(v.amplitude.Gain());v.filter.StartProgram(p.controls.data(),v.amplitude,r.oscillator,velocity,mRate);}
  }
 }
 void ProgramEngine::Queue(MidiEvent event) noexcept{

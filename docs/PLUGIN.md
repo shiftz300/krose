@@ -1,4 +1,4 @@
-> 新版入口：已加入共享库与六个板载 Program，见 [原生引擎结构](NATIVE_ARCHITECTURE.md)。下文主要记录原 Concert 基线；新声音用 Program 菜单选择。
+> 2026-11-04：完整目录已接入，共 1,162 项（含 Concert 兼容入口）。通过 PRESET 或 BROWSE 搜索、筛选。当前资源与限制见 [原生引擎结构](NATIVE_ARCHITECTURE.md)，界面与功能进度见 [实现计划](IMPLEMENTATION.md)。以下 Concert 声音基线记录保留。
 
 > 2026-11-01 目录迁移：当前根目录为 `krose`。下文历史验证记录保留；旧编译与旧插件二进制已清理，按构建步骤重新生成。
 

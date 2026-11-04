@@ -16,6 +16,7 @@ struct ProgramRegion {
   std::array<int,2> root{},fine{};
   int oscillator=0,slotLevel=127,pan=64,exclusive=0,flags=0,coarse=0,drumFine=0;
   double gain=1;
+  int slot=0,fadeInWidth=0,fadeInCurve=0,fadeOutBottom=0,fadeOutWidth=0,fadeOutCurve=0;
 };
 struct InstrumentProgram {
   std::array<char,16> id{};
@@ -23,8 +24,8 @@ struct InstrumentProgram {
   bool drum=false;
   uint32_t firstRegion=0,regionCount=0;
   std::array<uint8_t,2140> controls{};
-  // Precompiled note/velocity selection: no searching/allocating in Process.
-  std::array<std::array<std::array<int32_t,128>,128>,2> lookup{};
+  // Precompiled OSC/key/slot selection: four bounded slots, no allocation.
+  std::array<std::array<std::array<int32_t,4>,128>,2> lookup{};
 };
 class ProgramLibrary {
 public:
@@ -33,11 +34,14 @@ public:
   std::vector<SharedSample> samples;
   std::vector<ProgramRegion> regions;
   std::vector<InstrumentProgram> programs;
-  double Step(const ProgramRegion& region,int channel,int note,double sampleRate) const noexcept;
+  double Step(const InstrumentProgram& program,const ProgramRegion& region,int channel,int note,double sampleRate) const noexcept;
   size_t PCMBytes() const noexcept;
+  int LayerWeight(const ProgramRegion& region,int velocity) const noexcept;
+  static int SelectionPitch(const InstrumentProgram& program,int oscillator,int note) noexcept;
 private:
   std::array<uint32_t,224> mPhaseBase{};
   std::array<uint16_t,256> mPhaseFraction{};
+  std::array<uint16_t,129> mCrossfade{};
   uint32_t Phase(int exponent) const noexcept;
 };
 }

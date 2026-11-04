@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Package the local macOS builds and record their exact assets/source hashes."""
+import argparse
 import hashlib
 import json
 import platform
@@ -17,15 +18,22 @@ def digest(path):
 
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--skip-tests',action='store_true',help='Use previously completed CTest logs; do not rerun audio renders')
+    args=parser.parse_args()
     build = ROOT / 'build/plugin'
     output = ROOT / 'output/Krose'
     output.mkdir(parents=True, exist_ok=True)
     checks = [
         ('plugin-ctest.log', ['ctest', '--test-dir', str(build), '--output-on-failure']),
         ('engine-sanitizer.log', ['ctest', '--test-dir', str(ROOT / 'build/sanitize'), '--output-on-failure'])]
-    for log, command in checks:
+    for log, command in ([] if args.skip_tests else checks):
         with (build / log).open('w') as stream:
             subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT, check=True)
+    for log,_ in checks:
+        text=(build/log).read_text()
+        if '100% tests passed' not in text or re.search(r'[1-9]\d* tests failed',text):
+            raise RuntimeError('A successful current test log is required: '+log)
     bundles = []
     for name in ('Krose.vst3', 'Krose.app'):
         source = build / 'out' / name
@@ -51,14 +59,19 @@ def main():
                *sorted((ROOT / 'cmake').rglob('*'))]
     manifest = {'name': 'Krose', 'version': '0.1.0', 'platform': platform.platform(),
                 'bundles': bundles, 'assets': json.loads((build / 'generated/assets.json').read_text()),
+                'program_library':json.loads((ROOT/'assets/factory-starter/manifest.json').read_text()),
+                'test_logs':{name:digest(build/name) for name,_ in checks},
+                'tests_run_by_packager':not args.skip_tests,
                 'dependencies': json.loads((ROOT / 'cmake/dependencies.json').read_text()),
                 'source_sha256': {str(p.relative_to(ROOT)): digest(p) for p in sources if p.is_file()},
                 'verification': {'vst3_official_validator': result[0],
-                                 'ctest': ['piano-engine', 'vst3-host'], 'engine_asan_ubsan': 'passed',
+                                 'ctest': ['program-engine','piano-engine','native-voice','native-filter','vst3-host'], 'engine_asan_ubsan': 'passed',
                                  'ableton_manual_acceptance': 'pending'},
-                'benchmark': json.loads((ROOT / 'build/piano-benchmark.json').read_text())}
+                'benchmark': json.loads((ROOT/'build/piano-benchmark.json').read_text()) if (ROOT/'build/piano-benchmark.json').exists() else None}
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     shutil.copy(ROOT / 'docs/PLUGIN.md', output / 'README.md')
+    shutil.copy(ROOT/'docs/NATIVE_ARCHITECTURE.md',output/'NATIVE_ARCHITECTURE.md')
+    shutil.copy(ROOT/'docs/IMPLEMENTATION.md',output/'IMPLEMENTATION.md')
     print('Packaged, signed and verified: output/Krose/{Krose.vst3,Krose.app}')
 
 

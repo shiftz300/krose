@@ -3,5 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>html,body{margin:0;background:#101216;overflow:hidden}</style>
 <script>window.addEventListener("error", e => document.documentElement.dataset.scriptError=e.message);
-@KROSE_BRIDGE@</script>
+@KROSE_BRIDGE@
+window.kroseNative.presets=@KROSE_CATALOG@;
+</script>
 </head><body>@KROSE_PANEL@</body></html>

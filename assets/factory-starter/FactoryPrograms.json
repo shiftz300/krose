@@ -1,0 +1,9297 @@
+[
+  [
+    "EX",
+    "Concert SE Grand",
+    "PIANO",
+    0,
+    "Concert"
+  ],
+  [
+    "A000",
+    "Kross Grand Piano 1",
+    "PIANO",
+    0,
+    "Factory",
+    ""
+  ],
+  [
+    "A061",
+    "Celesta",
+    "PIANO",
+    61,
+    "Factory",
+    ""
+  ],
+  [
+    "B097",
+    "DWGS Bells 1",
+    "BELL",
+    5,
+    "Factory",
+    ""
+  ],
+  [
+    "C001",
+    "Stereo Strings 1",
+    "STRINGS",
+    0,
+    "Factory",
+    ""
+  ],
+  [
+    "F042",
+    "Basic Kit 1",
+    "DRUM/SFX",
+    9,
+    "Factory",
+    ""
+  ],
+  [
+    "F036",
+    "Jazz Kit",
+    "DRUM/SFX",
+    3,
+    "Factory",
+    ""
+  ],
+  [
+    "A001",
+    "Kross Grand Piano 2",
+    "PIANO",
+    1,
+    "Factory",
+    ""
+  ],
+  [
+    "A002",
+    "Stereo Grand Piano",
+    "PIANO",
+    2,
+    "Factory",
+    ""
+  ],
+  [
+    "A003",
+    "Bright Grand Piano 1",
+    "PIANO",
+    3,
+    "Factory",
+    ""
+  ],
+  [
+    "A004",
+    "Bright Grand Piano 2",
+    "PIANO",
+    4,
+    "Factory",
+    ""
+  ],
+  [
+    "A005",
+    "Rock Grand Piano",
+    "PIANO",
+    5,
+    "Factory",
+    ""
+  ],
+  [
+    "A006",
+    "Stage Grand Piano 1",
+    "PIANO",
+    6,
+    "Factory",
+    ""
+  ],
+  [
+    "A007",
+    "Stage Grand Piano 2",
+    "PIANO",
+    7,
+    "Factory",
+    ""
+  ],
+  [
+    "A008",
+    "Vivid Grand Piano",
+    "PIANO",
+    8,
+    "Factory",
+    ""
+  ],
+  [
+    "A009",
+    "Warm Grand Piano",
+    "PIANO",
+    9,
+    "Factory",
+    ""
+  ],
+  [
+    "A010",
+    "Dark Grand Piano",
+    "PIANO",
+    10,
+    "Factory",
+    ""
+  ],
+  [
+    "A011",
+    "Pop Grand Piano",
+    "PIANO",
+    11,
+    "Factory",
+    ""
+  ],
+  [
+    "A012",
+    "Reverb Grand Piano",
+    "PIANO",
+    12,
+    "Factory",
+    ""
+  ],
+  [
+    "A013",
+    "Stereo A.Piano",
+    "PIANO",
+    13,
+    "Factory",
+    ""
+  ],
+  [
+    "A014",
+    "Bright A.Piano",
+    "PIANO",
+    14,
+    "Factory",
+    ""
+  ],
+  [
+    "A015",
+    "Chorus A.Piano",
+    "PIANO",
+    15,
+    "Factory",
+    ""
+  ],
+  [
+    "A016",
+    "Upright Piano 1",
+    "PIANO",
+    16,
+    "Factory",
+    ""
+  ],
+  [
+    "A017",
+    "Upright Piano 2",
+    "PIANO",
+    17,
+    "Factory",
+    ""
+  ],
+  [
+    "A018",
+    "Upright Piano 3",
+    "PIANO",
+    18,
+    "Factory",
+    ""
+  ],
+  [
+    "A019",
+    "Bar Room Piano",
+    "PIANO",
+    19,
+    "Factory",
+    ""
+  ],
+  [
+    "A020",
+    "Monaural A.Piano",
+    "PIANO",
+    20,
+    "Factory",
+    ""
+  ],
+  [
+    "A021",
+    "Bright Mono Piano",
+    "PIANO",
+    21,
+    "Factory",
+    ""
+  ],
+  [
+    "A022",
+    "Dark Mono Piano",
+    "PIANO",
+    22,
+    "Factory",
+    ""
+  ],
+  [
+    "A023",
+    "Bright Mono Grand",
+    "PIANO",
+    23,
+    "Factory",
+    ""
+  ],
+  [
+    "A024",
+    "Dark Mono Grand",
+    "PIANO",
+    24,
+    "Factory",
+    ""
+  ],
+  [
+    "A025",
+    "Comp Mono Grand",
+    "PIANO",
+    25,
+    "Factory",
+    ""
+  ],
+  [
+    "A026",
+    "Hammer Mono Piano",
+    "PIANO",
+    26,
+    "Factory",
+    ""
+  ],
+  [
+    "A027",
+    "Detuned Piano",
+    "PIANO",
+    27,
+    "Factory",
+    ""
+  ],
+  [
+    "A028",
+    "Honkey Tonky",
+    "PIANO",
+    28,
+    "Factory",
+    ""
+  ],
+  [
+    "A029",
+    "Old Story Grand",
+    "PIANO",
+    29,
+    "Factory",
+    ""
+  ],
+  [
+    "A030",
+    "Very Old Grand",
+    "PIANO",
+    30,
+    "Factory",
+    ""
+  ],
+  [
+    "A031",
+    "Fortepiano",
+    "PIANO",
+    31,
+    "Factory",
+    ""
+  ],
+  [
+    "A032",
+    "SG-1D Piano 1",
+    "PIANO",
+    32,
+    "Factory",
+    ""
+  ],
+  [
+    "A033",
+    "SG-1D Piano 2",
+    "PIANO",
+    33,
+    "Factory",
+    ""
+  ],
+  [
+    "A034",
+    "M1 Piano",
+    "PIANO",
+    34,
+    "Factory",
+    ""
+  ],
+  [
+    "A035",
+    "Electric Grand 1",
+    "PIANO",
+    35,
+    "Factory",
+    ""
+  ],
+  [
+    "A036",
+    "Electric Grand 2",
+    "PIANO",
+    36,
+    "Factory",
+    ""
+  ],
+  [
+    "A037",
+    "Chorus E.Grand 1",
+    "PIANO",
+    37,
+    "Factory",
+    ""
+  ],
+  [
+    "A038",
+    "Chorus E.Grand 2",
+    "PIANO",
+    38,
+    "Factory",
+    ""
+  ],
+  [
+    "A039",
+    "Dual Piano",
+    "PIANO",
+    39,
+    "Factory",
+    ""
+  ],
+  [
+    "A040",
+    "Chillout Piano",
+    "PIANO",
+    40,
+    "Factory",
+    ""
+  ],
+  [
+    "A041",
+    "Sad Piano",
+    "PIANO",
+    41,
+    "Factory",
+    ""
+  ],
+  [
+    "A042",
+    "Damper Piano",
+    "PIANO",
+    42,
+    "Factory",
+    ""
+  ],
+  [
+    "A043",
+    "Piano Dub Wheel",
+    "PIANO",
+    43,
+    "Factory",
+    ""
+  ],
+  [
+    "A044",
+    "Lo FS Piano Wheel",
+    "PIANO",
+    44,
+    "Factory",
+    ""
+  ],
+  [
+    "A045",
+    "Piano + FM E.Piano",
+    "PIANO",
+    45,
+    "Factory",
+    ""
+  ],
+  [
+    "A046",
+    "Alone Piano",
+    "PIANO",
+    46,
+    "Factory",
+    ""
+  ],
+  [
+    "A047",
+    "Piano+Dyno E.Piano",
+    "PIANO",
+    47,
+    "Factory",
+    ""
+  ],
+  [
+    "A048",
+    "Romance Piano",
+    "PIANO",
+    48,
+    "Factory",
+    ""
+  ],
+  [
+    "A049",
+    "Sparkling Piano",
+    "PIANO",
+    49,
+    "Factory",
+    ""
+  ],
+  [
+    "A050",
+    "A.Piano + Strings",
+    "PIANO",
+    50,
+    "Factory",
+    ""
+  ],
+  [
+    "A051",
+    "A.Piano+Orch Pad 1",
+    "PIANO",
+    51,
+    "Factory",
+    ""
+  ],
+  [
+    "A052",
+    "A.Piano+Orch Pad 2",
+    "PIANO",
+    52,
+    "Factory",
+    ""
+  ],
+  [
+    "A053",
+    "Grand Piano+Strings",
+    "PIANO",
+    53,
+    "Factory",
+    ""
+  ],
+  [
+    "A054",
+    "Grand Pf+Orch Pad1",
+    "PIANO",
+    54,
+    "Factory",
+    ""
+  ],
+  [
+    "A055",
+    "Grand Pf+Orch Pad2",
+    "PIANO",
+    55,
+    "Factory",
+    ""
+  ],
+  [
+    "A056",
+    "Grand Pf+Small Str.",
+    "PIANO",
+    56,
+    "Factory",
+    ""
+  ],
+  [
+    "A057",
+    "Grand Pf+Str.Pad 1",
+    "PIANO",
+    57,
+    "Factory",
+    ""
+  ],
+  [
+    "A058",
+    "Grand Pf+Str.Pad 2",
+    "PIANO",
+    58,
+    "Factory",
+    ""
+  ],
+  [
+    "A059",
+    "A.Piano + Synth Pad",
+    "PIANO",
+    59,
+    "Factory",
+    ""
+  ],
+  [
+    "A060",
+    "90's Piano",
+    "PIANO",
+    60,
+    "Factory",
+    ""
+  ],
+  [
+    "A062",
+    "Toy Piano",
+    "PIANO",
+    62,
+    "Factory",
+    ""
+  ],
+  [
+    "A063",
+    "Romance ToyPiano",
+    "PIANO",
+    63,
+    "Factory",
+    ""
+  ],
+  [
+    "A064",
+    "E.P.Suit R&B SW1/2",
+    "E.PIANO",
+    0,
+    "Factory",
+    ""
+  ],
+  [
+    "A065",
+    "E.P.Suit R&B Phaser",
+    "E.PIANO",
+    1,
+    "Factory",
+    ""
+  ],
+  [
+    "A066",
+    "E.P.Suit Preamp",
+    "E.PIANO",
+    2,
+    "Factory",
+    ""
+  ],
+  [
+    "A067",
+    "E.P.Suit Dist. SW2",
+    "E.PIANO",
+    3,
+    "Factory",
+    ""
+  ],
+  [
+    "A068",
+    "E.P.Suit Dist&Phaser",
+    "E.PIANO",
+    4,
+    "Factory",
+    ""
+  ],
+  [
+    "A069",
+    "E.P.Suit 1984",
+    "E.PIANO",
+    5,
+    "Factory",
+    ""
+  ],
+  [
+    "A070",
+    "E.P.Suit Classic Bell",
+    "E.PIANO",
+    6,
+    "Factory",
+    ""
+  ],
+  [
+    "A071",
+    "E.P.Suit Mark I Line",
+    "E.PIANO",
+    7,
+    "Factory",
+    ""
+  ],
+  [
+    "A072",
+    "E.P.Suit Mark I Silver",
+    "E.PIANO",
+    8,
+    "Factory",
+    ""
+  ],
+  [
+    "A073",
+    "E.P.Suit Tremolo",
+    "E.PIANO",
+    9,
+    "Factory",
+    ""
+  ],
+  [
+    "A074",
+    "E.P.Suit Cho&U-Vibe",
+    "E.PIANO",
+    10,
+    "Factory",
+    ""
+  ],
+  [
+    "A075",
+    "EP Suit U-Vibe&Echo",
+    "E.PIANO",
+    11,
+    "Factory",
+    ""
+  ],
+  [
+    "A076",
+    "E.P.Suit BiPhase MW",
+    "E.PIANO",
+    12,
+    "Factory",
+    ""
+  ],
+  [
+    "A077",
+    "E.P.Suit Phaser 1",
+    "E.PIANO",
+    13,
+    "Factory",
+    ""
+  ],
+  [
+    "A078",
+    "E.P.Suit Phaser 2",
+    "E.PIANO",
+    14,
+    "Factory",
+    ""
+  ],
+  [
+    "A079",
+    "E.P.Suit Preamp&Wah",
+    "E.PIANO",
+    15,
+    "Factory",
+    ""
+  ],
+  [
+    "A080",
+    "E.P.Suit WahWah",
+    "E.PIANO",
+    16,
+    "Factory",
+    ""
+  ],
+  [
+    "A081",
+    "E.P.Suit BPM Delay",
+    "E.PIANO",
+    17,
+    "Factory",
+    ""
+  ],
+  [
+    "A082",
+    "E.P.Suit Mark V",
+    "E.PIANO",
+    18,
+    "Factory",
+    ""
+  ],
+  [
+    "A083",
+    "E.P.Suit Hard",
+    "E.PIANO",
+    19,
+    "Factory",
+    ""
+  ],
+  [
+    "A084",
+    "E.P.Dyno Studio",
+    "E.PIANO",
+    20,
+    "Factory",
+    ""
+  ],
+  [
+    "A085",
+    "E.P.Dyno EQ/Chorus",
+    "E.PIANO",
+    21,
+    "Factory",
+    ""
+  ],
+  [
+    "A086",
+    "E.P.Dyno Chorus",
+    "E.PIANO",
+    22,
+    "Factory",
+    ""
+  ],
+  [
+    "A087",
+    "EP Dyno Exciter/Cho",
+    "E.PIANO",
+    23,
+    "Factory",
+    ""
+  ],
+  [
+    "A088",
+    "E.P.Reed Wah Wheel",
+    "E.PIANO",
+    24,
+    "Factory",
+    ""
+  ],
+  [
+    "A089",
+    "E.P.Reed Mellow",
+    "E.PIANO",
+    25,
+    "Factory",
+    ""
+  ],
+  [
+    "A090",
+    "E.P.Reed Tremolo",
+    "E.PIANO",
+    26,
+    "Factory",
+    ""
+  ],
+  [
+    "A091",
+    "E.P.Reed Overdrive",
+    "E.PIANO",
+    27,
+    "Factory",
+    ""
+  ],
+  [
+    "A092",
+    "E.P.Reed Rockin'",
+    "E.PIANO",
+    28,
+    "Factory",
+    ""
+  ],
+  [
+    "A093",
+    "E.P.Reed Chorus",
+    "E.PIANO",
+    29,
+    "Factory",
+    ""
+  ],
+  [
+    "A094",
+    "E.P.Reed Phaser",
+    "E.PIANO",
+    30,
+    "Factory",
+    ""
+  ],
+  [
+    "A095",
+    "SuitPure E.P.+Pad",
+    "E.PIANO",
+    31,
+    "Factory",
+    ""
+  ],
+  [
+    "A096",
+    "SuitBright E.P.+Pad 1",
+    "E.PIANO",
+    32,
+    "Factory",
+    ""
+  ],
+  [
+    "A097",
+    "SuitBright E.P.+Pad 2",
+    "E.PIANO",
+    33,
+    "Factory",
+    ""
+  ],
+  [
+    "A098",
+    "SuitHard+FM E.Piano",
+    "E.PIANO",
+    34,
+    "Factory",
+    ""
+  ],
+  [
+    "A099",
+    "FM E.Piano Deluxe 1",
+    "E.PIANO",
+    35,
+    "Factory",
+    ""
+  ],
+  [
+    "A100",
+    "FM E.Piano Deluxe 2",
+    "E.PIANO",
+    36,
+    "Factory",
+    ""
+  ],
+  [
+    "A101",
+    "FM E.Piano Classic 1",
+    "E.PIANO",
+    37,
+    "Factory",
+    ""
+  ],
+  [
+    "A102",
+    "FM E.Piano Classic 2",
+    "E.PIANO",
+    38,
+    "Factory",
+    ""
+  ],
+  [
+    "A103",
+    "FM E.Piano Classic 3",
+    "E.PIANO",
+    39,
+    "Factory",
+    ""
+  ],
+  [
+    "A104",
+    "FM E.Piano + Strings",
+    "E.PIANO",
+    40,
+    "Factory",
+    ""
+  ],
+  [
+    "A105",
+    "FM E.P. + E.P.Pad 1",
+    "E.PIANO",
+    41,
+    "Factory",
+    ""
+  ],
+  [
+    "A106",
+    "FM E.P. + E.P.Pad 2",
+    "E.PIANO",
+    42,
+    "Factory",
+    ""
+  ],
+  [
+    "A107",
+    "FM E.Piano+Syn Pad",
+    "E.PIANO",
+    43,
+    "Factory",
+    ""
+  ],
+  [
+    "A108",
+    "FM Suitcase E.P.",
+    "E.PIANO",
+    44,
+    "Factory",
+    ""
+  ],
+  [
+    "A109",
+    "Chorus FM+Suit E.P.",
+    "E.PIANO",
+    45,
+    "Factory",
+    ""
+  ],
+  [
+    "A110",
+    "FM E.P. + Dyno E.P.",
+    "E.PIANO",
+    46,
+    "Factory",
+    ""
+  ],
+  [
+    "A111",
+    "Pad E.Piano 1",
+    "E.PIANO",
+    47,
+    "Factory",
+    ""
+  ],
+  [
+    "A112",
+    "Pad E.Piano 2",
+    "E.PIANO",
+    48,
+    "Factory",
+    ""
+  ],
+  [
+    "A113",
+    "Pad E.Piano 3",
+    "E.PIANO",
+    49,
+    "Factory",
+    ""
+  ],
+  [
+    "A114",
+    "Hybrid Phaser E.P.",
+    "E.PIANO",
+    50,
+    "Factory",
+    ""
+  ],
+  [
+    "A115",
+    "E.P.Pad + Synth",
+    "E.PIANO",
+    51,
+    "Factory",
+    ""
+  ],
+  [
+    "A116",
+    "Super Grand",
+    "E.PIANO",
+    52,
+    "Factory",
+    ""
+  ],
+  [
+    "A117",
+    "Phantom E.Piano",
+    "E.PIANO",
+    53,
+    "Factory",
+    ""
+  ],
+  [
+    "A118",
+    "Tablet E.Piano SW2",
+    "E.PIANO",
+    54,
+    "Factory",
+    ""
+  ],
+  [
+    "A119",
+    "Tablet E.Harpsi SW2",
+    "E.PIANO",
+    55,
+    "Factory",
+    ""
+  ],
+  [
+    "A120",
+    "Clavi AC Bright",
+    "E.PIANO",
+    56,
+    "Factory",
+    ""
+  ],
+  [
+    "A121",
+    "Clavi AC Mellow",
+    "E.PIANO",
+    57,
+    "Factory",
+    ""
+  ],
+  [
+    "A122",
+    "Clavi AC Distortion",
+    "E.PIANO",
+    58,
+    "Factory",
+    ""
+  ],
+  [
+    "A123",
+    "Clavi AC Velo Wah",
+    "E.PIANO",
+    59,
+    "Factory",
+    ""
+  ],
+  [
+    "A124",
+    "Clavi AD Bright",
+    "E.PIANO",
+    60,
+    "Factory",
+    ""
+  ],
+  [
+    "A125",
+    "Clavi AD Mellow",
+    "E.PIANO",
+    61,
+    "Factory",
+    ""
+  ],
+  [
+    "A126",
+    "Clavi AD Distortion",
+    "E.PIANO",
+    62,
+    "Factory",
+    ""
+  ],
+  [
+    "A127",
+    "Clavi AD Velo Wah",
+    "E.PIANO",
+    63,
+    "Factory",
+    ""
+  ],
+  [
+    "B000",
+    "Clavi BC Bright",
+    "E.PIANO",
+    64,
+    "Factory",
+    ""
+  ],
+  [
+    "B001",
+    "Clavi BC Mellow",
+    "E.PIANO",
+    65,
+    "Factory",
+    ""
+  ],
+  [
+    "B002",
+    "Clavi BC Distortion",
+    "E.PIANO",
+    66,
+    "Factory",
+    ""
+  ],
+  [
+    "B003",
+    "Clavi BC Velo Wah",
+    "E.PIANO",
+    67,
+    "Factory",
+    ""
+  ],
+  [
+    "B004",
+    "Clavi BD Bright",
+    "E.PIANO",
+    68,
+    "Factory",
+    ""
+  ],
+  [
+    "B005",
+    "Clavi BD Mellow",
+    "E.PIANO",
+    69,
+    "Factory",
+    ""
+  ],
+  [
+    "B006",
+    "Clavi BD Distortion",
+    "E.PIANO",
+    70,
+    "Factory",
+    ""
+  ],
+  [
+    "B007",
+    "Clavi BD Velo Wah",
+    "E.PIANO",
+    71,
+    "Factory",
+    ""
+  ],
+  [
+    "B008",
+    "Clavi Touch Wah",
+    "E.PIANO",
+    72,
+    "Factory",
+    ""
+  ],
+  [
+    "B009",
+    "Higher Ground Clavi",
+    "E.PIANO",
+    73,
+    "Factory",
+    ""
+  ],
+  [
+    "B010",
+    "Superstition Clavi",
+    "E.PIANO",
+    74,
+    "Factory",
+    ""
+  ],
+  [
+    "B011",
+    "Kid Charlmagne Clavi",
+    "E.PIANO",
+    75,
+    "Factory",
+    ""
+  ],
+  [
+    "B012",
+    "Trampled Under Clavi",
+    "E.PIANO",
+    76,
+    "Factory",
+    ""
+  ],
+  [
+    "B013",
+    "Clavi Phaser SW1",
+    "E.PIANO",
+    77,
+    "Factory",
+    ""
+  ],
+  [
+    "B014",
+    "WS Clavi VeloSwitch",
+    "E.PIANO",
+    78,
+    "Factory",
+    ""
+  ],
+  [
+    "B015",
+    "Pure Clavichord",
+    "E.PIANO",
+    79,
+    "Factory",
+    ""
+  ],
+  [
+    "B016",
+    "Harpsicord Single",
+    "E.PIANO",
+    80,
+    "Factory",
+    ""
+  ],
+  [
+    "B017",
+    "Harpsicord Double 1",
+    "E.PIANO",
+    81,
+    "Factory",
+    ""
+  ],
+  [
+    "B018",
+    "Harpsicord Double 2",
+    "E.PIANO",
+    82,
+    "Factory",
+    ""
+  ],
+  [
+    "B019",
+    "E.Organ Jazz Perc.1",
+    "ORGAN",
+    0,
+    "Factory",
+    ""
+  ],
+  [
+    "B020",
+    "E.Organ Jazz Perc.2",
+    "ORGAN",
+    1,
+    "Factory",
+    ""
+  ],
+  [
+    "B021",
+    "E.Organ Jazz Perc.3",
+    "ORGAN",
+    2,
+    "Factory",
+    ""
+  ],
+  [
+    "B022",
+    "E.Organ CX3 Perc.",
+    "ORGAN",
+    3,
+    "Factory",
+    ""
+  ],
+  [
+    "B023",
+    "E.Organ Mondo Perc.",
+    "ORGAN",
+    4,
+    "Factory",
+    ""
+  ],
+  [
+    "B024",
+    "E.Organ 88 Perc.",
+    "ORGAN",
+    5,
+    "Factory",
+    ""
+  ],
+  [
+    "B025",
+    "E.Organ Entertainer",
+    "ORGAN",
+    6,
+    "Factory",
+    ""
+  ],
+  [
+    "B026",
+    "E.Organ 888",
+    "ORGAN",
+    7,
+    "Factory",
+    ""
+  ],
+  [
+    "B027",
+    "E.Organ Warm OD",
+    "ORGAN",
+    8,
+    "Factory",
+    ""
+  ],
+  [
+    "B028",
+    "E.Organ Bossa",
+    "ORGAN",
+    9,
+    "Factory",
+    ""
+  ],
+  [
+    "B029",
+    "E.Organ Love Songs",
+    "ORGAN",
+    10,
+    "Factory",
+    ""
+  ],
+  [
+    "B030",
+    "E.Organ Gospel",
+    "ORGAN",
+    11,
+    "Factory",
+    ""
+  ],
+  [
+    "B031",
+    "E.Organ Comp.",
+    "ORGAN",
+    12,
+    "Factory",
+    ""
+  ],
+  [
+    "B032",
+    "E.Org Drawbars 1 MW",
+    "ORGAN",
+    13,
+    "Factory",
+    ""
+  ],
+  [
+    "B033",
+    "E.Org Drawbars 2 MW",
+    "ORGAN",
+    14,
+    "Factory",
+    ""
+  ],
+  [
+    "B034",
+    "E.Organ Manual Comp.",
+    "ORGAN",
+    15,
+    "Factory",
+    ""
+  ],
+  [
+    "B035",
+    "E.Org Vibrato/Chorus",
+    "ORGAN",
+    16,
+    "Factory",
+    ""
+  ],
+  [
+    "B036",
+    "E.Organ 800000048",
+    "ORGAN",
+    17,
+    "Factory",
+    ""
+  ],
+  [
+    "B037",
+    "E.Organ 880000048",
+    "ORGAN",
+    18,
+    "Factory",
+    ""
+  ],
+  [
+    "B038",
+    "E.Organ WarmGospel",
+    "ORGAN",
+    19,
+    "Factory",
+    ""
+  ],
+  [
+    "B039",
+    "E.Organ Tremolo",
+    "ORGAN",
+    20,
+    "Factory",
+    ""
+  ],
+  [
+    "B040",
+    "E.Organ Full->Soft",
+    "ORGAN",
+    21,
+    "Factory",
+    ""
+  ],
+  [
+    "B041",
+    "E.Organ BX3 Full",
+    "ORGAN",
+    22,
+    "Factory",
+    ""
+  ],
+  [
+    "B042",
+    "E.Organ Rock Full",
+    "ORGAN",
+    23,
+    "Factory",
+    ""
+  ],
+  [
+    "B043",
+    "E.Organ Vintage",
+    "ORGAN",
+    24,
+    "Factory",
+    ""
+  ],
+  [
+    "B044",
+    "E.Organ Church",
+    "ORGAN",
+    25,
+    "Factory",
+    ""
+  ],
+  [
+    "B045",
+    "E.Organ Ballad",
+    "ORGAN",
+    26,
+    "Factory",
+    ""
+  ],
+  [
+    "B046",
+    "E.Organ Blues/Slow",
+    "ORGAN",
+    27,
+    "Factory",
+    ""
+  ],
+  [
+    "B047",
+    "E.Organ Blues/Fast",
+    "ORGAN",
+    28,
+    "Factory",
+    ""
+  ],
+  [
+    "B048",
+    "E.Organ Rock OD",
+    "ORGAN",
+    29,
+    "Factory",
+    ""
+  ],
+  [
+    "B049",
+    "E.Organ Rock Prec.",
+    "ORGAN",
+    30,
+    "Factory",
+    ""
+  ],
+  [
+    "B050",
+    "E.Organ Master Rock",
+    "ORGAN",
+    31,
+    "Factory",
+    ""
+  ],
+  [
+    "B051",
+    "E.Organ Gospel Perc.",
+    "ORGAN",
+    32,
+    "Factory",
+    ""
+  ],
+  [
+    "B052",
+    "M1 Organ",
+    "ORGAN",
+    33,
+    "Factory",
+    ""
+  ],
+  [
+    "B053",
+    "E.Organ Vox Full",
+    "ORGAN",
+    34,
+    "Factory",
+    ""
+  ],
+  [
+    "B054",
+    "E.Organ VoxTabs SW2",
+    "ORGAN",
+    35,
+    "Factory",
+    ""
+  ],
+  [
+    "B055",
+    "E.Organ 60's Sound",
+    "ORGAN",
+    36,
+    "Factory",
+    ""
+  ],
+  [
+    "B056",
+    "E.Organ FarPro 1",
+    "ORGAN",
+    37,
+    "Factory",
+    ""
+  ],
+  [
+    "B057",
+    "E.Organ FarPro 2",
+    "ORGAN",
+    38,
+    "Factory",
+    ""
+  ],
+  [
+    "B058",
+    "E.Organ Combo",
+    "ORGAN",
+    39,
+    "Factory",
+    ""
+  ],
+  [
+    "B059",
+    "FollowYou/Me Organ",
+    "ORGAN",
+    40,
+    "Factory",
+    ""
+  ],
+  [
+    "B060",
+    "SineWheel Organ",
+    "ORGAN",
+    41,
+    "Factory",
+    ""
+  ],
+  [
+    "B061",
+    "VS Church Organ",
+    "ORGAN",
+    42,
+    "Factory",
+    ""
+  ],
+  [
+    "B062",
+    "DWGS Pop Organ",
+    "ORGAN",
+    43,
+    "Factory",
+    ""
+  ],
+  [
+    "B063",
+    "DWGS Church Organ",
+    "ORGAN",
+    44,
+    "Factory",
+    ""
+  ],
+  [
+    "B064",
+    "SineWheel 16'",
+    "ORGAN",
+    45,
+    "Factory",
+    ""
+  ],
+  [
+    "B065",
+    "SineWheel 5+1/3'",
+    "ORGAN",
+    46,
+    "Factory",
+    ""
+  ],
+  [
+    "B066",
+    "SineWheel 8'",
+    "ORGAN",
+    47,
+    "Factory",
+    ""
+  ],
+  [
+    "B067",
+    "SineWheel 4'",
+    "ORGAN",
+    48,
+    "Factory",
+    ""
+  ],
+  [
+    "B068",
+    "SineWheel 2+2/3'",
+    "ORGAN",
+    49,
+    "Factory",
+    ""
+  ],
+  [
+    "B069",
+    "SineWheel 2'",
+    "ORGAN",
+    50,
+    "Factory",
+    ""
+  ],
+  [
+    "B070",
+    "SineWheel 1+3/5'",
+    "ORGAN",
+    51,
+    "Factory",
+    ""
+  ],
+  [
+    "B071",
+    "SineWheel 1+1/3'",
+    "ORGAN",
+    52,
+    "Factory",
+    ""
+  ],
+  [
+    "B072",
+    "SineWheel 1'/Perc.",
+    "ORGAN",
+    53,
+    "Factory",
+    ""
+  ],
+  [
+    "B073",
+    "Pipe Organ Medium",
+    "ORGAN",
+    54,
+    "Factory",
+    ""
+  ],
+  [
+    "B074",
+    "Pipe Organ Full 1",
+    "ORGAN",
+    55,
+    "Factory",
+    ""
+  ],
+  [
+    "B075",
+    "Pipe Organ Full 2",
+    "ORGAN",
+    56,
+    "Factory",
+    ""
+  ],
+  [
+    "B076",
+    "Pipe Organ Mixture",
+    "ORGAN",
+    57,
+    "Factory",
+    ""
+  ],
+  [
+    "B077",
+    "Pipe Organ Positive",
+    "ORGAN",
+    58,
+    "Factory",
+    ""
+  ],
+  [
+    "B078",
+    "Pipe Positive/Mixture",
+    "ORGAN",
+    59,
+    "Factory",
+    ""
+  ],
+  [
+    "B079",
+    "Pipe Organ Reed",
+    "ORGAN",
+    60,
+    "Factory",
+    ""
+  ],
+  [
+    "B080",
+    "Street Organ",
+    "ORGAN",
+    61,
+    "Factory",
+    ""
+  ],
+  [
+    "B081",
+    "Accordion 8'+8'",
+    "ORGAN",
+    62,
+    "Factory",
+    ""
+  ],
+  [
+    "B082",
+    "Accordion 8'+4'",
+    "ORGAN",
+    63,
+    "Factory",
+    ""
+  ],
+  [
+    "B083",
+    "Accordion Stylish 1",
+    "ORGAN",
+    64,
+    "Factory",
+    ""
+  ],
+  [
+    "B084",
+    "Accordion Stylish 2",
+    "ORGAN",
+    65,
+    "Factory",
+    ""
+  ],
+  [
+    "B085",
+    "Musette + Principal",
+    "ORGAN",
+    66,
+    "Factory",
+    ""
+  ],
+  [
+    "B086",
+    "Bandoneon",
+    "ORGAN",
+    67,
+    "Factory",
+    ""
+  ],
+  [
+    "B087",
+    "Fisa 1",
+    "ORGAN",
+    68,
+    "Factory",
+    ""
+  ],
+  [
+    "B088",
+    "Fisa 2",
+    "ORGAN",
+    69,
+    "Factory",
+    ""
+  ],
+  [
+    "B089",
+    "Fisa 3",
+    "ORGAN",
+    70,
+    "Factory",
+    ""
+  ],
+  [
+    "B090",
+    "Pump/Reed Organ",
+    "ORGAN",
+    71,
+    "Factory",
+    ""
+  ],
+  [
+    "B091",
+    "Key Flute",
+    "ORGAN",
+    72,
+    "Factory",
+    ""
+  ],
+  [
+    "B092",
+    "Ensemble Bells",
+    "BELL",
+    0,
+    "Factory",
+    ""
+  ],
+  [
+    "B093",
+    "Puffle Bells",
+    "BELL",
+    1,
+    "Factory",
+    ""
+  ],
+  [
+    "B094",
+    "Breathy Bells",
+    "BELL",
+    2,
+    "Factory",
+    ""
+  ],
+  [
+    "B095",
+    "Heaven Bells",
+    "BELL",
+    3,
+    "Factory",
+    ""
+  ],
+  [
+    "B096",
+    "Soft Ensemble Bells",
+    "BELL",
+    4,
+    "Factory",
+    ""
+  ],
+  [
+    "B098",
+    "DWGS Bells 2",
+    "BELL",
+    6,
+    "Factory",
+    ""
+  ],
+  [
+    "B099",
+    "Tinkle Bells",
+    "BELL",
+    7,
+    "Factory",
+    ""
+  ],
+  [
+    "B100",
+    "Magic Bells",
+    "BELL",
+    8,
+    "Factory",
+    ""
+  ],
+  [
+    "B101",
+    "Lo FS Bells",
+    "BELL",
+    9,
+    "Factory",
+    ""
+  ],
+  [
+    "B102",
+    "Delayed Bells",
+    "BELL",
+    10,
+    "Factory",
+    ""
+  ],
+  [
+    "B103",
+    "Pure Satin Bells",
+    "BELL",
+    11,
+    "Factory",
+    ""
+  ],
+  [
+    "B104",
+    "FM Metal Bells",
+    "BELL",
+    12,
+    "Factory",
+    ""
+  ],
+  [
+    "B105",
+    "FM Glass Bells 1",
+    "BELL",
+    13,
+    "Factory",
+    ""
+  ],
+  [
+    "B106",
+    "FM Glass Bells 2",
+    "BELL",
+    14,
+    "Factory",
+    ""
+  ],
+  [
+    "B107",
+    "FM Tubular Bells",
+    "BELL",
+    15,
+    "Factory",
+    ""
+  ],
+  [
+    "B108",
+    "FM Bells",
+    "BELL",
+    16,
+    "Factory",
+    ""
+  ],
+  [
+    "B109",
+    "Krystal Bells",
+    "BELL",
+    17,
+    "Factory",
+    ""
+  ],
+  [
+    "B110",
+    "Cathedral Bells",
+    "BELL",
+    18,
+    "Factory",
+    ""
+  ],
+  [
+    "B111",
+    "Tubular Bells",
+    "BELL",
+    19,
+    "Factory",
+    ""
+  ],
+  [
+    "B112",
+    "Toy Hand Bells",
+    "BELL",
+    20,
+    "Factory",
+    ""
+  ],
+  [
+    "B113",
+    "Music Box",
+    "BELL",
+    21,
+    "Factory",
+    ""
+  ],
+  [
+    "B114",
+    "Plated Bells",
+    "BELL",
+    22,
+    "Factory",
+    ""
+  ],
+  [
+    "B115",
+    "Glockenspiel",
+    "BELL",
+    23,
+    "Factory",
+    ""
+  ],
+  [
+    "B116",
+    "Vibraphone",
+    "BELL",
+    24,
+    "Factory",
+    ""
+  ],
+  [
+    "B117",
+    "Steel Tongue Drum",
+    "BELL",
+    25,
+    "Factory",
+    ""
+  ],
+  [
+    "B118",
+    "Steel Drum",
+    "BELL",
+    26,
+    "Factory",
+    ""
+  ],
+  [
+    "B119",
+    "Gamelan",
+    "BELL",
+    27,
+    "Factory",
+    ""
+  ],
+  [
+    "B120",
+    "Sarna Bell",
+    "BELL",
+    28,
+    "Factory",
+    ""
+  ],
+  [
+    "B121",
+    "Kalimba",
+    "BELL",
+    29,
+    "Factory",
+    ""
+  ],
+  [
+    "B122",
+    "Xylophone",
+    "BELL",
+    30,
+    "Factory",
+    ""
+  ],
+  [
+    "B123",
+    "Marimba",
+    "BELL",
+    31,
+    "Factory",
+    ""
+  ],
+  [
+    "B124",
+    "MondoRimba",
+    "BELL",
+    32,
+    "Factory",
+    ""
+  ],
+  [
+    "B125",
+    "Skull Mallets",
+    "BELL",
+    33,
+    "Factory",
+    ""
+  ],
+  [
+    "B126",
+    "Tribal Mallets",
+    "BELL",
+    34,
+    "Factory",
+    ""
+  ],
+  [
+    "B127",
+    "Log Drum",
+    "BELL",
+    35,
+    "Factory",
+    ""
+  ],
+  [
+    "C000",
+    "Angklung",
+    "BELL",
+    36,
+    "Factory",
+    ""
+  ],
+  [
+    "C002",
+    "Stereo Strings 2",
+    "STRINGS",
+    1,
+    "Factory",
+    ""
+  ],
+  [
+    "C003",
+    "Lush Strings 1",
+    "STRINGS",
+    2,
+    "Factory",
+    ""
+  ],
+  [
+    "C004",
+    "Lush Strings 2",
+    "STRINGS",
+    3,
+    "Factory",
+    ""
+  ],
+  [
+    "C005",
+    "Bright Strings",
+    "STRINGS",
+    4,
+    "Factory",
+    ""
+  ],
+  [
+    "C006",
+    "Arco Stereo Strings",
+    "STRINGS",
+    5,
+    "Factory",
+    ""
+  ],
+  [
+    "C007",
+    "Legato Strings 1",
+    "STRINGS",
+    6,
+    "Factory",
+    ""
+  ],
+  [
+    "C008",
+    "Legato Strings 2",
+    "STRINGS",
+    7,
+    "Factory",
+    ""
+  ],
+  [
+    "C009",
+    "Symphonic Strings",
+    "STRINGS",
+    8,
+    "Factory",
+    ""
+  ],
+  [
+    "C010",
+    "Slow Strings",
+    "STRINGS",
+    9,
+    "Factory",
+    ""
+  ],
+  [
+    "C011",
+    "Platinum Strings",
+    "STRINGS",
+    10,
+    "Factory",
+    ""
+  ],
+  [
+    "C012",
+    "Camera Strings",
+    "STRINGS",
+    11,
+    "Factory",
+    ""
+  ],
+  [
+    "C013",
+    "Few Bows Strings",
+    "STRINGS",
+    12,
+    "Factory",
+    ""
+  ],
+  [
+    "C014",
+    "Intimate Strings",
+    "STRINGS",
+    13,
+    "Factory",
+    ""
+  ],
+  [
+    "C015",
+    "Arco Pop Strings",
+    "STRINGS",
+    14,
+    "Factory",
+    ""
+  ],
+  [
+    "C016",
+    "Pop Strings",
+    "STRINGS",
+    15,
+    "Factory",
+    ""
+  ],
+  [
+    "C017",
+    "Octave Strings",
+    "STRINGS",
+    16,
+    "Factory",
+    ""
+  ],
+  [
+    "C018",
+    "Maestoso Strings",
+    "STRINGS",
+    17,
+    "Factory",
+    ""
+  ],
+  [
+    "C019",
+    "Pizz Ensemble SW2",
+    "STRINGS",
+    18,
+    "Factory",
+    ""
+  ],
+  [
+    "C020",
+    "Pizz/Str.Quartet SW1",
+    "STRINGS",
+    19,
+    "Factory",
+    ""
+  ],
+  [
+    "C021",
+    "Str.Quartet/Pizz SW1",
+    "STRINGS",
+    20,
+    "Factory",
+    ""
+  ],
+  [
+    "C022",
+    "Violin 1 SW1",
+    "STRINGS",
+    21,
+    "Factory",
+    ""
+  ],
+  [
+    "C023",
+    "Violin 2 SW1",
+    "STRINGS",
+    22,
+    "Factory",
+    ""
+  ],
+  [
+    "C024",
+    "Viola 1 SW1",
+    "STRINGS",
+    23,
+    "Factory",
+    ""
+  ],
+  [
+    "C025",
+    "Viola 2 SW1",
+    "STRINGS",
+    24,
+    "Factory",
+    ""
+  ],
+  [
+    "C026",
+    "Cello 1 SW1",
+    "STRINGS",
+    25,
+    "Factory",
+    ""
+  ],
+  [
+    "C027",
+    "Cello 2 SW1",
+    "STRINGS",
+    26,
+    "Factory",
+    ""
+  ],
+  [
+    "C028",
+    "Contrabass 1 SW1",
+    "STRINGS",
+    27,
+    "Factory",
+    ""
+  ],
+  [
+    "C029",
+    "Contrabass 2 SW1",
+    "STRINGS",
+    28,
+    "Factory",
+    ""
+  ],
+  [
+    "C030",
+    "New Age Strings",
+    "STRINGS",
+    29,
+    "Factory",
+    ""
+  ],
+  [
+    "C031",
+    "Synth String Pad",
+    "STRINGS",
+    30,
+    "Factory",
+    ""
+  ],
+  [
+    "C032",
+    "Pure Analog Pad",
+    "STRINGS",
+    31,
+    "Factory",
+    ""
+  ],
+  [
+    "C033",
+    "Super Analog Pad",
+    "STRINGS",
+    32,
+    "Factory",
+    ""
+  ],
+  [
+    "C034",
+    "Analog Strings",
+    "STRINGS",
+    33,
+    "Factory",
+    ""
+  ],
+  [
+    "C035",
+    "Ana-2-Real Strings",
+    "STRINGS",
+    34,
+    "Factory",
+    ""
+  ],
+  [
+    "C036",
+    "Hybrid String Pad",
+    "STRINGS",
+    35,
+    "Factory",
+    ""
+  ],
+  [
+    "C037",
+    "Progressive Ana Str.",
+    "STRINGS",
+    36,
+    "Factory",
+    ""
+  ],
+  [
+    "C038",
+    "Mello MK II Strings",
+    "STRINGS",
+    37,
+    "Factory",
+    ""
+  ],
+  [
+    "C039",
+    "Mello 400S Strings",
+    "STRINGS",
+    38,
+    "Factory",
+    ""
+  ],
+  [
+    "C040",
+    "C-Berlin Strings 1",
+    "STRINGS",
+    39,
+    "Factory",
+    ""
+  ],
+  [
+    "C041",
+    "C-Berlin Strings 2",
+    "STRINGS",
+    40,
+    "Factory",
+    ""
+  ],
+  [
+    "C042",
+    "Tape Str.Oct.Mixed",
+    "STRINGS",
+    41,
+    "Factory",
+    ""
+  ],
+  [
+    "C043",
+    "Tape Strings Dual",
+    "STRINGS",
+    42,
+    "Factory",
+    ""
+  ],
+  [
+    "C044",
+    "Tronical Strings",
+    "STRINGS",
+    43,
+    "Factory",
+    ""
+  ],
+  [
+    "C045",
+    "Aaah Voices Stereo",
+    "STRINGS",
+    44,
+    "Factory",
+    ""
+  ],
+  [
+    "C046",
+    "Aah Voises Dynamic",
+    "STRINGS",
+    45,
+    "Factory",
+    ""
+  ],
+  [
+    "C047",
+    "Oooh Voices Stereo",
+    "STRINGS",
+    46,
+    "Factory",
+    ""
+  ],
+  [
+    "C048",
+    "Ooh L&R Airy Voices",
+    "STRINGS",
+    47,
+    "Factory",
+    ""
+  ],
+  [
+    "C049",
+    "Ooh Voices Light",
+    "STRINGS",
+    48,
+    "Factory",
+    ""
+  ],
+  [
+    "C050",
+    "Light Choir",
+    "STRINGS",
+    49,
+    "Factory",
+    ""
+  ],
+  [
+    "C051",
+    "Choir Of Angels",
+    "STRINGS",
+    50,
+    "Factory",
+    ""
+  ],
+  [
+    "C052",
+    "Classical Choir",
+    "STRINGS",
+    51,
+    "Factory",
+    ""
+  ],
+  [
+    "C053",
+    "Backing Vocals",
+    "STRINGS",
+    52,
+    "Factory",
+    ""
+  ],
+  [
+    "C054",
+    "Twilight Choir",
+    "STRINGS",
+    53,
+    "Factory",
+    ""
+  ],
+  [
+    "C055",
+    "Cathedral Choir",
+    "STRINGS",
+    54,
+    "Factory",
+    ""
+  ],
+  [
+    "C056",
+    "Splash Choir",
+    "STRINGS",
+    55,
+    "Factory",
+    ""
+  ],
+  [
+    "C057",
+    "Soundtrack Choir",
+    "STRINGS",
+    56,
+    "Factory",
+    ""
+  ],
+  [
+    "C058",
+    "Mixed Registers",
+    "STRINGS",
+    57,
+    "Factory",
+    ""
+  ],
+  [
+    "C059",
+    "Professional Choir",
+    "STRINGS",
+    58,
+    "Factory",
+    ""
+  ],
+  [
+    "C060",
+    "Morphing Voices",
+    "STRINGS",
+    59,
+    "Factory",
+    ""
+  ],
+  [
+    "C061",
+    "Infinite Choir",
+    "STRINGS",
+    60,
+    "Factory",
+    ""
+  ],
+  [
+    "C062",
+    "Take Voice",
+    "STRINGS",
+    61,
+    "Factory",
+    ""
+  ],
+  [
+    "C063",
+    "V.Switch Vocals",
+    "STRINGS",
+    62,
+    "Factory",
+    ""
+  ],
+  [
+    "C064",
+    "Mello Style Choir",
+    "STRINGS",
+    63,
+    "Factory",
+    ""
+  ],
+  [
+    "C065",
+    "Mello 8Voice Choir",
+    "STRINGS",
+    64,
+    "Factory",
+    ""
+  ],
+  [
+    "C066",
+    "Mello Classic Choir",
+    "STRINGS",
+    65,
+    "Factory",
+    ""
+  ],
+  [
+    "C067",
+    "Mello Stereo Choir",
+    "STRINGS",
+    66,
+    "Factory",
+    ""
+  ],
+  [
+    "C068",
+    "Vocoder Machine 1",
+    "STRINGS",
+    67,
+    "Factory",
+    ""
+  ],
+  [
+    "C069",
+    "Vocoder Machine 2",
+    "STRINGS",
+    68,
+    "Factory",
+    ""
+  ],
+  [
+    "C070",
+    "Vocoder Ah",
+    "STRINGS",
+    69,
+    "Factory",
+    ""
+  ],
+  [
+    "C071",
+    "Fresh Vox",
+    "STRINGS",
+    70,
+    "Factory",
+    ""
+  ],
+  [
+    "C072",
+    "Full Vox",
+    "STRINGS",
+    71,
+    "Factory",
+    ""
+  ],
+  [
+    "C073",
+    "Arctic Voices",
+    "STRINGS",
+    72,
+    "Factory",
+    ""
+  ],
+  [
+    "C074",
+    "Tranquil SW2",
+    "STRINGS",
+    73,
+    "Factory",
+    ""
+  ],
+  [
+    "C075",
+    "Voice Doo",
+    "STRINGS",
+    74,
+    "Factory",
+    ""
+  ],
+  [
+    "C076",
+    "Voxology",
+    "STRINGS",
+    75,
+    "Factory",
+    ""
+  ],
+  [
+    "C077",
+    "Velo Voxster",
+    "STRINGS",
+    76,
+    "Factory",
+    ""
+  ],
+  [
+    "C078",
+    "Open Brass",
+    "BRASS",
+    0,
+    "Factory",
+    ""
+  ],
+  [
+    "C079",
+    "Sharp Brass",
+    "BRASS",
+    1,
+    "Factory",
+    ""
+  ],
+  [
+    "C080",
+    "Tight Brass",
+    "BRASS",
+    2,
+    "Factory",
+    ""
+  ],
+  [
+    "C081",
+    "Big Brass",
+    "BRASS",
+    3,
+    "Factory",
+    ""
+  ],
+  [
+    "C082",
+    "Session Brass",
+    "BRASS",
+    4,
+    "Factory",
+    ""
+  ],
+  [
+    "C083",
+    "Expressive Brass",
+    "BRASS",
+    5,
+    "Factory",
+    ""
+  ],
+  [
+    "C084",
+    "Brass Section",
+    "BRASS",
+    6,
+    "Factory",
+    ""
+  ],
+  [
+    "C085",
+    "Trumpets X-fade",
+    "BRASS",
+    7,
+    "Factory",
+    ""
+  ],
+  [
+    "C086",
+    "Warm Brass",
+    "BRASS",
+    8,
+    "Factory",
+    ""
+  ],
+  [
+    "C087",
+    "Film Brass",
+    "BRASS",
+    9,
+    "Factory",
+    ""
+  ],
+  [
+    "C088",
+    "Sforzando Brass",
+    "BRASS",
+    10,
+    "Factory",
+    ""
+  ],
+  [
+    "C089",
+    "Octave Brass 1",
+    "BRASS",
+    11,
+    "Factory",
+    ""
+  ],
+  [
+    "C090",
+    "Octave Brass 2",
+    "BRASS",
+    12,
+    "Factory",
+    ""
+  ],
+  [
+    "C091",
+    "Trombone Ensemble",
+    "BRASS",
+    13,
+    "Factory",
+    ""
+  ],
+  [
+    "C092",
+    "Tp/Tb Muted",
+    "BRASS",
+    14,
+    "Factory",
+    ""
+  ],
+  [
+    "C093",
+    "Tp/Tb Muted Oct",
+    "BRASS",
+    15,
+    "Factory",
+    ""
+  ],
+  [
+    "C094",
+    "French Horn Ens",
+    "BRASS",
+    16,
+    "Factory",
+    ""
+  ],
+  [
+    "C095",
+    "Horns & Ensemble",
+    "BRASS",
+    17,
+    "Factory",
+    ""
+  ],
+  [
+    "C096",
+    "Brass Ens & Tubas",
+    "BRASS",
+    18,
+    "Factory",
+    ""
+  ],
+  [
+    "C097",
+    "Orchestral Brass",
+    "BRASS",
+    19,
+    "Factory",
+    ""
+  ],
+  [
+    "C098",
+    "Sforzando Orchestra",
+    "BRASS",
+    20,
+    "Factory",
+    ""
+  ],
+  [
+    "C099",
+    "T.O.P Section",
+    "BRASS",
+    21,
+    "Factory",
+    ""
+  ],
+  [
+    "C100",
+    "Brass & Reed",
+    "BRASS",
+    22,
+    "Factory",
+    ""
+  ],
+  [
+    "C101",
+    "Brass&Saxophones",
+    "BRASS",
+    23,
+    "Factory",
+    ""
+  ],
+  [
+    "C102",
+    "Brass&Octave Sax",
+    "BRASS",
+    24,
+    "Factory",
+    ""
+  ],
+  [
+    "C103",
+    "Trumpets Dynamic",
+    "BRASS",
+    25,
+    "Factory",
+    ""
+  ],
+  [
+    "C104",
+    "Trumpets Octave",
+    "BRASS",
+    26,
+    "Factory",
+    ""
+  ],
+  [
+    "C105",
+    "Trombones 4-Way",
+    "BRASS",
+    27,
+    "Factory",
+    ""
+  ],
+  [
+    "C106",
+    "Trumpet Sensitive",
+    "BRASS",
+    28,
+    "Factory",
+    ""
+  ],
+  [
+    "C107",
+    "Trumpet Overblown",
+    "BRASS",
+    29,
+    "Factory",
+    ""
+  ],
+  [
+    "C108",
+    "Trumpet Muted",
+    "BRASS",
+    30,
+    "Factory",
+    ""
+  ],
+  [
+    "C109",
+    "Flugelhorn",
+    "BRASS",
+    31,
+    "Factory",
+    ""
+  ],
+  [
+    "C110",
+    "Trombone",
+    "BRASS",
+    32,
+    "Factory",
+    ""
+  ],
+  [
+    "C111",
+    "Trombone Muted",
+    "BRASS",
+    33,
+    "Factory",
+    ""
+  ],
+  [
+    "C112",
+    "French Horn",
+    "BRASS",
+    34,
+    "Factory",
+    ""
+  ],
+  [
+    "C113",
+    "Tuba",
+    "BRASS",
+    35,
+    "Factory",
+    ""
+  ],
+  [
+    "C114",
+    "Flute Vibrato",
+    "BRASS",
+    36,
+    "Factory",
+    ""
+  ],
+  [
+    "C115",
+    "Silver Flute",
+    "BRASS",
+    37,
+    "Factory",
+    ""
+  ],
+  [
+    "C116",
+    "Attack Flute",
+    "BRASS",
+    38,
+    "Factory",
+    ""
+  ],
+  [
+    "C117",
+    "Voice Flute",
+    "BRASS",
+    39,
+    "Factory",
+    ""
+  ],
+  [
+    "C118",
+    "Piccolo Flute",
+    "BRASS",
+    40,
+    "Factory",
+    ""
+  ],
+  [
+    "C119",
+    "Mello MK II Flutes",
+    "BRASS",
+    41,
+    "Factory",
+    ""
+  ],
+  [
+    "C120",
+    "Clarinet",
+    "BRASS",
+    42,
+    "Factory",
+    ""
+  ],
+  [
+    "C121",
+    "Double Reed Family",
+    "BRASS",
+    43,
+    "Factory",
+    ""
+  ],
+  [
+    "C122",
+    "Oboe",
+    "BRASS",
+    44,
+    "Factory",
+    ""
+  ],
+  [
+    "C123",
+    "English Horn",
+    "BRASS",
+    45,
+    "Factory",
+    ""
+  ],
+  [
+    "C124",
+    "Bassoon",
+    "BRASS",
+    46,
+    "Factory",
+    ""
+  ],
+  [
+    "C125",
+    "Sax Ensemble",
+    "BRASS",
+    47,
+    "Factory",
+    ""
+  ],
+  [
+    "C126",
+    "Soprano Sax",
+    "BRASS",
+    48,
+    "Factory",
+    ""
+  ],
+  [
+    "C127",
+    "Alto Sax Soft",
+    "BRASS",
+    49,
+    "Factory",
+    ""
+  ],
+  [
+    "D000",
+    "Alto Sax Hard",
+    "BRASS",
+    50,
+    "Factory",
+    ""
+  ],
+  [
+    "D001",
+    "Tenor Sax Soft",
+    "BRASS",
+    51,
+    "Factory",
+    ""
+  ],
+  [
+    "D002",
+    "Tenor Sax Hard",
+    "BRASS",
+    52,
+    "Factory",
+    ""
+  ],
+  [
+    "D003",
+    "Baritone Sax",
+    "BRASS",
+    53,
+    "Factory",
+    ""
+  ],
+  [
+    "D004",
+    "Harmonica",
+    "BRASS",
+    54,
+    "Factory",
+    ""
+  ],
+  [
+    "D005",
+    "Recorder",
+    "BRASS",
+    55,
+    "Factory",
+    ""
+  ],
+  [
+    "D006",
+    "Shakuhachi",
+    "BRASS",
+    56,
+    "Factory",
+    ""
+  ],
+  [
+    "D007",
+    "ZEN Priest Split",
+    "BRASS",
+    57,
+    "Factory",
+    ""
+  ],
+  [
+    "D008",
+    "Spit Bottle",
+    "BRASS",
+    58,
+    "Factory",
+    ""
+  ],
+  [
+    "D009",
+    "Memory Lead SW2",
+    "SYNTH LEAD",
+    0,
+    "Factory",
+    ""
+  ],
+  [
+    "D010",
+    "DW8000 Lead 1",
+    "SYNTH LEAD",
+    1,
+    "Factory",
+    ""
+  ],
+  [
+    "D011",
+    "Espress Lead",
+    "SYNTH LEAD",
+    2,
+    "Factory",
+    ""
+  ],
+  [
+    "D012",
+    "Sweet MG Lead",
+    "SYNTH LEAD",
+    3,
+    "Factory",
+    ""
+  ],
+  [
+    "D013",
+    "Fat Saw Lead",
+    "SYNTH LEAD",
+    4,
+    "Factory",
+    ""
+  ],
+  [
+    "D014",
+    "Glide Lead",
+    "SYNTH LEAD",
+    5,
+    "Factory",
+    ""
+  ],
+  [
+    "D015",
+    "PWM Lead",
+    "SYNTH LEAD",
+    6,
+    "Factory",
+    ""
+  ],
+  [
+    "D016",
+    "DW8000 Lead 2",
+    "SYNTH LEAD",
+    7,
+    "Factory",
+    ""
+  ],
+  [
+    "D017",
+    "Lucky Man Lead",
+    "SYNTH LEAD",
+    8,
+    "Factory",
+    ""
+  ],
+  [
+    "D018",
+    "Old Square Lead SW1",
+    "SYNTH LEAD",
+    9,
+    "Factory",
+    ""
+  ],
+  [
+    "D019",
+    "Bright Square Lead",
+    "SYNTH LEAD",
+    10,
+    "Factory",
+    ""
+  ],
+  [
+    "D020",
+    "Unison Square Lead",
+    "SYNTH LEAD",
+    11,
+    "Factory",
+    ""
+  ],
+  [
+    "D021",
+    "Simple Square Lead",
+    "SYNTH LEAD",
+    12,
+    "Factory",
+    ""
+  ],
+  [
+    "D022",
+    "Simple Pulse Lead",
+    "SYNTH LEAD",
+    13,
+    "Factory",
+    ""
+  ],
+  [
+    "D023",
+    "Sine Lead",
+    "SYNTH LEAD",
+    14,
+    "Factory",
+    ""
+  ],
+  [
+    "D024",
+    "InfinityLead MW&SW",
+    "SYNTH LEAD",
+    15,
+    "Factory",
+    ""
+  ],
+  [
+    "D025",
+    "Rude Lead",
+    "SYNTH LEAD",
+    16,
+    "Factory",
+    ""
+  ],
+  [
+    "D026",
+    "Wailing Lead",
+    "SYNTH LEAD",
+    17,
+    "Factory",
+    ""
+  ],
+  [
+    "D027",
+    "Cold Water Lead",
+    "SYNTH LEAD",
+    18,
+    "Factory",
+    ""
+  ],
+  [
+    "D028",
+    "BIG Lead",
+    "SYNTH LEAD",
+    19,
+    "Factory",
+    ""
+  ],
+  [
+    "D029",
+    "Rapper's D'light Lead",
+    "SYNTH LEAD",
+    20,
+    "Factory",
+    ""
+  ],
+  [
+    "D030",
+    "The Executor Lead",
+    "SYNTH LEAD",
+    21,
+    "Factory",
+    ""
+  ],
+  [
+    "D031",
+    "Anthem Lead",
+    "SYNTH LEAD",
+    22,
+    "Factory",
+    ""
+  ],
+  [
+    "D032",
+    "Bigroom Lead",
+    "SYNTH LEAD",
+    23,
+    "Factory",
+    ""
+  ],
+  [
+    "D033",
+    "Unison Saw Lead",
+    "SYNTH LEAD",
+    24,
+    "Factory",
+    ""
+  ],
+  [
+    "D034",
+    "Dist EDM Lead",
+    "SYNTH LEAD",
+    25,
+    "Factory",
+    ""
+  ],
+  [
+    "D035",
+    "EDM Voice Lead",
+    "SYNTH LEAD",
+    26,
+    "Factory",
+    ""
+  ],
+  [
+    "D036",
+    "Progressive Lead",
+    "SYNTH LEAD",
+    27,
+    "Factory",
+    ""
+  ],
+  [
+    "D037",
+    "Hip Hop Lead",
+    "SYNTH LEAD",
+    28,
+    "Factory",
+    ""
+  ],
+  [
+    "D038",
+    "Deep Soul Lead SW2",
+    "SYNTH LEAD",
+    29,
+    "Factory",
+    ""
+  ],
+  [
+    "D039",
+    "Simple 5th Saw Lead",
+    "SYNTH LEAD",
+    30,
+    "Factory",
+    ""
+  ],
+  [
+    "D040",
+    "Vintage Lead",
+    "SYNTH LEAD",
+    31,
+    "Factory",
+    ""
+  ],
+  [
+    "D041",
+    "Cheap Lead Wheel",
+    "SYNTH LEAD",
+    32,
+    "Factory",
+    ""
+  ],
+  [
+    "D042",
+    "Reso Lead",
+    "SYNTH LEAD",
+    33,
+    "Factory",
+    ""
+  ],
+  [
+    "D043",
+    "Operator Lead",
+    "SYNTH LEAD",
+    34,
+    "Factory",
+    ""
+  ],
+  [
+    "D044",
+    "Tom Sawyer Bs/Lead",
+    "SYNTH LEAD",
+    35,
+    "Factory",
+    ""
+  ],
+  [
+    "D045",
+    "Bass & Lead Boys",
+    "SYNTH LEAD",
+    36,
+    "Factory",
+    ""
+  ],
+  [
+    "D046",
+    "Fat Sync Lead",
+    "SYNTH LEAD",
+    37,
+    "Factory",
+    ""
+  ],
+  [
+    "D047",
+    "MS2K FastSync Lead",
+    "SYNTH LEAD",
+    38,
+    "Factory",
+    ""
+  ],
+  [
+    "D048",
+    "Deep 5th EDM Lead",
+    "SYNTH LEAD",
+    39,
+    "Factory",
+    ""
+  ],
+  [
+    "D049",
+    "Eletrik Piano Lead",
+    "SYNTH LEAD",
+    40,
+    "Factory",
+    ""
+  ],
+  [
+    "D050",
+    "Tropical Lead 1",
+    "SYNTH LEAD",
+    41,
+    "Factory",
+    ""
+  ],
+  [
+    "D051",
+    "Tropical Lead 2",
+    "SYNTH LEAD",
+    42,
+    "Factory",
+    ""
+  ],
+  [
+    "D052",
+    "Noisy Stabber Neo",
+    "SYNTH LEAD",
+    43,
+    "Factory",
+    ""
+  ],
+  [
+    "D053",
+    "Unison Power Synth",
+    "SYNTH LEAD",
+    44,
+    "Factory",
+    ""
+  ],
+  [
+    "D054",
+    "Bold Anthem Synth",
+    "SYNTH LEAD",
+    45,
+    "Factory",
+    ""
+  ],
+  [
+    "D055",
+    "Transer Synth",
+    "SYNTH LEAD",
+    46,
+    "Factory",
+    ""
+  ],
+  [
+    "D056",
+    "Anthem Trans MW",
+    "SYNTH LEAD",
+    47,
+    "Factory",
+    ""
+  ],
+  [
+    "D057",
+    "Fast Unison Synth",
+    "SYNTH LEAD",
+    48,
+    "Factory",
+    ""
+  ],
+  [
+    "D058",
+    "Leader of Trance",
+    "SYNTH LEAD",
+    49,
+    "Factory",
+    ""
+  ],
+  [
+    "D059",
+    "Velo Twang",
+    "SYNTH LEAD",
+    50,
+    "Factory",
+    ""
+  ],
+  [
+    "D060",
+    "Rat Chords",
+    "SYNTH LEAD",
+    51,
+    "Factory",
+    ""
+  ],
+  [
+    "D061",
+    "Bold Octaves",
+    "SYNTH LEAD",
+    52,
+    "Factory",
+    ""
+  ],
+  [
+    "D062",
+    "Power Pad",
+    "SYNTH LEAD",
+    53,
+    "Factory",
+    ""
+  ],
+  [
+    "D063",
+    "Velo Power Pad",
+    "SYNTH LEAD",
+    54,
+    "Factory",
+    ""
+  ],
+  [
+    "D064",
+    "Unison Pad",
+    "SYNTH LEAD",
+    55,
+    "Factory",
+    ""
+  ],
+  [
+    "D065",
+    "Old Poly Synth 1",
+    "SYNTH LEAD",
+    56,
+    "Factory",
+    ""
+  ],
+  [
+    "D066",
+    "Old Poly Synth 2",
+    "SYNTH LEAD",
+    57,
+    "Factory",
+    ""
+  ],
+  [
+    "D067",
+    "Saw Ensemble Synth",
+    "SYNTH LEAD",
+    58,
+    "Factory",
+    ""
+  ],
+  [
+    "D068",
+    "Chip Tune Synth",
+    "SYNTH LEAD",
+    59,
+    "Factory",
+    ""
+  ],
+  [
+    "D069",
+    "Disco Synth Pad",
+    "SYNTH LEAD",
+    60,
+    "Factory",
+    ""
+  ],
+  [
+    "D070",
+    "Jump SynBrass",
+    "SYNTH LEAD",
+    61,
+    "Factory",
+    ""
+  ],
+  [
+    "D071",
+    "Final SynBrass",
+    "SYNTH LEAD",
+    62,
+    "Factory",
+    ""
+  ],
+  [
+    "D072",
+    "Synth Fanfare",
+    "SYNTH LEAD",
+    63,
+    "Factory",
+    ""
+  ],
+  [
+    "D073",
+    "Saw Synth Brass",
+    "SYNTH LEAD",
+    64,
+    "Factory",
+    ""
+  ],
+  [
+    "D074",
+    "HyperComped Chords",
+    "SYNTH LEAD",
+    65,
+    "Factory",
+    ""
+  ],
+  [
+    "D075",
+    "Gargle Synth",
+    "SYNTH LEAD",
+    66,
+    "Factory",
+    ""
+  ],
+  [
+    "D076",
+    "Olive Anthem Chords",
+    "SYNTH LEAD",
+    67,
+    "Factory",
+    ""
+  ],
+  [
+    "D077",
+    "Sugar Smash Pad",
+    "SYNTH LEAD",
+    68,
+    "Factory",
+    ""
+  ],
+  [
+    "D078",
+    "Cannon Poly Synth",
+    "SYNTH LEAD",
+    69,
+    "Factory",
+    ""
+  ],
+  [
+    "D079",
+    "Cannon Synth E.P.",
+    "SYNTH LEAD",
+    70,
+    "Factory",
+    ""
+  ],
+  [
+    "D080",
+    "Ripper Anthem Synth",
+    "SYNTH LEAD",
+    71,
+    "Factory",
+    ""
+  ],
+  [
+    "D081",
+    "Different Ways Poly",
+    "SYNTH LEAD",
+    72,
+    "Factory",
+    ""
+  ],
+  [
+    "D082",
+    "Huge Planet Syn SW1",
+    "SYNTH LEAD",
+    73,
+    "Factory",
+    ""
+  ],
+  [
+    "D083",
+    "Vintage Saw Synth",
+    "SYNTH LEAD",
+    74,
+    "Factory",
+    ""
+  ],
+  [
+    "D084",
+    "Detuned Poly Synth",
+    "SYNTH LEAD",
+    75,
+    "Factory",
+    ""
+  ],
+  [
+    "D085",
+    "Later Progressive Ld",
+    "SYNTH LEAD",
+    76,
+    "Factory",
+    ""
+  ],
+  [
+    "D086",
+    "Follow You Lead",
+    "SYNTH LEAD",
+    77,
+    "Factory",
+    ""
+  ],
+  [
+    "D087",
+    "Tricky MODDetune Ld",
+    "SYNTH LEAD",
+    78,
+    "Factory",
+    ""
+  ],
+  [
+    "D088",
+    "Oxygen Lead",
+    "SYNTH LEAD",
+    79,
+    "Factory",
+    ""
+  ],
+  [
+    "D089",
+    "80's Square Poly",
+    "SYNTH LEAD",
+    80,
+    "Factory",
+    ""
+  ],
+  [
+    "D090",
+    "Gliding Square Lead",
+    "SYNTH LEAD",
+    81,
+    "Factory",
+    ""
+  ],
+  [
+    "D091",
+    "Pop Synth Pad",
+    "SYNTH LEAD",
+    82,
+    "Factory",
+    ""
+  ],
+  [
+    "D092",
+    "Future Pad",
+    "SYNTH LEAD",
+    83,
+    "Factory",
+    ""
+  ],
+  [
+    "D093",
+    "Rezbo Pad",
+    "SYNTH LEAD",
+    84,
+    "Factory",
+    ""
+  ],
+  [
+    "D094",
+    "CheapCool 80's Poly",
+    "SYNTH LEAD",
+    85,
+    "Factory",
+    ""
+  ],
+  [
+    "D095",
+    "Shynth Ex Clavi",
+    "SYNTH LEAD",
+    86,
+    "Factory",
+    ""
+  ],
+  [
+    "D096",
+    "Mean Rez Clavi",
+    "SYNTH LEAD",
+    87,
+    "Factory",
+    ""
+  ],
+  [
+    "D097",
+    "EDM Chordplay 1",
+    "SYNTH LEAD",
+    88,
+    "Factory",
+    ""
+  ],
+  [
+    "D098",
+    "EDM Chordplay 2",
+    "SYNTH LEAD",
+    89,
+    "Factory",
+    ""
+  ],
+  [
+    "D099",
+    "Futur Chordal",
+    "SYNTH LEAD",
+    90,
+    "Factory",
+    ""
+  ],
+  [
+    "D100",
+    "Fuzz Felt",
+    "SYNTH LEAD",
+    91,
+    "Factory",
+    ""
+  ],
+  [
+    "D101",
+    "Pro Sync",
+    "SYNTH LEAD",
+    92,
+    "Factory",
+    ""
+  ],
+  [
+    "D102",
+    "EP Annihilation SW2",
+    "SYNTH LEAD",
+    93,
+    "Factory",
+    ""
+  ],
+  [
+    "D103",
+    "Sine Pad",
+    "SYNTH PAD",
+    0,
+    "Factory",
+    ""
+  ],
+  [
+    "D104",
+    "Swirl Sine Pad",
+    "SYNTH PAD",
+    1,
+    "Factory",
+    ""
+  ],
+  [
+    "D105",
+    "Synth Filter Pad",
+    "SYNTH PAD",
+    2,
+    "Factory",
+    ""
+  ],
+  [
+    "D106",
+    "Search Pad",
+    "SYNTH PAD",
+    3,
+    "Factory",
+    ""
+  ],
+  [
+    "D107",
+    "Dark Brass Pad",
+    "SYNTH PAD",
+    4,
+    "Factory",
+    ""
+  ],
+  [
+    "D108",
+    "Sine On Pad",
+    "SYNTH PAD",
+    5,
+    "Factory",
+    ""
+  ],
+  [
+    "D109",
+    "Prayer Pad",
+    "SYNTH PAD",
+    6,
+    "Factory",
+    ""
+  ],
+  [
+    "D110",
+    "Tinklin Pad",
+    "SYNTH PAD",
+    7,
+    "Factory",
+    ""
+  ],
+  [
+    "D111",
+    "Squ Voice Pad",
+    "SYNTH PAD",
+    8,
+    "Factory",
+    ""
+  ],
+  [
+    "D112",
+    "Square Pad SW1",
+    "SYNTH PAD",
+    9,
+    "Factory",
+    ""
+  ],
+  [
+    "D113",
+    "5th Pad SW1/2",
+    "SYNTH PAD",
+    10,
+    "Factory",
+    ""
+  ],
+  [
+    "D114",
+    "String Res Pad",
+    "SYNTH PAD",
+    11,
+    "Factory",
+    ""
+  ],
+  [
+    "D115",
+    "Flashy AnaHarpy",
+    "SYNTH PAD",
+    12,
+    "Factory",
+    ""
+  ],
+  [
+    "D116",
+    "Angelic Choir",
+    "SYNTH PAD",
+    13,
+    "Factory",
+    ""
+  ],
+  [
+    "D117",
+    "The Pad",
+    "SYNTH PAD",
+    14,
+    "Factory",
+    ""
+  ],
+  [
+    "D118",
+    "The E.P.Pads",
+    "SYNTH PAD",
+    15,
+    "Factory",
+    ""
+  ],
+  [
+    "D119",
+    "Attacky Pad",
+    "SYNTH PAD",
+    16,
+    "Factory",
+    ""
+  ],
+  [
+    "D120",
+    "Poppin' Pad",
+    "SYNTH PAD",
+    17,
+    "Factory",
+    ""
+  ],
+  [
+    "D121",
+    "Africa Brass",
+    "SYNTH PAD",
+    18,
+    "Factory",
+    ""
+  ],
+  [
+    "D122",
+    "80 Pad SW2/PW/MW",
+    "SYNTH PAD",
+    19,
+    "Factory",
+    ""
+  ],
+  [
+    "D123",
+    "Soft SynBrass",
+    "SYNTH PAD",
+    20,
+    "Factory",
+    ""
+  ],
+  [
+    "D124",
+    "Progressive SynBrs",
+    "SYNTH PAD",
+    21,
+    "Factory",
+    ""
+  ],
+  [
+    "D125",
+    "Matrix Crispy",
+    "SYNTH PAD",
+    22,
+    "Factory",
+    ""
+  ],
+  [
+    "D126",
+    "Chronologie",
+    "SYNTH PAD",
+    23,
+    "Factory",
+    ""
+  ],
+  [
+    "D127",
+    "Aero Pad",
+    "SYNTH PAD",
+    24,
+    "Factory",
+    ""
+  ],
+  [
+    "E000",
+    "Bad Dream Waltzer",
+    "SYNTH PAD",
+    25,
+    "Factory",
+    ""
+  ],
+  [
+    "E001",
+    "Alexa Pad",
+    "SYNTH PAD",
+    26,
+    "Factory",
+    ""
+  ],
+  [
+    "E002",
+    "Solaris Pad",
+    "SYNTH PAD",
+    27,
+    "Factory",
+    ""
+  ],
+  [
+    "E003",
+    "The X Pad",
+    "SYNTH PAD",
+    28,
+    "Factory",
+    ""
+  ],
+  [
+    "E004",
+    "Swish Pad",
+    "SYNTH PAD",
+    29,
+    "Factory",
+    ""
+  ],
+  [
+    "E005",
+    "Sweet Pad",
+    "SYNTH PAD",
+    30,
+    "Factory",
+    ""
+  ],
+  [
+    "E006",
+    "Givin' Pop",
+    "SYNTH PAD",
+    31,
+    "Factory",
+    ""
+  ],
+  [
+    "E007",
+    "Cosmic Synth",
+    "SYNTH PAD",
+    32,
+    "Factory",
+    ""
+  ],
+  [
+    "E008",
+    "Syn Sweeper",
+    "SYNTH PAD",
+    33,
+    "Factory",
+    ""
+  ],
+  [
+    "E009",
+    "Fine HPF Sweep",
+    "SYNTH PAD",
+    34,
+    "Factory",
+    ""
+  ],
+  [
+    "E010",
+    "Rez Down",
+    "SYNTH PAD",
+    35,
+    "Factory",
+    ""
+  ],
+  [
+    "E011",
+    "Mirrored",
+    "SYNTH PAD",
+    36,
+    "Factory",
+    ""
+  ],
+  [
+    "E012",
+    "Wave Pad",
+    "SYNTH PAD",
+    37,
+    "Factory",
+    ""
+  ],
+  [
+    "E013",
+    "Meditator",
+    "SYNTH PAD",
+    38,
+    "Factory",
+    ""
+  ],
+  [
+    "E014",
+    "Chant",
+    "SYNTH PAD",
+    39,
+    "Factory",
+    ""
+  ],
+  [
+    "E015",
+    "1984 Split",
+    "SYNTH PAD",
+    40,
+    "Factory",
+    ""
+  ],
+  [
+    "E016",
+    "Surprising Pad",
+    "SYNTH PAD",
+    41,
+    "Factory",
+    ""
+  ],
+  [
+    "E017",
+    "Pods in the Pad",
+    "SYNTH PAD",
+    42,
+    "Factory",
+    ""
+  ],
+  [
+    "E018",
+    "Dolphin Pad",
+    "SYNTH PAD",
+    43,
+    "Factory",
+    ""
+  ],
+  [
+    "E019",
+    "Shimmer Sparkle Pad",
+    "SYNTH PAD",
+    44,
+    "Factory",
+    ""
+  ],
+  [
+    "E020",
+    "Steelish Pad",
+    "SYNTH PAD",
+    45,
+    "Factory",
+    ""
+  ],
+  [
+    "E021",
+    "Widescreen Pad",
+    "SYNTH PAD",
+    46,
+    "Factory",
+    ""
+  ],
+  [
+    "E022",
+    "Flying",
+    "SYNTH PAD",
+    47,
+    "Factory",
+    ""
+  ],
+  [
+    "E023",
+    "Aqua Phonics",
+    "SYNTH PAD",
+    48,
+    "Factory",
+    ""
+  ],
+  [
+    "E024",
+    "Flare Pad",
+    "SYNTH PAD",
+    49,
+    "Factory",
+    ""
+  ],
+  [
+    "E025",
+    "Palawan Pad",
+    "SYNTH PAD",
+    50,
+    "Factory",
+    ""
+  ],
+  [
+    "E026",
+    "Moon Cycles",
+    "SYNTH PAD",
+    51,
+    "Factory",
+    ""
+  ],
+  [
+    "E027",
+    "Swirl Pad",
+    "SYNTH PAD",
+    52,
+    "Factory",
+    ""
+  ],
+  [
+    "E028",
+    "New Voyage",
+    "SYNTH PAD",
+    53,
+    "Factory",
+    ""
+  ],
+  [
+    "E029",
+    "Great Wall",
+    "SYNTH PAD",
+    54,
+    "Factory",
+    ""
+  ],
+  [
+    "E030",
+    "Off Beat Dark Pad",
+    "SYNTH PAD",
+    55,
+    "Factory",
+    ""
+  ],
+  [
+    "E031",
+    "Off Beat Bright Pad",
+    "SYNTH PAD",
+    56,
+    "Factory",
+    ""
+  ],
+  [
+    "E032",
+    "Pump Pad",
+    "SYNTH PAD",
+    57,
+    "Factory",
+    ""
+  ],
+  [
+    "E033",
+    "ClayPot-VoxTriplets",
+    "SYNTH PAD",
+    58,
+    "Factory",
+    ""
+  ],
+  [
+    "E034",
+    "Chilly Pulsar Love",
+    "SYNTH PAD",
+    59,
+    "Factory",
+    ""
+  ],
+  [
+    "E035",
+    "U-Vibe Pad",
+    "SYNTH PAD",
+    60,
+    "Factory",
+    ""
+  ],
+  [
+    "E036",
+    "Butterfly Pad",
+    "SYNTH PAD",
+    61,
+    "Factory",
+    ""
+  ],
+  [
+    "E037",
+    "Vox Pulse",
+    "SYNTH PAD",
+    62,
+    "Factory",
+    ""
+  ],
+  [
+    "E038",
+    "BPM Flashlight Pad",
+    "SYNTH PAD",
+    63,
+    "Factory",
+    ""
+  ],
+  [
+    "E039",
+    "eMoTiOn",
+    "SYNTH PAD",
+    64,
+    "Factory",
+    ""
+  ],
+  [
+    "E040",
+    "Loco Motiv",
+    "SYNTH PAD",
+    65,
+    "Factory",
+    ""
+  ],
+  [
+    "E041",
+    "Atmospheric Pulse",
+    "SYNTH PAD",
+    66,
+    "Factory",
+    ""
+  ],
+  [
+    "E042",
+    "Rhythm Lead",
+    "SYNTH PAD",
+    67,
+    "Factory",
+    ""
+  ],
+  [
+    "E043",
+    "LFO 5th Wave",
+    "SYNTH PAD",
+    68,
+    "Factory",
+    ""
+  ],
+  [
+    "E044",
+    "ToneWheel Motion",
+    "SYNTH PAD",
+    69,
+    "Factory",
+    ""
+  ],
+  [
+    "E045",
+    "Minimal Seq",
+    "SYNTH PAD",
+    70,
+    "Factory",
+    ""
+  ],
+  [
+    "E046",
+    "8BIT Land",
+    "SYNTH PAD",
+    71,
+    "Factory",
+    ""
+  ],
+  [
+    "E047",
+    "Dancing Voice",
+    "SYNTH PAD",
+    72,
+    "Factory",
+    ""
+  ],
+  [
+    "E048",
+    "Spectral Wave Dance",
+    "SYNTH PAD",
+    73,
+    "Factory",
+    ""
+  ],
+  [
+    "E049",
+    "Kross Wave Motion",
+    "SYNTH PAD",
+    74,
+    "Factory",
+    ""
+  ],
+  [
+    "E050",
+    "Wave Sequencer",
+    "SYNTH PAD",
+    75,
+    "Factory",
+    ""
+  ],
+  [
+    "E051",
+    "Bell Wave Seq",
+    "SYNTH PAD",
+    76,
+    "Factory",
+    ""
+  ],
+  [
+    "E052",
+    "Pad & Bell Wave Seq",
+    "SYNTH PAD",
+    77,
+    "Factory",
+    ""
+  ],
+  [
+    "E053",
+    "LFO Run Pad SW1",
+    "SYNTH PAD",
+    78,
+    "Factory",
+    ""
+  ],
+  [
+    "E054",
+    "Nylon Guitar 1",
+    "GUITAR",
+    0,
+    "Factory",
+    ""
+  ],
+  [
+    "E055",
+    "Nylon Guitar 2",
+    "GUITAR",
+    1,
+    "Factory",
+    ""
+  ],
+  [
+    "E056",
+    "Flamenco Guitar",
+    "GUITAR",
+    2,
+    "Factory",
+    ""
+  ],
+  [
+    "E057",
+    "Nylon Gtr.Studio",
+    "GUITAR",
+    3,
+    "Factory",
+    ""
+  ],
+  [
+    "E058",
+    "Nylon Guitar&Strings",
+    "GUITAR",
+    4,
+    "Factory",
+    ""
+  ],
+  [
+    "E059",
+    "A.Guitar Large Body",
+    "GUITAR",
+    5,
+    "Factory",
+    ""
+  ],
+  [
+    "E060",
+    "A.Guitar+Noise SW1",
+    "GUITAR",
+    6,
+    "Factory",
+    ""
+  ],
+  [
+    "E061",
+    "A.Gtr.Dynamic Pick",
+    "GUITAR",
+    7,
+    "Factory",
+    ""
+  ],
+  [
+    "E062",
+    "A.Guitar Finger",
+    "GUITAR",
+    8,
+    "Factory",
+    ""
+  ],
+  [
+    "E063",
+    "Sitar Guitar",
+    "GUITAR",
+    9,
+    "Factory",
+    ""
+  ],
+  [
+    "E064",
+    "Acoustish",
+    "GUITAR",
+    10,
+    "Factory",
+    ""
+  ],
+  [
+    "E065",
+    "A.Guitar 12 String",
+    "GUITAR",
+    11,
+    "Factory",
+    ""
+  ],
+  [
+    "E066",
+    "E.Guitar+Twin",
+    "GUITAR",
+    12,
+    "Factory",
+    ""
+  ],
+  [
+    "E067",
+    "E.Guitar Dynamic 1",
+    "GUITAR",
+    13,
+    "Factory",
+    ""
+  ],
+  [
+    "E068",
+    "E.Guitar Dynamic 2",
+    "GUITAR",
+    14,
+    "Factory",
+    ""
+  ],
+  [
+    "E069",
+    "E.Guitar Funky",
+    "GUITAR",
+    15,
+    "Factory",
+    ""
+  ],
+  [
+    "E070",
+    "E.Guitar Delay",
+    "GUITAR",
+    16,
+    "Factory",
+    ""
+  ],
+  [
+    "E071",
+    "E.Guitar Crunch",
+    "GUITAR",
+    17,
+    "Factory",
+    ""
+  ],
+  [
+    "E072",
+    "E.Guitar Chorus",
+    "GUITAR",
+    18,
+    "Factory",
+    ""
+  ],
+  [
+    "E073",
+    "E.Guitar VolumeSwell",
+    "GUITAR",
+    19,
+    "Factory",
+    ""
+  ],
+  [
+    "E074",
+    "E.Guitar Tremolo",
+    "GUITAR",
+    20,
+    "Factory",
+    ""
+  ],
+  [
+    "E075",
+    "E.Guitar Semi Dist.",
+    "GUITAR",
+    21,
+    "Factory",
+    ""
+  ],
+  [
+    "E076",
+    "E.Guitar Rotary FX",
+    "GUITAR",
+    22,
+    "Factory",
+    ""
+  ],
+  [
+    "E077",
+    "E.Gtr.Tweed Phaser",
+    "GUITAR",
+    23,
+    "Factory",
+    ""
+  ],
+  [
+    "E078",
+    "E.Guitar U-Vibe",
+    "GUITAR",
+    24,
+    "Factory",
+    ""
+  ],
+  [
+    "E079",
+    "E.Guitar Auto Wah",
+    "GUITAR",
+    25,
+    "Factory",
+    ""
+  ],
+  [
+    "E080",
+    "E.Gtr.Screaming Tube",
+    "GUITAR",
+    26,
+    "Factory",
+    ""
+  ],
+  [
+    "E081",
+    "E.Guitar Filthy",
+    "GUITAR",
+    27,
+    "Factory",
+    ""
+  ],
+  [
+    "E082",
+    "E.Guitar Mute Dist.",
+    "GUITAR",
+    28,
+    "Factory",
+    ""
+  ],
+  [
+    "E083",
+    "E.Guitar Wet Dist.",
+    "GUITAR",
+    29,
+    "Factory",
+    ""
+  ],
+  [
+    "E084",
+    "E.Guitar PowerChord",
+    "GUITAR",
+    30,
+    "Factory",
+    ""
+  ],
+  [
+    "E085",
+    "E.Gtuitar Vox Wah",
+    "GUITAR",
+    31,
+    "Factory",
+    ""
+  ],
+  [
+    "E086",
+    "E.Guitar Jazz",
+    "GUITAR",
+    32,
+    "Factory",
+    ""
+  ],
+  [
+    "E087",
+    "E.Guitar Pedal Steel",
+    "GUITAR",
+    33,
+    "Factory",
+    ""
+  ],
+  [
+    "E088",
+    "Psyco Guitar",
+    "GUITAR",
+    34,
+    "Factory",
+    ""
+  ],
+  [
+    "E089",
+    "Electronica Guitar",
+    "GUITAR",
+    35,
+    "Factory",
+    ""
+  ],
+  [
+    "E090",
+    "Ukulele",
+    "GUITAR",
+    36,
+    "Factory",
+    ""
+  ],
+  [
+    "E091",
+    "Banjo",
+    "GUITAR",
+    37,
+    "Factory",
+    ""
+  ],
+  [
+    "E092",
+    "Mandolin",
+    "GUITAR",
+    38,
+    "Factory",
+    ""
+  ],
+  [
+    "E093",
+    "Santur",
+    "GUITAR",
+    39,
+    "Factory",
+    ""
+  ],
+  [
+    "E094",
+    "Sitar & Tambura",
+    "GUITAR",
+    40,
+    "Factory",
+    ""
+  ],
+  [
+    "E095",
+    "Koto Velo.Bend",
+    "GUITAR",
+    41,
+    "Factory",
+    ""
+  ],
+  [
+    "E096",
+    "Harp 1",
+    "GUITAR",
+    42,
+    "Factory",
+    ""
+  ],
+  [
+    "E097",
+    "Harp 2",
+    "GUITAR",
+    43,
+    "Factory",
+    ""
+  ],
+  [
+    "E098",
+    "E.Bass Finger 1",
+    "BASS",
+    0,
+    "Factory",
+    ""
+  ],
+  [
+    "E099",
+    "E.Bass Finger 2",
+    "BASS",
+    1,
+    "Factory",
+    ""
+  ],
+  [
+    "E100",
+    "E.Bass Finger 3",
+    "BASS",
+    2,
+    "Factory",
+    ""
+  ],
+  [
+    "E101",
+    "E.Bass Finger 4",
+    "BASS",
+    3,
+    "Factory",
+    ""
+  ],
+  [
+    "E102",
+    "E.Bass Pick 1",
+    "BASS",
+    4,
+    "Factory",
+    ""
+  ],
+  [
+    "E103",
+    "E.Bass Pick 2",
+    "BASS",
+    5,
+    "Factory",
+    ""
+  ],
+  [
+    "E104",
+    "E.Bass Pick 3",
+    "BASS",
+    6,
+    "Factory",
+    ""
+  ],
+  [
+    "E105",
+    "E.Bass Pick 4",
+    "BASS",
+    7,
+    "Factory",
+    ""
+  ],
+  [
+    "E106",
+    "E.Bass Pick Bed",
+    "BASS",
+    8,
+    "Factory",
+    ""
+  ],
+  [
+    "E107",
+    "E.Bass Saturated",
+    "BASS",
+    9,
+    "Factory",
+    ""
+  ],
+  [
+    "E108",
+    "E.Bass Thumb 1",
+    "BASS",
+    10,
+    "Factory",
+    ""
+  ],
+  [
+    "E109",
+    "E.Bass Thumb 2",
+    "BASS",
+    11,
+    "Factory",
+    ""
+  ],
+  [
+    "E110",
+    "E.Bass Fretless 1",
+    "BASS",
+    12,
+    "Factory",
+    ""
+  ],
+  [
+    "E111",
+    "E.Bass Fretless 2",
+    "BASS",
+    13,
+    "Factory",
+    ""
+  ],
+  [
+    "E112",
+    "E.Bass Fretless Oct",
+    "BASS",
+    14,
+    "Factory",
+    ""
+  ],
+  [
+    "E113",
+    "Acoustic Bass1 SW2",
+    "BASS",
+    15,
+    "Factory",
+    ""
+  ],
+  [
+    "E114",
+    "Acoustic Bass2 SW2",
+    "BASS",
+    16,
+    "Factory",
+    ""
+  ],
+  [
+    "E115",
+    "Acoustic Bass3 SW2",
+    "BASS",
+    17,
+    "Factory",
+    ""
+  ],
+  [
+    "E116",
+    "Acoustic Bass Old",
+    "BASS",
+    18,
+    "Factory",
+    ""
+  ],
+  [
+    "E117",
+    "Kick Bass/Decay",
+    "BASS",
+    19,
+    "Factory",
+    ""
+  ],
+  [
+    "E118",
+    "Decayed Bass",
+    "BASS",
+    20,
+    "Factory",
+    ""
+  ],
+  [
+    "E119",
+    "THAT SubBass Kick",
+    "BASS",
+    21,
+    "Factory",
+    ""
+  ],
+  [
+    "E120",
+    "Kick Bass/Gate",
+    "BASS",
+    22,
+    "Factory",
+    ""
+  ],
+  [
+    "E121",
+    "Deep KIK SubSynth",
+    "BASS",
+    23,
+    "Factory",
+    ""
+  ],
+  [
+    "E122",
+    "Sine Bass SW1",
+    "BASS",
+    24,
+    "Factory",
+    ""
+  ],
+  [
+    "E123",
+    "Deep Triangle Bass",
+    "BASS",
+    25,
+    "Factory",
+    ""
+  ],
+  [
+    "E124",
+    "Dark R&B Bass",
+    "BASS",
+    26,
+    "Factory",
+    ""
+  ],
+  [
+    "E125",
+    "Digi Bass",
+    "BASS",
+    27,
+    "Factory",
+    ""
+  ],
+  [
+    "E126",
+    "Boost Synth Bass",
+    "BASS",
+    28,
+    "Factory",
+    ""
+  ],
+  [
+    "E127",
+    "Tight Bass SW2",
+    "BASS",
+    29,
+    "Factory",
+    ""
+  ],
+  [
+    "F000",
+    "Saw Bass",
+    "BASS",
+    30,
+    "Factory",
+    ""
+  ],
+  [
+    "F001",
+    "800DV Saw Bass",
+    "BASS",
+    31,
+    "Factory",
+    ""
+  ],
+  [
+    "F002",
+    "Solid Bass",
+    "BASS",
+    32,
+    "Factory",
+    ""
+  ],
+  [
+    "F003",
+    "Octave Bass",
+    "BASS",
+    33,
+    "Factory",
+    ""
+  ],
+  [
+    "F004",
+    "Analog Funk Bass",
+    "BASS",
+    34,
+    "Factory",
+    ""
+  ],
+  [
+    "F005",
+    "Octave MG Bass",
+    "BASS",
+    35,
+    "Factory",
+    ""
+  ],
+  [
+    "F006",
+    "Greasy Synth Bass",
+    "BASS",
+    36,
+    "Factory",
+    ""
+  ],
+  [
+    "F007",
+    "VeloBark Bass",
+    "BASS",
+    37,
+    "Factory",
+    ""
+  ],
+  [
+    "F008",
+    "Acid Syn Bass",
+    "BASS",
+    38,
+    "Factory",
+    ""
+  ],
+  [
+    "F009",
+    "Square Bass",
+    "BASS",
+    39,
+    "Factory",
+    ""
+  ],
+  [
+    "F010",
+    "Popin' Squ Bass",
+    "BASS",
+    40,
+    "Factory",
+    ""
+  ],
+  [
+    "F011",
+    "800DV Square Bass",
+    "BASS",
+    41,
+    "Factory",
+    ""
+  ],
+  [
+    "F012",
+    "Growler Bass",
+    "BASS",
+    42,
+    "Factory",
+    ""
+  ],
+  [
+    "F013",
+    "Euro 8va Seq Bass",
+    "BASS",
+    43,
+    "Factory",
+    ""
+  ],
+  [
+    "F014",
+    "Hard Square Bass",
+    "BASS",
+    44,
+    "Factory",
+    ""
+  ],
+  [
+    "F015",
+    "Detuned Euro Bass",
+    "BASS",
+    45,
+    "Factory",
+    ""
+  ],
+  [
+    "F016",
+    "Vintage 80's Bass",
+    "BASS",
+    46,
+    "Factory",
+    ""
+  ],
+  [
+    "F017",
+    "Snappy 5ths Bass",
+    "BASS",
+    47,
+    "Factory",
+    ""
+  ],
+  [
+    "F018",
+    "Dub Tempest Bs",
+    "BASS",
+    48,
+    "Factory",
+    ""
+  ],
+  [
+    "F019",
+    "Dub PsyClone Bs",
+    "BASS",
+    49,
+    "Factory",
+    ""
+  ],
+  [
+    "F020",
+    "Ducking Bass",
+    "BASS",
+    50,
+    "Factory",
+    ""
+  ],
+  [
+    "F021",
+    "DS Hold Bass SW2",
+    "BASS",
+    51,
+    "Factory",
+    ""
+  ],
+  [
+    "F022",
+    "Bs Pulse Mod Wheel",
+    "BASS",
+    52,
+    "Factory",
+    ""
+  ],
+  [
+    "F023",
+    "Wobble Nation Bass",
+    "BASS",
+    53,
+    "Factory",
+    ""
+  ],
+  [
+    "F024",
+    "Bs Pulse Triplet MW",
+    "BASS",
+    54,
+    "Factory",
+    ""
+  ],
+  [
+    "F025",
+    "Nasty Bass",
+    "BASS",
+    55,
+    "Factory",
+    ""
+  ],
+  [
+    "F026",
+    "Widow Bass",
+    "BASS",
+    56,
+    "Factory",
+    ""
+  ],
+  [
+    "F027",
+    "Octa Quak Bass",
+    "BASS",
+    57,
+    "Factory",
+    ""
+  ],
+  [
+    "F028",
+    "Ruff'Blade Bass",
+    "BASS",
+    58,
+    "Factory",
+    ""
+  ],
+  [
+    "F029",
+    "Hard Synth Bass",
+    "BASS",
+    59,
+    "Factory",
+    ""
+  ],
+  [
+    "F030",
+    "Hard Sync Bass",
+    "BASS",
+    60,
+    "Factory",
+    ""
+  ],
+  [
+    "F031",
+    "Organ Bass",
+    "BASS",
+    61,
+    "Factory",
+    ""
+  ],
+  [
+    "F032",
+    "Housey Bass",
+    "BASS",
+    62,
+    "Factory",
+    ""
+  ],
+  [
+    "F033",
+    "Rock Kit 1",
+    "DRUM/SFX",
+    0,
+    "Factory",
+    ""
+  ],
+  [
+    "F034",
+    "Rock Kit 1 Mono",
+    "DRUM/SFX",
+    1,
+    "Factory",
+    ""
+  ],
+  [
+    "F035",
+    "Rock Kit 2",
+    "DRUM/SFX",
+    2,
+    "Factory",
+    ""
+  ],
+  [
+    "F037",
+    "Jazz Kit Mono",
+    "DRUM/SFX",
+    4,
+    "Factory",
+    ""
+  ],
+  [
+    "F038",
+    "Jazz/Brush Kit",
+    "DRUM/SFX",
+    5,
+    "Factory",
+    ""
+  ],
+  [
+    "F039",
+    "Wild Kit",
+    "DRUM/SFX",
+    6,
+    "Factory",
+    ""
+  ],
+  [
+    "F040",
+    "Power Kit 1",
+    "DRUM/SFX",
+    7,
+    "Factory",
+    ""
+  ],
+  [
+    "F041",
+    "Power Kit 2",
+    "DRUM/SFX",
+    8,
+    "Factory",
+    ""
+  ],
+  [
+    "F043",
+    "Basic Kit 2",
+    "DRUM/SFX",
+    10,
+    "Factory",
+    ""
+  ],
+  [
+    "F044",
+    "Jazzy Hop Kit",
+    "DRUM/SFX",
+    11,
+    "Factory",
+    ""
+  ],
+  [
+    "F045",
+    "Urban Hip Hop Kit",
+    "DRUM/SFX",
+    12,
+    "Factory",
+    ""
+  ],
+  [
+    "F046",
+    "Hip Hop Kit 1",
+    "DRUM/SFX",
+    13,
+    "Factory",
+    ""
+  ],
+  [
+    "F047",
+    "Hip Hop Kit 2",
+    "DRUM/SFX",
+    14,
+    "Factory",
+    ""
+  ],
+  [
+    "F048",
+    "Trapper Kit",
+    "DRUM/SFX",
+    15,
+    "Factory",
+    ""
+  ],
+  [
+    "F049",
+    "Electronic R&B Kit",
+    "DRUM/SFX",
+    16,
+    "Factory",
+    ""
+  ],
+  [
+    "F050",
+    "Nu R&B Kit",
+    "DRUM/SFX",
+    17,
+    "Factory",
+    ""
+  ],
+  [
+    "F051",
+    "R&B Kit",
+    "DRUM/SFX",
+    18,
+    "Factory",
+    ""
+  ],
+  [
+    "F052",
+    "Breakbeat Kit",
+    "DRUM/SFX",
+    19,
+    "Factory",
+    ""
+  ],
+  [
+    "F053",
+    "Drum'n'Bass Kit",
+    "DRUM/SFX",
+    20,
+    "Factory",
+    ""
+  ],
+  [
+    "F054",
+    "Breaks Kit",
+    "DRUM/SFX",
+    21,
+    "Factory",
+    ""
+  ],
+  [
+    "F055",
+    "Bigroom Kit",
+    "DRUM/SFX",
+    22,
+    "Factory",
+    ""
+  ],
+  [
+    "F056",
+    "Nu EDM Kit",
+    "DRUM/SFX",
+    23,
+    "Factory",
+    ""
+  ],
+  [
+    "F057",
+    "Dubstep Kit",
+    "DRUM/SFX",
+    24,
+    "Factory",
+    ""
+  ],
+  [
+    "F058",
+    "Moombahton Kit",
+    "DRUM/SFX",
+    25,
+    "Factory",
+    ""
+  ],
+  [
+    "F059",
+    "Tropical Kit",
+    "DRUM/SFX",
+    26,
+    "Factory",
+    ""
+  ],
+  [
+    "F060",
+    "Trance Kit",
+    "DRUM/SFX",
+    27,
+    "Factory",
+    ""
+  ],
+  [
+    "F061",
+    "House Kit",
+    "DRUM/SFX",
+    28,
+    "Factory",
+    ""
+  ],
+  [
+    "F062",
+    "Tekno Klub Kit",
+    "DRUM/SFX",
+    29,
+    "Factory",
+    ""
+  ],
+  [
+    "F063",
+    "Minimal Kit",
+    "DRUM/SFX",
+    30,
+    "Factory",
+    ""
+  ],
+  [
+    "F064",
+    "Nica/Glitch Kit",
+    "DRUM/SFX",
+    31,
+    "Factory",
+    ""
+  ],
+  [
+    "F065",
+    "Analog Kit",
+    "DRUM/SFX",
+    32,
+    "Factory",
+    ""
+  ],
+  [
+    "F066",
+    "Mad Analog Kit",
+    "DRUM/SFX",
+    33,
+    "Factory",
+    ""
+  ],
+  [
+    "F067",
+    "Tricki Kit",
+    "DRUM/SFX",
+    34,
+    "Factory",
+    ""
+  ],
+  [
+    "F068",
+    "Human Beat Box Kit",
+    "DRUM/SFX",
+    35,
+    "Factory",
+    ""
+  ],
+  [
+    "F069",
+    "Percussion Kit",
+    "DRUM/SFX",
+    36,
+    "Factory",
+    ""
+  ],
+  [
+    "F070",
+    "Orch&Ethno Kit",
+    "DRUM/SFX",
+    37,
+    "Factory",
+    ""
+  ],
+  [
+    "F071",
+    "Nippon Kit",
+    "DRUM/SFX",
+    38,
+    "Factory",
+    ""
+  ],
+  [
+    "F072",
+    "BD&SD Catalog 1",
+    "DRUM/SFX",
+    39,
+    "Factory",
+    ""
+  ],
+  [
+    "F073",
+    "BD&SD Catalog 2",
+    "DRUM/SFX",
+    40,
+    "Factory",
+    ""
+  ],
+  [
+    "F074",
+    "Cymbal Catalog",
+    "DRUM/SFX",
+    41,
+    "Factory",
+    ""
+  ],
+  [
+    "F075",
+    "Saw Pizz",
+    "DRUM/SFX",
+    42,
+    "Factory",
+    ""
+  ],
+  [
+    "F076",
+    "Short Square Arp",
+    "DRUM/SFX",
+    43,
+    "Factory",
+    ""
+  ],
+  [
+    "F077",
+    "Bit Chip SW1/2",
+    "DRUM/SFX",
+    44,
+    "Factory",
+    ""
+  ],
+  [
+    "F078",
+    "ChipTriangle SW/MW",
+    "DRUM/SFX",
+    45,
+    "Factory",
+    ""
+  ],
+  [
+    "F079",
+    "ChipSquare SW/MW",
+    "DRUM/SFX",
+    46,
+    "Factory",
+    ""
+  ],
+  [
+    "F080",
+    "ChipPulse 1 SW/MW",
+    "DRUM/SFX",
+    47,
+    "Factory",
+    ""
+  ],
+  [
+    "F081",
+    "ChipPulse 2 SW/MW",
+    "DRUM/SFX",
+    48,
+    "Factory",
+    ""
+  ],
+  [
+    "F082",
+    "Analog Bell/Harp",
+    "DRUM/SFX",
+    49,
+    "Factory",
+    ""
+  ],
+  [
+    "F083",
+    "Square/Pulse Syn",
+    "DRUM/SFX",
+    50,
+    "Factory",
+    ""
+  ],
+  [
+    "F084",
+    "Comp E.P. SW1/2",
+    "DRUM/SFX",
+    51,
+    "Factory",
+    ""
+  ],
+  [
+    "F085",
+    "Organ Perc.Shot",
+    "DRUM/SFX",
+    52,
+    "Factory",
+    ""
+  ],
+  [
+    "F086",
+    "Synth Mallets 5th",
+    "DRUM/SFX",
+    53,
+    "Factory",
+    ""
+  ],
+  [
+    "F087",
+    "Metallic Hitter",
+    "DRUM/SFX",
+    54,
+    "Factory",
+    ""
+  ],
+  [
+    "F088",
+    "Tropical Pizz",
+    "DRUM/SFX",
+    55,
+    "Factory",
+    ""
+  ],
+  [
+    "F089",
+    "Tropical Mallet",
+    "DRUM/SFX",
+    56,
+    "Factory",
+    ""
+  ],
+  [
+    "F090",
+    "Horn Chord Hits",
+    "DRUM/SFX",
+    57,
+    "Factory",
+    ""
+  ],
+  [
+    "F091",
+    "Disco Strings Hit",
+    "DRUM/SFX",
+    58,
+    "Factory",
+    ""
+  ],
+  [
+    "F092",
+    "Chord Set 1 SW2",
+    "DRUM/SFX",
+    59,
+    "Factory",
+    ""
+  ],
+  [
+    "F093",
+    "Chord Set 2 SW1",
+    "DRUM/SFX",
+    60,
+    "Factory",
+    ""
+  ],
+  [
+    "F094",
+    "HipHop Hits",
+    "DRUM/SFX",
+    61,
+    "Factory",
+    ""
+  ],
+  [
+    "F095",
+    "Trapper Hit",
+    "DRUM/SFX",
+    62,
+    "Factory",
+    ""
+  ],
+  [
+    "F096",
+    "Pizz Hit",
+    "DRUM/SFX",
+    63,
+    "Factory",
+    ""
+  ],
+  [
+    "F097",
+    "Power Band Hit",
+    "DRUM/SFX",
+    64,
+    "Factory",
+    ""
+  ],
+  [
+    "F098",
+    "Impact Band Hit",
+    "DRUM/SFX",
+    65,
+    "Factory",
+    ""
+  ],
+  [
+    "F099",
+    "Drama Hit Wheel",
+    "DRUM/SFX",
+    66,
+    "Factory",
+    ""
+  ],
+  [
+    "F100",
+    "Monster Hit Wheel",
+    "DRUM/SFX",
+    67,
+    "Factory",
+    ""
+  ],
+  [
+    "F101",
+    "Chipper Hit",
+    "DRUM/SFX",
+    68,
+    "Factory",
+    ""
+  ],
+  [
+    "F102",
+    "Helium Voice",
+    "DRUM/SFX",
+    69,
+    "Factory",
+    ""
+  ],
+  [
+    "F103",
+    "Yahi Voice",
+    "DRUM/SFX",
+    70,
+    "Factory",
+    ""
+  ],
+  [
+    "F104",
+    "Nippon Set (C#2-A5)",
+    "DRUM/SFX",
+    71,
+    "Factory",
+    ""
+  ],
+  [
+    "F105",
+    "Shamisen Gaisya",
+    "DRUM/SFX",
+    72,
+    "Factory",
+    ""
+  ],
+  [
+    "F106",
+    "Soul of Tsugaru",
+    "DRUM/SFX",
+    73,
+    "Factory",
+    ""
+  ],
+  [
+    "F107",
+    "Shakuhachi Mondou",
+    "DRUM/SFX",
+    74,
+    "Factory",
+    ""
+  ],
+  [
+    "F108",
+    "KOTO Furyu",
+    "DRUM/SFX",
+    75,
+    "Factory",
+    ""
+  ],
+  [
+    "F109",
+    "Miyabi Hit (E3,D6,D7)",
+    "DRUM/SFX",
+    76,
+    "Factory",
+    ""
+  ],
+  [
+    "F110",
+    "Ring Mod Riser",
+    "DRUM/SFX",
+    77,
+    "Factory",
+    ""
+  ],
+  [
+    "F111",
+    "Siren SFX Wheel",
+    "DRUM/SFX",
+    78,
+    "Factory",
+    ""
+  ],
+  [
+    "F112",
+    "Monster",
+    "DRUM/SFX",
+    79,
+    "Factory",
+    ""
+  ],
+  [
+    "F113",
+    "Crypt-on",
+    "DRUM/SFX",
+    80,
+    "Factory",
+    ""
+  ],
+  [
+    "F114",
+    "Stereo Flange Sweep",
+    "DRUM/SFX",
+    81,
+    "Factory",
+    ""
+  ],
+  [
+    "F115",
+    "Sonic Blast",
+    "DRUM/SFX",
+    82,
+    "Factory",
+    ""
+  ],
+  [
+    "F116",
+    "Soundscapes",
+    "DRUM/SFX",
+    83,
+    "Factory",
+    ""
+  ],
+  [
+    "F117",
+    "Steam Sweeps",
+    "DRUM/SFX",
+    84,
+    "Factory",
+    ""
+  ],
+  [
+    "F118",
+    "Android",
+    "DRUM/SFX",
+    85,
+    "Factory",
+    ""
+  ],
+  [
+    "F119",
+    "New North Wind",
+    "DRUM/SFX",
+    86,
+    "Factory",
+    ""
+  ],
+  [
+    "F120",
+    "Outside Elements",
+    "DRUM/SFX",
+    87,
+    "Factory",
+    ""
+  ],
+  [
+    "F121",
+    "Lore of the Jungle",
+    "DRUM/SFX",
+    88,
+    "Factory",
+    ""
+  ],
+  [
+    "F122",
+    "Mega Drum Hit",
+    "DRUM/SFX",
+    89,
+    "Factory",
+    ""
+  ],
+  [
+    "F123",
+    "Gong",
+    "DRUM/SFX",
+    90,
+    "Factory",
+    ""
+  ],
+  [
+    "F124",
+    "Vocoder Vel Choir",
+    "DRUM/SFX",
+    91,
+    "Factory",
+    ""
+  ],
+  [
+    "F125",
+    "SqrSaw Vocoder",
+    "DRUM/SFX",
+    92,
+    "Factory",
+    ""
+  ],
+  [
+    "F126",
+    "Mic & Reverb",
+    "DRUM/SFX",
+    93,
+    "Factory",
+    ""
+  ],
+  [
+    "F127",
+    "Mic & Doubled",
+    "DRUM/SFX",
+    94,
+    "Factory",
+    ""
+  ],
+  [
+    "G001",
+    "GM Acoustic Piano",
+    "PIANO",
+    64,
+    "GM",
+    ""
+  ],
+  [
+    "G002",
+    "GM Bright Piano",
+    "PIANO",
+    65,
+    "GM",
+    ""
+  ],
+  [
+    "G003",
+    "GM E.Grand Piano",
+    "PIANO",
+    66,
+    "GM",
+    ""
+  ],
+  [
+    "G004",
+    "GM Honkey-Tonk",
+    "PIANO",
+    67,
+    "GM",
+    ""
+  ],
+  [
+    "G005",
+    "GM E.Piano 1",
+    "E.PIANO",
+    83,
+    "GM",
+    ""
+  ],
+  [
+    "G006",
+    "GM E.Piano 2",
+    "E.PIANO",
+    84,
+    "GM",
+    ""
+  ],
+  [
+    "G007",
+    "GM Harpsichord",
+    "E.PIANO",
+    85,
+    "GM",
+    ""
+  ],
+  [
+    "G008",
+    "GM Clavi.",
+    "E.PIANO",
+    86,
+    "GM",
+    ""
+  ],
+  [
+    "G009",
+    "GM Celesta",
+    "PIANO",
+    68,
+    "GM",
+    ""
+  ],
+  [
+    "G010",
+    "GM Glockenspiel",
+    "BELL",
+    37,
+    "GM",
+    ""
+  ],
+  [
+    "G011",
+    "GM Music Box",
+    "BELL",
+    38,
+    "GM",
+    ""
+  ],
+  [
+    "G012",
+    "GM Vibraphone",
+    "BELL",
+    39,
+    "GM",
+    ""
+  ],
+  [
+    "G013",
+    "GM Marimba",
+    "BELL",
+    40,
+    "GM",
+    ""
+  ],
+  [
+    "G014",
+    "GM Xylophone",
+    "BELL",
+    41,
+    "GM",
+    ""
+  ],
+  [
+    "G015",
+    "GM Tubular Bells",
+    "GUITAR",
+    44,
+    "GM",
+    ""
+  ],
+  [
+    "G016",
+    "GM Santur",
+    "GUITAR",
+    44,
+    "GM",
+    ""
+  ],
+  [
+    "G017",
+    "GM Drawbar Organ 1",
+    "ORGAN",
+    73,
+    "GM",
+    ""
+  ],
+  [
+    "G018",
+    "GM Perc-Organ 1",
+    "ORGAN",
+    74,
+    "GM",
+    ""
+  ],
+  [
+    "G019",
+    "GM Rock Organ",
+    "ORGAN",
+    75,
+    "GM",
+    ""
+  ],
+  [
+    "G020",
+    "GM Church Organ",
+    "ORGAN",
+    76,
+    "GM",
+    ""
+  ],
+  [
+    "G021",
+    "GM Reed Organ",
+    "ORGAN",
+    77,
+    "GM",
+    ""
+  ],
+  [
+    "G022",
+    "GM Accordion 1",
+    "ORGAN",
+    78,
+    "GM",
+    ""
+  ],
+  [
+    "G023",
+    "GM Harmonica",
+    "BRASS",
+    59,
+    "GM",
+    ""
+  ],
+  [
+    "G024",
+    "GM Bandoneon",
+    "ORGAN",
+    79,
+    "GM",
+    ""
+  ],
+  [
+    "G025",
+    "GM Nylon Guitar 1",
+    "GUITAR",
+    45,
+    "GM",
+    ""
+  ],
+  [
+    "G026",
+    "GM Steel Guitar",
+    "GUITAR",
+    46,
+    "GM",
+    ""
+  ],
+  [
+    "G027",
+    "GM Jazz Guitar",
+    "GUITAR",
+    47,
+    "GM",
+    ""
+  ],
+  [
+    "G028",
+    "GM Clean Guitar",
+    "GUITAR",
+    48,
+    "GM",
+    ""
+  ],
+  [
+    "G029",
+    "GM Muted Guitar",
+    "GUITAR",
+    49,
+    "GM",
+    ""
+  ],
+  [
+    "G030",
+    "GM Overdrive Guitar",
+    "GUITAR",
+    50,
+    "GM",
+    ""
+  ],
+  [
+    "G031",
+    "GM Dist.Guitar 1",
+    "GUITAR",
+    51,
+    "GM",
+    ""
+  ],
+  [
+    "G032",
+    "GM Guitar Harmonics",
+    "GUITAR",
+    52,
+    "GM",
+    ""
+  ],
+  [
+    "G033",
+    "GM Acoustic Bass",
+    "BASS",
+    63,
+    "GM",
+    ""
+  ],
+  [
+    "G034",
+    "GM Fingered Bass",
+    "BASS",
+    64,
+    "GM",
+    ""
+  ],
+  [
+    "G035",
+    "GM Picked Bass",
+    "BASS",
+    65,
+    "GM",
+    ""
+  ],
+  [
+    "G036",
+    "GM Fretless Bass",
+    "BASS",
+    66,
+    "GM",
+    ""
+  ],
+  [
+    "G037",
+    "GM Slap Bass 1",
+    "BASS",
+    67,
+    "GM",
+    ""
+  ],
+  [
+    "G038",
+    "GM Slap Bass 2",
+    "BASS",
+    68,
+    "GM",
+    ""
+  ],
+  [
+    "G039",
+    "GM Synth Bass 1",
+    "BASS",
+    69,
+    "GM",
+    ""
+  ],
+  [
+    "G040",
+    "GM Synth Bass 2",
+    "BASS",
+    70,
+    "GM",
+    ""
+  ],
+  [
+    "G041",
+    "GM Violin",
+    "STRINGS",
+    77,
+    "GM",
+    ""
+  ],
+  [
+    "G042",
+    "GM Viola",
+    "STRINGS",
+    78,
+    "GM",
+    ""
+  ],
+  [
+    "G043",
+    "GM Cello",
+    "STRINGS",
+    79,
+    "GM",
+    ""
+  ],
+  [
+    "G044",
+    "GM Contrabass",
+    "STRINGS",
+    80,
+    "GM",
+    ""
+  ],
+  [
+    "G045",
+    "GM Tremolo Strings",
+    "STRINGS",
+    81,
+    "GM",
+    ""
+  ],
+  [
+    "G046",
+    "GM Pizzicato Strings",
+    "STRINGS",
+    82,
+    "GM",
+    ""
+  ],
+  [
+    "G047",
+    "GM Orchestral Harp",
+    "GUITAR",
+    53,
+    "GM",
+    ""
+  ],
+  [
+    "G048",
+    "GM Timpani",
+    "DRUM/SFX",
+    95,
+    "GM",
+    ""
+  ],
+  [
+    "G049",
+    "GM Strings",
+    "STRINGS",
+    83,
+    "GM",
+    ""
+  ],
+  [
+    "G050",
+    "GM Slow Strings",
+    "STRINGS",
+    84,
+    "GM",
+    ""
+  ],
+  [
+    "G051",
+    "GM Synth Strings 1",
+    "STRINGS",
+    85,
+    "GM",
+    ""
+  ],
+  [
+    "G052",
+    "GM Synth Strings 2",
+    "STRINGS",
+    86,
+    "GM",
+    ""
+  ],
+  [
+    "G053",
+    "GM Choir Aahs 1",
+    "STRINGS",
+    87,
+    "GM",
+    ""
+  ],
+  [
+    "G054",
+    "GM Voice Oohs",
+    "STRINGS",
+    88,
+    "GM",
+    ""
+  ],
+  [
+    "G055",
+    "GM Synth Vox",
+    "STRINGS",
+    89,
+    "GM",
+    ""
+  ],
+  [
+    "G056",
+    "GM Orchestra Hit",
+    "DRUM/SFX",
+    96,
+    "GM",
+    ""
+  ],
+  [
+    "G057",
+    "GM Trumpet",
+    "BRASS",
+    60,
+    "GM",
+    ""
+  ],
+  [
+    "G058",
+    "GM Trombone 1",
+    "BRASS",
+    61,
+    "GM",
+    ""
+  ],
+  [
+    "G059",
+    "GM Tuba",
+    "BRASS",
+    62,
+    "GM",
+    ""
+  ],
+  [
+    "G060",
+    "GM Muted Trumpet 1",
+    "BRASS",
+    63,
+    "GM",
+    ""
+  ],
+  [
+    "G061",
+    "GM French Horn",
+    "BRASS",
+    64,
+    "GM",
+    ""
+  ],
+  [
+    "G062",
+    "GM Brass Section 1",
+    "BRASS",
+    65,
+    "GM",
+    ""
+  ],
+  [
+    "G063",
+    "GM Synth Brass 1",
+    "SYNTH LEAD",
+    94,
+    "GM",
+    ""
+  ],
+  [
+    "G064",
+    "GM Synth Brass 2",
+    "SYNTH LEAD",
+    95,
+    "GM",
+    ""
+  ],
+  [
+    "G065",
+    "GM Soprano Sax",
+    "BRASS",
+    66,
+    "GM",
+    ""
+  ],
+  [
+    "G066",
+    "GM Alto Sax",
+    "BRASS",
+    67,
+    "GM",
+    ""
+  ],
+  [
+    "G067",
+    "GM Tenor Sax",
+    "BRASS",
+    68,
+    "GM",
+    ""
+  ],
+  [
+    "G068",
+    "GM Baritone Sax",
+    "BRASS",
+    69,
+    "GM",
+    ""
+  ],
+  [
+    "G069",
+    "GM Oboe",
+    "BRASS",
+    70,
+    "GM",
+    ""
+  ],
+  [
+    "G070",
+    "GM English Horn",
+    "BRASS",
+    71,
+    "GM",
+    ""
+  ],
+  [
+    "G071",
+    "GM Bassoon",
+    "BRASS",
+    72,
+    "GM",
+    ""
+  ],
+  [
+    "G072",
+    "GM Clarinet",
+    "BRASS",
+    73,
+    "GM",
+    ""
+  ],
+  [
+    "G073",
+    "GM Piccolo",
+    "BRASS",
+    74,
+    "GM",
+    ""
+  ],
+  [
+    "G074",
+    "GM Flute",
+    "BRASS",
+    75,
+    "GM",
+    ""
+  ],
+  [
+    "G075",
+    "GM Recorder",
+    "BRASS",
+    76,
+    "GM",
+    ""
+  ],
+  [
+    "G076",
+    "GM Pan Flute",
+    "BRASS",
+    77,
+    "GM",
+    ""
+  ],
+  [
+    "G077",
+    "GM Blown Bottle",
+    "BRASS",
+    78,
+    "GM",
+    ""
+  ],
+  [
+    "G078",
+    "GM Shakuhachi",
+    "BRASS",
+    79,
+    "GM",
+    ""
+  ],
+  [
+    "G079",
+    "GM Whistle",
+    "BRASS",
+    80,
+    "GM",
+    ""
+  ],
+  [
+    "G080",
+    "GM Ocarina",
+    "BRASS",
+    81,
+    "GM",
+    ""
+  ],
+  [
+    "G081",
+    "GM Detuned Square",
+    "SYNTH LEAD",
+    96,
+    "GM",
+    ""
+  ],
+  [
+    "G082",
+    "GM Detuned Saw",
+    "SYNTH LEAD",
+    97,
+    "GM",
+    ""
+  ],
+  [
+    "G083",
+    "GM Synth Calliope",
+    "SYNTH LEAD",
+    98,
+    "GM",
+    ""
+  ],
+  [
+    "G084",
+    "GM Chiff Lead",
+    "SYNTH LEAD",
+    99,
+    "GM",
+    ""
+  ],
+  [
+    "G085",
+    "GM Charang",
+    "GUITAR",
+    54,
+    "GM",
+    ""
+  ],
+  [
+    "G086",
+    "GM Air Voice",
+    "STRINGS",
+    90,
+    "GM",
+    ""
+  ],
+  [
+    "G087",
+    "GM 5th Sawtooth",
+    "SYNTH LEAD",
+    100,
+    "GM",
+    ""
+  ],
+  [
+    "G088",
+    "GM Bass & Lead",
+    "SYNTH LEAD",
+    101,
+    "GM",
+    ""
+  ],
+  [
+    "G089",
+    "GM Fantasia",
+    "SYNTH PAD",
+    79,
+    "GM",
+    ""
+  ],
+  [
+    "G090",
+    "GM Warm Pad",
+    "SYNTH PAD",
+    80,
+    "GM",
+    ""
+  ],
+  [
+    "G091",
+    "GM Poly Synth",
+    "SYNTH PAD",
+    81,
+    "GM",
+    ""
+  ],
+  [
+    "G092",
+    "GM Space Voice",
+    "SYNTH PAD",
+    82,
+    "GM",
+    ""
+  ],
+  [
+    "G093",
+    "GM Bowed Glass",
+    "SYNTH PAD",
+    83,
+    "GM",
+    ""
+  ],
+  [
+    "G094",
+    "GM Metallic Pad",
+    "SYNTH PAD",
+    84,
+    "GM",
+    ""
+  ],
+  [
+    "G095",
+    "GM Halo Pad",
+    "STRINGS",
+    91,
+    "GM",
+    ""
+  ],
+  [
+    "G096",
+    "GM Sweep Pad",
+    "SYNTH PAD",
+    85,
+    "GM",
+    ""
+  ],
+  [
+    "G097",
+    "GM Ice Rain",
+    "SYNTH PAD",
+    86,
+    "GM",
+    ""
+  ],
+  [
+    "G098",
+    "GM Sound Track",
+    "SYNTH PAD",
+    87,
+    "GM",
+    ""
+  ],
+  [
+    "G099",
+    "GM Crystal",
+    "BELL",
+    43,
+    "GM",
+    ""
+  ],
+  [
+    "G100",
+    "GM Atmosphere",
+    "SYNTH LEAD",
+    102,
+    "GM",
+    ""
+  ],
+  [
+    "G101",
+    "GM Brightness",
+    "SYNTH PAD",
+    88,
+    "GM",
+    ""
+  ],
+  [
+    "G102",
+    "GM Goblins",
+    "SYNTH PAD",
+    89,
+    "GM",
+    ""
+  ],
+  [
+    "G103",
+    "GM Echo Drops",
+    "STRINGS",
+    92,
+    "GM",
+    ""
+  ],
+  [
+    "G104",
+    "GM Star Theme",
+    "SYNTH PAD",
+    90,
+    "GM",
+    ""
+  ],
+  [
+    "G105",
+    "GM Sitar 1",
+    "GUITAR",
+    55,
+    "GM",
+    ""
+  ],
+  [
+    "G106",
+    "GM Banjo",
+    "GUITAR",
+    56,
+    "GM",
+    ""
+  ],
+  [
+    "G107",
+    "GM Shamisen",
+    "GUITAR",
+    57,
+    "GM",
+    ""
+  ],
+  [
+    "G108",
+    "GM Koto",
+    "GUITAR",
+    58,
+    "GM",
+    ""
+  ],
+  [
+    "G109",
+    "GM Kalimba",
+    "BELL",
+    44,
+    "GM",
+    ""
+  ],
+  [
+    "G110",
+    "GM Bagpipe",
+    "BRASS",
+    82,
+    "GM",
+    ""
+  ],
+  [
+    "G111",
+    "GM Fiddle",
+    "STRINGS",
+    93,
+    "GM",
+    ""
+  ],
+  [
+    "G112",
+    "GM Shanai",
+    "BRASS",
+    83,
+    "GM",
+    ""
+  ],
+  [
+    "G113",
+    "GM Tinkle Bell",
+    "BELL",
+    45,
+    "GM",
+    ""
+  ],
+  [
+    "G114",
+    "GM Agogo",
+    "DRUM/SFX",
+    97,
+    "GM",
+    ""
+  ],
+  [
+    "G115",
+    "GM Steel Drums",
+    "BELL",
+    46,
+    "GM",
+    ""
+  ],
+  [
+    "G116",
+    "GM Woodblock",
+    "DRUM/SFX",
+    98,
+    "GM",
+    ""
+  ],
+  [
+    "G117",
+    "GM Taiko",
+    "DRUM/SFX",
+    99,
+    "GM",
+    ""
+  ],
+  [
+    "G118",
+    "GM Melodic Tom 1",
+    "DRUM/SFX",
+    100,
+    "GM",
+    ""
+  ],
+  [
+    "G119",
+    "GM Synth Drum",
+    "DRUM/SFX",
+    101,
+    "GM",
+    ""
+  ],
+  [
+    "G120",
+    "GM Reverse Cymbal",
+    "DRUM/SFX",
+    102,
+    "GM",
+    ""
+  ],
+  [
+    "G121",
+    "GM Guitar Fret Noise",
+    "GUITAR",
+    59,
+    "GM",
+    ""
+  ],
+  [
+    "G122",
+    "GM Breath Noise",
+    "BRASS",
+    84,
+    "GM",
+    ""
+  ],
+  [
+    "G123",
+    "GM Seashore",
+    "DRUM/SFX",
+    103,
+    "GM",
+    ""
+  ],
+  [
+    "G124",
+    "GM Bird Tweet 1",
+    "DRUM/SFX",
+    104,
+    "GM",
+    ""
+  ],
+  [
+    "G125",
+    "GM Telephone Ring 1",
+    "DRUM/SFX",
+    105,
+    "GM",
+    ""
+  ],
+  [
+    "G126",
+    "GM Helicopter",
+    "DRUM/SFX",
+    106,
+    "GM",
+    ""
+  ],
+  [
+    "G127",
+    "GM Applause",
+    "DRUM/SFX",
+    107,
+    "GM",
+    ""
+  ],
+  [
+    "G128",
+    "GM Gun Shot",
+    "DRUM/SFX",
+    108,
+    "GM",
+    ""
+  ],
+  [
+    "g1-001",
+    "GM Acoustic Piano w",
+    "PIANO",
+    69,
+    "GM",
+    ""
+  ],
+  [
+    "g2-001",
+    "GM Acoustic Piano d",
+    "PIANO",
+    73,
+    "GM",
+    ""
+  ],
+  [
+    "g1-002",
+    "GM Bright Piano w",
+    "PIANO",
+    70,
+    "GM",
+    ""
+  ],
+  [
+    "g1-003",
+    "GM E.Grand Piano w",
+    "PIANO",
+    71,
+    "GM",
+    ""
+  ],
+  [
+    "g1-004",
+    "GM Honkey-Tonk w",
+    "PIANO",
+    72,
+    "GM",
+    ""
+  ],
+  [
+    "g1-005",
+    "GM Detuned E.P. 1",
+    "E.PIANO",
+    87,
+    "GM",
+    ""
+  ],
+  [
+    "g2-005",
+    "GM E.Piano 1 v",
+    "E.PIANO",
+    91,
+    "GM",
+    ""
+  ],
+  [
+    "g3-005",
+    "GM 60's E.Piano",
+    "E.PIANO",
+    94,
+    "GM",
+    ""
+  ],
+  [
+    "g1-006",
+    "GM Detuned E.P. 2",
+    "E.PIANO",
+    88,
+    "GM",
+    ""
+  ],
+  [
+    "g2-006",
+    "GM E.Piano 2 v",
+    "E.PIANO",
+    92,
+    "GM",
+    ""
+  ],
+  [
+    "g3-006",
+    "GM E.Piano Legend",
+    "E.PIANO",
+    95,
+    "GM",
+    ""
+  ],
+  [
+    "g4-006",
+    "GM E.Piano Phase",
+    "E.PIANO",
+    97,
+    "GM",
+    ""
+  ],
+  [
+    "g1-007",
+    "GM Harpsi. Oct.Mix",
+    "E.PIANO",
+    89,
+    "GM",
+    ""
+  ],
+  [
+    "g2-007",
+    "GM Harpsichord w",
+    "E.PIANO",
+    93,
+    "GM",
+    ""
+  ],
+  [
+    "g3-007",
+    "GM Harpsi. Key Off",
+    "E.PIANO",
+    96,
+    "GM",
+    ""
+  ],
+  [
+    "g1-008",
+    "GM Pulse Clavi.",
+    "E.PIANO",
+    90,
+    "GM",
+    ""
+  ],
+  [
+    "g1-012",
+    "GM Vibraphone w",
+    "BELL",
+    47,
+    "GM",
+    ""
+  ],
+  [
+    "g1-013",
+    "GM Marimba w",
+    "BELL",
+    48,
+    "GM",
+    ""
+  ],
+  [
+    "g1-015",
+    "GM Church Bell",
+    "BELL",
+    49,
+    "GM",
+    ""
+  ],
+  [
+    "g2-015",
+    "GM Carillon",
+    "BELL",
+    51,
+    "GM",
+    ""
+  ],
+  [
+    "g1-017",
+    "GM Det.Drawbar Org.",
+    "ORGAN",
+    80,
+    "GM",
+    ""
+  ],
+  [
+    "g2-017",
+    "GM Italian 60s Organ",
+    "ORGAN",
+    85,
+    "GM",
+    ""
+  ],
+  [
+    "g3-017",
+    "GM Drawbar Organ 2",
+    "ORGAN",
+    88,
+    "GM",
+    ""
+  ],
+  [
+    "g1-018",
+    "GM Det.Perc-Organ",
+    "ORGAN",
+    81,
+    "GM",
+    ""
+  ],
+  [
+    "g2-018",
+    "GM Perc-Organ 2",
+    "ORGAN",
+    86,
+    "GM",
+    ""
+  ],
+  [
+    "g1-020",
+    "GM Church Org. Oct.",
+    "ORGAN",
+    82,
+    "GM",
+    ""
+  ],
+  [
+    "g2-020",
+    "GM Det.Church Org.",
+    "ORGAN",
+    87,
+    "GM",
+    ""
+  ],
+  [
+    "g1-021",
+    "GM Puff Organ",
+    "ORGAN",
+    83,
+    "GM",
+    ""
+  ],
+  [
+    "g1-022",
+    "GM Accordion 2",
+    "ORGAN",
+    84,
+    "GM",
+    ""
+  ],
+  [
+    "g1-025",
+    "GM Ukulele",
+    "GUITAR",
+    60,
+    "GM",
+    ""
+  ],
+  [
+    "g2-025",
+    "GM N.Guitar Key Off",
+    "GUITAR",
+    72,
+    "GM",
+    ""
+  ],
+  [
+    "g3-025",
+    "GM Nylon Guitar 2",
+    "GUITAR",
+    77,
+    "GM",
+    ""
+  ],
+  [
+    "g1-026",
+    "GM 12-String Guitar",
+    "GUITAR",
+    61,
+    "GM",
+    ""
+  ],
+  [
+    "g2-026",
+    "GM Mandolin",
+    "GUITAR",
+    73,
+    "GM",
+    ""
+  ],
+  [
+    "g3-026",
+    "GM Steel Guitar Body",
+    "GUITAR",
+    78,
+    "GM",
+    ""
+  ],
+  [
+    "g1-027",
+    "GM Pedal Steel Gtr.",
+    "GUITAR",
+    62,
+    "GM",
+    ""
+  ],
+  [
+    "g1-028",
+    "GM Det.Clean Guitar",
+    "GUITAR",
+    63,
+    "GM",
+    ""
+  ],
+  [
+    "g2-028",
+    "GM Mid Tone Guitar",
+    "GUITAR",
+    74,
+    "GM",
+    ""
+  ],
+  [
+    "g1-029",
+    "GM Funky Guitar",
+    "GUITAR",
+    64,
+    "GM",
+    ""
+  ],
+  [
+    "g2-029",
+    "GM Muted Guitar v",
+    "GUITAR",
+    75,
+    "GM",
+    ""
+  ],
+  [
+    "g3-029",
+    "GM Jazz Man",
+    "GUITAR",
+    79,
+    "GM",
+    ""
+  ],
+  [
+    "g1-030",
+    "GM Guitar Pinch",
+    "GUITAR",
+    65,
+    "GM",
+    ""
+  ],
+  [
+    "g1-031",
+    "GM Dist.Guitar 2",
+    "GUITAR",
+    66,
+    "GM",
+    ""
+  ],
+  [
+    "g2-031",
+    "GM Dist.Rhythm Gtr.",
+    "GUITAR",
+    76,
+    "GM",
+    ""
+  ],
+  [
+    "g1-032",
+    "GM Guitar Feedback",
+    "GUITAR",
+    67,
+    "GM",
+    ""
+  ],
+  [
+    "g1-034",
+    "GM Finger Slap Bass",
+    "BASS",
+    71,
+    "GM",
+    ""
+  ],
+  [
+    "g1-039",
+    "GM Warm Synth Bass",
+    "BASS",
+    72,
+    "GM",
+    ""
+  ],
+  [
+    "g2-039",
+    "GM Synth Bass 3",
+    "BASS",
+    74,
+    "GM",
+    ""
+  ],
+  [
+    "g3-039",
+    "GM Clavi.Bass",
+    "BASS",
+    77,
+    "GM",
+    ""
+  ],
+  [
+    "g4-039",
+    "GM Hammer",
+    "BASS",
+    79,
+    "GM",
+    ""
+  ],
+  [
+    "g1-040",
+    "GM Synth Bass 4",
+    "BASS",
+    73,
+    "GM",
+    ""
+  ],
+  [
+    "g2-040",
+    "GM Rubber Bass",
+    "BASS",
+    75,
+    "GM",
+    ""
+  ],
+  [
+    "g3-040",
+    "GM Attack Pulse",
+    "BASS",
+    78,
+    "GM",
+    ""
+  ],
+  [
+    "g1-041",
+    "GM Slow Violin",
+    "STRINGS",
+    94,
+    "GM",
+    ""
+  ],
+  [
+    "g1-047",
+    "GM Yang Chin",
+    "GUITAR",
+    68,
+    "GM",
+    ""
+  ],
+  [
+    "g1-049",
+    "GM Strings & Brass",
+    "STRINGS",
+    95,
+    "GM",
+    ""
+  ],
+  [
+    "g2-049",
+    "GM 60's Strings",
+    "STRINGS",
+    101,
+    "GM",
+    ""
+  ],
+  [
+    "g1-051",
+    "GM Synth Strings 3",
+    "STRINGS",
+    96,
+    "GM",
+    ""
+  ],
+  [
+    "g1-053",
+    "GM Choir Aahs 2",
+    "STRINGS",
+    97,
+    "GM",
+    ""
+  ],
+  [
+    "g1-054",
+    "GM Humming",
+    "STRINGS",
+    98,
+    "GM",
+    ""
+  ],
+  [
+    "g1-055",
+    "GM Analog Voice",
+    "STRINGS",
+    99,
+    "GM",
+    ""
+  ],
+  [
+    "g1-056",
+    "GM Bass Hit Plus",
+    "DRUM/SFX",
+    109,
+    "GM",
+    ""
+  ],
+  [
+    "g2-056",
+    "GM 6th Hit",
+    "DRUM/SFX",
+    121,
+    "GM",
+    ""
+  ],
+  [
+    "g3-056",
+    "GM Euro Hit",
+    "DRUM/SFX",
+    129,
+    "GM",
+    ""
+  ],
+  [
+    "g1-057",
+    "GM Soft Trumpet",
+    "BRASS",
+    85,
+    "GM",
+    ""
+  ],
+  [
+    "g1-058",
+    "GM Trombone 2",
+    "BRASS",
+    86,
+    "GM",
+    ""
+  ],
+  [
+    "g2-058",
+    "GM Bright Trombone",
+    "BRASS",
+    91,
+    "GM",
+    ""
+  ],
+  [
+    "g1-060",
+    "GM Muted Trumpet 2",
+    "BRASS",
+    87,
+    "GM",
+    ""
+  ],
+  [
+    "g1-061",
+    "GM Warm Fr.Horn",
+    "BRASS",
+    88,
+    "GM",
+    ""
+  ],
+  [
+    "g1-062",
+    "GM Brass Section 2",
+    "BRASS",
+    89,
+    "GM",
+    ""
+  ],
+  [
+    "g1-063",
+    "GM Synth Brass 3",
+    "SYNTH LEAD",
+    103,
+    "GM",
+    ""
+  ],
+  [
+    "g2-063",
+    "GM Analog Brass 1",
+    "SYNTH LEAD",
+    109,
+    "GM",
+    ""
+  ],
+  [
+    "g3-063",
+    "GM Jump Brass",
+    "SYNTH LEAD",
+    113,
+    "GM",
+    ""
+  ],
+  [
+    "g1-064",
+    "GM Synth Brass 4",
+    "SYNTH LEAD",
+    104,
+    "GM",
+    ""
+  ],
+  [
+    "g2-064",
+    "GM Analog Brass 2",
+    "SYNTH LEAD",
+    110,
+    "GM",
+    ""
+  ],
+  [
+    "g1-081",
+    "GM Simple Square",
+    "SYNTH LEAD",
+    105,
+    "GM",
+    ""
+  ],
+  [
+    "g2-081",
+    "GM Simple Sine",
+    "SYNTH LEAD",
+    111,
+    "GM",
+    ""
+  ],
+  [
+    "g1-082",
+    "GM Simple Sawtooth",
+    "SYNTH LEAD",
+    106,
+    "GM",
+    ""
+  ],
+  [
+    "g2-082",
+    "GM Sawtooth+Pulse",
+    "SYNTH LEAD",
+    112,
+    "GM",
+    ""
+  ],
+  [
+    "g3-082",
+    "GM Double Sawtooth",
+    "SYNTH LEAD",
+    114,
+    "GM",
+    ""
+  ],
+  [
+    "g4-082",
+    "GM Seq.Analog",
+    "DRUM/SFX",
+    136,
+    "GM",
+    ""
+  ],
+  [
+    "g1-085",
+    "GM Wire Lead",
+    "SYNTH LEAD",
+    107,
+    "GM",
+    ""
+  ],
+  [
+    "g1-088",
+    "GM Soft Wrl",
+    "SYNTH LEAD",
+    108,
+    "GM",
+    ""
+  ],
+  [
+    "g1-090",
+    "GM Sine Pad",
+    "SYNTH PAD",
+    91,
+    "GM",
+    ""
+  ],
+  [
+    "g1-092",
+    "GM Itopia",
+    "STRINGS",
+    100,
+    "GM",
+    ""
+  ],
+  [
+    "g1-099",
+    "GM Synth Mallet",
+    "DRUM/SFX",
+    110,
+    "GM",
+    ""
+  ],
+  [
+    "g1-103",
+    "GM Echo Bell",
+    "BELL",
+    50,
+    "GM",
+    ""
+  ],
+  [
+    "g2-103",
+    "GM Echo Pan",
+    "SYNTH PAD",
+    92,
+    "GM",
+    ""
+  ],
+  [
+    "g1-105",
+    "GM Sitar 2",
+    "GUITAR",
+    69,
+    "GM",
+    ""
+  ],
+  [
+    "g1-108",
+    "GM Taisho Koto",
+    "GUITAR",
+    70,
+    "GM",
+    ""
+  ],
+  [
+    "g1-116",
+    "GM Castanets",
+    "DRUM/SFX",
+    111,
+    "GM",
+    ""
+  ],
+  [
+    "g1-117",
+    "GM Concert Bass Dr.",
+    "DRUM/SFX",
+    112,
+    "GM",
+    ""
+  ],
+  [
+    "g1-118",
+    "GM Melodic Tom 2",
+    "DRUM/SFX",
+    113,
+    "GM",
+    ""
+  ],
+  [
+    "g1-119",
+    "GM Analog Tom",
+    "DRUM/SFX",
+    114,
+    "GM",
+    ""
+  ],
+  [
+    "g2-119",
+    "GM Electric Drum",
+    "DRUM/SFX",
+    122,
+    "GM",
+    ""
+  ],
+  [
+    "g1-121",
+    "GM Gt.Cutting Noise",
+    "GUITAR",
+    71,
+    "GM",
+    ""
+  ],
+  [
+    "g2-121",
+    "GM Bass String Slap",
+    "BASS",
+    76,
+    "GM",
+    ""
+  ],
+  [
+    "g1-122",
+    "GM Flute Key Click",
+    "BRASS",
+    90,
+    "GM",
+    ""
+  ],
+  [
+    "g1-123",
+    "GM Rain",
+    "DRUM/SFX",
+    115,
+    "GM",
+    ""
+  ],
+  [
+    "g2-123",
+    "GM Thunder",
+    "DRUM/SFX",
+    123,
+    "GM",
+    ""
+  ],
+  [
+    "g3-123",
+    "GM Wind",
+    "DRUM/SFX",
+    130,
+    "GM",
+    ""
+  ],
+  [
+    "g4-123",
+    "GM Stream",
+    "DRUM/SFX",
+    137,
+    "GM",
+    ""
+  ],
+  [
+    "g5-123",
+    "GM Bubble",
+    "DRUM/SFX",
+    141,
+    "GM",
+    ""
+  ],
+  [
+    "g1-124",
+    "GM Dog",
+    "DRUM/SFX",
+    116,
+    "GM",
+    ""
+  ],
+  [
+    "g2-124",
+    "GM Horse Gallop",
+    "DRUM/SFX",
+    124,
+    "GM",
+    ""
+  ],
+  [
+    "g3-124",
+    "GM Bird Tweet 2",
+    "DRUM/SFX",
+    131,
+    "GM",
+    ""
+  ],
+  [
+    "g1-125",
+    "GM Telephone Ring 2",
+    "DRUM/SFX",
+    117,
+    "GM",
+    ""
+  ],
+  [
+    "g2-125",
+    "GM Door Creaking",
+    "DRUM/SFX",
+    125,
+    "GM",
+    ""
+  ],
+  [
+    "g3-125",
+    "GM Door Slamming",
+    "DRUM/SFX",
+    132,
+    "GM",
+    ""
+  ],
+  [
+    "g4-125",
+    "GM Scratch",
+    "DRUM/SFX",
+    138,
+    "GM",
+    ""
+  ],
+  [
+    "g5-125",
+    "GM Wind Chime",
+    "DRUM/SFX",
+    142,
+    "GM",
+    ""
+  ],
+  [
+    "g1-126",
+    "GM Car Engine",
+    "DRUM/SFX",
+    118,
+    "GM",
+    ""
+  ],
+  [
+    "g2-126",
+    "GM Car Stop",
+    "DRUM/SFX",
+    126,
+    "GM",
+    ""
+  ],
+  [
+    "g3-126",
+    "GM Car Pass",
+    "DRUM/SFX",
+    133,
+    "GM",
+    ""
+  ],
+  [
+    "g4-126",
+    "GM Car Crash",
+    "DRUM/SFX",
+    139,
+    "GM",
+    ""
+  ],
+  [
+    "g5-126",
+    "GM Siren",
+    "DRUM/SFX",
+    143,
+    "GM",
+    ""
+  ],
+  [
+    "g6-126",
+    "GM Train",
+    "DRUM/SFX",
+    145,
+    "GM",
+    ""
+  ],
+  [
+    "g7-126",
+    "GM Jetplane",
+    "DRUM/SFX",
+    146,
+    "GM",
+    ""
+  ],
+  [
+    "g8-126",
+    "GM Starship",
+    "DRUM/SFX",
+    147,
+    "GM",
+    ""
+  ],
+  [
+    "g9-126",
+    "GM Burst Noise",
+    "DRUM/SFX",
+    148,
+    "GM",
+    ""
+  ],
+  [
+    "g1-127",
+    "GM Laughing",
+    "DRUM/SFX",
+    119,
+    "GM",
+    ""
+  ],
+  [
+    "g2-127",
+    "GM Screaming",
+    "DRUM/SFX",
+    127,
+    "GM",
+    ""
+  ],
+  [
+    "g3-127",
+    "GM Punch",
+    "DRUM/SFX",
+    134,
+    "GM",
+    ""
+  ],
+  [
+    "g4-127",
+    "GM Heart Beat",
+    "DRUM/SFX",
+    140,
+    "GM",
+    ""
+  ],
+  [
+    "g5-127",
+    "GM Footsteps",
+    "DRUM/SFX",
+    144,
+    "GM",
+    ""
+  ],
+  [
+    "g1-128",
+    "GM Machine Gun",
+    "DRUM/SFX",
+    120,
+    "GM",
+    ""
+  ],
+  [
+    "g2-128",
+    "GM Lasergun",
+    "DRUM/SFX",
+    128,
+    "GM",
+    ""
+  ],
+  [
+    "g3-128",
+    "GM Explosion",
+    "DRUM/SFX",
+    135,
+    "GM",
+    ""
+  ],
+  [
+    "gd-001",
+    "GM STANDARD Kit",
+    "DRUM/SFX",
+    149,
+    "GM",
+    ""
+  ],
+  [
+    "gd-009",
+    "GM ROOM Kit",
+    "DRUM/SFX",
+    150,
+    "GM",
+    ""
+  ],
+  [
+    "gd-017",
+    "GM POWER Kit",
+    "DRUM/SFX",
+    151,
+    "GM",
+    ""
+  ],
+  [
+    "gd-025",
+    "GM ELECTRONIC Kit",
+    "DRUM/SFX",
+    152,
+    "GM",
+    ""
+  ],
+  [
+    "gd-026",
+    "GM ANALOG Kit",
+    "DRUM/SFX",
+    153,
+    "GM",
+    ""
+  ],
+  [
+    "gd-033",
+    "GM JAZZ Kit",
+    "DRUM/SFX",
+    154,
+    "GM",
+    ""
+  ],
+  [
+    "gd-041",
+    "GM BRUSH Kit",
+    "DRUM/SFX",
+    155,
+    "GM",
+    ""
+  ],
+  [
+    "gd-049",
+    "GM ORCHESTRA Kit",
+    "DRUM/SFX",
+    156,
+    "GM",
+    ""
+  ],
+  [
+    "gd-057",
+    "GM SFX Kit",
+    "DRUM/SFX",
+    157,
+    "GM",
+    ""
+  ],
+  [
+    "EXPCM001:000",
+    "KROSS SE Grand",
+    "PIANO",
+    0,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:001",
+    "Brightness SE Grand",
+    "PIANO",
+    1,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:002",
+    "Concert SE Grand",
+    "PIANO",
+    2,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:003",
+    "Sharp SE Grand",
+    "PIANO",
+    3,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:004",
+    "Deep Rvb SE Grand",
+    "PIANO",
+    4,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:005",
+    "Classic SE Grand",
+    "PIANO",
+    5,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:006",
+    "Dark SE Grand",
+    "PIANO",
+    6,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:007",
+    "Warm SE Grand",
+    "PIANO",
+    7,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:008",
+    "Pure Stereo Grand",
+    "PIANO",
+    8,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:009",
+    "Smoky Air Piano",
+    "PIANO",
+    9,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:010",
+    "Old Record Piano",
+    "PIANO",
+    10,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:011",
+    "Ob-La-Da Piano",
+    "PIANO",
+    11,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:012",
+    "Lady \"M\" Piano",
+    "PIANO",
+    12,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:013",
+    "Sadie Piano",
+    "PIANO",
+    13,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:014",
+    "Delayed Piano",
+    "PIANO",
+    14,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:015",
+    "Repetition Piano",
+    "PIANO",
+    15,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:016",
+    "EDM Piano",
+    "PIANO",
+    16,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:017",
+    "Voices Piano",
+    "PIANO",
+    17,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:018",
+    "Rezo Piano",
+    "PIANO",
+    18,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:019",
+    "Hoarfrost Piano",
+    "PIANO",
+    19,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:020",
+    "Puff Out Piano",
+    "PIANO",
+    20,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:021",
+    "Floating Piano",
+    "PIANO",
+    21,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:022",
+    "Bleary Piano",
+    "PIANO",
+    22,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:023",
+    "Doze Piano",
+    "PIANO",
+    23,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:024",
+    "Piano & Strings",
+    "PIANO",
+    24,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:025",
+    "Melancholy Piano",
+    "PIANO",
+    25,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:026",
+    "Piano & Power Pad",
+    "PIANO",
+    26,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:027",
+    "Holding Back Layer",
+    "PIANO",
+    27,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:028",
+    "Rockin' Layer",
+    "PIANO",
+    28,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:029",
+    "E.Grand Layer",
+    "PIANO",
+    29,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:030",
+    "MALLETY Piano",
+    "PIANO",
+    30,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM001:031",
+    "Tiny TOY Piano",
+    "PIANO",
+    31,
+    "OASYS Piano",
+    ""
+  ],
+  [
+    "EXPCM002:000",
+    "E.P.Mark I 8Way",
+    "E.PIANO",
+    0,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:001",
+    "E.P.Mark I HardTouch",
+    "E.PIANO",
+    1,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:002",
+    "E.P.Mark I Mid Touch",
+    "E.PIANO",
+    2,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:003",
+    "E.P.Mark I SoftTouch",
+    "E.PIANO",
+    3,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:004",
+    "Psychedelic Mark I",
+    "E.PIANO",
+    4,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:005",
+    "Not In Love Suit",
+    "E.PIANO",
+    5,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:006",
+    "1/4 PHASE Suit",
+    "E.PIANO",
+    6,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:007",
+    "MARK I & Syn Pad",
+    "E.PIANO",
+    7,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:008",
+    "E.P.Dyno 8Way",
+    "E.PIANO",
+    8,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:009",
+    "E.P.Dyno Hard Touch",
+    "E.PIANO",
+    9,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:010",
+    "E.P.Dyno Mid Touch",
+    "E.PIANO",
+    10,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:011",
+    "E.P.Dyno Soft Touch",
+    "E.PIANO",
+    11,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:012",
+    "Ballade DynoMy",
+    "E.PIANO",
+    12,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:013",
+    "Greatest DynoMy",
+    "E.PIANO",
+    13,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:014",
+    "DynoMy&Syn Strings",
+    "E.PIANO",
+    14,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:015",
+    "E.P.Mark V 8Way",
+    "E.PIANO",
+    15,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:016",
+    "E.P.Mark V HardTouch",
+    "E.PIANO",
+    16,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:017",
+    "E.PMark V Mid Touch",
+    "E.PIANO",
+    17,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:018",
+    "E.PMark V SoftTouch",
+    "E.PIANO",
+    18,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:019",
+    "Mark V OverDrive",
+    "E.PIANO",
+    19,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:020",
+    "Still Crazy Suit",
+    "E.PIANO",
+    20,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:021",
+    "Ballade Hard Suit",
+    "E.PIANO",
+    21,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:022",
+    "MARK V & SynStrings",
+    "E.PIANO",
+    22,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:023",
+    "E.P.200A 8Way",
+    "E.PIANO",
+    23,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:024",
+    "E.P.200A Hard Touch",
+    "E.PIANO",
+    24,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:025",
+    "E.P.200A Mid Touch",
+    "E.PIANO",
+    25,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:026",
+    "E.P.200A Soft Touch",
+    "E.PIANO",
+    26,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:027",
+    "E.P.200A OverDrive",
+    "E.PIANO",
+    27,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:028",
+    "Top of the Wurly",
+    "E.PIANO",
+    28,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:029",
+    "You're My BestWurly",
+    "E.PIANO",
+    29,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:030",
+    "The Walrus E.P.",
+    "E.PIANO",
+    30,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM002:031",
+    "Wurly & Syn Pad",
+    "E.PIANO",
+    31,
+    "E.P. Collection",
+    ""
+  ],
+  [
+    "EXPCM004:000",
+    "Hyper Pad Bright",
+    "SYNTH LEAD",
+    0,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:001",
+    "Fiesta Stab",
+    "SYNTH LEAD",
+    1,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:002",
+    "Noisy Stabber Ultra",
+    "SYNTH LEAD",
+    2,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:003",
+    "Legend Epic Poly",
+    "SYNTH LEAD",
+    3,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:004",
+    "Sweep Down Pad",
+    "SYNTH LEAD",
+    4,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:005",
+    "Oct Saw Stab",
+    "SYNTH LEAD",
+    5,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:006",
+    "Gliging Pad",
+    "SYNTH LEAD",
+    6,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:007",
+    "Vintage Brass Synth",
+    "SYNTH LEAD",
+    7,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:008",
+    "Vintage Fanfare",
+    "SYNTH LEAD",
+    8,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:009",
+    "Glide Square Pad",
+    "SYNTH LEAD",
+    9,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:010",
+    "Atmos Metalic Pad",
+    "SYNTH PAD",
+    10,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:011",
+    "Str.Machine1 SW1",
+    "SYNTH PAD",
+    11,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:012",
+    "Str.Machine2 SW1",
+    "SYNTH PAD",
+    12,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:013",
+    "Synth Gothic Orch",
+    "SYNTH PAD",
+    13,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:014",
+    "Hyper Pad Dark",
+    "SYNTH PAD",
+    14,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:015",
+    "VINTAGE Pad",
+    "SYNTH PAD",
+    15,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:016",
+    "Deep Voice Pad",
+    "SYNTH PAD",
+    16,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:017",
+    "Hamming Pad",
+    "SYNTH PAD",
+    17,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:018",
+    "Palawan-X Pad",
+    "SYNTH PAD",
+    18,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:019",
+    "Lore Magic Pad",
+    "SYNTH PAD",
+    19,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:020",
+    "Devastate Pad",
+    "SYNTH PAD",
+    20,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:021",
+    "Atmos Voice Pad",
+    "SYNTH PAD",
+    21,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:022",
+    "Atmospher's Pad",
+    "SYNTH PAD",
+    22,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:023",
+    "Cathedral Motion",
+    "SYNTH PAD",
+    23,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:024",
+    "Aye Voice Shot",
+    "STRINGS",
+    24,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:025",
+    "Tropical Voice Shot",
+    "STRINGS",
+    25,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:026",
+    "Babe Voice Shot",
+    "STRINGS",
+    26,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:027",
+    "EDM Voice Shot",
+    "STRINGS",
+    27,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:028",
+    "PluckDoo Voice",
+    "STRINGS",
+    28,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:029",
+    "VOICEY",
+    "STRINGS",
+    29,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:030",
+    "Soulfully Lead",
+    "SYNTH LEAD",
+    30,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:031",
+    "Oldschool Lead",
+    "SYNTH LEAD",
+    31,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:032",
+    "sAxy Lead",
+    "SYNTH LEAD",
+    32,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:033",
+    "Party Lead",
+    "SYNTH LEAD",
+    33,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:034",
+    "Excision Lead",
+    "SYNTH LEAD",
+    34,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:035",
+    "Velo Reso Lead",
+    "SYNTH LEAD",
+    35,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:036",
+    "Pow Voice Lead",
+    "SYNTH LEAD",
+    36,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:037",
+    "SynTHE Bass 24",
+    "BASS",
+    37,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:038",
+    "LogDrum Bass",
+    "BASS",
+    38,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:039",
+    "Ripper Bass",
+    "BASS",
+    39,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:040",
+    "Off Beat WOBBLE",
+    "BASS",
+    40,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:041",
+    "Nu Pop Kit",
+    "DRUM/SFX",
+    41,
+    "Future Synth Collection",
+    "原始引用指向 Nu DISCO Kit，导入器重映射待核对"
+  ],
+  [
+    "EXPCM004:042",
+    "Nu DISCO Kit",
+    "DRUM/SFX",
+    42,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:043",
+    "Electric Beats Kit",
+    "DRUM/SFX",
+    43,
+    "Future Synth Collection",
+    "缺少部分采样：MIDI 45, 83, 96"
+  ],
+  [
+    "EXPCM004:044",
+    "Industrial Kit",
+    "DRUM/SFX",
+    44,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:045",
+    "Hypr Pluck",
+    "DRUM/SFX",
+    45,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:046",
+    "Hypr SQU Decay",
+    "DRUM/SFX",
+    46,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:047",
+    "Hyper Popping",
+    "DRUM/SFX",
+    47,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:048",
+    "Tropical Drop",
+    "DRUM/SFX",
+    48,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:049",
+    "Ripper Pluck",
+    "DRUM/SFX",
+    49,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:050",
+    "Sync Plucked",
+    "DRUM/SFX",
+    50,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:051",
+    "Shaper of Kalimba",
+    "BELL",
+    51,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:052",
+    "Kalimba Drops",
+    "BELL",
+    52,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:053",
+    "Tribal Pluck",
+    "BELL",
+    53,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:054",
+    "Neo Orch Hit",
+    "DRUM/SFX",
+    54,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:055",
+    "Ending Hit",
+    "DRUM/SFX",
+    55,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:056",
+    "Moody Hit",
+    "DRUM/SFX",
+    56,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:057",
+    "Percussive Hit",
+    "DRUM/SFX",
+    57,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:058",
+    "Short Arco Str&Brs",
+    "DRUM/SFX",
+    58,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:059",
+    "Brass Shot",
+    "DRUM/SFX",
+    59,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:060",
+    "Symphonic Brs&Str",
+    "DRUM/SFX",
+    60,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:061",
+    "Industrial Set 1",
+    "DRUM/SFX",
+    61,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:062",
+    "Industrial Set 2",
+    "DRUM/SFX",
+    62,
+    "Future Synth Collection",
+    ""
+  ],
+  [
+    "EXPCM004:063",
+    "Industrial Set 3",
+    "DRUM/SFX",
+    63,
+    "Future Synth Collection",
+    ""
+  ]
+]

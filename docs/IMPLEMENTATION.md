@@ -1,6 +1,6 @@
 # Krose 插件实现计划
 
-产品目标是 macOS arm64 上可演奏、可自动化、可恢复工程的 VST3 和独立程序。外观以 `design/krose-fixed-ui.html` 和两张整机图为准，逻辑画布 1472 × 648。首版使用本地冻结资源中的七个 Program。鼓组音色可以用 MIDI 或琴键演奏，面板不设 Pad 或鼓轨。音频线程独立于编辑器运行。
+产品目标是 macOS arm64 上可演奏、可自动化、可恢复工程的 VST3 和独立程序。外观以 `design/krose-fixed-ui.html` 和两张整机图为准，逻辑画布 1472 × 648。使用本地完整音色目录：768 个出厂、265 个 GM、128 个扩展 Program，另保留 Concert 兼容入口。鼓组音色可以用 MIDI 或琴键演奏，面板不设 Pad 或鼓轨。音频线程独立于编辑器运行。
 
 | 阶段 | 交付 | 验收 |
 | --- | --- | --- |
@@ -17,6 +17,10 @@
 
 两个 bundle 均加载随包提供的定稿页面，WKWebView 只在编辑器打开时创建。控件通过 iPlug2 通知宿主自动化手势，音频线程继续运行原有采样引擎。VOLUME、VELOCITY、Program、Concert 变体、Space 和 Release 复用旧参数。屏幕键盘、延音、弯音及 Panic 发送 MIDI。其余功能分阶段启用。
 
-本机先运行五项 CTest，再运行官方 validator。带图形会话的测试命令为 `build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor`。该测试实际挂载编辑器，检查七个 Program，将力度曲线从页面写入宿主，再关闭并重开窗口读取同一个值。
+本机先运行五项 CTest，再运行官方 validator。带图形会话的测试命令为 `build/plugin/test-vst3-host build/plugin/out/Krose.vst3 --editor`。该测试实际挂载编辑器，检查完整 Program 目录，将力度曲线从页面写入宿主，再关闭并重开窗口读取同一个值。
 
 阶段 2 的首个增量接入 PAN、CUTOFF、RESONANCE 以及 AMP/FILTER 两套包络偏移。面板旋钮、LCD 字段和宿主自动化共用同一参数。截止与共振在原滤波控制字之后偏移，包络偏移进入下一段的目标和时长计算，零位保留已有整数模型。鼓组保留原有单次采样路径。声像在立体声输出端平滑调整。已加入旧六参数状态迁移及双引擎渲染回归。
+
+## 完整音色库增量
+
+已移除六音色导出限制。统一生成 1,162 项宿主／界面目录，保留原索引 0–6。浏览器支持搜索及音色库、类型筛选。原生选样补齐音符区间、OSC 力度区间、相邻层交叉淡化、移调／Slope 和 GM 鼓映射；独立证据与逐音色发声测试覆盖完整目录。资源缺口与声音模型限制见 `NATIVE_ARCHITECTURE.md`。这项完成度单独计算，阶段 2 的演奏扩展、阶段 3 与阶段 4 仍按上表实施。
