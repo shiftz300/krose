@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <new>
+#include <memory>
 #include <vector>
 
 static bool audioThread = false;
@@ -160,8 +161,10 @@ int main(int argc, char** argv) {
   originalObservations(argv[3]);
   auto bank = SampleBank::Load(argv[1]);
   auto library = ProgramLibrary::Load(argv[2]);
-  PianoEngine concert(bank);performance(concert);
-  ProgramEngine factory(library);performance(factory);
+  // Test fixtures are allocated before the guarded audio sections. Multiple
+  // complete engines exceed the default 1 MiB Windows executable stack.
+  auto concertStorage=std::make_unique<PianoEngine>(bank);auto& concert=*concertStorage;performance(concert);
+  auto factoryStorage=std::make_unique<ProgramEngine>(library);auto& factory=*factoryStorage;performance(factory);
   NativeVoice amplitude;
   const auto* program=library->programs[0].controls.data();
   amplitude.StartProgram(program,60,40,0,127);
@@ -174,7 +177,7 @@ int main(int argc, char** argv) {
   assert(amplitude.Source(13)!=0&&amplitude.VelocityFactor()==velocityFactor);
   assert(amplitude.Level()==ampLevel&&amplitude.Stage()==ampStage&&amplitude.Duration()==ampDuration);
   assert(filter.Level()==filterLevel&&filter.Stage()==filterStage&&filter.Duration()==filterDuration);
-  InstrumentEngine instrument(bank,library);Controls mono;mono.voiceMode=2;mono.program=1;
+  auto instrumentStorage=std::make_unique<InstrumentEngine>(bank,library);auto& instrument=*instrumentStorage;Controls mono;mono.voiceMode=2;mono.program=1;
   instrument.SetControls(mono);instrument.Prepare(48000);
   instrument.Queue({0,0x90,60,100});instrument.Queue({10,0x90,72,100});render(instrument,1000);
   assert(instrument.ActiveVoices());

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <new>
+#include <memory>
 #include <vector>
 static bool gAudio=false;static unsigned gNew=0;
 void* operator new(std::size_t n){if(gAudio)++gNew;if(void* p=std::malloc(n))return p;throw std::bad_alloc();}
@@ -56,7 +57,9 @@ int main(int argc,char** argv){
  const auto& piano=bank->programs[0];assert(selected(piano,60,112)!=selected(piano,60,113));assert(selected(piano,60,1,1)>=0);
  const auto& kit=bank->programs[4];assert(kit.drum&&selected(kit,36,99)!=selected(kit,36,100));assert(selected(kit,36,100)!=selected(kit,38,100));
  // A second instance retains pointers into the same PCM, not a private decoded bank.
- ProgramEngine engine(bank),other(bank);Controls controls;controls.space=0;engine.SetControls(controls);
+ // Keep large fixtures off the default Windows thread stack.
+ auto engineStorage=std::make_unique<ProgramEngine>(bank),otherStorage=std::make_unique<ProgramEngine>(bank);
+ auto& engine=*engineStorage;auto& other=*otherStorage;Controls controls;controls.space=0;engine.SetControls(controls);
  // Render every recovered Program, including slow attacks and split key zones.
  unsigned silent=0;
  for(unsigned p=0;p<bank->programs.size();++p){
@@ -123,7 +126,8 @@ int main(int argc,char** argv){
  engine.SetProgram(3);engine.Prepare(48000);engine.Queue({0,0x90,60,100});Audio held(6000);Process(engine,held,127);const auto voices=engine.ActiveVoices();assert(voices>0);gAudio=true;engine.SetProgram(1);gAudio=false;assert(engine.ActiveVoices()==voices);
  engine.Queue({0,0x80,60,0});Audio release(48000*10);Process(engine,release,257);assert(engine.ActiveVoices()==0);
  // Accepted Concert route is sample-for-sample identical through the migration facade.
- auto concert=SampleBank::Load(argv[2]);PianoEngine baseline(concert);InstrumentEngine facade(concert,bank);baseline.SetControls(controls);facade.SetControls(controls);baseline.Prepare(48000);facade.Prepare(48000);
+ auto concert=SampleBank::Load(argv[2]);auto baselineStorage=std::make_unique<PianoEngine>(concert);auto facadeStorage=std::make_unique<InstrumentEngine>(concert,bank);
+ auto& baseline=*baselineStorage;auto& facade=*facadeStorage;baseline.SetControls(controls);facade.SetControls(controls);baseline.Prepare(48000);facade.Prepare(48000);
  for(auto* e:{&baseline}){e->Queue({0,0x90,60,100});e->Queue({1200,0x80,60,0});}
  facade.Queue({0,0x90,60,100});facade.Queue({1200,0x80,60,0});Audio old(12000),same(12000);Process(baseline,old,127);Process(facade,same,127);assert(old.l==same.l&&old.r==same.r);
  // Tone offsets affect both Concert and factory voices at neutral pan.

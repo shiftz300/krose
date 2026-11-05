@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <iostream>
 #include <new>
+#include <memory>
 #include <thread>
 using namespace segrand;
 static thread_local bool realtime = false;
@@ -80,7 +81,10 @@ int main(int argc, char **argv) {
   auto full = ProgramLibrary::Load(argv[1]);
   auto fullConcert = SampleBank::Load(argv[2]);
   {
-    InstrumentEngine lazy(concert, metadata), reference(fullConcert, full);
+    // Large engine fixtures must not consume the default Windows thread stack.
+    auto lazyStorage=std::make_unique<InstrumentEngine>(concert,metadata);
+    auto referenceStorage=std::make_unique<InstrumentEngine>(fullConcert,full);
+    auto& lazy=*lazyStorage;auto& reference=*referenceStorage;
     Controls controls;
     controls.space = .3;
     // Multiple rates, overlapping voices across both engines, repeated programs,
@@ -194,7 +198,7 @@ int main(int argc, char **argv) {
     std::filesystem::copy_file(argv[1], link);
   {
     auto broken = ProgramLibrary::Load(link.string(), false);
-    InstrumentEngine engine(concert, broken);
+    auto engineStorage=std::make_unique<InstrumentEngine>(concert,broken);auto& engine=*engineStorage;
     std::filesystem::remove(link);
     Controls c;
     c.program = 2;
