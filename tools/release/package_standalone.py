@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import plistlib
 import re
+import shutil
 import struct
 import subprocess
 import tempfile
@@ -83,7 +84,7 @@ def package(source, output, platform, version, root=ROOT):
     return destination
 
 
-def smoke(archive, platform):
+def smoke(archive, platform, windows_gl_dir=None):
     with tempfile.TemporaryDirectory(prefix='krose standalone ') as folder:
         root = Path(folder)
         if platform == 'windows-x64':
@@ -97,6 +98,12 @@ def smoke(archive, platform):
             executable = bundle / 'Contents/MacOS/Krose'
         env = dict(os.environ, KROSE_SAMPLE_DIRECTORY=str(root / 'no-shared-samples'),
                    KROSE_MIDI_MAP_FILE=str(root / 'midi.json'), KROSE_FAVORITES_FILE=str(root / 'favorites.json'))
+        if windows_gl_dir is not None:
+            if platform != 'windows-x64' or not (windows_gl_dir / 'opengl32.dll').is_file():
+                raise ValueError('Expected Windows OpenGL test libraries')
+            for library in windows_gl_dir.glob('*.dll'):
+                shutil.copyfile(library, executable.parent / library.name)
+            env['GALLIUM_DRIVER'] = 'llvmpipe'
         # Relative screenshot name also works with the pinned Windows argument parser.
         subprocess.run([str(executable), '--no-io', '--screenshot', 'screenshot.png'],
                        cwd=root, env=env, check=True, timeout=60)
@@ -116,10 +123,11 @@ def main():
     parser.add_argument('--version', required=True)
     parser.add_argument('--platform', required=True, choices=['windows-x64', 'macos-universal', 'macos-arm64', 'macos-x86_64'])
     parser.add_argument('--smoke', action='store_true')
+    parser.add_argument('--windows-gl-dir', type=Path, help='Software OpenGL DLLs for the extracted smoke-test copy')
     args = parser.parse_args()
     archive = package(args.input, args.output, args.platform, args.version)
     if args.smoke:
-        smoke(archive, args.platform)
+        smoke(archive, args.platform, args.windows_gl_dir)
 
 
 if __name__ == '__main__':

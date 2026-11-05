@@ -29,10 +29,10 @@ jobs:
           - os: windows-2022
             platform: windows-x64
     runs-on: ${{ matrix.os }}
-    env:
-      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
@@ -87,6 +87,8 @@ jobs:
           key: runtime-${{ hashFiles('packaging/runtime-assets.json') }}
       - name: Download verified runtime banks
         if: steps.pcm.outputs.cache-hit != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           mkdir -p build/downloads
@@ -130,9 +132,24 @@ jobs:
           compression-level: 3
       - name: Package and smoke test Windows standalone
         if: runner.os == 'Windows'
-        run: >-
-          python tools/release/package_standalone.py --input build/release/out
-          --version ${{ env.KROSE_VERSION }} --platform windows-x64 --output dist --smoke
+        shell: pwsh
+        run: |
+          # Provide a software OpenGL 2+ context on the hosted runner.
+          $mesa = Join-Path $env:RUNNER_TEMP 'krose-mesa'
+          New-Item -ItemType Directory -Force $mesa | Out-Null
+          $archive = Join-Path $mesa 'mesa.7z'
+          curl.exe --fail --location --retry 3 --output $archive https://github.com/pal1000/mesa-dist-win/releases/download/25.3.3/mesa3d-25.3.3-release-msvc.7z
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot download software OpenGL for smoke test' }
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash -ne '66b79057ba273c08daa03551a231995d48b8623bb1efa9f3a7c3e09792d8f1ba') { throw 'Mesa archive checksum mismatch' }
+          & "$env:ProgramFiles/7-Zip/7z.exe" x -y "-o$mesa" $archive 'x64\*.dll'
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot extract software OpenGL for smoke test' }
+          $started = Get-Date
+          python tools/release/package_standalone.py --input build/release/out --version $env:KROSE_VERSION --platform windows-x64 --output dist --smoke --windows-gl-dir "$mesa/x64"
+          if ($LASTEXITCODE -ne 0) {
+            Get-WinEvent -FilterHashtable @{LogName='Application'; ID=1000; StartTime=$started} -ErrorAction SilentlyContinue |
+              Where-Object { $_.Message -like '*Krose.exe*' } | Select-Object -First 1 -ExpandProperty Message
+            throw 'Windows standalone smoke test failed'
+          }
       - uses: actions/upload-artifact@v4
         if: runner.os == 'Windows'
         with:

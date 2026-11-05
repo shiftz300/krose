@@ -2,6 +2,8 @@
 // generated host translation unit, never in the VST3 build.
 #include <string_view>
 bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char *name) {
+  if ((direction == ERoute::kInput && !mMidiIn) || (direction == ERoute::kOutput && !mMidiOut))
+    return false;
   const bool missing = mMidiInputMissing;
   try {
     return SelectMIDIDeviceImpl(direction, name);
