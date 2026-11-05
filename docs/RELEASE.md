@@ -18,7 +18,7 @@ gh release upload runtime-assets-v2 /tmp/krose-runtime-v2.tar.xz
 gh variable set KROSE_RELEASE_ASSETS_READY --body true
 ```
 
-资源包存于同仓库草稿 Release，CI 通过当前仓库的 GITHUB_TOKEN 读取；fork PR 不获取完整采样。更换资源时创建新的资源版本并更新锁文件，勿覆盖已经固定的旧包。
+资源包存于同仓库草稿 Release。读取草稿需要推送权限，因此真实安装包的 `build` job 单独授予 `GITHUB_TOKEN` 的 `contents: write`；工作流默认仍为只读，fork PR 不获取完整采样。更换资源时创建新的资源版本并更新锁文件，勿覆盖已经固定的旧包。
 
 CI 从锁文件读取标签、文件名及 SHA-256。归档工具仍支持旧 PCM v1 包；新包不会添加三字节差分滤波。提取新包时，两份文件均通过冻结清单校验后才替换本地资源。
 
