@@ -1,0 +1,25 @@
+name: Precompile macOS app icon
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  icon:
+    runs-on: macos-26
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Compile the architecture-independent icon catalog
+        run: |
+          xcodebuild -version
+          python3 tools/native-ui/compile_app_icon.py
+          python3 tools/native-ui/compile_app_icon.py --verify
+      - name: Preserve precompiled resource
+        uses: actions/upload-artifact@v4
+        with:
+          name: krose-macos-icon
+          path: src/plugin/resources/macos-icon/
+          if-no-files-found: error
+          retention-days: 30
