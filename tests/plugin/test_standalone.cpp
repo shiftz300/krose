@@ -81,6 +81,7 @@ struct IPlugAPPHost {
   std::unique_ptr<Plug> mIPlug = std::make_unique<Plug>();
   std::unique_ptr<Driver> mDAC = std::make_unique<Driver>();
   std::unique_ptr<MidiInput> mMidiIn = std::make_unique<MidiInput>();
+  std::unique_ptr<MidiInput> mMidiOut;
   krose::standalone::Runtime mRuntime;
   Pointers mInputBufPtrs, mOutputBufPtrs;
   std::atomic<bool> mExiting{false}, mAudioDone{false}, mAudioEnding{false};
@@ -132,6 +133,10 @@ std::unique_ptr<IPlugAPPHost> IPlugAPPHost::sInstance;
 
 int main() {
   IPlugAPPHost host;
+  IPlugAPPHost noMidi;
+  noMidi.mMidiIn.reset();
+  assert(!noMidi.SelectMIDIDevice(ERoute::kInput, "Unavailable input"));
+  assert(!noMidi.SelectMIDIDevice(ERoute::kOutput, "Unavailable output"));
   for (unsigned frames = 1; frames <= 1025; ++frames) {
     std::vector<double> buffer(frames * 2 + 4, 12345);
     host.mIPlug->rendered = 0;
