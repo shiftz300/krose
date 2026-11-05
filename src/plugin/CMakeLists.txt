@@ -25,6 +25,11 @@ foreach(target Krose-vst3 Krose-app)
 endforeach()
 if(APPLE)
   target_sources(Krose-app PRIVATE StandaloneStartup.mm)
+  include("${CMAKE_SOURCE_DIR}/cmake/MacOSAppIcon.cmake")
+  krose_add_macos_icon(Krose-app)
+  # Re-sign the bundle when an icon-only edit updates its sealed resources.
+  set_property(TARGET Krose-app APPEND PROPERTY LINK_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources/Krose.icns")
   foreach(target Krose-vst3 Krose-app)
     target_include_directories(${target} PRIVATE "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
     add_custom_command(TARGET ${target} POST_BUILD

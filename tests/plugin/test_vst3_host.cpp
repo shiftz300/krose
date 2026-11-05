@@ -271,9 +271,42 @@ int main(int argc,char** argv){
   assert(ids.at("SW1 Assign")==29 && ids.at("FX Bypass")==38);
   {
     using namespace krose::midi;
+    constexpr int fxType = 39, fxAmount = 43, oldParams = 39, previewParams = 47;
+    assert(ids.at("IFX 1 Type") == fxType && ids.at("IFX 1 Amount") == fxAmount);
+    controller->setParamNormalized(fxType, 5. / 6);
+    controller->setParamNormalized(fxAmount, .7);
+    const auto drive = ids.at("IFX 1 Drive"), on = ids.at("IFX 1 On");
+    controller->setParamNormalized(drive, 1.);
+    controller->setParamNormalized(on, 0.);
+    MemoryStream fxState;
+    assert(component->getState(&fxState) == kResultOk);
+    const int params = (fxState.getSize() - 16 - 64*8 - 4) / 8;
+    assert(params > previewParams && drive >= previewParams && on == previewParams);
+    controller->setParamNormalized(fxType, 0.);
+    controller->setParamNormalized(fxAmount, 0.);
+    fxState.seek(0, IBStream::kIBSeekSet, nullptr);
+    assert(component->setState(&fxState) == kResultOk);
+    assert(std::abs(controller->getParamNormalized(fxType) - 5. / 6) < 1e-8);
+    assert(controller->getParamNormalized(fxAmount) == .7);
+    assert(controller->getParamNormalized(drive) == 1.);
+    assert(controller->getParamNormalized(on) == 0.);
+    MemoryStream preview;
+    preview.write(fxState.getData(), previewParams*8, nullptr);
+    preview.write(fxState.getData()+params*8, fxState.getSize()-params*8, nullptr);
+    preview.seek(0, IBStream::kIBSeekSet, nullptr);
+    assert(component->setState(&preview) == kResultOk);
+    assert(controller->getParamNormalized(on) == 1.);
+    assert(controller->getParamNormalized(drive) < 1.);
+    assert(controller->getParamNormalized(fxAmount) == .7);
+    MemoryStream legacy;
+    legacy.write(fxState.getData(), oldParams*8, nullptr);
+    legacy.write(fxState.getData()+params*8, fxState.getSize()-params*8, nullptr);
+    legacy.seek(0, IBStream::kIBSeekSet, nullptr);
+    assert(component->setState(&legacy) == kResultOk);
+    assert(controller->getParamNormalized(fxType) == 0.);
+    assert(controller->getParamNormalized(fxAmount) == .5);
     MemoryStream original;assert(component->getState(&original)==kResultOk);
-    assert(original.getSize()==39*8+16+64*8+4);
-    auto at=[&](int slot){return 39*8+16+slot*8;};
+    auto at=[&](int slot){return params*8+16+slot*8;};
     Binding b;b.source=Source::CC;b.channel=2;b.number=20;b.target=ids.at("Output");b.pickup=false;
     uint64_t word=b.Encode();std::memcpy(original.getData()+at(0),&word,8);
     // Leave no default CC10 map to affect this isolated test.
@@ -319,7 +352,7 @@ int main(int argc,char** argv){
     processor->setProcessing(false);component->setActive(false);
     original.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&original)==kResultOk);
     // Reject corrupt mapping metadata without partially restoring parameters.
-    mapped.getData()[39*8]=0;mapped.seek(0,IBStream::kIBSeekSet,nullptr);component->setState(&mapped);
+    mapped.getData()[params*8]=0;mapped.seek(0,IBStream::kIBSeekSet,nullptr);component->setState(&mapped);
     MemoryStream afterCorrupt;assert(component->getState(&afterCorrupt)==kResultOk);
     std::memcpy(&restored,afterCorrupt.getData()+at(0),8);assert(restored==word);
     // Restore an ordinary map and retain input configuration across legacy presets.
@@ -331,7 +364,7 @@ int main(int argc,char** argv){
     assert(controller->getParamNormalized(ids.at("MIDI Input Channel"))==3./16.);
     controller->setParamNormalized(ids.at("MIDI Input Channel"),0.);
     controller->setParamNormalized(ids.at("Output"),54./66.);
-    std::cout<<"Verified 39-parameter MIDI state, legacy preservation, channel-2 and channel-16 CC input, corrupt-state rejection\n";
+    std::cout<<"Verified FX and MIDI state, legacy preservation, channel-2 and channel-16 CC input, corrupt-state rejection\n";
   }
   controller->setParamNormalized(ids.at("SW1 Mode"),1.);controller->setParamNormalized(ids.at("SW1"),1.);
   MemoryStream heldSwitch;assert(component->getState(&heldSwitch)==kResultOk);double savedSwitch=1;std::memcpy(&savedSwitch,heldSwitch.getData()+31*8,8);assert(savedSwitch==0.);

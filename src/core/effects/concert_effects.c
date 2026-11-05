@@ -86,8 +86,8 @@ static double fractional_read(const float *buffer, unsigned mask, unsigned posit
 }
 
 ConcertEffects *concert_effects_create(double rate, const double coefficients[40], double trim,
-                                       double seconds, double reverb_wet, double chorus_wet,
-                                       double tone_hz) {
+                                      double seconds, double reverb_wet, double chorus_wet,
+                                      double tone_hz) {
   if (!isfinite(rate) || rate < 32000 || rate > 192000 || !coefficients || !isfinite(trim) ||
       trim < 0 || trim > 2 || !isfinite(seconds) || seconds < 0.3 || seconds > 6 ||
       !isfinite(reverb_wet) || reverb_wet < 0 || reverb_wet > 0.5 || !isfinite(chorus_wet) ||
@@ -276,10 +276,31 @@ int concert_effects_set_wet(ConcertEffects *e, double reverb, double chorus) {
   e->c.chorus_wet = chorus;
   return 1;
 }
+void concert_effects_set_room(ConcertEffects *e, double rate, double seconds, double damping,
+                              int plate) {
+  const double scale = plate ? .62 : 1;
+  e->c.damp_alpha = 1 - exp(-2 * PI * (2200 + 10000 * (1 - damping)) / rate);
+  for (int i = 0; i < LINES; ++i) {
+    e->c.lengths[i] = (unsigned)round(lengths[i] * scale * rate / 48000);
+    e->c.feedback[i] = pow(10, -3.0 * e->c.lengths[i] / (rate * seconds));
+  }
+  for (int ch = 0; ch < 2; ++ch)
+    for (int i = 0; i < 2; ++i)
+      e->c.ap_lengths[ch][i] = (unsigned)round(ap_lengths[ch][i] * scale * rate / 48000);
+  for (int i = 0; i < 3; ++i)
+    e->c.early_delays[i] = (unsigned)round(early_delays[i] * scale * rate / 48000);
+}
+
+void concert_effects_set_chorus(ConcertEffects *e, double rate, double depth, double hz) {
+  e->c.lfo_step = hz / rate;
+  e->c.chorus_depth = rate * .005 * depth;
+}
+
 void concert_effects_reset(ConcertEffects *e) {
   if (e) {
+    if (!e->s.clean)
+      memset(e->history, 0, e->history_size * sizeof(float));
     memset(&e->s, 0, sizeof(e->s));
-    memset(e->history, 0, e->history_size * sizeof(float));
     e->s.clean = 1;
     e->s.reverb_wet = e->c.reverb_wet;
     e->s.chorus_wet = e->c.chorus_wet;

@@ -13,6 +13,7 @@ set(KROSE_CORE_SOURCES
   voice/PitchEnvelope.cpp
   voice/NativeModulation.cpp
   voice/NativeFilter.cpp
+  effects/FxRack.cpp
   effects/concert_effects.c)
 find_package(Threads REQUIRED)
 function(krose_core_library target)

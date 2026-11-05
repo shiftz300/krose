@@ -56,7 +56,7 @@ void NativePanel::OpenPopup(const Hit &h) {
     mPopupFocus = std::min(maximum, int(Value(h.id)));
   }
   mPopupRows = std::min(12, int(mChoices.size()));
-  if (h.action == "field" || h.action == "midi-menu") {
+  if ((h.action == "field" && !IsFxTypeParameter(h.id)) || h.action == "midi-menu") {
     // Keep LCD menus inside the display; scroll when the available side is short.
     float room = std::max(284 - h.r.B - 2, h.r.T - (mControllers ? 140 : 164) - 2);
     mPopupRows = std::min(mPopupRows, std::max(1, int(room / 22)));
@@ -67,11 +67,14 @@ void NativePanel::OpenPopup(const Hit &h) {
 }
 void NativePanel::Popup(IGraphics &g) {
   bool lcd = mPopupTarget.action == "field" || mPopupTarget.action == "midi-menu";
-  float rowHeight = lcd ? 22 : 26;
+  const bool effectType = IsFxTypeParameter(mPopupTarget.id);
+  const float rowHeight = effectType ? 20 : lcd ? 22 : 26;
   int count = mPopupRows;
   float width = mPopupTarget.r.W();
   float left = mPopupTarget.r.L, top = mPopupTarget.r.B + 2;
-  if (top + count * rowHeight > (lcd ? 284 : 646))
+  if (effectType)
+    top = 142;
+  else if (top + count * rowHeight > (lcd ? 284 : 646))
     top = mPopupTarget.r.T - 2 - count * rowHeight;
   top = std::max(2.f, top);
   auto r = R(left, top, width, count * rowHeight);

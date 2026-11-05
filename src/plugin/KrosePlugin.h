@@ -25,8 +25,8 @@ public:
   void OnParamChange(int paramIdx, EParamSource source, int sampleOffset = -1) override;
   int UnserializeState(const IByteChunk &chunk, int startPos) override;
   bool SerializeState(IByteChunk &chunk) const override;
-  static constexpr unsigned kTargetNext = kNumParams, kTargetPrevious = kNumParams + 1,
-                            kTargetPanic = kNumParams + 2, kMapTargets = kNumParams + 3;
+  static constexpr unsigned kTargetNext = kNumMidiParameters, kTargetPrevious = kNumMidiParameters + 1,
+                            kTargetPanic = kNumMidiParameters + 2, kMapTargets = kNumMidiParameters + 3;
   krose::midi::ControllerMap &MidiMappings() noexcept { return mMidiMap; }
   unsigned MidiProfile() const noexcept { return mMidiProfile.load(); }
   bool LoadMidiProfile(unsigned profile);
@@ -45,6 +45,9 @@ public:
 #endif
 #if IPLUG_EDITOR
   void OnIdle() override;
+#if defined(OS_WIN) && defined(APP_API)
+  void OnUIOpen() override;
+#endif
   void OnUIClose() override;
   void OnParamChangeUI(int paramIdx, EParamSource source = kUnknown) override;
 #endif

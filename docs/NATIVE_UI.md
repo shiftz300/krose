@@ -14,6 +14,17 @@ Favorites 按稳定的 Program 编号保存，与工程参数分开：macOS 为 
 
 FX 收放是独立的显示状态，不改变音频。动画使用基于单调时钟的临界阻尼曲线，快速反向时继承位置和速度；收起后移除模块命中区域。位置计算不依赖逐帧积分，绘制目标为 60 Hz，复用离屏纹理，结束后停止动画重绘。
 
+## LCD 效果链
+
+点 LCD 的 FX 标签或左侧模块，进入 IFX 1、IFX 2、MFX 1、MFX 2 四个参数页。上排选择槽位，当前页显示效果类型、独立开关、Wet/Dry 或 Send，以及当前算法的参数。OFF 类型和自动解析为空的槽显示淡红轨道与棕色菱形，点菱形直接选择效果。已有类型的槽在关闭、全局绕过或效果量为零时熄灯并灰显，类型和参数仍保留。切换算法时，图案随算法更新。
+
+- IFX 串联处理主声。EQ 按 Band 选择四个频段，分别调整 Freq、Gain 和 Q。压缩显示阈值、比率、起音和释放，限幅显示 Ceiling 与释放。Drive 与 Exciter 分别显示 Drive 和 Blend。
+- MFX 从 IFX 2 后并联取信号。Chorus 显示深度与 LFO 频率，延迟显示左右时间与反馈，Hall 和 Plate 显示衰减时间与高频阻尼。手动设定的两路 MFX 可使用相同效果并各自调整。
+- AUTO 保留 Krose 的默认处理。编辑 AUTO 的算法参数会将该槽切到对应的手动类型。参数和开关随宿主工程保存。
+- C107 Trumpet Overblown 的试听设置为 IFX 1 选 Drive，Drive 60、Wet/Dry 70%，MFX 2 保持 AUTO。
+
+页面组织与字段参考项目保存的原厂参数记录及 [KROSS 2 参数手册](https://cdn.korg.com/us/support/download/files/96dbde75752a88b2daf897262d199b80.pdf)。原机 A000 记录的槽位为 IFX1、IFX2、IFX5 和 MFX2。Krose 的四槽编辑器采用双插入、双发送路由和本机 DSP。
+
 ## LCD 控制设置
 
 点击 LCD 标题右侧 `>CTRL` 打开控制设置，`< PROG` 返回音色页面。CTRL 配置 SW1／SW2 的功能、Toggle／Momentary 和测试；MIDI 管理 64 个映射；INPUT 保存 4 个用户配置并选择输入通道、时钟；HELP 显示最后收到的 MIDI 消息及操作提示。右键旋钮、推子或参数字段直接学习对应目标；右键 SW 按钮打开功能分配。学习可点 CANCEL 或按 Esc 取消。
@@ -31,6 +42,16 @@ FX 收放是独立的显示状态，不改变音频。动画使用基于单调�
 图片按需加载，字体图集保留原像素。更改外观应同时维护参考源和冻结资源，保持画布、控件坐标与参数 ID 一致。
 
 ## 重建素材
+
+应用图标为独立绘制的粗体罗马衬线 K，使用石墨灰底和暖色大理石纹理；字形以矢量轮廓保存，不依赖系统字体。面板中的 Maincore 标识保持原样。`src/plugin/resources/Krose.svg`／`Krose.png` 为预览，`Krose.icns` 用于 macOS，`Krose.ico` 用于 Windows 应用及 NSIS 安装器。显式更新命令为 `python3 tools/native-ui/generate_app_icon.py`（Pillow）；普通编译直接使用冻结图标，无需生成依赖。macOS 的图标通过 Info.plist 和 iPlug2 bundle 资源接入，Windows 同时设置 EXE 资源、独立窗口与卸载列表图标。
+
+K 在初版基础上等比缩小至 82%，增加留白、柔和投影和石材边缘高光。层次参考 [Apple App Icons](https://developer.apple.com/design/human-interface-guidelines/app-icons)。`Krose.icon` 保存独立的无光照 K 图层及默认／深色／单色配置，由系统处理圆角、玻璃和光照；ICNS／ICO 保留兼容外观。
+
+分层图标采用一次预编译：`python3 tools/native-ui/compile_app_icon.py` 在安装 Xcode 26+ 的 Mac 上生成 `resources/macos-icon/Assets.car` 和校验清单；也可手动运行 `Precompile macOS app icon` 工作流，取回同一产物。将这两个文件纳入源码后，日常构建只需 Command Line Tools，不调用 Xcode，也不上传图标。
+
+CMake 校验图层及编译产物的 SHA-256，再将 `Assets.car` 复制到独立程序并添加 `CFBundleIconName=Krose`；原 `CFBundleIconFile` 保留供旧系统使用。图层改动却未更新产物时构建报错，避免打包过期图标。缺少预编译产物时明确回退到静态 ICNS，此状态不代表已支持系统外观切换。
+
+六种外观已通过 Icon Composer 1.2 官方渲染器检查。首次预编译由 [图标 CI](https://github.com/shiftz300/krose/actions/runs/42082909494) 完成，`Assets.car` 为 1,799,544 字节。本地只用 Command Line Tools 构建，已核对 bundle 命名、资源哈希及签名；NSWorkspace 从实际应用读取到系统深色版本，独立程序正常启动。透明／染色的六宫格为官方渲染器预览，尚未逐项改变用户的系统外观设置。
 
 普通产品构建不处理参考页面。开发期在 macOS 显式运行：
 

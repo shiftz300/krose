@@ -89,9 +89,16 @@ void NativePanel::Activate(const Hit &h) {
   else if (h.action == "page") {
     mPage = int(h.value);
     mSlot = 0;
-  } else if (h.action == "slot")
+  } else if (h.action == "fx-module" || h.action == "fx-add") {
+    mPage = 2;
     mSlot = int(h.value);
-  else if (h.action == "step")
+    mFxBand = 0;
+    mControllers = false;
+    if (h.action == "fx-add")
+      OpenPopup({LCDRect(FxTypeField()), "field", kFxType1 + mSlot});
+  } else if (h.action == "fx-band") {
+    mFxBand = int(h.value);
+  } else if (h.action == "step")
     StepProgram(int(h.value));
   else if (h.action == "fold") {
     mFold = !mFold;
@@ -168,7 +175,7 @@ void NativePanel::Activate(const Hit &h) {
     }
   } else if (h.action == "edit" || h.action == "field") {
     if (h.action == "field" &&
-        (h.id == kParamTone || h.id == kArpPattern || h.id == kArpResolution ||
+        (h.id == kParamTone || h.id == kArpPattern || h.id == kArpResolution || IsFxTypeParameter(h.id) ||
          (h.id >= kSW1Assign && h.id <= kClockSource))) {
       OpenPopup(h);
     } else {
@@ -189,7 +196,7 @@ void NativePanel::OnMouseDown(float x, float y, const IMouseMod &mod) {
     if (!h.r.Contains(x, y))
       continue;
     mFocus = i;
-    if (mod.R && h.id >= 0 && h.id < kNumParams &&
+    if (mod.R && h.id >= 0 && h.id < kNumMidiParameters &&
         (h.action == "knob" || h.action == "fader" || h.action == "field" || h.action == "toggle" ||
          h.action == "set" || h.action == "edit")) {
       BeginLearn(h.id);

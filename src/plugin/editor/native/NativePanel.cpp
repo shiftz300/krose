@@ -12,6 +12,10 @@
 namespace krose::ui {
 using namespace detail;
 namespace {
+constexpr const char *FxSlots[] = {"IFX 1", "IFX 2", "MFX 1", "MFX 2"};
+// Atlas columns follow the configured insert/send types after AUTO and OFF.
+constexpr std::array<int, segrand::kInsertTypes.size() - 2> InsertFxFaces{0, 1, 2, 3, 4};
+constexpr std::array<int, segrand::kSendTypes.size() - 2> SendFxFaces{5, 6, 7, 8};
 struct PanelResources {
   const nlohmann::json data = nlohmann::json::parse(kNativeData);
   const nlohmann::json programs = nlohmann::json::parse(kNativePrograms);
@@ -63,13 +67,19 @@ void NativePanel::OnInit() {
       f.indices.emplace(f.chars[i], i);
     f.size = it.value()["size"];
   }
+  Image("fx-faces");
+  Image("fx-region-0");
   FilterPrograms();
   mStoredMapping = ControllerHash();
 }
 double NativePanel::Value(int id) { return GetDelegate()->GetParam(id)->Value(); }
 void NativePanel::Set(int id, double v, bool gesture) {
-  if (mParameters.Set(*GetDelegate(), id, v, gesture))
+  if (mParameters.Set(*GetDelegate(), id, v, gesture)) {
+    // Editing an AUTO effect promotes only this slot to its explicit type.
+    if (id >= kFxDetails && !Value(kFxType1 + mSlot) && FxType(mSlot) > 1)
+      Set(kFxType1 + mSlot, FxType(mSlot));
     SetDirty(false);
+  }
 }
 void NativePanel::Refresh(double tempo, bool host, bool loading, bool loadFailed) {
   bool changed = tempo != mTempo || host != mHost || FoldProgress() != mRenderedFold ||
@@ -209,7 +219,14 @@ void NativePanel::Render(IGraphics &g) {
       IBlend erase(EBlend::DstOut);
       g.FillRect(COLOR_WHITE, R(0, 19, 428, 332), &erase);
     }
-    Bitmap(g, "fx-region-" + std::to_string(program < 5 ? program : 0), 0, 19);
+    Bitmap(g, "fx-region-1", 0, 19);
+    int slot = 0;
+    for (const auto &module : mData["fxHits"]["1"]) {
+      if (module["kind"] != "module")
+        continue;
+      const auto &rect = module["rect"];
+      DrawFxFace(g, R(rect[0], rect[1], rect[2], rect[3]), slot++);
+    }
     if (folded > 0) {
       g.PathClear();
       g.PathRect(R(0, 19, 428, 332));
@@ -326,19 +343,23 @@ void NativePanel::Render(IGraphics &g) {
   Chevron(g, R(507, 52, 482, 30), IColor(255, 227, 227, 227));
   HitBox(R(507, 52, 482, 30), "presets");
   if (!mFold && !mBrowsing) {
-    for (auto &h : mData["fxHits"][std::to_string(program < 5 ? program : 0)])
+    int slot = 0;
+    for (const auto &h : mData["fxHits"]["1"])
       if (h["kind"] == "module") {
         auto a = h["rect"];
         auto r = R(a[0], a[1], a[2], a[3]);
-        HitBox(r, "tooltip");
+        const bool empty = FxType(slot) <= 1;
+        HitBox(r, empty ? "fx-add" : "fx-module", -1, slot);
         if (r.Contains(mMouseX, mMouseY)) {
-          std::string label = h["label"];
+          const std::string label = std::string(FxSlots[slot]) + " / " +
+                                    (empty ? "ADD FX" : FxEnabled(slot) ? FxName(slot) : "OFF");
           float width = TextWidth("mono10", label) + 14;
           auto box = R(r.L, r.B + 3, width, 23);
           g.FillRoundRect(IColor(255, 34, 50, 47), box, 2);
           g.DrawRoundRect(IColor(255, 120, 137, 132), box, 2);
           Text(g, "mono10", label, box.GetPadded(-7));
         }
+        ++slot;
       }
   }
   g.PathClipRegion(R(424, 108, 556, 176));
@@ -435,7 +456,7 @@ void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &bou
   const auto r = LCDRect(bounds);
   const char *font = mPage == 3 ? "lcd14" : "lcd16";
   bool check = id == kArpSort || id == kArpKeySync;
-  bool choice = id == kParamTone || id == kArpPattern || id == kArpResolution;
+  bool choice = id == kParamTone || id == kArpPattern || id == kArpResolution || IsFxTypeParameter(id);
   float left = r.L < 700 ? 437 : mPage == 3 ? 711 : 713.5;
   constexpr float textInset = 27.09375f / 12;
   Text(g, font, label, R(left, r.T + textInset, r.L - left - 4, r.H()));
@@ -475,6 +496,151 @@ void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &bou
     }
   }
 }
+void NativePanel::DrawFxFace(IGraphics &g, const IRECT &module, int slot) {
+  constexpr int tile = 54;
+  const int type = FxType(slot);
+  if (type <= 1) {
+    DrawEmptyFxSlot(g, module, slot == 0);
+    return;
+  }
+  const int column = slot < 2 ? InsertFxFaces[type - 2] : SendFxFaces[type - 2];
+  const bool enabled = FxEnabled(slot);
+  auto pixel = [](float v) { return std::round(v * 2) / 2; };
+  // The display fills the inset only. The frame and shared marble are baked separately.
+  const float x = pixel(module.L + module.W() * .1f);
+  const float y = pixel(module.T + module.H() * .1f);
+  g.DrawBitmap(Image("fx-faces"), R(x, y, tile, tile), column * tile, enabled ? 0 : tile);
+  if (!enabled) {
+    const float left = pixel(module.L + module.W() * .35f);
+    const float right = pixel(module.L + module.W() * .65f);
+    const float top = pixel(module.T), bottom = pixel(module.T + module.H() / 24);
+    g.FillRect(IColor(255, 102, 102, 102), {left, top, right, bottom});
+  }
+}
+void NativePanel::DrawEmptyFxSlot(IGraphics &g, const IRECT &module, bool vertical) {
+  // Cover the entire baked housing and its shadow with the original bare marble.
+  const int left = int(std::floor(module.L)) - 2;
+  const int top = int(std::floor(module.T)) - 1;
+  const auto backing = R(left, top, 78, std::ceil(module.B) + 8 - top);
+  g.DrawBitmap(Image("fx-region-0"), backing, left, top - 19);
+
+  const float x = module.MW(), y = module.MH();
+  const auto rail = vertical ? R(x - 8, y - 30, 16, 60) : R(x - 30, y - 8, 60, 16);
+  g.PathClear();
+  g.PathRect(rail);
+  const auto direction = vertical ? EDirection::Vertical : EDirection::Horizontal;
+  g.PathFill(IPattern::CreateLinearGradient(rail, direction, {{IColor(0, 182, 81, 76), 0},
+                                                             {IColor(42, 182, 81, 76), .25f},
+                                                             {IColor(42, 182, 81, 76), .75f},
+                                                             {IColor(0, 182, 81, 76), 1}}));
+
+  // Match the FX lettering in the expanded panel artwork (#614239).
+  const IColor ink(255, 97, 66, 57);
+  constexpr float half = 6;
+  g.PathClear();
+  g.PathMoveTo(x, y - half);
+  g.PathLineTo(x + half, y);
+  g.PathLineTo(x, y + half);
+  g.PathLineTo(x - half, y);
+  g.PathClose();
+  g.PathFill(ink);
+}
+int NativePanel::FxType(int slot) {
+  const bool concert = Value(kParamProgram) == 0;
+  return segrand::ResolveFxType(int(Value(kFxType1 + slot)), slot, concert,
+                               concert && Value(kParamTone) == 2);
+}
+bool NativePanel::FxEnabled(int slot) {
+  return !Value(kFXBypass) && Value(kFxOn1 + slot) && Value(kFxAmount1 + slot) > 0 &&
+         FxType(slot) > 1 && (slot < 2 || Value(kParamSpace) > 0 ||
+                             (slot == 2 && Value(kFxType3) == 0));
+}
+std::string NativePanel::FxName(int slot) {
+  const int type = FxType(slot);
+  if (slot == 0 && !Value(kFxType1) && type == 2)
+    return "CONCERT EQ";
+  return slot < 2 ? segrand::kInsertTypes[type] : segrand::kSendTypes[type];
+}
+
+void NativePanel::FxPage(IGraphics &g) {
+  using namespace segrand;
+  for (int i = 0; i < 4; ++i) {
+    const auto rect = LCDRect(R(437 + 133 * i, 164, 133, 22));
+    const bool selected = i == mSlot;
+    if (selected)
+      g.FillRect(Ink, rect);
+    g.FillRect(Ink, LCDRect(R(rect.L, rect.B - 2.25f, rect.W(), 2.25f)));
+    Text(g, selected ? "light14" : "lcd14", FxSlots[i], R(rect.L, 164, rect.W(), 18), 1);
+    HitBox(rect, "fx-module", -1, i);
+  }
+
+  const int slot = mSlot;
+  const int typeParam = kFxType1 + slot, amount = kFxAmount1 + slot, enabled = kFxOn1 + slot;
+  const bool automatic = Value(typeParam) == 0;
+  const int type = FxType(slot);
+  Field(g, "Type", FxTypeField(), typeParam, (automatic ? "A: " : "") + FxName(slot));
+  const bool on = Value(enabled) && type > 1;
+  ControllerCell(g, on ? "ON" : "OFF", R(679, 190, 45, 21), type > 1 ? "toggle" : "inactive",
+                 enabled, 0, on);
+  Text(g, "lcd14", slot < 2 ? "Wet/Dry" : "Send", R(736, 192, 91, 19));
+  Field(g, "", R(850, 190, 117, 21), amount, Format(Value(amount)) + "%", type > 1);
+
+  if (type <= 1)
+    return;
+  if (automatic)
+    Text(g, "lcd14", "Edit a parameter to switch AUTO to manual", R(437, 264, 530, 18));
+
+  auto field = [&](int index, int detail) {
+    const auto &spec = kFxValues[detail];
+    const int param = FxDetailParameter(slot, detail);
+    const auto value = Format(Value(param), spec.step >= 1 ? 0 : spec.step >= .1 ? 1 : 2);
+    const float x = index % 2 == 0 ? 590 : 864;
+    const float y = 216 + 24 * (index / 2);
+    Field(g, std::string(spec.label) + spec.unit, R(x, y, 103, 21), param, value);
+  };
+  if (slot < 2) {
+    switch (type) {
+    case 2:
+      Text(g, "lcd14", "Band", R(437, 218, 47, 18));
+      for (int i = 0; i < 4; ++i)
+        ControllerCell(g, "B" + std::to_string(i + 1), R(492 + 49 * i, 216, 46, 21), "fx-band",
+                       -1, i, i == mFxBand);
+      field(1, kEqFreq + 3 * mFxBand);
+      field(2, kEqGain + 3 * mFxBand);
+      field(3, kEqQ + 3 * mFxBand);
+      break;
+    case 3:
+      field(0, kThreshold);
+      field(1, kRatio);
+      field(2, kAttack);
+      field(3, kRelease);
+      break;
+    case 4:
+      field(0, kCeiling);
+      field(1, kRelease);
+      break;
+    case 5: field(0, kDrive); break;
+    case 6: field(0, kBlend); break;
+    }
+  } else {
+    switch (type) {
+    case 2:
+      field(0, kDepth);
+      field(1, kLfoRate);
+      break;
+    case 3:
+      field(0, kDelayLeft);
+      field(1, kDelayRight);
+      field(2, kFeedback);
+      break;
+    case 4:
+    case 5:
+      field(0, kDecay);
+      field(1, kHiDamp);
+      break;
+    }
+  }
+}
 void NativePanel::LCD(IGraphics &g) {
   if (mControllers) {
     Controllers(g);
@@ -497,10 +663,8 @@ void NativePanel::LCD(IGraphics &g) {
              ? p[5].get<std::string>()
              : std::string("Voice: ") + Modes[int(Value(kVoiceMode))],
          R(436, 258, 210, 18));
-    const char *routes[] = {"", "I1 EQ / I2 M.Lim / I5 Lim / M2 Hall", "I1 M.Lim / M2 Plate",
-                            "I1 Exciter / M1 Chorus / M2 Plate",
-                            "I1 EQ / I2 EQ / I5 Lim / M2 Hall"};
-    Text(g, "lcd15", program < 5 ? routes[program] : "", R(436, 258, 532, 18), 2);
+    std::string effects = Value(kFXBypass) ? "FX BYPASS" : "IFX 1/2  MFX 1/2";
+    Text(g, "lcd15", effects, R(436, 258, 532, 18), 2);
     HitBox(R(783.3125, 139, 189.6875, 27.09375), "toggle", kArpHostSync);
     return;
   }
@@ -545,17 +709,7 @@ void NativePanel::LCD(IGraphics &g) {
     Field(g, "Key Sync:", R(675, 234, 18, 18), kArpKeySync, "");
     Field(g, "Swing (%):", R(899, 234, 68, 18), -1, "0", false);
   }
-  if (mPage == 2) {
-    int n = program < 5 ? program : 0;
-    int counts[] = {1, 4, 2, 3, 4};
-    mSlot = std::clamp(mSlot, 0, counts[n] - 1);
-    Bitmap(g, "fx-" + std::to_string(n) + "-" + std::to_string(mSlot), 436, 168);
-    int i = 0;
-    for (auto &h : mData["fxHits"][std::to_string(n)])
-      if (h["kind"] == "slot") {
-        auto r = h["rect"];
-        HitBox(R(r[0], r[1], r[2], r[3]), "slot", -1, i++);
-      }
-  }
+  if (mPage == 2)
+    FxPage(g);
 }
 } // namespace krose::ui

@@ -70,6 +70,7 @@ private:
   std::array<int, 16> mBendValue{};
   double mTempo = 120;
   uint32_t mRandom = 1;
+  FxRack mRack;
   Controls mControls;
   MonoPerformance mMono;
   double mRate = 48000, mOutput = 0.5, mTarget = 0.5, mSmooth = 0;

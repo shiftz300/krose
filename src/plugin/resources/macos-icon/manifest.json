@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "icon_name": "Krose",
+  "source_sha256": "ff0da546d4657bf63a8afcda3096b316fa4d8f028ce92ec213a9bdff09a0378b",
+  "assets_sha256": "e83f6a7b4062799924c2465fbeebb4c7ada75f386af665dc7c79aa0a0c71cd48",
+  "compiler": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>com.apple.actool.version</key>\n\t<dict>\n\t\t<key>bundle-version</key>\n\t\t<string>24765</string>\n\t\t<key>short-bundle-version</key>\n\t\t<string>26.6</string>\n\t</dict>\n</dict>\n</plist>"
+}

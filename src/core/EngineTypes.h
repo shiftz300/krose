@@ -1,4 +1,5 @@
 #pragma once
+#include "effects/FxRack.h"
 #include "voice/VoiceTypes.h"
 #include <cstdint>
 namespace segrand {
@@ -9,6 +10,7 @@ struct Controls {
   int pan = 0, cutoff = 0, resonance = 0;
   EnvelopeOffsets ampEg, filterEg;
   int voiceMode = 0, glide = 0; // 0 Poly, 1 Mono retrigger, 2 Normal legato; glide 0..127.
+  FxSettings fx{};
   int program = 0; // Stable selector: 0 is the accepted Concert path, then factory Programs.
 };
 struct MidiEvent {

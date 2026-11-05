@@ -34,11 +34,11 @@ constexpr int configIDs[] = {kSW1Assign,    kSW1Mode,       kSW2Assign,  kSW2Mod
                              kInputChannel, kProgramChange, kClockSource};
 } // namespace
 void KrosePlugin::InitializeMidiMappings() {
-  for (unsigned id = 0; id < kNumParams; ++id) {
+  for (unsigned id = 0; id < kNumMidiParameters; ++id) {
     const auto p = GetParam(id);
     mMidiMap.SetStep(id, p->GetRange() > 0 ? p->GetStep() / p->GetRange() : 1);
   }
-  for (unsigned id = kNumParams; id < kMapTargets; ++id)
+  for (unsigned id = kNumMidiParameters; id < kMapTargets; ++id)
     mMidiMap.SetStep(id, 1);
   auto order = Json::parse(kNativeBrowser)["order"].get<std::vector<int>>();
   mNextPrograms.resize(order.size());
@@ -68,7 +68,7 @@ bool KrosePlugin::SerializeState(IByteChunk &chunk) const {
   for (unsigned slot = 0; slot < krose::midi::ControllerMap::kSlots; ++slot) {
     const auto b = mMidiMap.Get(slot);
     if (b.source != krose::midi::Source::Off && b.mode == krose::midi::Mode::Momentary &&
-        b.target < kNumParams)
+        b.target < kNumMidiParameters)
       momentary[b.target] = true;
   }
   for (int id = 0; id < kNumParams; ++id) {
@@ -95,7 +95,7 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
   if (start < 0 || start > chunk.Size())
     return -1;
   const int available = chunk.Size() - start;
-  for (int count : {6, 17, 19, 29}) {
+  for (int count : {6, 17, 19, 29, kNumMidiParameters, int(kFxOn1)}) {
     const int bytes = count * int(sizeof(double));
     if (available != bytes && available != bytes + int(sizeof(int32_t)))
       continue;
@@ -113,9 +113,19 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
   const int parameters = kNumParams * int(sizeof(double));
   if (available == parameters || available == parameters + 4)
     return UnserializeParams(chunk, start);
-  if (available < parameters + 16)
+  constexpr int mappingBytes = 16 + krose::midi::ControllerMap::kSlots * int(sizeof(uint64_t));
+  int storedParams = kNumParams;
+  for (int oldCount : {kNumMidiParameters, int(kFxOn1)}) {
+    const int bytes = oldCount * int(sizeof(double)) + mappingBytes;
+    if (available == bytes || available == bytes + 4) {
+      storedParams = oldCount;
+      break;
+    }
+  }
+  const int storedBytes = storedParams * int(sizeof(double));
+  if (available < storedBytes + mappingBytes)
     return -1;
-  int pos = start + parameters;
+  int pos = start + storedBytes;
   uint32_t magic = 0, version = 0, profile = 0, count = 0;
   if ((pos = chunk.Get(&magic, pos)) < 0 || (pos = chunk.Get(&version, pos)) < 0 ||
       (pos = chunk.Get(&profile, pos)) < 0 || (pos = chunk.Get(&count, pos)) < 0 ||
@@ -131,8 +141,18 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
     if (!b.Valid(kMapTargets))
       return -1;
   }
-  if (UnserializeParams(chunk, start) < 0)
+  if (storedParams < kNumParams) {
+    IByteChunk upgraded;
+    upgraded.PutBytes(chunk.GetData() + start, storedBytes);
+    for (int id = storedParams; id < kNumParams; ++id) {
+      const double value = GetParam(id)->GetDefault();
+      upgraded.Put(&value);
+    }
+    if (UnserializeParams(upgraded, 0) < 0)
+      return -1;
+  } else if (UnserializeParams(chunk, start) < 0) {
     return -1;
+  }
   for (unsigned i = 0; i < count; ++i)
     mMidiMap.Set(i, bindings[i]);
   mMidiProfile.store(profile);

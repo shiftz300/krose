@@ -58,11 +58,15 @@ void PianoEngine::Prepare(double rate) {
   const double times[3] = {1.8, 1.5, 2.6}, wet[3] = {0.15, 0.12, 0.23}, chorus[3] = {0, 0, 0.18},
                tone[3] = {0, 8500, 0};
   for (int i = 0; i < 3; ++i) {
+    const auto sends = ResolveFxSends(mControls.fx, wet[i], chorus[i], mControls.space);
     effects[i].reset(concert_effects_create(rate, kConcertEq, kConcertTrim, times[i],
-                                            wet[i] * mControls.space, chorus[i], tone[i]));
+                                            sends.hall, sends.chorus, tone[i]));
     if (!effects[i])
       throw std::runtime_error("Could not prepare effects");
   }
+  mRack.Prepare(rate);
+  mRack.SetInserts(mControls.fx, true);
+  mRack.SetReturns(mControls.fx, mControls.space);
   mEffects = std::move(effects);
   mRate = rate;
   mGain.Prepare(rate);
@@ -85,6 +89,7 @@ void PianoEngine::Panic() noexcept {
   mFXBlend = mControls.fxBypass ? 0 : 1;
   mBend.fill(1);
   mGain.Reset();
+  mRack.Reset();
   mEvents.Clear();
   for (auto &effect : mEffects)
     concert_effects_reset(effect.get());
@@ -108,8 +113,12 @@ void PianoEngine::SetControls(const Controls &incoming) {
   c.velocityCurve = std::clamp(c.velocityCurve, 0.5, 3.0);
   mOutputTarget = std::pow(10, c.outputDb / 20);
   const double wet[3] = {0.15, 0.12, 0.23}, chorus[3] = {0, 0, 0.18};
-  for (int i = 0; i < 3; ++i)
-    concert_effects_set_wet(mEffects[i].get(), wet[i] * c.space, chorus[i]);
+  mRack.SetInserts(c.fx, true);
+  for (int i = 0; i < 3; ++i) {
+    const auto sends = ResolveFxSends(c.fx, wet[i], chorus[i], c.space);
+    concert_effects_set_wet(mEffects[i].get(), sends.hall, sends.chorus);
+  }
+  mRack.SetReturns(c.fx, c.space);
   c.voiceMode = std::clamp(c.voiceMode, 0, 2);
   c.glide = std::clamp(c.glide, 0, 127);
   if (c.voiceMode != mControls.voiceMode) {
@@ -362,13 +371,24 @@ void PianoEngine::Render(float *left, float *right, int frames) noexcept {
       dry[n * 2] = float(l);
       dry[n * 2 + 1] = float(r);
     }
-    std::array<double, kChunk * 2> equalized;
+    std::array<double, kChunk * 2> equalized, returns;
     concert_effects_equalize(mEffects[0].get(), dry.data(), equalized.data(), count);
+    for (int n = 0; n < count; ++n) {
+      auto &left = equalized[n * 2];
+      auto &right = equalized[n * 2 + 1];
+      const double eq = mRack.ConcertEqMix();
+      if (eq != 1) {
+        left = dry[n * 2] + eq * (left - dry[n * 2]);
+        right = dry[n * 2 + 1] + eq * (right - dry[n * 2 + 1]);
+      }
+      mRack.Insert(left, right);
+    }
     for (int p = 0; p < 3; ++p)
       concert_effects_process_equalized(mEffects[p].get(), equalized.data(), audio[p].data(),
                                         count);
+    mRack.Returns(equalized.data(), returns.data(), count);
     for (int n = 0; n < count; ++n) {
-      double l = 0, r = 0;
+      double l = returns[n * 2], r = returns[n * 2 + 1];
       mOutput += mSmoothing * (mOutputTarget - mOutput);
       for (int p = 0; p < 3; ++p) {
         mWeights[p] += mSmoothing * ((p == mControls.preset ? 1 : 0) - mWeights[p]);

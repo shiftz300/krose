@@ -1,5 +1,9 @@
 #include "../KrosePlugin.h"
 #include "native/NativePanel.h"
+#if defined(OS_WIN) && defined(APP_API)
+#include "../resources/resource.h"
+#include <windows.h>
+#endif
 #if IPLUG_EDITOR
 namespace {
 // The composite panel treats double-clicks as ordinary presses, retaining
@@ -57,7 +61,7 @@ void KrosePlugin::OnIdle() {
     setDirty(true);
 #endif
   const uint64_t changed = mMidiChangedParams.exchange(0, std::memory_order_acq_rel);
-  for (int id = 0; id < kNumParams; ++id)
+  for (int id = 0; id < kNumMidiParameters; ++id)
     if (changed & (uint64_t(1) << id)) {
       const double value = GetParam(id)->GetNormalized();
       BeginInformHostOfParamChange(id);
@@ -74,6 +78,26 @@ void KrosePlugin::OnIdle() {
                mEngine && !mEngine->SamplesReady(GetParam(kParamProgram)->Int()),
                mEngine && GetParam(kParamProgram)->Int() == mEngine->FailedProgram());
 }
+#if defined(OS_WIN) && defined(APP_API)
+void KrosePlugin::OnUIOpen() {
+  Plugin::OnUIOpen();
+  if (!GetUI())
+    return;
+  const HWND window = GetAncestor(static_cast<HWND>(GetUI()->GetWindow()), GA_ROOT);
+  if (!window)
+    return;
+  // The standalone owns the top-level window; never change a DAW's window icon.
+  const HINSTANCE instance = GetModuleHandleW(nullptr);
+  for (int small = 0; small < 2; ++small) {
+    const auto icon = LoadImageW(instance, MAKEINTRESOURCEW(IDI_ICON1), IMAGE_ICON,
+                                GetSystemMetrics(small ? SM_CXSMICON : SM_CXICON),
+                                GetSystemMetrics(small ? SM_CYSMICON : SM_CYICON), LR_SHARED);
+    if (icon)
+      SendMessageW(window, WM_SETICON, small ? ICON_SMALL : ICON_BIG,
+                   reinterpret_cast<LPARAM>(icon));
+  }
+}
+#endif
 void KrosePlugin::OnUIClose() {
   if (GetUI()) {
     auto *p = static_cast<krose::ui::NativePanel *>(GetUI()->GetControlWithTag(kEditorTag));

@@ -1,10 +1,57 @@
 #include "ConcertEqData.h"
 #include "effects/concert_effects.h"
+#include "effects/FxRack.h"
 #include <array>
 #include <cassert>
 #include <cmath>
 #include <iostream>
 int main() {
+  for (double rate : {32000., 48000., 192000.}) {
+    segrand::FxRack rack;
+    rack.Prepare(rate);
+    segrand::FxSettings settings{};
+    const auto automatic = segrand::ResolveFxSends(settings, .15, .18, 1);
+    assert(automatic.hall == .15 && automatic.chorus == .18);
+    settings = {{{5, 70}, {1, 50}, {3, 100}, {3, 50}}};
+    settings[3].detail[segrand::kDelayLeft] = 51;
+    rack.SetInserts(settings, false);
+    rack.SetReturns(settings, 1);
+    rack.Reset();
+    double left = .01, right = 0;
+    rack.Insert(left, right);
+    assert(left > .016 && left < .018 && right == 0);
+    const int early = int(std::round(rate * .051));
+    const int late = int(std::round(rate * .244));
+    for (int n = 0; n <= late; ++n) {
+      const double input[2] = {n == 0 ? left : 0, 0};
+      double wet[2];
+      rack.Returns(input, wet, 1);
+      const double expected = n == early ? .25 * left : n == late ? .5 * left : 0;
+      assert(std::abs(wet[0] - expected) < 1e-8);
+    }
+    settings[2].enabled = false;
+    settings[3].enabled = false;
+    rack.SetReturns(settings, 1);
+    rack.Reset();
+    const double impulse[2] = {1, 0}, silence[2] = {0, 0};
+    double wet[2];
+    for (int n = 0; n <= late; ++n) {
+      rack.Returns(n == 0 ? impulse : silence, wet, 1);
+      assert(wet[0] == 0 && wet[1] == 0);
+    }
+    settings[2] = {5, 60};
+    settings[3] = {4, 50};
+    rack.SetReturns(settings, 1);
+    rack.Reset();
+    double tail = 0;
+    for (int n = 0; n < int(rate / 8); ++n) {
+      rack.Returns(n == 0 ? impulse : silence, wet, 1);
+      assert(std::isfinite(wet[0]) && std::isfinite(wet[1]));
+      assert(n || (wet[0] == 0 && wet[1] == 0));
+      tail += std::abs(wet[0]) + std::abs(wet[1]);
+    }
+    assert(tail > .01);
+  }
   double identity[40]{};
   for (int i = 0; i < 8; ++i)
     identity[i * 5] = 1;

@@ -56,6 +56,28 @@ void KrosePlugin::InitializeParameters() {
       ->InitEnum("Clock Source", 0, 3, "", IParam::kFlagsNone, "", "Host/Auto", "Internal",
                  "MIDI Clock");
   GetParam(kFXBypass)->InitBool("FX Bypass", false);
+  const char *types[] = {"IFX 1 Type", "IFX 2 Type", "MFX 1 Type", "MFX 2 Type"};
+  const char *amounts[] = {"IFX 1 Amount", "IFX 2 Amount", "MFX 1 Send", "MFX 2 Send"};
+  for (int i = 0; i < 4; ++i) {
+    auto *type = GetParam(kFxType1 + i);
+    type->InitEnum(types[i], 0, int(i < 2 ? segrand::kInsertTypes.size() : segrand::kSendTypes.size()));
+    for (int n = 0; n <= type->GetMax(); ++n)
+      type->SetDisplayText(n, i < 2 ? segrand::kInsertTypes[n] : segrand::kSendTypes[n]);
+    GetParam(kFxAmount1 + i)->InitInt(amounts[i], 50, 0, 100, "%");
+    const auto slot = std::string(i < 2 ? "IFX " : "MFX ") + std::to_string(i % 2 + 1);
+    GetParam(kFxOn1 + i)->InitBool((slot + " On").c_str(), true);
+    const int first = i < 2 ? 0 : segrand::kDepth;
+    const int end = i < 2 ? int(segrand::kDepth) : int(segrand::kFxDetailCount);
+    for (int j = first; j < end; ++j) {
+      const auto &spec = segrand::kFxValues[j];
+      std::string name = slot + " ";
+      if (j < segrand::kThreshold)
+        name += "B" + std::to_string(j / 3 + 1) + " ";
+      name += spec.label;
+      GetParam(FxDetailParameter(i, j))->InitDouble(name.c_str(), spec.initial, spec.min,
+                                                    spec.max, spec.step, spec.unit);
+    }
+  }
 
   // Factory presets contain sound parameters only; controller profiles are global.
   auto preset = [&](const char *name, int tone, int program, double space) {

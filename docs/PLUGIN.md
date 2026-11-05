@@ -2,6 +2,8 @@
 
 Krose 提供 VST3 和独立程序，使用固定尺寸的原生界面。目录包含 768 个出厂、265 个 GM、128 个扩展 Program，以及 Concert 兼容入口，共 1,162 项。分类与浏览顺序来自原厂目录，宿主 Program 编号固定。
 
+已接通功能、剩余缺项和验收范围见 [完成度复查](STATUS.md)。
+
 ## 演奏
 
 - PRESET 按大类展开音色列表；BROWSE 支持名称／编号、音色库和类型筛选。爱心加入 Favorites。
@@ -9,7 +11,7 @@ Krose 提供 VST3 和独立程序，使用固定尺寸的原生界面。目录�
 - POLY、MONO、LEGATO 和 GLIDE 的规则见 [演奏模式](PERFORMANCE.md)。ARP、Latch、时钟及 Pattern 见 [琶音器](ARPEGGIATOR.md)。
 - 支持延音、音量、表情、柔音、弯音及 MIDI 控制器复位。屏幕键盘用于试音，PANIC 清理按键、声部和事件。
 - 切换音色时后台加载所需采样；加载期间旧音色继续演奏，原有尾音保留。界面显示 LOADING 或 LOAD FAILED。
-- FX 收放只改变编辑器显示，不修改音频、参数或旁通。SW1／SW2 的分配、MIDI 学习和输入设置均在 LCD 的 CTRL 入口；操作见 [MIDI 控制](MIDI.md)。屏幕 Mod、Save/Compare 和完整效果编辑目前禁用。
+- FX 收放只改变编辑器显示，不修改音频、参数或旁通。四个 LCD 页分别编辑 IFX 1／2、MFX 1／2 的类型、开关、效果量和算法参数，详见 [效果链](NATIVE_UI.md#lcd-效果链)。SW1／SW2 的分配、MIDI 学习和输入设置均在 LCD 的 CTRL 入口；操作见 [MIDI 控制](MIDI.md)。屏幕 Mod 滚轮、Save/Compare 仍未启用；外部 MIDI 调制轮可用，宿主工程可以保存参数。
 
 独立程序的 Audio and MIDI Settings 用于选择声卡、缓冲、采样率与 MIDI 输入；VST3 使用宿主设置。支持 32–192 kHz。宿主参数按音频块读取并平滑；MIDI 音符与映射参数在事件的采样位置应用。
 

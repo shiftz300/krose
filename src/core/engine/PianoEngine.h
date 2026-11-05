@@ -66,6 +66,7 @@ private:
   }
   std::array<double, 16> mBend{};
   ChannelGain mGain;
+  FxRack mRack;
   Controls mControls;
   MonoPerformance mMono;
   std::array<double, 3> mWeights{{1, 0, 0}};

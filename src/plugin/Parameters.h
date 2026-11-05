@@ -1,4 +1,5 @@
 #pragma once
+#include "effects/FxRack.h"
 
 // Serialized parameter IDs. Append new IDs; never reorder existing entries.
 enum EParams {
@@ -41,5 +42,27 @@ enum EParams {
   kProgramChange = 36,
   kClockSource = 37,
   kFXBypass = 38,
-  kNumParams = 39
+  kFxType1 = 39,
+  kFxType2 = 40,
+  kFxType3 = 41,
+  kFxType4 = 42,
+  kFxAmount1 = 43,
+  kFxAmount2 = 44,
+  kFxAmount3 = 45,
+  kFxAmount4 = 46,
+  kFxOn1 = 47,
+  kFxOn2 = 48,
+  kFxOn3 = 49,
+  kFxOn4 = 50,
+  kFxDetails = 51,
+  kNumParams = kFxDetails + 2 * (segrand::kInsertDetailCount + segrand::kSendDetailCount)
 };
+
+inline constexpr int kNumMidiParameters = kFXBypass + 1;
+inline constexpr bool IsFxTypeParameter(int id) { return id >= kFxType1 && id <= kFxType4; }
+
+inline constexpr int FxDetailParameter(int slot, int detail) {
+  return slot < 2 ? kFxDetails + slot * segrand::kInsertDetailCount + detail
+                  : kFxDetails + 2 * segrand::kInsertDetailCount +
+                        (slot - 2) * segrand::kSendDetailCount + detail - segrand::kDepth;
+}

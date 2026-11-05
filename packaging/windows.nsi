@@ -13,6 +13,8 @@ InstallDir "$PROGRAMFILES64\Krose"
 RequestExecutionLevel admin
 SetCompressor /SOLID lzma
 !define MUI_ABORTWARNING
+!define MUI_ICON "${__FILEDIR__}/../src/plugin/resources/Krose.ico"
+!define MUI_UNICON "${__FILEDIR__}/../src/plugin/resources/Krose.ico"
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
@@ -43,6 +45,7 @@ Section "Standalone application" App
   CreateShortcut "$SMPROGRAMS\Krose\Krose.lnk" "$INSTDIR\Krose.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "DisplayName" "Krose"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "DisplayIcon" "$INSTDIR\Krose.exe,0"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "UninstallString" '$\"$INSTDIR\Uninstall.exe$\"'
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "InstallLocation" "$INSTDIR"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "NoModify" 1

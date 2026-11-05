@@ -24,10 +24,14 @@ void ProgramEngine::Prepare(double rate) {
   double identity[40]{};
   for (int i = 0; i < 8; ++i)
     identity[i * 5] = 1;
+  const auto sends = ResolveFxSends(mControls.fx, .12, 0, mControls.space);
   std::unique_ptr<ConcertEffects, DeleteEffect> room(
-      concert_effects_create(rate, identity, 1, 1.8, .12 * mControls.space, 0, 0));
+      concert_effects_create(rate, identity, 1, 1.8, sends.hall, sends.chorus, 0));
   if (!room)
     throw std::runtime_error("Could not prepare room effect");
+  mRack.Prepare(rate);
+  mRack.SetInserts(mControls.fx, false);
+  mRack.SetReturns(mControls.fx, mControls.space);
   mRoom = std::move(room);
   mRate = rate;
   mGain.Prepare(rate);
@@ -54,6 +58,7 @@ void ProgramEngine::Panic() noexcept {
   mPressure = {};
   mBendValue = {};
   concert_effects_reset(mRoom.get());
+  mRack.Reset();
 }
 void ProgramEngine::MarkSamples(bool *used) const noexcept {
   for (const auto &v : mVoices)
@@ -99,7 +104,10 @@ void ProgramEngine::SetControls(const Controls &c) noexcept {
   mControls.velocityCurve = std::clamp(c.velocityCurve, .5, 3.);
   mControls.releaseSeconds = std::clamp(c.releaseSeconds, .03, 2.);
   mTarget = std::pow(10, std::clamp(c.outputDb, -60., 6.) / 20);
-  concert_effects_set_wet(mRoom.get(), .12 * mControls.space, 0);
+  mRack.SetInserts(c.fx, false);
+  const auto sends = ResolveFxSends(c.fx, .12, 0, mControls.space);
+  concert_effects_set_wet(mRoom.get(), sends.hall, sends.chorus);
+  mRack.SetReturns(c.fx, mControls.space);
 }
 unsigned ProgramEngine::ActiveVoices() const noexcept {
   unsigned n = 0;
@@ -426,7 +434,9 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
 void ProgramEngine::Render(float *left, float *right, int frames) noexcept {
   for (int start = 0; start < frames; start += 128) {
     const int count = std::min(128, frames - start);
-    std::array<float, 256> bus{};
+    std::array<float, 256> bus{}, dry;
+    std::array<double, 256> inserts, returns;
+    const bool blend = mControls.fxBypass || mFXBlend < 1;
     // MIDI is dispatched between Render calls. Build an ordered local view once
     // per chunk; finished voices remain safe no-ops until the next chunk.
     std::array<Voice *, kVoices + kTails> active{};
@@ -442,18 +452,24 @@ void ProgramEngine::Render(float *left, float *right, int frames) noexcept {
       double l = 0, r = 0;
       for (unsigned v = 0; v < voices; ++v)
         RenderVoice(*active[v], l, r);
+      if (blend) {
+        dry[i * 2] = float(l);
+        dry[i * 2 + 1] = float(r);
+      }
+      mRack.Insert(l, r);
       bus[i * 2] = float(l);
       bus[i * 2 + 1] = float(r);
+      inserts[i * 2] = l;
+      inserts[i * 2 + 1] = r;
     }
     // One shared return bus, not a separate reverb per voice or per Program.
-    std::array<float, 256> dry;
-    const bool blend = mControls.fxBypass || mFXBlend < 1;
-    if (blend)
-      dry = bus;
     concert_effects_process(mRoom.get(), bus.data(), count);
+    mRack.Returns(inserts.data(), returns.data(), count);
     for (int i = 0; i < count; ++i) {
       mOutput += mSmooth * (mTarget - mOutput);
       mFXBlend += mSmooth * ((mControls.fxBypass ? 0. : 1.) - mFXBlend);
+      bus[i * 2] += float(returns[i * 2]);
+      bus[i * 2 + 1] += float(returns[i * 2 + 1]);
       if (blend) {
         bus[i * 2] = float(dry[i * 2] + (bus[i * 2] - dry[i * 2]) * mFXBlend);
         bus[i * 2 + 1] = float(dry[i * 2 + 1] + (bus[i * 2 + 1] - dry[i * 2 + 1]) * mFXBlend);

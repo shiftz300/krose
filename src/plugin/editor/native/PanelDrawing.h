@@ -44,6 +44,7 @@ inline float LCDX(float x) {
 inline float LCDY(float y) {
   return std::round((115 + std::round((y - 115) / (27.09375f / 12)) * (27.09375f / 12)) * 2) / 2;
 }
+inline IRECT FxTypeField() { return R(504, 190, 168, 21); }
 inline IRECT LCDRect(const IRECT &r) { return {LCDX(r.L), LCDY(r.T), LCDX(r.R), LCDY(r.B)}; }
 inline void LCDChevron(IGraphics &g, const IRECT &r, const IColor &color) {
   constexpr float dot = 542.f / 240;

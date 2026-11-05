@@ -128,6 +128,46 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       capture("main", 700, 125);
       capture("tone", 780, 125);
       capture("fx", 850, 125);
+      capture("fx-dropdown", 586, 200);
+      click(v, 586, 252);
+      assert(std::abs(parameter("IFX 1 Type") - 5. / 6) < 1e-8);
+      number(v, 887, 198, @"70");
+      assert(parameter("IFX 1 Amount") == .7);
+      number(v, 630, 225, @"100");
+      assert(parameter("IFX 1 Drive") == 1.);
+      capture("fx-drive", 760, 268);
+      capture("fx-drive-off", 702, 199);
+      assert(parameter("IFX 1 On") == 0.);
+      click(v, 702, 199);
+      click(v, 640, 176); // IFX2 tab.
+      click(v, 586, 200);
+      click(v, 586, 192); // EQ.
+      click(v, 661, 226); // Band 4.
+      number(v, 897, 225, @"20000");
+      assert(parameter("IFX 2 B4 Freq") == 1.);
+      capture("fx-eq", 760, 268);
+      click(v, 766, 176); // MFX1 tab.
+      click(v, 586, 200);
+      click(v, 586, 252); // Plate.
+      assert(parameter("MFX 1 Type") == 1.);
+      capture("fx-plate", 760, 268);
+      auto effectIcons = [&](const char *name, double ifx1, double ifx2, double mfx1, double mfx2) {
+        setParameter("IFX 1 Type", ifx1 / 6);
+        setParameter("IFX 2 Type", ifx2 / 6);
+        setParameter("MFX 1 Type", mfx1 / 5);
+        setParameter("MFX 2 Type", mfx2 / 5);
+        capture(name, 760, 268);
+      };
+      effectIcons("fx-icons-a", 2, 3, 2, 3);
+      effectIcons("fx-icons-b", 4, 5, 4, 5);
+      setParameter("MFX 1 On", 0);
+      effectIcons("fx-icons-c", 6, 1, 2, 4);
+      setParameter("MFX 1 On", 1);
+      capture("fx-add-menu", 175, 85);
+      click(v, 586, 212); // Compressor.
+      assert(parameter("IFX 2 Type") == .5);
+      capture("fx-added", 760, 268);
+
       capture("arp", 930, 125);
       number(v, 930, 199, @"300.00");
       capture("numeric-max", 800, 270);

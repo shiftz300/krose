@@ -12,7 +12,7 @@ const char *modes[] = {"ABSOLUTE",     "REL 2'S COMP", "REL OFFSET 64",
 const int config[] = {kSW1Assign,    kSW1Mode,       kSW2Assign,  kSW2Mode,
                       kInputChannel, kProgramChange, kClockSource};
 std::string Target(KrosePlugin *p, unsigned id) {
-  if (id < kNumParams)
+  if (id < kNumMidiParameters)
     return p->GetParam(id)->GetName();
   return id == KrosePlugin::kTargetNext       ? "NEXT PRESET"
          : id == KrosePlugin::kTargetPrevious ? "PREV PRESET"
@@ -275,7 +275,7 @@ void NativePanel::BeginLearn(int target) {
   auto b = map.Get(slot);
   b.target = target;
   if (b.source == Source::Off) {
-    b.mode = (target >= kNumParams || p->GetParam(target)->Type() == IParam::kTypeBool)
+    b.mode = (target >= kNumMidiParameters || p->GetParam(target)->Type() == IParam::kTypeBool)
                  ? Mode::Toggle
                  : Mode::Absolute;
     if ((target == kSW1State && Value(kSW1Mode)) || (target == kSW2State && Value(kSW2Mode)))

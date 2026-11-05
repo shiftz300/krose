@@ -2,7 +2,7 @@
 #include <algorithm>
 using namespace krose::midi;
 void KrosePlugin::SetMidiParameter(unsigned id, double normalized) {
-  if (id >= kNumParams) {
+  if (id >= kNumMidiParameters) {
     if (normalized < .5)
       return;
     const unsigned program = unsigned(GetParam(kParamProgram)->Int());
@@ -81,7 +81,7 @@ void KrosePlugin::HandleControllerMidi(Message m, const int &position, RenderTo 
   };
   const bool consumed = mMidiMap.Process(
       m,
-      [&](unsigned target) { return target < kNumParams ? GetParam(target)->GetNormalized() : 0.; },
+      [&](unsigned target) { return target < kNumMidiParameters ? GetParam(target)->GetNormalized() : 0.; },
       write);
   if (consumed) {
     if ((type == 0x80 || (type == 0x90 && !m.data2)) && mInputControls.HasHeld(ch, m.data1 & 127))
@@ -128,6 +128,18 @@ void KrosePlugin::ConfigureAudio(int offset) {
   controls.cutoff = GetParam(kParamCutoff)->Int();
   controls.resonance = GetParam(kParamResonance)->Int();
   controls.fxBypass = GetParam(kFXBypass)->Bool();
+  for (int i = 0; i < int(controls.fx.size()); ++i) {
+    auto &slot = controls.fx[i];
+    slot.type = GetParam(kFxType1 + i)->Int();
+    slot.amount = GetParam(kFxAmount1 + i)->Value();
+    slot.enabled = GetParam(kFxOn1 + i)->Bool();
+    if (!slot.enabled || slot.type < 2)
+      continue;
+    const int first = i < 2 ? 0 : segrand::kDepth;
+    const int end = i < 2 ? int(segrand::kDepth) : int(segrand::kFxDetailCount);
+    for (int j = first; j < end; ++j)
+      slot.detail[j] = GetParam(FxDetailParameter(i, j))->Value();
+  }
   auto envelope = [&](int first) {
     return segrand::EnvelopeOffsets{GetParam(first)->Int(), GetParam(first + 1)->Int(),
                                     GetParam(first + 2)->Int(), GetParam(first + 3)->Int()};

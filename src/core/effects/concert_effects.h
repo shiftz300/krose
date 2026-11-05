@@ -23,6 +23,9 @@ void concert_effects_process_equalized(ConcertEffects *effects, const double *eq
                                        float *stereo, size_t frames);
 /* Call from the audio thread; transitions are smoothed over approximately 20ms. */
 int concert_effects_set_wet(ConcertEffects *effects, double reverb_wet, double chorus_wet);
+void concert_effects_set_room(ConcertEffects *effects, double rate, double seconds, double damping,
+                              int plate);
+void concert_effects_set_chorus(ConcertEffects *effects, double rate, double depth, double hz);
 void concert_effects_reset(ConcertEffects *effects);
 void concert_effects_destroy(ConcertEffects *effects);
 size_t concert_effects_memory_bytes(const ConcertEffects *effects);

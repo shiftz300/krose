@@ -54,6 +54,12 @@ private:
   void Render(IGraphics &);
   double FoldProgress() const;
   void LCD(IGraphics &);
+  int FxType(int slot);
+  bool FxEnabled(int slot);
+  std::string FxName(int slot);
+  void FxPage(IGraphics &);
+  void DrawFxFace(IGraphics &, const IRECT &, int slot);
+  void DrawEmptyFxSlot(IGraphics &, const IRECT &, bool vertical);
   void Browser(IGraphics &);
   void Popup(IGraphics &);
   void OpenPopup(const Hit &);
@@ -99,7 +105,7 @@ private:
   std::vector<int> mFiltered;
   std::array<bool, 128> mHeld{}, mLit{};
   ParameterBinding<kNumParams> mParameters;
-  int mPage = 0, mEG = 0, mOctave = 0, mSlot = 0, mDrag = -1, mDragNote = -1, mEdit = -1,
+  int mPage = 0, mEG = 0, mOctave = 0, mSlot = 0, mFxBand = 0, mDrag = -1, mDragNote = -1, mEdit = -1,
       mScroll = 0, mGroup = -1, mCategory = -1, mFocus = -1;
   float mDragY = 0, mMouseX = 0, mMouseY = 0;
   double mDragValue = 0, mTempo = 120, mPitch = 0;
