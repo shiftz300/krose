@@ -17,6 +17,11 @@ using namespace igraphics;
 class KrosePlugin final : public Plugin {
 public:
   explicit KrosePlugin(const InstanceInfo &info);
+#if defined(VST3_API)
+  Steinberg::uint32 PLUGIN_API getProcessContextRequirements() override {
+    return kNeedProjectTimeMusic | kNeedTempo | kNeedTransportState;
+  }
+#endif
   void OnParamChange(int paramIdx, EParamSource source, int sampleOffset = -1) override;
   int UnserializeState(const IByteChunk &chunk, int startPos) override;
   bool SerializeState(IByteChunk &chunk) const override;
@@ -33,6 +38,10 @@ public:
   void ProcessBlock(sample **inputs, sample **outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg &msg) override;
   void OnReset() override;
+#if defined(VST3_API)
+  void QueueHostParameter(int id, double value, int offset, int frames);
+  void FlushHostParameters();
+#endif
 #endif
 #if IPLUG_EDITOR
   void OnIdle() override;
@@ -44,7 +53,8 @@ private:
   void InitializeParameters();
   void InitializeMidiMappings();
   void ConfigureAudio(int offset);
-  void HandleControllerMidi(krose::midi::Message message);
+  template <class RenderTo>
+  void HandleControllerMidi(krose::midi::Message message, const int &position, RenderTo renderTo);
   void SetMidiParameter(unsigned id, double normalized);
   void ApplySwitches();
   void RestoreMidiProfile();
@@ -57,6 +67,18 @@ private:
   krose::midi::InputControls mInputControls;
   krose::midi::MidiClock mMidiClock;
   segrand::EventQueue<2048> mIncomingMidi;
+#if defined(VST3_API) && IPLUG_DSP
+  struct HostParameter {
+    int offset = -1, id = 0;
+    double value = 0;
+  };
+  void ApplyHostParameter(const HostParameter &parameter);
+  void SortHostParameters();
+  void ClearHostParameters() noexcept;
+  std::array<HostParameter, 2048> mHostParameters{};
+  unsigned mHostParameterCount = 0;
+  bool mHostParameterOverflow = false;
+#endif
   std::array<std::array<uint8_t, 2>, 16> mProgramBank{};
   std::array<int, 128 * 12> mHardwarePrograms{};
   std::atomic<uint64_t> mMidiChangedParams{0};

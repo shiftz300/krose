@@ -38,10 +38,15 @@ const SampleResidency *SampleLoader::Wait(int program) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
-void SampleLoader::RetireUnused(const std::array<bool, kSlots> &used) noexcept {
-  for (unsigned i = 0; i < kSlots; ++i)
-    if (!used[i] && mSlots[i].state.load(std::memory_order_acquire) == InUse)
+unsigned SampleLoader::RetireUnused(const std::array<bool, kSlots> &used) noexcept {
+  unsigned pinned = 0;
+  for (unsigned i = 0; i < kSlots; ++i) {
+    if (used[i])
+      ++pinned;
+    else if (mSlots[i].state.load(std::memory_order_acquire) == InUse)
       mSlots[i].state.store(Retired, std::memory_order_release);
+  }
+  return pinned;
 }
 void SampleLoader::Run() {
   while (!mStop.load(std::memory_order_acquire)) {

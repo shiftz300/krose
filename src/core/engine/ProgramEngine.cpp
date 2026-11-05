@@ -30,6 +30,7 @@ void ProgramEngine::Prepare(double rate) {
     throw std::runtime_error("Could not prepare room effect");
   mRoom = std::move(room);
   mRate = rate;
+  mGain.Prepare(rate);
   mSmooth = 1 - std::exp(-1 / (rate * .02));
   mOutput = mTarget;
   Panic();
@@ -46,9 +47,7 @@ void ProgramEngine::Panic() noexcept {
   mPreviousPitch.fill(-1);
   mFXBlend = mControls.fxBypass ? 0 : 1;
   mBend.fill(1);
-  mVolume.fill(1);
-  mExpression.fill(1);
-  mSoft.fill(1);
+  mGain.Reset();
   for (auto &cc : mCC)
     cc.fill(255);
   mPolyPressure = {};
@@ -298,6 +297,7 @@ void ProgramEngine::Midi(const MidiEvent &e) noexcept {
     mBendValue[ch] = value * 128 + note - 8192;
     mBend[ch] = std::pow(2, ((value * 128 + note - 8192) / 8192.) * 2 / 12);
   } else if (type == 0xb0) {
+    mGain.Set(ch, note, value);
     mCC[ch][note] = uint8_t(value);
     if (note == 64) {
       mSustain[ch] = value >= 64;
@@ -307,12 +307,6 @@ void ProgramEngine::Midi(const MidiEvent &e) noexcept {
             Release(v);
     } else if (note == 65)
       mPortamento[ch] = value >= 64 ? 1 : 0;
-    else if (note == 7)
-      mVolume[ch] = value / 127.;
-    else if (note == 11)
-      mExpression[ch] = value / 127.;
-    else if (note == 67)
-      mSoft[ch] = value >= 64 ? .75 : 1;
     else if (note == 120) {
       for (auto &v : mVoices)
         if (v.channel == ch)
@@ -335,7 +329,7 @@ void ProgramEngine::Midi(const MidiEvent &e) noexcept {
       mSustain[ch] = false;
       mPortamento[ch] = -1;
       mPreviousPitch[ch] = -1;
-      mBend[ch] = mVolume[ch] = mExpression[ch] = mSoft[ch] = 1;
+      mBend[ch] = 1;
       for (auto &v : mVoices)
         if (v.region && v.channel == ch && !v.down)
           Release(v);
@@ -361,24 +355,26 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
     if (r.sample[ch] == UINT32_MAX)
       continue;
     const auto &sample = mLibrary->samples[r.sample[ch]];
-    const PCM24 &pcm = v.residency ? *v.residency->factory[r.sample[ch]] : sample.pcm;
-    const bool reverse = r.flags & 1, loop = !v.program->drum && (sample.flags & 16) &&
-                                             sample.loopEnd - sample.loopStart >= 8;
+    const PCM24 &pcm = v.residency ? *(*v.residency->factory)[r.sample[ch]] : sample.pcm;
+    const bool reverse = r.flags & 1;
+    const bool loop = !reverse && !v.program->drum && (sample.flags & 16) &&
+                      sample.loopEnd - sample.loopStart >= 8;
     auto &pos = v.position[ch];
-    const double cross = loop ? std::min(32., double(sample.loopEnd - sample.loopStart) / 8) : 0;
-    if (!reverse && pos >= sample.loopEnd && loop) {
-      const double restart = sample.loopStart + cross;
-      pos = restart + std::fmod(pos - sample.loopEnd, sample.loopEnd - restart);
-    }
+    const double period = sample.loopEnd - sample.loopStart;
+    if (loop && pos >= sample.loopEnd)
+      pos = sample.loopStart + std::fmod(pos - sample.loopEnd, period);
     if (pos < 0 || pos >= pcm.size()) {
       v.region = nullptr;
       return;
     }
     audio[ch] = Read(pcm, pos);
-    if (loop && pos > sample.loopEnd - cross) {
-      const double blend = (pos - (sample.loopEnd - cross)) / cross;
-      const double from = sample.loopStart + pos - (sample.loopEnd - cross);
-      audio[ch] += (Read(pcm, from) - audio[ch]) * blend;
+    if (loop) {
+      const double seam = std::min(32., period / 8);
+      if (pos > sample.loopEnd - seam) {
+        // Match the endpoint without consuming frames from the next cycle.
+        const double t = 1 - (sample.loopEnd - pos) / seam;
+        audio[ch] += t * t * (3 - 2 * t) * (pcm[sample.loopStart] - pcm[sample.loopEnd]);
+      }
     }
     pos += (reverse ? -1 : 1) * v.step[ch] * mBend[v.channel] * v.glideRatio;
   }
@@ -387,7 +383,7 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
   double level = v.program->drum ? .75 : v.slew.Current() / 65536.;
   if (!v.program->drum && mControls.filterEnabled)
     v.filter.Process(l, rr);
-  level *= r.gain * v.velocityTrim * mVolume[v.channel] * mExpression[v.channel] * mSoft[v.channel];
+  level *= r.gain * v.velocityTrim * mGain.Current(v.channel);
   level *= std::min(1., v.ageSeconds / .002);
   v.ageSeconds += 1 / mRate;
   if (!v.program->drum)
@@ -418,9 +414,9 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
       v.amplitude.SetModulation(v.modulation.sources, v.modulation.lfo);
       v.filter.SetModulation(v.modulation.sources, v.modulation.lfo);
       for (int ch = 0; ch < 2; ++ch)
-        if (v.region->sample[ch] != UINT32_MAX)
+        if (r.sample[ch] != UINT32_MAX)
           v.step[ch] =
-              mLibrary->Step(*v.program, *v.region, ch, v.note, mRate, v.modulation.PitchOffset());
+              mLibrary->Step(*v.program, r, ch, v.note, mRate, v.modulation.PitchOffset());
       v.slew.SetTarget(v.amplitude.Gain());
     }
     if (v.amplitude.Finished() && v.slew.Silent())
@@ -442,6 +438,7 @@ void ProgramEngine::Render(float *left, float *right, int frames) noexcept {
       if (v.region)
         active[voices++] = &v;
     for (int i = 0; i < count; ++i) {
+      mGain.Advance();
       double l = 0, r = 0;
       for (unsigned v = 0; v < voices; ++v)
         RenderVoice(*active[v], l, r);

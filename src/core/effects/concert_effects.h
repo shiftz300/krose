@@ -25,7 +25,7 @@ void concert_effects_process_equalized(ConcertEffects *effects, const double *eq
 int concert_effects_set_wet(ConcertEffects *effects, double reverb_wet, double chorus_wet);
 void concert_effects_reset(ConcertEffects *effects);
 void concert_effects_destroy(ConcertEffects *effects);
-size_t concert_effects_memory_bytes(void);
+size_t concert_effects_memory_bytes(const ConcertEffects *effects);
 
 #ifdef __cplusplus
 }

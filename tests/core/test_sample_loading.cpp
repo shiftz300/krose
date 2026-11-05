@@ -1,4 +1,5 @@
 #include "engine/InstrumentEngine.h"
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <cmath>
@@ -75,8 +76,13 @@ int main(int argc, char **argv) {
       assert(sample.stereo.size() == 0 && sample.frames() > 0);
   {
     auto first = metadata->LoadProgram(0), second = metadata->LoadProgram(0);
-    for (size_t i = 0; i < first.size(); ++i)
-      assert(first[i].get() == second[i].get());
+    assert(first == second);
+    assert(std::any_of(first->begin(), first->end(), [](const auto &pcm) { return bool(pcm); }));
+    std::weak_ptr<const SampleWindow> window = first;
+    first.reset();
+    assert(!window.expired());
+    second.reset();
+    assert(window.expired());
   }
   auto full = ProgramLibrary::Load(argv[1]);
   auto fullConcert = SampleBank::Load(argv[2]);

@@ -7,16 +7,21 @@
 
 namespace segrand {
 namespace {
-double Interpolate(const Sample &sample, double position, int channel) {
+std::array<double, 2> Interpolate(const Sample &sample, double position) {
   const auto base = static_cast<int64_t>(position);
   const double f = position - base;
-  auto at = [&](int64_t i) {
-    return double(
-        sample.stereo[static_cast<size_t>(std::clamp<int64_t>(i, 0, sample.frames() - 1)) * 2 +
-                      channel]);
+  const auto last = int64_t(sample.frames() - 1);
+  auto index = [&](int64_t i) {
+    return static_cast<size_t>(std::clamp(i, int64_t(0), last)) * 2;
   };
-  const double a = at(base - 1), b = at(base), c = at(base + 1), d = at(base + 2);
-  return b + 0.5 * f * (c - a + f * (2 * a - 5 * b + 4 * c - d + f * (3 * (b - c) + d - a)));
+  const auto ia = index(base - 1), ib = index(base), ic = index(base + 1), id = index(base + 2);
+  std::array<double, 2> result;
+  for (size_t ch = 0; ch < result.size(); ++ch) {
+    const double a = sample.stereo[ia + ch], b = sample.stereo[ib + ch],
+                 c = sample.stereo[ic + ch], d = sample.stereo[id + ch];
+    result[ch] = b + 0.5 * f * (c - a + f * (2 * a - 5 * b + 4 * c - d + f * (3 * (b - c) + d - a)));
+  }
+  return result;
 }
 } // namespace
 
@@ -60,6 +65,7 @@ void PianoEngine::Prepare(double rate) {
   }
   mEffects = std::move(effects);
   mRate = rate;
+  mGain.Prepare(rate);
   mControlIncrement = kNativeControlHz / rate;
   mNativeAudioIncrement = kNativeAudioHz / rate;
   mSmoothing = 1 - std::exp(-1 / (rate * 0.02));
@@ -78,9 +84,7 @@ void PianoEngine::Panic() noexcept {
   mPreviousPitch.fill(-1);
   mFXBlend = mControls.fxBypass ? 0 : 1;
   mBend.fill(1);
-  mVolume.fill(1);
-  mExpression.fill(1);
-  mSoft.fill(1);
+  mGain.Reset();
   mEvents.Clear();
   for (auto &effect : mEffects)
     concert_effects_reset(effect.get());
@@ -242,6 +246,7 @@ void PianoEngine::Midi(const MidiEvent &event) noexcept {
   } else if (type == 0xE0) {
     mBend[ch] = std::pow(2, (((value * 128 + note) - 8192) / 8192.0) * 2 / 12);
   } else if (type == 0xB0) {
+    mGain.Set(ch, note, value);
     if (note == 64) {
       mSustain[ch] = value >= 64;
       if (!mSustain[ch])
@@ -250,12 +255,6 @@ void PianoEngine::Midi(const MidiEvent &event) noexcept {
             Release(v);
     } else if (note == 65)
       mPortamento[ch] = value >= 64 ? 1 : 0;
-    else if (note == 7)
-      mVolume[ch] = value / 127.0;
-    else if (note == 11)
-      mExpression[ch] = value / 127.0;
-    else if (note == 67)
-      mSoft[ch] = value >= 64 ? 0.75 : 1;
     else if (note == 123) {
       for (auto &v : mVoices)
         if (v.sample && v.channel == ch) {
@@ -274,7 +273,7 @@ void PianoEngine::Midi(const MidiEvent &event) noexcept {
       mSustain[ch] = false;
       mPortamento[ch] = -1;
       mPreviousPitch[ch] = -1;
-      mBend[ch] = mVolume[ch] = mExpression[ch] = mSoft[ch] = 1;
+      mBend[ch] = 1;
       for (auto &v : mVoices)
         if (v.sample && v.channel == ch && !v.keyDown)
           Release(v);
@@ -285,17 +284,18 @@ void PianoEngine::RenderVoice(Voice &voice, double &left, double &right) noexcep
   if (!voice.sample)
     return;
   const Sample &sample = *voice.sample;
-  const double end = double(sample.loopEnd) + 1;
-  const double cross = std::min(210.0, (end - sample.loopStart) / 8);
-  const double restart = sample.loopStart + cross;
+  const double end = sample.loopEnd;
+  const double period = end - sample.loopStart;
+  const double seam = std::min(210.0, period / 8);
   if (voice.position >= end)
-    voice.position = restart + std::fmod(voice.position - end, end - restart);
-  double l = Interpolate(sample, voice.position, 0), r = Interpolate(sample, voice.position, 1);
-  if (voice.position > end - cross) {
-    const double blend = (voice.position - (end - cross)) / cross;
-    const double start = sample.loopStart + voice.position - (end - cross);
-    l += (Interpolate(sample, start, 0) - l) * blend;
-    r += (Interpolate(sample, start, 1) - r) * blend;
+    voice.position = sample.loopStart + std::fmod(voice.position - end, period);
+  auto [l, r] = Interpolate(sample, voice.position);
+  if (voice.position > end - seam) {
+    const double t = 1 - (end - voice.position) / seam;
+    const double blend = t * t * (3 - 2 * t);
+    const size_t start = size_t(sample.loopStart) * 2, stop = size_t(sample.loopEnd) * 2;
+    l += blend * (sample.stereo[start] - sample.stereo[stop]);
+    r += blend * (sample.stereo[start + 1] - sample.stereo[stop + 1]);
   }
   // Share the sample read, but filter each OSC before applying its native gain.
   // Retain the prototype's explicit mean-OSC/0.4 headroom convention. Absolute
@@ -308,8 +308,7 @@ void PianoEngine::RenderVoice(Voice &voice, double &left, double &right) noexcep
     filteredL += oscL * voice.slew[osc].Current() / 65536.0;
     filteredR += oscR * voice.slew[osc].Current() / 65536.0;
   }
-  double level = 0.4 * voice.velocityTrim * mVolume[voice.channel] * mExpression[voice.channel] *
-                 mSoft[voice.channel];
+  double level = 0.4 * voice.velocityTrim * mGain.Current(voice.channel);
   if (voice.forcedRemaining) {
     level *= voice.forcedRemaining / 96.0;
     if (!--voice.forcedRemaining)
@@ -356,6 +355,7 @@ void PianoEngine::Render(float *left, float *right, int frames) noexcept {
       if (v.sample)
         active[voices++] = &v;
     for (int n = 0; n < count; ++n) {
+      mGain.Advance();
       double l = 0, r = 0;
       for (unsigned v = 0; v < voices; ++v)
         RenderVoice(*active[v], l, r);

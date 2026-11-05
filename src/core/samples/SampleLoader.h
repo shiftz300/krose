@@ -20,7 +20,7 @@ public:
   }
   const SampleResidency *Acquire(int program) noexcept;
   const SampleResidency *Wait(int program); // Construction/offline rendering only.
-  void RetireUnused(const std::array<bool, kSlots> &used) noexcept;
+  unsigned RetireUnused(const std::array<bool, kSlots> &used) noexcept;
   bool ReadyFor(int program) const noexcept {
     return mReadyProgram.load(std::memory_order_acquire) == program;
   }

@@ -1,6 +1,7 @@
 #pragma once
 #include "EngineTypes.h"
 #include "effects/concert_effects.h"
+#include "midi/ChannelGain.h"
 #include "midi/EventQueue.h"
 #include "midi/Performance.h"
 #include "samples/SampleBank.h"
@@ -63,7 +64,8 @@ private:
            : mPortamento[channel]   ? std::max(1, mControls.glide ? mControls.glide : 64)
                                     : 0;
   }
-  std::array<double, 16> mBend{}, mVolume{}, mExpression{}, mSoft{};
+  std::array<double, 16> mBend{};
+  ChannelGain mGain;
   Controls mControls;
   MonoPerformance mMono;
   std::array<double, 3> mWeights{{1, 0, 0}};

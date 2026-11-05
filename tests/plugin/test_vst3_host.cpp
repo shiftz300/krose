@@ -125,8 +125,58 @@ int main(int argc,char** argv){
     if(energy<=1e-9){std::cerr<<"Silent VST3 Program "<<program<<" energy "<<energy<<std::endl;std::abort();}MemoryStream state;assert(component->getState(&state)==kResultOk);state.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&state)==kResultOk);assert(std::abs(controller->getParamNormalized(ids["Program"])-program/1161.)<1e-6);
     processor->setProcessing(false);component->setActive(false);if(program%128==0||program==1161)std::cout<<"Verified VST3 Program "<<program<<'\n';
   }
+  // The same parameter queue can hold several timed changes in one block.
+  if (!editorOnly) {
+    ProcessSetup setup{kOffline, kSample32, 512, 48000};
+    assert(processor->setupProcessing(setup) == kResultOk);
+    assert(component->setActive(true) == kResultOk);
+    processor->setProcessing(true);
+    float left[512]{}, right[512]{};
+    float* channels[]{left, right};
+    AudioBusBuffers bus{};
+    bus.numChannels = 2;
+    bus.channelBuffers32 = channels;
+    EventList events;
+    ParameterChanges changes;
+    int index = 0, point = 0;
+    changes.addParameterData(ids.at("Program"), index)->addPoint(0, 0., point);
+    auto* filter = changes.addParameterData(ids.at("MIDI Input Channel"), index);
+    filter->addPoint(256, 2. / 16, point);
+    filter->addPoint(384, 0., point);
+    for (int offset : {17, 272, 399}) {
+      Event note{};
+      note.type = Event::kNoteOnEvent;
+      note.sampleOffset = offset;
+      note.noteOn.channel = 0;
+      note.noteOn.pitch = 60;
+      note.noteOn.velocity = 1.;
+      events.addEvent(note);
+    }
+    ProcessData data{};
+    data.processMode = kOffline;
+    data.symbolicSampleSize = kSample32;
+    data.numSamples = 512;
+    data.numOutputs = 1;
+    data.outputs = &bus;
+    data.inputEvents = &events;
+    data.inputParameterChanges = &changes;
+    assert(processor->process(data) == kResultOk);
+    auto audible = [&](int first, int end) {
+      return std::any_of(left + first, left + end, [](float x) { return x != 0; });
+    };
+    assert(!audible(0, 17) && audible(17, 256));
+    assert(!audible(256, 399) && audible(399, 512));
+    processor->setProcessing(false);
+    component->setActive(false);
+  }
   // Actual VST3 musical context gates the arpeggiator when the host stops.
   {
+    FUnknownPtr<IProcessContextRequirements> requirements(component);
+    assert(requirements);
+    const auto needed = IProcessContextRequirements::kNeedProjectTimeMusic |
+                        IProcessContextRequirements::kNeedTempo |
+                        IProcessContextRequirements::kNeedTransportState;
+    assert((requirements->getProcessContextRequirements() & needed) == needed);
     ProcessSetup setup{};setup.processMode=kOffline;setup.symbolicSampleSize=kSample32;setup.maxSamplesPerBlock=512;setup.sampleRate=48000;
     assert(processor->setupProcessing(setup)==kResultOk);assert(component->setActive(true)==kResultOk);processor->setProcessing(true);
     std::vector<float> left(512),right(512);float* channels[2]={left.data(),right.data()};AudioBusBuffers bus{};bus.numChannels=2;bus.channelBuffers32=channels;
@@ -138,7 +188,16 @@ int main(int argc,char** argv){
     ProcessData data{};data.processMode=kOffline;data.symbolicSampleSize=kSample32;data.numOutputs=1;data.outputs=&bus;data.inputEvents=&events;data.inputParameterChanges=&changes;data.processContext=&context;data.numSamples=512;
     assert(processor->process(data)==kResultOk);
     for(int i=0;i<512;++i)assert(left[i]==0&&right[i]==0);
-    events.clear();changes.clearQueue();context.state|=ProcessContext::kPlaying;
+    events.clear();changes.clearQueue();
+    for (bool omitContext : {true, false}) {
+      data.processContext = omitContext ? nullptr : &context;
+      if (!omitContext)
+        context.state &= ~ProcessContext::kTempoValid;
+      assert(processor->process(data) == kResultOk);
+      assert(std::any_of(left.begin(), left.end(), [](float x) { return x != 0; }));
+    }
+    data.processContext = &context;
+    context.state |= ProcessContext::kPlaying | ProcessContext::kTempoValid;
     double energy=0;
     for(int block=0;block<16;++block){
       context.projectTimeSamples=block*512;context.projectTimeMusic=context.projectTimeSamples*150./(60*48000);

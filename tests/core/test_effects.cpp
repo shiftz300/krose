@@ -10,6 +10,7 @@ int main() {
     identity[i * 5] = 1;
   assert(!concert_effects_create(0, identity, 1, 1.8, .15, .18, 0));
   assert(!concert_effects_create(48000, identity, 1, NAN, .15, .18, 0));
+  size_t historyAt48k = 0;
   for (double rate : {32000., 44100., 48000., 96000., 192000.}) {
     std::array<ConcertEffects *, 3> separate{}, shared{};
     const double times[] = {1.8, 1.5, 2.6}, wet[] = {.15, .12, .23}, chorus[] = {0., 0., .18},
@@ -21,6 +22,10 @@ int main() {
                                          wet[i], chorus[i], tone[i]);
       assert(separate[i] && shared[i]);
     }
+    if (rate == 48000)
+      historyAt48k = concert_effects_memory_bytes(separate[0]);
+    if (rate == 192000)
+      assert(historyAt48k * 3 < concert_effects_memory_bytes(separate[0]));
     std::array<float, 514> input{};
     std::array<double, 514> eq{};
     for (int block = 0; block < 1000; ++block) {

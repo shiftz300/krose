@@ -12,6 +12,8 @@ struct ArpControls {
 struct Transport {
   bool available = false, running = false;
   double tempo = 120, ppq = 0;
+  bool midiClock = false;
+  uint64_t positionRevision = 0;
 };
 
 // A single preset generator per MIDI channel. All queues and key sets have

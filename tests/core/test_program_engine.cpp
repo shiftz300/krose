@@ -8,6 +8,7 @@
 #include <iostream>
 #include <new>
 #include <memory>
+#include <string_view>
 #include <vector>
 static bool gAudio=false;static unsigned gNew=0;
 void* operator new(std::size_t n){if(gAudio)++gNew;if(void* p=std::malloc(n))return p;throw std::bad_alloc();}
@@ -60,6 +61,44 @@ int main(int argc,char** argv){
  // Keep large fixtures off the default Windows thread stack.
  auto engineStorage=std::make_unique<ProgramEngine>(bank),otherStorage=std::make_unique<ProgramEngine>(bank);
  auto& engine=*engineStorage;auto& other=*otherStorage;Controls controls;controls.space=0;engine.SetControls(controls);
+ {
+  // Check the sounding note after the attack, including short loops and detuned layers.
+  Controls dry;
+  dry.fxBypass = true;
+  engine.SetControls(dry);
+  auto checkPitch = [&](const char* id, int note, int velocity, double incorrectHz) {
+   const auto program = std::find_if(bank->programs.begin(), bank->programs.end(),
+                                     [&](const auto& p) { return std::string_view(p.id.data()) == id; });
+   assert(program != bank->programs.end());
+   engine.SetProgram(unsigned(program - bank->programs.begin()));
+   engine.Prepare(48000);
+   engine.Queue({0, 0x90, uint8_t(note), uint8_t(velocity)});
+   Audio audio(9600);
+   Process(engine, audio, 128);
+   auto strength = [&](double hz) {
+    double energy = 0;
+    for (int harmonic = 1; harmonic <= 6; ++harmonic) {
+     double sine = 0, cosine = 0;
+     for (int i = 3600; i < 9600; ++i) {
+      const double angle = 6.283185307179586 * i * hz * harmonic / 48000;
+      const double window = 0.5 - 0.5 * std::cos(6.283185307179586 * (i - 3600) / 6000);
+      const double value = (audio.l[i] + audio.r[i]) * window;
+      sine += value * std::sin(angle);
+      cosine += value * std::cos(angle);
+     }
+     energy += (sine * sine + cosine * cosine) / harmonic;
+    }
+    return energy;
+   };
+   const double expectedHz = 440 * std::exp2((note - 69) / 12.0);
+   assert(strength(expectedHz) > 4 * strength(incorrectHz));
+  };
+  checkPitch("C103", 76, 112, 414.2);
+  checkPitch("C106", 86, 100, 1343.3);
+  checkPitch("A004", 69, 100, 391.8);
+  checkPitch("B016", 69, 100, 311.3);
+  engine.SetControls(controls);
+ }
  // Render every recovered Program, including slow attacks and split key zones.
  unsigned silent=0;
  for(unsigned p=0;p<bank->programs.size();++p){
@@ -144,6 +183,28 @@ int main(int argc,char** argv){
  }
  // Host automation and queued notes on the switching block are not lost.
  controls.program=5;gAudio=true;facade.SetControls(controls);facade.Queue({0,0x90,38,100});gAudio=false;Audio switched(12000);Process(facade,switched,257);assert(Energy(switched)>1e-6);
+ // End a forced tail on the same sample as the first native control tick.
+ {
+   constexpr double rate = 44100;
+   Controls poly;
+   poly.fxBypass = true;
+   engine.SetProgram(0);
+   engine.SetControls(poly);
+   engine.Prepare(rate);
+   engine.Queue({0, 0x90, 60, 110});
+   const int tick = int(std::ceil(rate / kNativeControlHz));
+   Audio before(tick - 96);
+   Process(engine, before, 64);
+   assert(engine.ActiveVoices() > 0);
+   auto mono = poly;
+   mono.voiceMode = 1;
+   engine.SetControls(mono);
+   Audio tail(128);
+   Process(engine, tail, 31);
+   assert(Energy(tail) > 0);
+   assert(std::all_of(tail.l.begin() + 96, tail.l.end(), [](float x) { return x == 0; }));
+   engine.SetControls(controls);
+ }
  // Overflow recovery and dense retriggers stay bounded and allocation-free.
  engine.SetProgram(2);engine.Prepare(48000);for(int i=0;i<512;++i)engine.Queue({i,0x90,uint8_t(30+i%70),100});Audio dense(24000);Process(engine,dense,128);assert(engine.ActiveVoices()<=ProgramEngine::kVoices);
  for(unsigned i=0;i<ProgramEngine::kEvents+2;++i)engine.Queue({0,0x90,60,100});Audio overflow(128);Process(engine,overflow,128);assert(engine.ActiveVoices()==0);

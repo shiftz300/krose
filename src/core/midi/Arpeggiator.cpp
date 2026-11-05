@@ -45,13 +45,21 @@ void Arpeggiator::SetTransport(Transport t) noexcept {
                 std::isfinite(t.ppq);
   const bool wasRunning = mClockRunning;
   const bool hadHost = mControls.hostSync && mTransport.available;
+  const bool relocated = mTransport.midiClock != t.midiClock ||
+                         mTransport.positionRevision != t.positionRevision;
   mTransport = t;
   UpdateClock();
   if (mControls.hostSync && t.available) {
-    if (!mTransportSeen || !hadHost || wasRunning != mClockRunning ||
-        (t.running && std::abs(t.ppq - mBeat) > 4 * mIncrement)) {
+    const double phaseError = t.ppq - mBeat;
+    if (!mTransportSeen || !hadHost || wasRunning != mClockRunning || relocated ||
+        (!t.midiClock && t.running && std::abs(phaseError) > 4 * mIncrement)) {
       mBeat = t.ppq;
       mRestart = true;
+    } else if (t.midiClock && t.running) {
+      // Follow a jittery MIDI pulse train without stopping sounding notes.
+      // Explicit Start and Song Position still re-anchor the sequence.
+      const double limit = mIncrement * .25;
+      mIncrement += std::clamp(phaseError / (mRate * .15), -limit, limit);
     }
     mTransportSeen = true;
   } else if (hadHost)

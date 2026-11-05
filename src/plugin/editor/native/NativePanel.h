@@ -90,7 +90,8 @@ private:
   uint64_t ControllerHash();
   void ControllerCell(IGraphics &, const std::string &, IRECT, const std::string &, int = -1,
                       double = 0, bool = false);
-  Json mData, mPrograms, mBrowser, mLCD;
+  const Json &mData, &mPrograms, &mBrowser, &mLCD;
+  const std::vector<int> &mProgramOrder;
   std::map<std::string, IBitmap> mImages;
   std::string mResourceRoot;
   std::map<std::string, Font> mFonts;
@@ -98,7 +99,6 @@ private:
   std::vector<int> mFiltered;
   std::array<bool, 128> mHeld{}, mLit{};
   ParameterBinding<kNumParams> mParameters;
-  std::vector<int> mProgramOrder;
   int mPage = 0, mEG = 0, mOctave = 0, mSlot = 0, mDrag = -1, mDragNote = -1, mEdit = -1,
       mScroll = 0, mGroup = -1, mCategory = -1, mFocus = -1;
   float mDragY = 0, mMouseX = 0, mMouseY = 0;

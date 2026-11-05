@@ -128,6 +128,7 @@ public:
   void Reset() noexcept { *this = {}; }
   void Process(Message m, uint64_t sample, double rate) noexcept {
     if (m.status == 0xfa) {
+      ++mPositionRevision;
       mTicks = 0;
       mAnchor = sample;
       mStarted = true;
@@ -144,6 +145,7 @@ public:
       mStarted = true;
     }
     if (m.status == 0xf2) {
+      ++mPositionRevision;
       mTicks = unsigned(m.data1 + 128 * m.data2) * 6;
       mAnchor = sample;
       mSeen = false;
@@ -176,9 +178,11 @@ public:
     return mTicks / 24. +
            (mRunning && mPeriod && sample >= mAnchor ? (sample - mAnchor) / (24 * mPeriod) : 0);
   }
+  uint64_t PositionRevision() const noexcept { return mPositionRevision; }
 
 private:
   uint64_t mAnchor = 0, mLast = 0, mTicks = 0;
+  uint64_t mPositionRevision = 0;
   double mPeriod = 0;
   bool mSeen = false, mStarted = false, mRunning = false;
 };

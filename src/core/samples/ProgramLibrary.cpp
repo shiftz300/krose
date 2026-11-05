@@ -168,6 +168,7 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
             r.fadeOutBottom >= 0 && r.fadeOutBottom <= 127);
   }
   bank->programs.resize(programCount);
+  bank->mProgramWindows.resize(programCount);
   for (auto &p : bank->programs) {
     in.Bytes(p.id.data(), p.id.size());
     in.Bytes(p.name.data(), p.name.size());
@@ -208,21 +209,30 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
   cache[cacheKey] = bank;
   return bank;
 }
-std::vector<std::shared_ptr<const PCM24>> ProgramLibrary::LoadProgram(unsigned program) const {
+std::shared_ptr<const SampleWindow> ProgramLibrary::LoadProgram(unsigned program) const {
   if (program >= programs.size())
     throw std::out_of_range("Program index");
+  std::lock_guard<std::mutex> lock(mCacheMutex);
+  auto &cached = mProgramWindows[program];
+  if (auto window = cached.lock())
+    return window;
   std::vector<uint32_t> indices;
   const auto &p = programs[program];
   for (uint32_t r = p.firstRegion; r < p.firstRegion + p.regionCount; ++r)
     for (auto index : regions[r].sample)
       if (index != UINT32_MAX)
         indices.push_back(index);
-  return LoadSamples(indices);
+  auto window = std::make_shared<const SampleWindow>(LoadSamplesLocked(indices, true));
+  cached = window;
+  return window;
 }
-std::vector<std::shared_ptr<const PCM24>>
-ProgramLibrary::LoadSamples(const std::vector<uint32_t> &indices, bool retainRecent) const {
+SampleWindow ProgramLibrary::LoadSamples(const std::vector<uint32_t> &indices, bool retainRecent) const {
   std::lock_guard<std::mutex> lock(mCacheMutex);
-  std::vector<std::shared_ptr<const PCM24>> result(samples.size());
+  return LoadSamplesLocked(indices, retainRecent);
+}
+SampleWindow ProgramLibrary::LoadSamplesLocked(const std::vector<uint32_t> &indices,
+                                                bool retainRecent) const {
+  SampleWindow result(samples.size());
   std::ifstream file(std::filesystem::u8path(mPath), std::ios::binary);
   if (!file)
     throw std::runtime_error("Factory samples unavailable");
@@ -270,7 +280,7 @@ size_t ProgramLibrary::ResidentBytes() const {
 uint32_t ProgramLibrary::Phase(int exponent) const noexcept {
   const auto index = unsigned(std::clamp(exponent, -32768, 24575) + 32768);
   const uint32_t base = mPhaseBase[index >> 8];
-  return base + ((base * uint32_t(mPhaseFraction[index & 255])) >> 16);
+  return base + uint32_t((uint64_t(base) * mPhaseFraction[index & 255]) >> 16);
 }
 double ProgramLibrary::Step(const InstrumentProgram &p, const ProgramRegion &r, int channel,
                             int note, double rate, int modulation) const noexcept {
@@ -280,10 +290,15 @@ double ProgramLibrary::Step(const InstrumentProgram &p, const ProgramRegion &r, 
            std::pow(2, (r.coarse + r.drumFine / 100.0) / 12);
   const int fine = (std::abs(r.fine[channel]) * 1311 / 1024) * (r.fine[channel] < 0 ? -1 : 1);
   const int pitch = SelectionPitch(p, r.oscillator, note);
+  // Oscillator Tune affects playback in cents. Sample selection uses the coarse pitch.
+  const auto *osc = p.controls.data() + 0x564 + 380 * r.oscillator;
+  const int tuneBits = osc[0x7a] | (osc[0x7b] << 8);
+  const int tuneCents = tuneBits < 32768 ? tuneBits : tuneBits - 65536;
+  const int tune = (tuneCents * 256 + (tuneCents < 0 ? -50 : 50)) / 100;
   int state = int(int16_t(r.root[channel] * 256 - fine - s.pitch * 2));
   if (r.flags & (2 << channel))
     state += pitch - r.root[channel] * 256;
-  const int exponent = int(int16_t(pitch - state + modulation));
+  const int exponent = int(int16_t(pitch - state + tune + modulation));
   uint32_t limit = (s.flags & 1) ? 32768 : 2097151;
   if (!(s.flags & 33)) {
     const auto length = s.loopEnd - s.loopStart;

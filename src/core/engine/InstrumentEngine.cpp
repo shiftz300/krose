@@ -49,6 +49,7 @@ void InstrumentEngine::SetControls(const Controls &controls, bool offline) {
         mConcert.Deactivate();
     }
     mProgram = program;
+    mRetirePending = mLoader && mResidency != ready;
     mResidency = ready;
     if (program) {
       mFactory.SetSamples(ready);
@@ -66,11 +67,12 @@ void InstrumentEngine::Panic() noexcept {
   mConcert.Panic();
   mFactory.Panic();
   mEvents.Clear();
-  if (mLoader) {
+  if (mRetirePending) {
     std::array<bool, SampleLoader::kSlots> used{};
     if (mResidency)
       used[mResidency->slot] = true;
     mLoader->RetireUnused(used);
+    mRetirePending = false;
   }
 }
 unsigned InstrumentEngine::ActiveVoices() const noexcept {
@@ -112,13 +114,15 @@ void InstrumentEngine::Process(float *left, float *right, int frames) noexcept {
     left[i] = (left[i] + otherLeft[i]) * (1 - std::max(mPan, 0.0));
     right[i] = (right[i] + otherRight[i]) * (1 + std::min(mPan, 0.0));
   }
-  if (mLoader) {
+  // A single residency stays pinned. Scan only while old voices can still
+  // reference samples from a previous program.
+  if (mRetirePending) {
     std::array<bool, SampleLoader::kSlots> used{};
     if (mResidency)
       used[mResidency->slot] = true;
     mFactory.MarkSamples(used.data());
     mConcert.MarkSamples(used.data());
-    mLoader->RetireUnused(used);
+    mRetirePending = mLoader->RetireUnused(used) > 1;
   }
 }
 } // namespace segrand

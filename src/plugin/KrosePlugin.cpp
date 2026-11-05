@@ -2,8 +2,6 @@
 #include "FactoryPrograms.h"
 #include "IPlug_include_in_plug_src.h"
 #include "ResourcePath.h"
-#include <algorithm>
-#include <array>
 #include <cstdlib>
 #include <cstring>
 
@@ -66,6 +64,9 @@ void KrosePlugin::OnReset() {
   try {
     mEngine->Prepare(GetSampleRate());
     mIncomingMidi.Clear();
+#if defined(VST3_API)
+    ClearHostParameters();
+#endif
     mInputControls.Reset();
     mMidiMap.ResetRuntime();
     mMidiClock.Reset();
@@ -85,46 +86,4 @@ void KrosePlugin::ProcessMidiMsg(const IMidiMsg &msg) {
     mIncomingMidi.Push({msg.mOffset, msg.mStatus, msg.mData1, msg.mData2}, false);
 }
 
-void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
-  const int channels = NOutChansConnected();
-  if (!mEngine || !mPrepared) {
-    for (int ch = 0; ch < channels; ++ch)
-      std::fill(outputs[ch], outputs[ch] + nFrames, sample(0));
-    return;
-  }
-
-  if (mIncomingMidi.Overflowed()) {
-    mEngine->Panic();
-    mIncomingMidi.Clear();
-    mInputControls.Reset();
-    mSwitchAssign.fill(-1);
-  }
-  const unsigned count = mIncomingMidi.ReadyCount(nFrames);
-  ConfigureAudio(0);
-  std::array<float, 256> left{}, right{};
-  auto render = [&](int first, int frames) {
-    for (int start = first; start < first + frames; start += 256) {
-      const int n = std::min(256, first + frames - start);
-      mEngine->Process(left.data(), right.data(), n);
-      for (int ch = 0; ch < channels; ++ch)
-        for (int i = 0; i < n; ++i)
-          outputs[ch][start + i] = ch == 0   ? sample(left[i])
-                                   : ch == 1 ? sample(right[i])
-                                             : sample(0);
-    }
-  };
-  int position = 0;
-  for (unsigned i = 0; i < count; ++i) {
-    const auto &event = mIncomingMidi[i];
-    if (event.offset > position)
-      render(position, event.offset - position);
-    position = event.offset;
-    HandleControllerMidi({event.offset, event.status, event.data1, event.data2});
-    ConfigureAudio(position);
-  }
-  if (position < nFrames)
-    render(position, nFrames - position);
-  mIncomingMidi.Advance(count, nFrames);
-  mInputSamples += uint64_t(nFrames);
-}
 #endif

@@ -58,6 +58,27 @@ int main(int argc,char** argv){
   queue();Audio one(12000);Process(e,one,12000);
   e.Prepare(48000);queue();Audio many(12000);Process(e,many,31);
   assert(one.l==many.l&&one.r==many.r);
+  // CC11 starts at its sample offset and reaches zero in 48 samples, even
+  // when the ramp spans multiple callbacks.
+  Controls dry;
+  dry.fxBypass = true;
+  e.SetControls(dry);
+  auto expression = [&](int block, bool mute) {
+    e.Prepare(48000);
+    e.Queue({0, 0x90, 60, 110});
+    if (mute)
+      e.Queue({1931, 0xb0, 11, 0});
+    Audio result(2048);
+    Process(e, result, block);
+    return result.l;
+  };
+  const auto steady = expression(128, false);
+  const auto ramp = expression(128, true);
+  assert(ramp == expression(31, true));
+  assert(std::equal(ramp.begin(), ramp.begin() + 1931, steady.begin()));
+  assert(std::abs(steady[1931]) > .001);
+  assert(std::abs(ramp[1931] - steady[1931] * (47. / 48.)) < 1e-7);
+  assert(std::all_of(ramp.begin() + 1978, ramp.end(), [](float x) { return x == 0; }));
   // Timing acceptance at the player boundary: a 288 ms *base* release is
   // modulated by the factory EG. MIDI60/vel100 takes roughly 24 control ticks,
   // rather than the old fixed exponential or a mistakenly doubled control Hz.

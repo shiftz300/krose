@@ -60,7 +60,7 @@ def main():
     assert result and int(result[1]) > 0 and int(result[2]) == 0
     sources = [ROOT / 'CMakeLists.txt', ROOT / 'CMakePresets.json', *sorted((ROOT / 'src').rglob('*')),
                *sorted((ROOT / 'cmake').rglob('*'))]
-    manifest = {'name': 'Krose', 'version': '0.2.0', 'platform': platform.platform(),
+    manifest = {'name': 'Krose', 'version': '0.2.1', 'platform': platform.platform(),
                 'bundles': bundles, 'assets': json.loads((build / 'generated/assets.json').read_text()),
                 'program_library':json.loads((ROOT/'assets/program-library/manifest.json').read_text()),
                 'test_logs':{name:digest(build/name) for name in [*(name for name,_ in checks), 'native-ui-test.log']},

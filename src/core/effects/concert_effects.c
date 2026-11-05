@@ -11,9 +11,9 @@
 
 #define PI 3.14159265358979323846
 #define LINES 8
-#define RING 16384
-#define SHORT_RING 8192
-#define AP_RING 2048
+#define POSITION_MASK 16383
+// Retain the original coordinate for fractional delay arithmetic.
+#define CHORUS_POSITION_MASK 8191
 
 typedef struct {
   double eq[8][5], trim, reverb_wet, chorus_wet, tone_alpha;
@@ -25,8 +25,6 @@ typedef struct {
 
 typedef struct {
   double eq_z[8][2][2], damp[LINES], eq_low[2], eq_high[2], tone[2];
-  float delays[RING][LINES], early[2][SHORT_RING], chorus[2][SHORT_RING];
-  float diffuse[2][2][AP_RING];
   unsigned position;
   int clean;
   double phase;
@@ -36,10 +34,14 @@ typedef struct {
 struct ConcertEffects {
   Configuration c;
   State s;
+  size_t history_size;
+  unsigned delay_mask, short_mask, ap_mask;
+  float *history, *early[2], *chorus[2], *diffuse[2][2];
 };
 
 static const unsigned lengths[LINES] = {1423, 1601, 1867, 2053, 2281, 2539, 2797, 3163};
 static const unsigned ap_lengths[2][2] = {{149, 263}, {211, 293}};
+static const unsigned early_delays[3] = {337, 631, 1103};
 static const double sign_l[LINES] = {1, 1, -1, -1, 1, -1, 1, -1};
 static const double sign_r[LINES] = {1, -1, 1, -1, -1, -1, 1, 1};
 static const double centers[8] = {80, 1600, 7300, 13400, 60, 70, 300, 20000};
@@ -68,12 +70,19 @@ static double biquad(double x, const double *b, double *z) {
   return y;
 }
 
-static double fractional_read(const float *buffer, unsigned position, double delay) {
+static unsigned ring_size(unsigned longest_delay) {
+  unsigned size = 1;
+  while (size <= longest_delay)
+    size <<= 1;
+  return size;
+}
+
+static double fractional_read(const float *buffer, unsigned mask, unsigned position, double delay) {
   double location = position - delay;
   int base = (int)floor(location);
   double fraction = location - base;
-  return buffer[(unsigned)base & (SHORT_RING - 1)] * (1 - fraction) +
-         buffer[(unsigned)(base + 1) & (SHORT_RING - 1)] * fraction;
+  return buffer[(unsigned)base & mask] * (1 - fraction) +
+         buffer[(unsigned)(base + 1) & mask] * fraction;
 }
 
 ConcertEffects *concert_effects_create(double rate, const double coefficients[40], double trim,
@@ -93,9 +102,28 @@ ConcertEffects *concert_effects_create(double rate, const double coefficients[40
     if (fabs(b[4]) >= 1 || 1 - b[3] - b[4] <= 0 || 1 + b[3] - b[4] <= 0)
       return NULL;
   }
-  ConcertEffects *e = (ConcertEffects *)calloc(1, sizeof(*e));
+  const unsigned delay_frames = ring_size((unsigned)round(lengths[LINES - 1] * rate / 48000));
+  const unsigned short_frames = ring_size((unsigned)ceil((.024 + .0035) * rate));
+  const unsigned ap_frames = ring_size((unsigned)round(ap_lengths[1][1] * rate / 48000));
+  const size_t history_size = LINES * delay_frames + 4 * short_frames + 4 * ap_frames;
+  ConcertEffects *e = (ConcertEffects *)calloc(1, sizeof(*e) + history_size * sizeof(float));
   if (!e)
     return NULL;
+  e->history_size = history_size;
+  e->delay_mask = delay_frames - 1;
+  e->short_mask = short_frames - 1;
+  e->ap_mask = ap_frames - 1;
+  e->history = (float *)(e + 1);
+  float *next = e->history + LINES * delay_frames;
+  for (int ch = 0; ch < 2; ++ch) {
+    e->early[ch] = next;
+    e->chorus[ch] = next + short_frames;
+    next += 2 * short_frames;
+    for (int stage = 0; stage < 2; ++stage) {
+      e->diffuse[ch][stage] = next;
+      next += ap_frames;
+    }
+  }
   for (int i = 0; i < 8; ++i) {
     double b[5];
     memcpy(b, coefficients + i * 5, sizeof(b));
@@ -123,9 +151,8 @@ ConcertEffects *concert_effects_create(double rate, const double coefficients[40
   for (int ch = 0; ch < 2; ++ch)
     for (int i = 0; i < 2; ++i)
       e->c.ap_lengths[ch][i] = (unsigned)round(ap_lengths[ch][i] * rate / 48000);
-  const unsigned early[3] = {337, 631, 1103};
   for (int i = 0; i < 3; ++i)
-    e->c.early_delays[i] = (unsigned)round(early[i] * rate / 48000);
+    e->c.early_delays[i] = (unsigned)round(early_delays[i] * rate / 48000);
   e->s.clean = 1;
   e->s.reverb_wet = reverb_wet;
   e->s.chorus_wet = chorus_wet;
@@ -159,7 +186,7 @@ void concert_effects_process_equalized(ConcertEffects *e, const double *equalize
       for (size_t n = 0; n < frames; ++n) {
         s->reverb_wet += c->mix_smoothing * (c->reverb_wet - s->reverb_wet);
         s->chorus_wet += c->mix_smoothing * (c->chorus_wet - s->chorus_wet);
-        s->position = (s->position + 1) & (RING - 1);
+        s->position = (s->position + 1) & POSITION_MASK;
         s->phase += c->lfo_step;
         if (s->phase >= 1)
           s->phase -= 1;
@@ -169,7 +196,7 @@ void concert_effects_process_equalized(ConcertEffects *e, const double *equalize
     }
   }
   for (size_t n = 0; n < frames; ++n) {
-    unsigned pos = s->position, short_pos = pos & (SHORT_RING - 1);
+    unsigned pos = s->position, short_pos = pos & e->short_mask;
     double dry[2], colored[2], diffused[2], chorus[2];
     double triangle = 1 - 4 * fabs(s->phase - 0.5);
     s->reverb_wet += c->mix_smoothing * (c->reverb_wet - s->reverb_wet);
@@ -178,31 +205,33 @@ void concert_effects_process_equalized(ConcertEffects *e, const double *equalize
       double x = equalized[n * 2 + ch];
       s->tone[ch] = tiny_zero(s->tone[ch] + c->tone_alpha * (x - s->tone[ch]));
       dry[ch] = s->tone[ch];
-      s->chorus[ch][short_pos] = (float)dry[ch];
+      e->chorus[ch][short_pos] = (float)dry[ch];
       /* Recovered L/R base delay 24/13 ms, triangle 0.5 Hz, opposite phase.
        * Depth70 -> +/-3.5 ms is an explicitly approximate control mapping. */
       double delay =
           c->chorus_delay[ch] + (ch == 0 ? c->chorus_depth : -c->chorus_depth) * triangle;
-      chorus[ch] = chorus_active ? fractional_read(s->chorus[ch], short_pos, delay) : 0;
+      chorus[ch] = chorus_active ? fractional_read(e->chorus[ch], e->short_mask,
+                                                   pos & CHORUS_POSITION_MASK, delay)
+                                 : 0;
       s->eq_low[ch] = tiny_zero(s->eq_low[ch] + c->eq_low_alpha * (dry[ch] - s->eq_low[ch]));
       s->eq_high[ch] = tiny_zero(s->eq_high[ch] + c->eq_high_alpha * (dry[ch] - s->eq_high[ch]));
       /* Hall send coloration: -3 dB lows / +2 dB highs, approximate Fc. */
       colored[ch] = 0.98 * (dry[ch] + (0.707945784 - 1) * s->eq_low[ch] +
                             (1.258925412 - 1) * (dry[ch] - s->eq_high[ch]));
-      s->early[ch][short_pos] = (float)colored[ch];
+      e->early[ch][short_pos] = (float)colored[ch];
       double ap = colored[ch];
       for (int stage = 0; stage < 2; ++stage) {
         unsigned len = c->ap_lengths[ch][stage];
-        double d = s->diffuse[ch][stage][(pos - len) & (AP_RING - 1)];
+        double d = e->diffuse[ch][stage][(pos - len) & e->ap_mask];
         double y = d - 0.6 * ap;
-        s->diffuse[ch][stage][pos & (AP_RING - 1)] = (float)tiny_zero(ap + 0.6 * y);
+        e->diffuse[ch][stage][pos & e->ap_mask] = (float)tiny_zero(ap + 0.6 * y);
         ap = y;
       }
       diffused[ch] = ap;
     }
     double sum = 0, values[LINES], wet[2] = {0, 0};
     for (int i = 0; i < LINES; ++i) {
-      values[i] = s->delays[(pos - c->lengths[i]) & (RING - 1)][i];
+      values[i] = e->history[((pos - c->lengths[i]) & e->delay_mask) * LINES + i];
       s->damp[i] = tiny_zero(s->damp[i] + c->damp_alpha * (values[i] - s->damp[i]));
       sum += s->damp[i];
       wet[0] += values[i] * sign_l[i] * 0.3535533905932738;
@@ -211,16 +240,17 @@ void concert_effects_process_equalized(ConcertEffects *e, const double *equalize
     for (int i = 0; i < LINES; ++i) {
       double input = (diffused[0] * sign_l[i] + diffused[1] * sign_r[i]) * 0.25;
       double feedback = s->damp[i] - sum * 0.25; /* I - 2/N * 11^T, N=8. */
-      s->delays[pos & (RING - 1)][i] = (float)tiny_zero(input + c->feedback[i] * feedback);
+      e->history[(pos & e->delay_mask) * LINES + i] =
+          (float)tiny_zero(input + c->feedback[i] * feedback);
     }
     for (int ch = 0; ch < 2; ++ch) {
-      double early = 0.3 * s->early[ch][(pos - c->early_delays[0]) & (SHORT_RING - 1)] +
-                     0.2 * s->early[1 - ch][(pos - c->early_delays[1]) & (SHORT_RING - 1)] -
-                     0.15 * s->early[ch][(pos - c->early_delays[2]) & (SHORT_RING - 1)];
+      double early = 0.3 * e->early[ch][(pos - c->early_delays[0]) & e->short_mask] +
+                     0.2 * e->early[1 - ch][(pos - c->early_delays[1]) & e->short_mask] -
+                     0.15 * e->early[ch][(pos - c->early_delays[2]) & e->short_mask];
       stereo[n * 2 + ch] =
           (float)(dry[ch] + s->chorus_wet * chorus[ch] + s->reverb_wet * (0.8 * wet[ch] + early));
     }
-    s->position = (pos + 1) & (RING - 1);
+    s->position = (pos + 1) & POSITION_MASK;
     s->phase += c->lfo_step;
     if (s->phase >= 1)
       s->phase -= 1;
@@ -249,10 +279,13 @@ int concert_effects_set_wet(ConcertEffects *e, double reverb, double chorus) {
 void concert_effects_reset(ConcertEffects *e) {
   if (e) {
     memset(&e->s, 0, sizeof(e->s));
+    memset(e->history, 0, e->history_size * sizeof(float));
     e->s.clean = 1;
     e->s.reverb_wet = e->c.reverb_wet;
     e->s.chorus_wet = e->c.chorus_wet;
   }
 }
 void concert_effects_destroy(ConcertEffects *e) { free(e); }
-size_t concert_effects_memory_bytes(void) { return sizeof(ConcertEffects); }
+size_t concert_effects_memory_bytes(const ConcertEffects *e) {
+  return sizeof(*e) + e->history_size * sizeof(float);
+}

@@ -36,6 +36,7 @@ private:
   unsigned mProgramCount = 0;
   int mProgram = 0;
   bool mOfflineLoadFailed = false;
+  bool mRetirePending = false;
   double mPan = 0, mPanTarget = 0, mPanSmooth = 1;
 };
 } // namespace segrand

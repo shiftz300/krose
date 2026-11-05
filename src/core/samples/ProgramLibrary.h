@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 namespace segrand {
+using SampleWindow = std::vector<std::shared_ptr<const PCM24>>;
 struct SharedSample {
   uint32_t id = 0, loopStart = 0, loopEnd = 0, flags = 0;
   int pitch = 0;
@@ -41,9 +42,8 @@ public:
   static std::shared_ptr<const ProgramLibrary> Load(const std::string &path, bool preload = true);
   bool OnDemand() const noexcept { return !mPreload; }
   // Worker/lifecycle thread only. Cache is shared by plugin instances.
-  std::vector<std::shared_ptr<const PCM24>> LoadProgram(unsigned program) const;
-  std::vector<std::shared_ptr<const PCM24>> LoadSamples(const std::vector<uint32_t> &indices,
-                                                        bool retainRecent = true) const;
+  std::shared_ptr<const SampleWindow> LoadProgram(unsigned program) const;
+  SampleWindow LoadSamples(const std::vector<uint32_t> &indices, bool retainRecent = true) const;
   size_t ResidentBytes() const;
   std::vector<SharedSample> samples;
   std::vector<ProgramRegion> regions;
@@ -59,6 +59,7 @@ private:
   bool mPreload = true;
   mutable std::mutex mCacheMutex;
   mutable std::vector<std::weak_ptr<const PCM24>> mSampleCache;
+  mutable std::vector<std::weak_ptr<const SampleWindow>> mProgramWindows;
   mutable std::list<std::shared_ptr<const PCM24>> mRecent;
   mutable size_t mRecentBytes = 0;
   std::array<uint32_t, 224> mPhaseBase{};
@@ -66,5 +67,6 @@ private:
   std::array<uint16_t, 129> mCrossfade{};
   std::array<int16_t, 256> mSampleLut{};
   uint32_t Phase(int exponent) const noexcept;
+  SampleWindow LoadSamplesLocked(const std::vector<uint32_t> &indices, bool retainRecent) const;
 };
 } // namespace segrand

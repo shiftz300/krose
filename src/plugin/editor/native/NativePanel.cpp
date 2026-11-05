@@ -11,7 +11,22 @@
 
 namespace krose::ui {
 using namespace detail;
-NativePanel::NativePanel() : IControl(R(0, 0, 1472, 648)) {
+namespace {
+struct PanelResources {
+  const nlohmann::json data = nlohmann::json::parse(kNativeData);
+  const nlohmann::json programs = nlohmann::json::parse(kNativePrograms);
+  const nlohmann::json browser = nlohmann::json::parse(kNativeBrowser);
+  const nlohmann::json lcd = nlohmann::json::parse(kNativeLCD);
+  const std::vector<int> order = browser.at("order").get<std::vector<int>>();
+};
+const PanelResources &Resources() {
+  static const PanelResources resources;
+  return resources;
+}
+} // namespace
+NativePanel::NativePanel()
+    : IControl(R(0, 0, 1472, 648)), mData(Resources().data), mPrograms(Resources().programs),
+      mBrowser(Resources().browser), mLCD(Resources().lcd), mProgramOrder(Resources().order) {
   // Buttons and keys must receive every press, including OS double-clicks.
   mDblAsSingleClick = true;
 }
@@ -32,11 +47,6 @@ NativePanel::~NativePanel() {
   }
 }
 void NativePanel::OnInit() {
-  mData = Json::parse(kNativeData);
-  mPrograms = Json::parse(kNativePrograms);
-  mBrowser = Json::parse(kNativeBrowser);
-  mProgramOrder = mBrowser["order"].get<std::vector<int>>();
-  mLCD = Json::parse(kNativeLCD);
   mResourceRoot =
       krose::ResourceDirectory(static_cast<KrosePlugin *>(GetDelegate())->GetBundleID()).u8string();
   for (auto it = mData["fonts"].begin(); it != mData["fonts"].end(); ++it) {

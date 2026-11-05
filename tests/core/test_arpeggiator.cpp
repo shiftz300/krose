@@ -110,6 +110,19 @@ void timing(){
   // A missing host clock uses the saved internal tempo, including standalone.
   arp.Prepare(48000);out={};c.tempo=60;arp.SetControls(c);arp.SetTransport({});
   process(arp,out,24001,{{0,0x90,60,100}});assert(ons(out).size()==3&&ons(out)[1].offset==12000);
+
+  // MIDI pulse jitter is phase error, while an explicit song-position
+  // revision is a seek. Only the latter interrupts the held pattern.
+  arp.Prepare(48000);
+  out = {};
+  arp.SetTransport({true, true, 120, 0, true, 1});
+  process(arp, out, 1000, {{0, 0x90, 60, 100}});
+  arp.SetTransport({true, true, 120, 1020. / 24000, true, 1});
+  process(arp, out, 1000);
+  assert(out.events.size() == 1);
+  arp.SetTransport({true, true, 120, 4, true, 2});
+  process(arp, out, 1);
+  assert(ons(out).size() == 2 && ons(out).back().offset == 2000);
 }
 void keysAndStops(){
   Arpeggiator arp;ArpControls c;c.enabled=true;c.hostSync=false;c.latch=true;
