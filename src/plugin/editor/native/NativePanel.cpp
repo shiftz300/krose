@@ -54,6 +54,7 @@ void NativePanel::OnInit() {
     f.size = it.value()["size"];
   }
   FilterPrograms();
+  mStoredMapping = ControllerHash();
 }
 double NativePanel::Value(int id) { return GetDelegate()->GetParam(id)->Value(); }
 void NativePanel::Set(int id, double v, bool gesture) {
@@ -68,6 +69,15 @@ void NativePanel::Refresh(double tempo, bool host, bool loading, bool loadFailed
   mTempo = tempo;
   mHost = host;
   changed = mParameters.Changed(*GetDelegate()) || changed;
+  auto &map = static_cast<KrosePlugin *>(GetDelegate())->MidiMappings();
+  if (mControllers && (mMapRevision != map.Revision() ||
+                       (mControllerPage == 3 && mLastMidi != map.LastMessage()))) {
+    if (map.Learning() < 0 && mMapRevision != map.Revision())
+      mControllerStatus = "Map updated / INPUT > STORE";
+    changed = true;
+  }
+  mMapRevision = map.Revision();
+  mLastMidi = map.LastMessage();
   if (changed)
     SetDirty(false);
 }
@@ -170,8 +180,10 @@ bool NativePanel::IsDirty() {
   return IControl::IsDirty() || FoldProgress() != mRenderedFold;
 }
 double NativePanel::FoldProgress() const {
-  return mFXMotion.At(std::chrono::duration<double>(
-                         std::chrono::steady_clock::now().time_since_epoch()).count()).position;
+  return mFXMotion
+      .At(std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch())
+              .count())
+      .position;
 }
 void NativePanel::Render(IGraphics &g) {
   Bitmap(g, "native-base", 0, 0);
@@ -250,8 +262,8 @@ void NativePanel::Render(IGraphics &g) {
   Button(g, "kf-browse", false, "browse");
   Button(g, "kf-save", false, "", -1, 0, false);
   Button(g, "kf-compare", false, "", -1, 0, false);
-  Button(g, "sw1", false, "", -1, 0, false);
-  Button(g, "sw2", false, "", -1, 0, false);
+  Button(g, "sw1", Value(kSW1State) > 0, "switch", 0);
+  Button(g, "sw2", Value(kSW2State) > 0, "switch", 1);
   // Each white key is drawn first, then the raised black keys and their shadows.
   int white = 0;
   for (int i = 0; i < 61; ++i) {
@@ -454,7 +466,13 @@ void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &bou
   }
 }
 void NativePanel::LCD(IGraphics &g) {
+  if (mControllers) {
+    Controllers(g);
+    return;
+  }
+  HitBox(R(432, 115, 220, 23), "controller-open");
   Bitmap(g, std::string("tabs-") + Pages[mPage], 432, 115);
+  Text(g, "light14", ">CTRL", R(557, 118, 93, 19), 2);
   for (int i = 0; i < 4; ++i)
     HitBox(R(667 + i * 76, 116, 76, 20), "page", -1, i);
   int program = int(Value(kParamProgram));
@@ -477,8 +495,10 @@ void NativePanel::LCD(IGraphics &g) {
     return;
   }
   std::string source = category + " (" + code + ")";
-  std::string tempo = std::string(Value(kArpHostSync) && mHost ? "HOST " : "INT ") +
-                      Format(Value(kArpHostSync) && mHost ? mTempo : Value(kArpTempo), 2);
+  std::string tempo =
+      std::string(Value(kArpHostSync) && mHost ? (Value(kClockSource) == 2 ? "MIDI " : "HOST ")
+                                               : "INT ") +
+      Format(Value(kArpHostSync) && mHost ? mTempo : Value(kArpTempo), 2);
   float sourceWidth = TextWidth("lcd16", source), tempoWidth = TextWidth("lcd16", tempo);
   float nameX = 446 + sourceWidth, nameRight = 958 - tempoWidth;
   Text(g, "lcd16", source, R(436, 140, sourceWidth, 20));

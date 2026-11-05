@@ -44,6 +44,8 @@ void mouse(NSView *v, float x, float y, NSEventType type, NSInteger count = 1) {
                                   pressure:1];
   if (type == NSEventTypeLeftMouseDown)
     [v mouseDown:e];
+  else if(type==NSEventTypeRightMouseDown)[v rightMouseDown:e];
+  else if(type==NSEventTypeRightMouseUp)[v rightMouseUp:e];
   else if (type == NSEventTypeLeftMouseDragged)
     [v mouseDragged:e];
   else
@@ -132,6 +134,14 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       number(v, 930, 199, @"120.00");
       capture("lcd-dropdown", 635, 177);
       key(v, @"\x1b", 53);
+      click(v,480,125);click(v,810,125);click(v,520,234);click(v,830,249); // Standard CC template.
+      capture("controller-switches", 590, 125);
+      capture("controller-midi", 700, 125);
+      capture("controller-map-menu", 700, 155);
+      key(v, @"\x1b", 53);
+      capture("controller-input", 815, 125);
+      capture("controller-help", 920, 125);
+      click(v,480,125);
       capture("folded", 71, 85);
       capture("preset-dropdown", 700, 67);
       capture("preset-secondary", 550, 123);
@@ -168,6 +178,31 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
         unsetenv("KROSE_NATIVE_CAPTURE");
         std::filesystem::remove(path);
       }
+      // SWs are real controls. Momentary release must also work on editor close.
+      click(v,70,410);assert(parameter("SW1")==1.);
+      click(v,70,410);assert(parameter("SW1")==0.);
+      setParameter("SW1 Mode",1.);
+      mouse(v,70,410,NSEventTypeLeftMouseDown);assert(parameter("SW1")==1.);
+      mouse(v,70,410,NSEventTypeLeftMouseUp);assert(parameter("SW1")==0.);
+      setParameter("SW1 Mode",0.);
+      click(v,480,125); // PROG > controls
+      click(v,600,160);key(v,@"\uf72b",119);key(v,@"\r",36);
+      assert(parameter("SW1 Assign")==1.); // Last entry is FX Bypass.
+      key(v,@"\x1b",53);
+      setParameter("SW1 Assign",.1);
+      const double beforeLearn=glide();
+      mouse(v,175,200,NSEventTypeRightMouseDown);mouse(v,175,200,NSEventTypeRightMouseUp);pump();
+      assert(glide()==beforeLearn);
+      key(v,@"\x1b",53);key(v,@"\x1b",53); // Cancel learn, then leave LCD settings.
+      // User profiles load settings and mappings without unbalanced host edits.
+      setParameter("SW1 Assign",.5);
+      click(v,480,125);click(v,810,125);click(v,670,158);
+      assert(std::filesystem::exists(std::getenv("KROSE_MIDI_MAP_FILE")));
+      click(v,520,158);key(v,@"\uf701",125);key(v,@"\r",36);
+      assert(parameter("SW1 Assign")==.1);
+      click(v,520,158);key(v,@"\uf729",115);key(v,@"\r",36);
+      assert(parameter("SW1 Assign")==.5);
+      click(v,480,125);setParameter("SW1 Assign",.1);
       click(v, 70, 285);
       assert(parameter("Arp") == 1.);
       click(v, 70, 285, 2);

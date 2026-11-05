@@ -34,6 +34,8 @@ void NativePanel::Note(int note, bool down) {
   SetDirty(false);
 }
 void NativePanel::ReleaseHeld() {
+  ReleaseSwitches();
+  static_cast<KrosePlugin *>(GetDelegate())->MidiMappings().CancelLearn();
   for (int i = 0; i < 128; ++i)
     Note(i, false);
   mLit.fill(false);
@@ -46,6 +48,20 @@ void NativePanel::ReleaseHeld() {
   SetDirty(false);
 }
 void NativePanel::FinishEdit() {
+  if (mMapEdit >= 0) {
+    auto &map = static_cast<KrosePlugin *>(GetDelegate())->MidiMappings();
+    auto b = map.Get(mMapEdit);
+    char *end = nullptr;
+    const long n = std::strtol(mEditText.c_str(), &end, 10);
+    if (end != mEditText.c_str() && *end == 0 && n >= 0 && n < 16384) {
+      b.number = unsigned(n);
+      if (b.Valid(KrosePlugin::kMapTargets))
+        map.Set(mMapEdit, b);
+      else
+        mControllerStatus = "Number outside source range";
+    }
+    mMapEdit = -1;
+  }
   if (mEdit >= 0) {
     char *end = nullptr;
     double v = std::strtod(mEditText.c_str(), &end);
@@ -57,11 +73,16 @@ void NativePanel::FinishEdit() {
   SetDirty(false);
 }
 void NativePanel::Activate(const Hit &h) {
-  if (h.action == "increment")
+  if (ControllerAction(h)) {
+  } else if (h.action == "increment")
     Set(h.id, Value(h.id) + h.value * GetDelegate()->GetParam(h.id)->GetStep());
-  else if (h.action == "toggle")
-    Set(h.id, Value(h.id) ? 0 : 1);
-  else if (h.action == "set")
+  else if (h.action == "toggle") {
+    if (h.id == kArpHostSync && Value(kClockSource) == 1) {
+      Set(kClockSource, 0);
+      Set(kArpHostSync, 1);
+    } else
+      Set(h.id, Value(h.id) ? 0 : 1);
+  } else if (h.action == "set")
     Set(h.id, h.value);
   else if (h.action == "eg")
     mEG = int(h.value);
@@ -74,8 +95,9 @@ void NativePanel::Activate(const Hit &h) {
     StepProgram(int(h.value));
   else if (h.action == "fold") {
     mFold = !mFold;
-    mFXMotion.Target(mFold, std::chrono::duration<double>(
-                               std::chrono::steady_clock::now().time_since_epoch()).count());
+    mFXMotion.Target(
+        mFold,
+        std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count());
   } else if (h.action == "browse") {
     ReleaseHeld();
     mBrowsing = true;
@@ -119,8 +141,13 @@ void NativePanel::Activate(const Hit &h) {
     } else if (target.action == "category") {
       mCategory = v;
       FilterPrograms();
-    } else
+    } else if (target.action == "midi-menu")
+      ControllerChoice(target.id, v);
+    else {
       Set(target.id, v);
+      if (target.id == kClockSource)
+        Set(kArpHostSync, v != 1);
+    }
   } else if (h.action == "search")
     mEdit = -2;
   else if (h.action == "octave") {
@@ -141,7 +168,8 @@ void NativePanel::Activate(const Hit &h) {
     }
   } else if (h.action == "edit" || h.action == "field") {
     if (h.action == "field" &&
-        (h.id == kParamTone || h.id == kArpPattern || h.id == kArpResolution)) {
+        (h.id == kParamTone || h.id == kArpPattern || h.id == kArpResolution ||
+         (h.id >= kSW1Assign && h.id <= kClockSource))) {
       OpenPopup(h);
     } else {
       mEdit = h.id;
@@ -151,7 +179,7 @@ void NativePanel::Activate(const Hit &h) {
   }
   SetDirty(false);
 }
-void NativePanel::OnMouseDown(float x, float y, const IMouseMod &) {
+void NativePanel::OnMouseDown(float x, float y, const IMouseMod &mod) {
   mMouseX = x;
   mMouseY = y;
   mKeyboardFocus = false;
@@ -161,6 +189,19 @@ void NativePanel::OnMouseDown(float x, float y, const IMouseMod &) {
     if (!h.r.Contains(x, y))
       continue;
     mFocus = i;
+    if (mod.R && h.id >= 0 && h.id < kNumParams &&
+        (h.action == "knob" || h.action == "fader" || h.action == "field" || h.action == "toggle" ||
+         h.action == "set" || h.action == "edit")) {
+      BeginLearn(h.id);
+      SetDirty(false);
+      return;
+    }
+    if (mod.R && h.action == "switch") {
+      mControllers = true;
+      mControllerPage = 0;
+      SetDirty(false);
+      return;
+    }
     if (h.action == "knob" || h.action == "fader") {
       mDrag = h.id;
       mDragY = y;
@@ -196,6 +237,7 @@ void NativePanel::OnMouseDrag(float, float y, float, float, const IMouseMod &mod
   }
 }
 void NativePanel::OnMouseUp(float, float, const IMouseMod &) {
+  ReleaseSwitches();
   mParameters.End(*GetDelegate());
   if (mDrag == -2) {
     mPitch = 0;
@@ -276,6 +318,16 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
       SetDirty(false);
       return true;
     }
+    auto &map = static_cast<KrosePlugin *>(GetDelegate())->MidiMappings();
+    if (mMapEdit >= 0)
+      mMapEdit = -1;
+    else if (mConfirmProfile != -1)
+      mConfirmProfile = -1;
+    else if (map.Learning() >= 0) {
+      map.CancelLearn();
+      mControllerStatus = "Learning cancelled";
+    } else
+      mControllers = false;
     mEdit = -1;
     mBrowsing = false;
     SetDirty(false);
@@ -301,6 +353,32 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
       SetDirty(false);
       return true;
     }
+    return true;
+  }
+  if (mMapEdit >= 0) {
+    if (key.VK == kVK_RETURN || key.VK == kVK_TAB) {
+      FinishEdit();
+      return true;
+    }
+    if (key.C && (key.VK == 65 || key.VK == 97)) {
+      mSelectAll = true;
+      return true;
+    }
+    if (key.VK == kVK_BACK) {
+      if (mSelectAll)
+        mEditText.clear();
+      else if (!mEditText.empty())
+        mEditText.pop_back();
+      mSelectAll = false;
+    } else if (key.utf8[0]) {
+      if (mSelectAll)
+        mEditText.clear();
+      mSelectAll = false;
+      for (char c : std::string(key.utf8))
+        if (c >= '0' && c <= '9' && mEditText.size() < 5)
+          mEditText += c;
+    }
+    SetDirty(false);
     return true;
   }
   if (mEdit == -2 && mBrowsing) {
@@ -359,6 +437,22 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
     SetDirty(false);
     return true;
   }
+  if (key.VK == kVK_TAB && mControllers) {
+    mKeyboardFocus = true;
+    std::vector<int> controls;
+    for (int i = 0; i < int(mHits.size()); ++i) {
+      const auto &h = mHits[i];
+      if (h.r.L >= 431 && h.r.R <= 973 && h.r.T >= 115 && h.r.B <= 284 && !h.action.empty())
+        controls.push_back(i);
+    }
+    if (!controls.empty()) {
+      auto at = std::find(controls.begin(), controls.end(), mFocus);
+      int n = at == controls.end() ? (key.S ? 0 : -1) : int(at - controls.begin());
+      mFocus = controls[(n + (key.S ? -1 : 1) + int(controls.size())) % controls.size()];
+    }
+    SetDirty(false);
+    return true;
+  }
   if (key.VK == kVK_TAB) {
     mKeyboardFocus = true;
     if (!mHits.empty())
@@ -399,6 +493,8 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
   return false;
 }
 bool NativePanel::OnKeyUp(float, float, const IKeyPress &key) {
+  if (key.VK == kVK_SPACE || key.VK == kVK_RETURN)
+    ReleaseSwitches();
   if ((key.VK == kVK_SPACE || key.VK == kVK_RETURN) && mDragNote >= 0) {
     Note(mDragNote, false);
     mDragNote = -1;

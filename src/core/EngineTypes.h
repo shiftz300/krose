@@ -5,7 +5,7 @@ namespace segrand {
 struct Controls {
   int preset = 0;
   double outputDb = -6, space = 1, releaseSeconds = kNativeReleaseBaseSeconds, velocityCurve = 1;
-  bool filterEnabled = true;
+  bool filterEnabled = true, fxBypass = false;
   int pan = 0, cutoff = 0, resonance = 0;
   EnvelopeOffsets ampEg, filterEg;
   int voiceMode = 0, glide = 0; // 0 Poly, 1 Mono retrigger, 2 Normal legato; glide 0..127.

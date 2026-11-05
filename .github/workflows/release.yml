@@ -62,7 +62,9 @@ jobs:
           with open(os.environ['GITHUB_ENV'],'a') as f:f.write('KROSE_VERSION='+version+'\n')
           PY
       - name: Runtime archive regressions
-        run: python tests/tools/test_runtime_assets.py
+        run: |
+          python tests/tools/test_runtime_assets.py
+          python tests/tools/test_standalone_package.py
       - name: Read runtime asset lock
         shell: bash
         run: |
@@ -126,6 +128,19 @@ jobs:
           path: build/native-${{ matrix.arch }}.tar
           retention-days: 1
           compression-level: 3
+      - name: Package and smoke test Windows standalone
+        if: runner.os == 'Windows'
+        run: >-
+          python tools/release/package_standalone.py --input build/release/out
+          --version ${{ env.KROSE_VERSION }} --platform windows-x64 --output dist --smoke
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Windows'
+        with:
+          name: Krose-windows-x64-standalone
+          path: dist/*-portable.zip
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
       - name: Package Windows NSIS installer
         if: runner.os == 'Windows'
         shell: pwsh
@@ -179,6 +194,18 @@ jobs:
           python tools/release/merge_macos.py --arm64 build/arm64/out --x86-64 build/x86_64/out --output build/universal/out
           version=$(python -c 'import re,pathlib; print(re.search(r"project\(Krose VERSION ([0-9.]+)", pathlib.Path("CMakeLists.txt").read_text())[1])')
           bash tools/release/package_macos.sh build/universal "$version"
+      - name: Package and smoke test macOS standalone
+        shell: bash
+        run: |
+          version=$(python -c 'import re,pathlib; print(re.search(r"project\(Krose VERSION ([0-9.]+)", pathlib.Path("CMakeLists.txt").read_text())[1])')
+          python tools/release/package_standalone.py --input build/universal/out --version "$version" --platform macos-universal --output dist --smoke
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Krose-macos-universal-standalone
+          path: dist/*-app.zip
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
       - uses: actions/upload-artifact@v4
         with:
           name: Krose-macos-universal
@@ -200,14 +227,22 @@ jobs:
         with:
           name: Krose-macos-universal
           path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: Krose-windows-x64-standalone
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: Krose-macos-universal-standalone
+          path: dist
       - name: Publish installers and checksums
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           cd dist
-          sha256sum *.exe *.pkg > SHA256SUMS.txt
+          sha256sum *.exe *.pkg *.zip > SHA256SUMS.txt
           gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "Krose $GITHUB_REF_NAME" --generate-notes \
             --notes 'Includes standalone and VST3. macOS supports Apple Silicon and Intel. Installers are currently unsigned/not notarized.' \
-            *.exe *.pkg SHA256SUMS.txt
+            *.exe *.pkg *.zip SHA256SUMS.txt

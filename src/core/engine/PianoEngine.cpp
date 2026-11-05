@@ -74,6 +74,9 @@ void PianoEngine::Panic() noexcept {
   mVoices = {};
   mTails = {};
   mSustain.fill(false);
+  mPortamento.fill(-1);
+  mPreviousPitch.fill(-1);
+  mFXBlend = mControls.fxBypass ? 0 : 1;
   mBend.fill(1);
   mVolume.fill(1);
   mExpression.fill(1);
@@ -145,7 +148,7 @@ void PianoEngine::SelectMono(int note, int velocity, int channel, bool connected
           }
           voice.note = note;
           voice.step = mBank->rootRate / mRate * std::exp2((note - int(voice.sample->root)) / 12.);
-          voice.glide.Start(previous, note, mControls.glide);
+          voice.glide.Start(previous, note, GlideAmount(channel));
           voice.glideRatio = voice.glide.Ratio();
           for (int osc = 0; osc < 2; ++osc) {
             voice.native[osc].Retune(note);
@@ -162,6 +165,9 @@ void PianoEngine::SelectMono(int note, int velocity, int channel, bool connected
     NoteOn(note, velocity, channel, previous);
 }
 void PianoEngine::NoteOn(int note, int velocity, int channel, int previousPitch) noexcept {
+  if (previousPitch < 0 && mPortamento[channel] > 0)
+    previousPitch = mPreviousPitch[channel];
+  mPreviousPitch[channel] = note * 65536;
   auto it = std::find_if(mVoices.begin(), mVoices.end(), [](const Voice &v) { return !v.sample; });
   if (it == mVoices.end()) {
     it = std::min_element(mVoices.begin(), mVoices.end(), [](const Voice &a, const Voice &b) {
@@ -179,7 +185,7 @@ void PianoEngine::NoteOn(int note, int velocity, int channel, int previousPitch)
   }
   const int layer = VelocityLayer(velocity);
   const int selection =
-      mControls.glide && previousPitch >= 0 ? std::max(note, previousPitch / 65536) : note;
+      GlideAmount(channel) && previousPitch >= 0 ? std::max(note, previousPitch / 65536) : note;
   const Sample &sample = mPlaybackBank->Select(layer, selection);
   *it = {};
   it->residency = mResidency;
@@ -189,7 +195,7 @@ void PianoEngine::NoteOn(int note, int velocity, int channel, int previousPitch)
   it->keyDown = true;
   it->age = ++mAge;
   it->step = mBank->rootRate / mRate * std::pow(2, (note - int(sample.root)) / 12.0);
-  it->glide.Start(previousPitch, note, mControls.glide);
+  it->glide.Start(previousPitch, note, GlideAmount(channel));
   it->glideRatio = it->glide.Ratio();
   // Native velocity/slot/AMS/keyboard response is the baseline. This optional
   // host trim changes loudness response, leaving the verified layer edges fixed.
@@ -242,7 +248,9 @@ void PianoEngine::Midi(const MidiEvent &event) noexcept {
         for (auto &v : mVoices)
           if (v.sample && v.channel == ch && !v.keyDown && !v.released)
             Release(v);
-    } else if (note == 7)
+    } else if (note == 65)
+      mPortamento[ch] = value >= 64 ? 1 : 0;
+    else if (note == 7)
       mVolume[ch] = value / 127.0;
     else if (note == 11)
       mExpression[ch] = value / 127.0;
@@ -264,6 +272,8 @@ void PianoEngine::Midi(const MidiEvent &event) noexcept {
           v = {};
     } else if (note == 121) {
       mSustain[ch] = false;
+      mPortamento[ch] = -1;
+      mPreviousPitch[ch] = -1;
       mBend[ch] = mVolume[ch] = mExpression[ch] = mSoft[ch] = 1;
       for (auto &v : mVoices)
         if (v.sample && v.channel == ch && !v.keyDown)
@@ -364,6 +374,11 @@ void PianoEngine::Render(float *left, float *right, int frames) noexcept {
         mWeights[p] += mSmoothing * ((p == mControls.preset ? 1 : 0) - mWeights[p]);
         l += audio[p][n * 2] * mWeights[p];
         r += audio[p][n * 2 + 1] * mWeights[p];
+      }
+      mFXBlend += mSmoothing * ((mControls.fxBypass ? 0. : 1.) - mFXBlend);
+      if (mFXBlend < 1) {
+        l = dry[n * 2] + (l - dry[n * 2]) * mFXBlend;
+        r = dry[n * 2 + 1] + (r - dry[n * 2 + 1]) * mFXBlend;
       }
       left[start + n] = float(l * mOutput);
       right[start + n] = float(r * mOutput);

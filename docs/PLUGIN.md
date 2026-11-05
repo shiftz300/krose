@@ -9,9 +9,9 @@ Krose 提供 VST3 和独立程序，使用固定尺寸的原生界面。目录�
 - POLY、MONO、LEGATO 和 GLIDE 的规则见 [演奏模式](PERFORMANCE.md)。ARP、Latch、时钟及 Pattern 见 [琶音器](ARPEGGIATOR.md)。
 - 支持延音、音量、表情、柔音、弯音及 MIDI 控制器复位。屏幕键盘用于试音，PANIC 清理按键、声部和事件。
 - 切换音色时后台加载所需采样；加载期间旧音色继续演奏，原有尾音保留。界面显示 LOADING 或 LOAD FAILED。
-- FX 收放只改变编辑器显示，不修改音频、参数或旁通。SW1/2、Mod、Save/Compare 和完整效果编辑目前禁用。
+- FX 收放只改变编辑器显示，不修改音频、参数或旁通。SW1／SW2 的分配、MIDI 学习和输入设置均在 LCD 的 CTRL 入口；操作见 [MIDI 控制](MIDI.md)。屏幕 Mod、Save/Compare 和完整效果编辑目前禁用。
 
-独立程序的 Audio and MIDI Settings 用于选择声卡、缓冲、采样率与 MIDI 输入；VST3 使用宿主设置。支持 32–192 kHz。参数按音频块读取并平滑，MIDI 保留样本偏移。
+独立程序的 Audio and MIDI Settings 用于选择声卡、缓冲、采样率与 MIDI 输入；VST3 使用宿主设置。支持 32–192 kHz。宿主参数按音频块读取并平滑；MIDI 音符与映射参数在事件的采样位置应用。
 
 独立程序将设备回调按不超过 128 帧分段，末段使用实际帧数，支持小缓冲及非整倍数长度。MIDI 以单调时钟对齐 RtMidi 源时间间隔，再映射到音频块内偏移；重开音频流时丢弃旧流事件并重新准备音源。输入队列溢出会释放踏板和全部声音，避免丢失 Note Off 后卡音。
 

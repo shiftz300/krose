@@ -51,6 +51,20 @@ void KrosePlugin::OnParamChangeUI(int id, EParamSource) {
     GetUI()->SetAllControlsDirty();
 }
 void KrosePlugin::OnIdle() {
+#if defined(VST3_API)
+  const unsigned revision = mMidiMap.Revision();
+  if (mNotifiedMapRevision.exchange(revision) != revision)
+    setDirty(true);
+#endif
+  const uint64_t changed = mMidiChangedParams.exchange(0, std::memory_order_acq_rel);
+  for (int id = 0; id < kNumParams; ++id)
+    if (changed & (uint64_t(1) << id)) {
+      const double value = GetParam(id)->GetNormalized();
+      BeginInformHostOfParamChange(id);
+      InformHostOfParamChange(id, value);
+      EndInformHostOfParamChange(id);
+      SendParameterValueFromDelegate(id, value, true);
+    }
   if (!GetUI())
     return;
   auto *p = static_cast<krose::ui::NativePanel *>(GetUI()->GetControlWithTag(kEditorTag));

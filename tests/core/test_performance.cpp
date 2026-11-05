@@ -155,6 +155,16 @@ template<class Engine> void performance(Engine& engine) {
   assert(difference(phrase(0), phrase(64)) > .01);
   controls.voiceMode = 0;engine.SetControls(controls);render(engine, 1000);assert(!engine.ActiveVoices());
   engine.Queue({0, 0x80, 72, 0});engine.Queue({0, 0x80, 60, 0});render(engine, 1000);assert(!engine.ActiveVoices());
+  // CC65 gates glide per channel, including in poly mode; reset restores defaults.
+  auto portamento=[&](int pedal,int channel){controls.voiceMode=0;controls.glide=64;engine.SetControls(controls);engine.Prepare(48000);
+    if(pedal>=0)engine.Queue({0,0xb0,65,uint8_t(pedal)});
+    engine.Queue({0,uint8_t(0x90+channel),60,100});engine.Queue({4000,uint8_t(0x90+channel),72,100});return render(engine,20000);};
+  assert(difference(portamento(0,0),portamento(127,0))>.01);
+  assert(difference(portamento(0,1),portamento(127,1))==0);
+  // Dry bypass is audible, finite and keeps reverb tails warm for re-entry.
+  auto fx=[&](bool bypass){controls.space=1;controls.glide=0;controls.fxBypass=bypass;engine.SetControls(controls);engine.Prepare(48000);engine.Queue({0,0x90,60,100});return render(engine,12000);};
+  assert(difference(fx(false),fx(true))>.01);
+  controls.fxBypass=false;engine.SetControls(controls);render(engine,12000);
 }
 int main(int argc, char** argv) {
   assert(argc == 4);

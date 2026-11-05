@@ -6,6 +6,7 @@
 #include "samples/SampleBank.h"
 #include "voice/NativeFilter.h"
 #include "voice/NativeVoice.h"
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -55,6 +56,13 @@ private:
   EventQueue<kEvents> mEvents;
   std::array<std::unique_ptr<ConcertEffects, EffectDeleter>, 3> mEffects;
   std::array<bool, 16> mSustain{};
+  std::array<int, 16> mPortamento{}, mPreviousPitch{};
+  double mFXBlend = 1;
+  int GlideAmount(int channel) const noexcept {
+    return mPortamento[channel] < 0 ? mControls.glide
+           : mPortamento[channel]   ? std::max(1, mControls.glide ? mControls.glide : 64)
+                                    : 0;
+  }
   std::array<double, 16> mBend{}, mVolume{}, mExpression{}, mSoft{};
   Controls mControls;
   MonoPerformance mMono;

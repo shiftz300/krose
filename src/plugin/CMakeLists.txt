@@ -9,12 +9,15 @@ iplug_add_plugin(Krose
   SOURCES
     KrosePlugin.cpp KrosePlugin.h
     Parameters.cpp Parameters.h
-    editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp resources/resource.h
+    midi/ControllerInput.cpp midi/ControllerState.cpp
+    editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp editor/native/PanelControllers.cpp resources/resource.h
   RESOURCES ${KROSE_NATIVE_IMAGES} "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
     ${KROSE_LICENSE_RESOURCES}
     "${IPLUG2_DIR}/Examples/IPlugEffect/resources/fonts/Roboto-Regular.ttf"
   FORMATS VST3 APP
   LINK krose::core)
+# Apply to SDK translation units as well as the plugin: all channels expose CC input.
+target_compile_definitions(Krose-vst3 PRIVATE VST3_NUM_CC_CHANS=16)
 add_dependencies(Krose-vst3 segrand-assets krose-factory-assets)
 add_dependencies(Krose-app segrand-assets krose-factory-assets)
 foreach(target Krose-vst3 Krose-app)

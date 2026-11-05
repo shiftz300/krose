@@ -16,7 +16,8 @@ krose/
       CMakeLists.txt                 krose-core 静态库及 krose::core 别名
     plugin/
       KrosePlugin.cpp/.h             插件生命周期与音频／MIDI 入口
-      Parameters.cpp/.h              参数注册、固定 ID、旧工程状态迁移
+      Parameters.cpp/.h              参数注册、固定 ID、工厂音色预设
+      midi/                         控制器映射、输入演奏、配置和旧状态迁移
       ResourcePath.h                便携／安装版资源定位
       editor/NativeEditor.cpp       IGraphics 控件装配与输入路由
       editor/native/                面板绘制、输入、菜单、收藏及 PNG 资源

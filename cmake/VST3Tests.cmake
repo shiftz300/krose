@@ -49,3 +49,9 @@ add_executable(benchmark-plugin-memory tools/native-ui/benchmark_memory.mm
   "${SDK_ROOT}/public.sdk/source/vst/hosting/plugprovider.cpp")
 set_source_files_properties(tools/native-ui/benchmark_memory.mm PROPERTIES COMPILE_FLAGS "-fobjc-arc")
 target_link_libraries(benchmark-plugin-memory PRIVATE segrand-sdk-hosting)
+
+add_executable(benchmark-runtime tools/native-ui/benchmark_runtime.mm
+  "${SDK_ROOT}/public.sdk/source/vst/hosting/plugprovider.cpp")
+set_source_files_properties(tools/native-ui/benchmark_runtime.mm PROPERTIES COMPILE_FLAGS "-fobjc-arc")
+target_link_libraries(benchmark-runtime PRIVATE segrand-sdk-hosting)
+target_compile_options(benchmark-runtime PRIVATE -UNDEBUG)

@@ -1,7 +1,7 @@
 #pragma once
-#include "FXMotion.h"
-#include "../ParameterBinding.h"
 #include "../../Parameters.h"
+#include "../ParameterBinding.h"
+#include "FXMotion.h"
 #include "IControl.h"
 #include "json.hpp"
 #include <array>
@@ -81,6 +81,15 @@ private:
   void Note(int, bool);
   void FinishEdit();
   void ProgramRow(IGraphics &);
+  void Controllers(IGraphics &);
+  bool ControllerAction(const Hit &);
+  void ControllerMenu(const Hit &);
+  void ControllerChoice(int, int);
+  void BeginLearn(int target);
+  void ReleaseSwitches();
+  uint64_t ControllerHash();
+  void ControllerCell(IGraphics &, const std::string &, IRECT, const std::string &, int = -1,
+                      double = 0, bool = false);
   Json mData, mPrograms, mBrowser, mLCD;
   std::map<std::string, IBitmap> mImages;
   std::string mResourceRoot;
@@ -113,5 +122,12 @@ private:
   std::vector<double> mDrawTimes, mFrameGaps;
   std::chrono::steady_clock::time_point mPreviousFrame{};
   bool mPreviousAnimating = false;
+  bool mControllers = false;
+  int mControllerPage = 0, mMapSlot = 0, mMapEdit = -1, mConfirmProfile = -1;
+  unsigned mMapRevision = 0;
+  uint32_t mLastMidi = 0;
+  uint64_t mStoredMapping = 0;
+  std::array<bool, 2> mHeldSwitch{};
+  std::string mControllerStatus;
 };
 } // namespace krose::ui

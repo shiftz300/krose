@@ -34,6 +34,8 @@ _app_replace(_header "  bool mFallbackOutput = false;" "  bool mFallbackOutput =
 file(CONFIGURE OUTPUT "${_app_overlay}/IPlugAPP_host.h" CONTENT "${_header}" @ONLY)
 
 file(READ "${_app_original}/IPlugAPP_host.cpp" _host)
+# Preserve F8/Start/Continue/Stop for LCD-selectable external MIDI clock.
+_app_replace(_host "ignoreTypes(false, true, false )" "ignoreTypes(false, false, true)")
 # Manual changes and automatic recovery share selection/fallback logic, so a
 # device missing at launch does not overwrite the saved preferred device.
 string(FIND "${_host}" "bool IPlugAPPHost::TryToChangeAudio()" _start)

@@ -18,6 +18,10 @@
 #include <chrono>
 #include <thread>
 #include <vector>
+#include <cstring>
+#include <filesystem>
+#include <unistd.h>
+#include "../../src/plugin/midi/ControllerMap.h"
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
@@ -48,6 +52,9 @@ int main(int argc,char** argv){
   const bool editorOnly=argc==3 && std::string(argv[2])=="--editor-only";
   const bool openEditor=editorOnly||(argc==3 && std::string(argv[2])=="--editor");
   assert(argc==2 || openEditor);
+  const std::string midiFile="/tmp/krose-midi-state-test-"+std::to_string(getpid())+".json";
+  const bool ownMidi=!std::getenv("KROSE_MIDI_MAP_FILE");
+  if(ownMidi)setenv("KROSE_MIDI_MAP_FILE",midiFile.c_str(),1);
   std::string error;
   auto module=VST3::Hosting::Module::create(argv[1],error);
   if(!module){std::cerr<<error<<'\n';return 1;}
@@ -201,6 +208,75 @@ int main(int argc,char** argv){
   arpState.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&arpState)==kResultOk);
   assert(controller->getParamNormalized(ids.at("Arp Pattern"))==.75);
   assert(std::abs(controller->getParamNormalized(ids.at("Arp Tempo"))-123.25/280.)<1e-8);
+  // The project state owns the complete controller map, independently of user profiles.
+  assert(ids.at("SW1 Assign")==29 && ids.at("FX Bypass")==38);
+  {
+    using namespace krose::midi;
+    MemoryStream original;assert(component->getState(&original)==kResultOk);
+    assert(original.getSize()==39*8+16+64*8+4);
+    auto at=[&](int slot){return 39*8+16+slot*8;};
+    Binding b;b.source=Source::CC;b.channel=2;b.number=20;b.target=ids.at("Output");b.pickup=false;
+    uint64_t word=b.Encode();std::memcpy(original.getData()+at(0),&word,8);
+    // Leave no default CC10 map to affect this isolated test.
+    original.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&original)==kResultOk);
+    ProcessSetup setup{};setup.processMode=kOffline;setup.symbolicSampleSize=kSample32;setup.maxSamplesPerBlock=512;setup.sampleRate=48000;
+    assert(processor->setupProcessing(setup)==kResultOk);assert(component->setActive(true)==kResultOk);processor->setProcessing(true);
+    float l[512]{},r[512]{};float* channels[]={l,r};AudioBusBuffers bus{};bus.numChannels=2;bus.channelBuffers32=channels;
+    ParameterChanges changes;int index=0,point=0;ParamID cc=0;
+    assert(mapping->getMidiControllerAssignment(0,1,20,cc)==kResultOk);
+    changes.addParameterData(cc,index)->addPoint(37,1.,point);
+    ProcessData data{};data.processMode=kOffline;data.symbolicSampleSize=kSample32;data.numOutputs=1;data.outputs=&bus;data.inputParameterChanges=&changes;data.numSamples=512;
+    assert(processor->process(data)==kResultOk);
+    MemoryStream mapped;assert(component->getState(&mapped)==kResultOk);double output=0;std::memcpy(&output,mapped.getData()+8,8);assert(output==6.);
+    uint64_t restored=0;std::memcpy(&restored,mapped.getData()+at(0),8);assert(restored==word);
+    // A wrong channel cannot change this binding.
+    changes.clearQueue();assert(mapping->getMidiControllerAssignment(0,15,20,cc)==kResultOk);
+    changes.addParameterData(cc,index)->addPoint(0,0.,point);assert(processor->process(data)==kResultOk);
+    MemoryStream wrong;assert(component->getState(&wrong)==kResultOk);std::memcpy(&output,wrong.getData()+8,8);assert(output==6.);
+    processor->setProcessing(false);component->setActive(false);
+    // A learned gain controller keeps its sample offset inside an audio block.
+    auto phrase=[&](bool move){
+      original.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&original)==kResultOk);
+      assert(processor->setupProcessing(setup)==kResultOk);assert(component->setActive(true)==kResultOk);processor->setProcessing(true);
+      // Commit restored controls, then reset voices/smoothers to the same start.
+      changes.clearQueue();data.inputEvents=nullptr;assert(processor->process(data)==kResultOk);processor->setProcessing(false);processor->setProcessing(true);
+      EventList notes;Steinberg::Vst::Event on{};on.type=Steinberg::Vst::Event::kNoteOnEvent;on.noteOn.channel=0;on.noteOn.pitch=60;on.noteOn.velocity=.9;notes.addEvent(on);
+      changes.clearQueue();if(move){assert(mapping->getMidiControllerAssignment(0,1,20,cc)==kResultOk);changes.addParameterData(cc,index)->addPoint(37,0.,point);}
+      data.inputEvents=&notes;assert(processor->process(data)==kResultOk);
+      std::vector<float> result(l,l+512);processor->setProcessing(false);component->setActive(false);data.inputEvents=nullptr;return result;
+    };
+    const auto steady=phrase(false),moved=phrase(true);
+    assert(std::equal(steady.begin(),steady.begin()+37,moved.begin()));
+    double delta=0;for(int i=37;i<512;++i)delta+=std::abs(steady[i]-moved[i]);assert(delta>1e-5);
+    // Multiple relative steps in one VST3 CC queue must all arrive.
+    MemoryStream relative;relative.write(original.getData(),original.getSize(),nullptr);
+    b.target=ids.at("Pan");b.mode=Mode::Relative1;uint64_t relativeWord=b.Encode();std::memcpy(relative.getData()+at(0),&relativeWord,8);
+    relative.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&relative)==kResultOk);
+    assert(processor->setupProcessing(setup)==kResultOk);assert(component->setActive(true)==kResultOk);processor->setProcessing(true);
+    changes.clearQueue();assert(mapping->getMidiControllerAssignment(0,1,20,cc)==kResultOk);
+    auto* queue=changes.addParameterData(cc,index);for(int sample:{0,17,37})queue->addPoint(sample,1./127.,point);
+    assert(processor->process(data)==kResultOk);MemoryStream stepped;assert(component->getState(&stepped)==kResultOk);
+    double beforePan=0,afterPan=0;std::memcpy(&beforePan,original.getData()+6*8,8);std::memcpy(&afterPan,stepped.getData()+6*8,8);assert(afterPan==beforePan+3);
+    processor->setProcessing(false);component->setActive(false);
+    original.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&original)==kResultOk);
+    // Reject corrupt mapping metadata without partially restoring parameters.
+    mapped.getData()[39*8]=0;mapped.seek(0,IBStream::kIBSeekSet,nullptr);component->setState(&mapped);
+    MemoryStream afterCorrupt;assert(component->getState(&afterCorrupt)==kResultOk);
+    std::memcpy(&restored,afterCorrupt.getData()+at(0),8);assert(restored==word);
+    // Restore an ordinary map and retain input configuration across legacy presets.
+    b.source=Source::Off;word=b.Encode();std::memcpy(original.getData()+at(0),&word,8);
+    double channel=3;std::memcpy(original.getData()+35*8,&channel,8);
+    original.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&original)==kResultOk);
+    MemoryStream old29;assert(old29.write(original.getData(),29*8,nullptr)==kResultOk);assert(old29.write(&bypass,4,nullptr)==kResultOk);
+    old29.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&old29)==kResultOk);
+    assert(controller->getParamNormalized(ids.at("MIDI Input Channel"))==3./16.);
+    controller->setParamNormalized(ids.at("MIDI Input Channel"),0.);
+    controller->setParamNormalized(ids.at("Output"),54./66.);
+    std::cout<<"Verified 39-parameter MIDI state, legacy preservation, channel-2 and channel-16 CC input, corrupt-state rejection\n";
+  }
+  controller->setParamNormalized(ids.at("SW1 Mode"),1.);controller->setParamNormalized(ids.at("SW1"),1.);
+  MemoryStream heldSwitch;assert(component->getState(&heldSwitch)==kResultOk);double savedSwitch=1;std::memcpy(&savedSwitch,heldSwitch.getData()+31*8,8);assert(savedSwitch==0.);
+  controller->setParamNormalized(ids.at("SW1 Mode"),0.);controller->setParamNormalized(ids.at("SW1"),0.);
   if(std::getenv("KROSE_UI_REFERENCE")){
     for(int i=0;i<controller->getParameterCount();++i){ParameterInfo p{};controller->getParameterInfo(i,p);controller->setParamNormalized(p.id,p.defaultNormalizedValue);}
     controller->setParamNormalized(ids.at("Program"),1./1161.);
@@ -233,6 +309,7 @@ int main(int argc,char** argv){
     std::cout<<"PASS host UI gestures: "<<gestures->begins<<" balanced edits, "<<gestures->edits<<" values\n";
   }
   view->release();
+  if(ownMidi){std::filesystem::remove(midiFile);unsetenv("KROSE_MIDI_MAP_FILE");}
   if(editorOnly)std::cout<<"PASS editor-only: state/transport/UI checks; full-bank render skipped\n";
   else std::cout<<"PASS compiled VST3: self-contained sample bank, MIDI offsets/audio, three rates/tones, parameter state round-trip, sustain mapping and editor creation\n";
 }

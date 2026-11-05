@@ -44,16 +44,21 @@ void NativePanel::OpenPopup(const Hit &h) {
                                       : mCategory + 2;
   } else {
     auto *p = GetDelegate()->GetParam(h.id);
-    for (int i = int(p->GetMin()); i <= int(p->GetMax()); ++i) {
+    int maximum = int(p->GetMax());
+#if defined(VST3_API)
+    if (h.id == kClockSource)
+      maximum = 1; // VST3 transports do not deliver raw F8 clock.
+#endif
+    for (int i = int(p->GetMin()); i <= maximum; ++i) {
       const char *text = p->GetDisplayText(i);
       add(text ? text : Format(i), i);
     }
-    mPopupFocus = int(Value(h.id));
+    mPopupFocus = std::min(maximum, int(Value(h.id)));
   }
   mPopupRows = std::min(12, int(mChoices.size()));
-  if (h.action == "field") {
+  if (h.action == "field" || h.action == "midi-menu") {
     // Keep LCD menus inside the display; scroll when the available side is short.
-    float room = std::max(284 - h.r.B - 2, h.r.T - 164 - 2);
+    float room = std::max(284 - h.r.B - 2, h.r.T - (mControllers ? 140 : 164) - 2);
     mPopupRows = std::min(mPopupRows, std::max(1, int(room / 22)));
   }
   mPopupScroll =
@@ -61,7 +66,7 @@ void NativePanel::OpenPopup(const Hit &h) {
   SetDirty(false);
 }
 void NativePanel::Popup(IGraphics &g) {
-  bool lcd = mPopupTarget.action == "field";
+  bool lcd = mPopupTarget.action == "field" || mPopupTarget.action == "midi-menu";
   float rowHeight = lcd ? 22 : 26;
   int count = mPopupRows;
   float width = mPopupTarget.r.W();

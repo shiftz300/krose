@@ -42,6 +42,9 @@ void ProgramEngine::Panic() noexcept {
   mTails = {};
   mEvents.Clear();
   mSustain.fill(false);
+  mPortamento.fill(-1);
+  mPreviousPitch.fill(-1);
+  mFXBlend = mControls.fxBypass ? 0 : 1;
   mBend.fill(1);
   mVolume.fill(1);
   mExpression.fill(1);
@@ -139,7 +142,7 @@ void ProgramEngine::SelectMono(int note, int velocity, int channel, bool connect
           for (int side = 0; side < 2; ++side)
             if (v.region->sample[side] != UINT32_MAX)
               v.step[side] = mLibrary->Step(*v.program, *v.region, side, note, mRate);
-          v.glide.Start(previous, note, mControls.glide);
+          v.glide.Start(previous, note, GlideAmount(channel));
           v.glideRatio = v.glide.Ratio();
           v.amplitude.Retune(note);
           v.filter.Retune(v.amplitude);
@@ -154,6 +157,9 @@ void ProgramEngine::SelectMono(int note, int velocity, int channel, bool connect
     NoteOn(note, velocity, channel, previous);
 }
 void ProgramEngine::NoteOn(int note, int velocity, int channel, int previousPitch) noexcept {
+  if (previousPitch < 0 && mPortamento[channel] > 0)
+    previousPitch = mPreviousPitch[channel];
+  mPreviousPitch[channel] = note * 65536;
   const auto &p = mLibrary->programs[mProgram];
   std::array<int32_t, 8> indices;
   indices.fill(-1);
@@ -163,7 +169,7 @@ void ProgramEngine::NoteOn(int note, int velocity, int channel, int previousPitc
       const auto *b = p.controls.data() + 0x564 + 380 * osc;
       if (velocity < std::min(b[0x2d], b[0x2e]) || velocity > std::max(b[0x2d], b[0x2e]))
         continue;
-      const int selection = !p.drum && mControls.glide && previousPitch >= 0
+      const int selection = !p.drum && GlideAmount(channel) && previousPitch >= 0
                                 ? std::max(note, previousPitch / 65536)
                                 : note;
       const auto index = p.lookup[osc][selection][slot];
@@ -214,7 +220,7 @@ void ProgramEngine::NoteOn(int note, int velocity, int channel, int previousPitc
     v.channel = channel;
     v.down = true;
     v.age = age;
-    v.glide.Start(p.drum ? -1 : previousPitch, note, mControls.glide);
+    v.glide.Start(p.drum ? -1 : previousPitch, note, GlideAmount(channel));
     v.glideRatio = v.glide.Ratio();
     const int weight = mLibrary->LayerWeight(r, velocity);
     v.velocityTrim = p.drum ? std::pow(velocity / 127., 1.4) * weight / 32768.
@@ -299,7 +305,9 @@ void ProgramEngine::Midi(const MidiEvent &e) noexcept {
         for (auto &v : mVoices)
           if (v.region && v.channel == ch && !v.down)
             Release(v);
-    } else if (note == 7)
+    } else if (note == 65)
+      mPortamento[ch] = value >= 64 ? 1 : 0;
+    else if (note == 7)
       mVolume[ch] = value / 127.;
     else if (note == 11)
       mExpression[ch] = value / 127.;
@@ -325,6 +333,8 @@ void ProgramEngine::Midi(const MidiEvent &e) noexcept {
       mPressure[ch] = 0;
       mBendValue[ch] = 0;
       mSustain[ch] = false;
+      mPortamento[ch] = -1;
+      mPreviousPitch[ch] = -1;
       mBend[ch] = mVolume[ch] = mExpression[ch] = mSoft[ch] = 1;
       for (auto &v : mVoices)
         if (v.region && v.channel == ch && !v.down)
@@ -439,9 +449,18 @@ void ProgramEngine::Render(float *left, float *right, int frames) noexcept {
       bus[i * 2 + 1] = float(r);
     }
     // One shared return bus, not a separate reverb per voice or per Program.
+    std::array<float, 256> dry;
+    const bool blend = mControls.fxBypass || mFXBlend < 1;
+    if (blend)
+      dry = bus;
     concert_effects_process(mRoom.get(), bus.data(), count);
     for (int i = 0; i < count; ++i) {
       mOutput += mSmooth * (mTarget - mOutput);
+      mFXBlend += mSmooth * ((mControls.fxBypass ? 0. : 1.) - mFXBlend);
+      if (blend) {
+        bus[i * 2] = float(dry[i * 2] + (bus[i * 2] - dry[i * 2]) * mFXBlend);
+        bus[i * 2 + 1] = float(dry[i * 2 + 1] + (bus[i * 2 + 1] - dry[i * 2 + 1]) * mFXBlend);
+      }
       left[start + i] = float(bus[i * 2] * mOutput);
       right[start + i] = float(bus[i * 2 + 1] * mOutput);
     }

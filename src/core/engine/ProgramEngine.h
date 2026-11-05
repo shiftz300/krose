@@ -6,6 +6,7 @@
 #include "samples/ProgramLibrary.h"
 #include "voice/NativeFilter.h"
 #include "voice/NativeModulation.h"
+#include <algorithm>
 #include <array>
 #include <memory>
 namespace segrand {
@@ -54,6 +55,13 @@ private:
   std::array<Voice, kTails> mTails{};
   EventQueue<kEvents> mEvents;
   std::array<bool, 16> mSustain{};
+  std::array<int, 16> mPortamento{}, mPreviousPitch{};
+  double mFXBlend = 1;
+  int GlideAmount(int channel) const noexcept {
+    return mPortamento[channel] < 0 ? mControls.glide
+           : mPortamento[channel]   ? std::max(1, mControls.glide ? mControls.glide : 64)
+                                    : 0;
+  }
   std::array<double, 16> mBend{}, mVolume{}, mExpression{}, mSoft{};
   std::array<std::array<uint8_t, 128>, 16> mCC{}, mPolyPressure{};
   std::array<uint8_t, 16> mPressure{};

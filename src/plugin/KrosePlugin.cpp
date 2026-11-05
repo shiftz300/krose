@@ -4,14 +4,43 @@
 #include "ResourcePath.h"
 #include <algorithm>
 #include <array>
+#include <cstdlib>
+#include <cstring>
 
 KrosePlugin::KrosePlugin(const InstanceInfo &info)
     : Plugin(info, MakeConfig(kNumParams, segrand::kInstrumentProgramCount + 2)) {
   InitializeParameters();
+  InitializeMidiMappings();
+  RestoreMidiProfile();
+  mNotifiedMapRevision.store(mMidiMap.Revision());
+  mHardwarePrograms.fill(-1);
   try {
     const auto resources = krose::SampleDirectory(krose::ResourceDirectory(GetBundleID()));
     auto concert = segrand::SampleBank::Load((resources / "SEGrand.samples").u8string(), false);
-    auto programs = segrand::ProgramLibrary::Load((resources / "Factory.samples").u8string(), false);
+    auto programs =
+        segrand::ProgramLibrary::Load((resources / "Factory.samples").u8string(), false);
+    for (unsigned i = 0; i < programs->programs.size(); ++i) {
+      const char *id = programs->programs[i].id.data();
+      int bank = -1, number = -1;
+      if (id[0] >= 'A' && id[0] <= 'F' && id[1] >= '0' && id[1] <= '9') {
+        bank = id[0] - 'A';
+        number = std::atoi(id + 1);
+      } else if (id[0] == 'G' && id[1] >= '0' && id[1] <= '9') {
+        bank = 6;
+        number = std::atoi(id + 1) - 1;
+      } else if (std::strncmp(id, "EXPCM001:", 9) == 0) {
+        bank = 7;
+        number = std::atoi(id + 9);
+      } else if (std::strncmp(id, "EXPCM002:", 9) == 0) {
+        bank = 8;
+        number = std::atoi(id + 9);
+      } else if (std::strncmp(id, "EXPCM004:", 9) == 0) {
+        bank = 9;
+        number = std::atoi(id + 9);
+      }
+      if (bank >= 0 && number >= 0 && number < 128)
+        mHardwarePrograms[bank * 128 + number] = int(i) + 1;
+    }
     mEngine = std::make_unique<segrand::InstrumentEngine>(std::move(concert), std::move(programs));
   } catch (const std::exception &error) {
     mError = error.what();
@@ -36,6 +65,14 @@ void KrosePlugin::OnReset() {
     return;
   try {
     mEngine->Prepare(GetSampleRate());
+    mIncomingMidi.Clear();
+    mInputControls.Reset();
+    mMidiMap.ResetRuntime();
+    mMidiClock.Reset();
+    mSwitchAssign.fill(-1);
+    mInputSamples = 0;
+    mInputFilter = -1;
+    mProgramBank = {};
     mPrepared = true;
   } catch (const std::exception &) {
     mPrepared = false;
@@ -45,7 +82,7 @@ void KrosePlugin::OnReset() {
 
 void KrosePlugin::ProcessMidiMsg(const IMidiMsg &msg) {
   if (mEngine && mPrepared)
-    mEngine->Queue({msg.mOffset, msg.mStatus, msg.mData1, msg.mData2});
+    mIncomingMidi.Push({msg.mOffset, msg.mStatus, msg.mData1, msg.mData2}, false);
 }
 
 void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
@@ -56,62 +93,38 @@ void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
     return;
   }
 
-  segrand::Controls controls;
-  controls.voiceMode = GetParam(kVoiceMode)->Int();
-  controls.glide = GetParam(kGlide)->Int();
-  controls.program = GetParam(kParamProgram)->Int();
-  controls.preset = GetParam(kParamTone)->Int();
-  controls.outputDb = GetParam(kParamOutput)->Value();
-  controls.space = GetParam(kParamSpace)->Value() / 100;
-  controls.releaseSeconds = GetParam(kParamRelease)->Value() / 1000;
-  controls.velocityCurve = GetParam(kParamVelocity)->Value();
-  controls.pan = GetParam(kParamPan)->Int();
-  controls.cutoff = GetParam(kParamCutoff)->Int();
-  controls.resonance = GetParam(kParamResonance)->Int();
-  auto envelope = [this](int first) {
-    return segrand::EnvelopeOffsets{GetParam(first)->Int(), GetParam(first + 1)->Int(),
-                                    GetParam(first + 2)->Int(), GetParam(first + 3)->Int()};
-  };
-  controls.ampEg = envelope(kAmpAttack);
-  controls.filterEg = envelope(kFilterAttack);
-  mEngine->SetControls(controls, GetRenderingOffline());
-  segrand::ArpControls arp;
-  arp.enabled = GetParam(kArpEnabled)->Bool();
-  arp.latch = GetParam(kArpLatch)->Bool();
-  arp.pattern = GetParam(kArpPattern)->Int();
-  arp.resolution = GetParam(kArpResolution)->Int();
-  arp.gate = GetParam(kArpGate)->Int();
-  arp.hostSync = GetParam(kArpHostSync)->Bool();
-  arp.tempo = GetParam(kArpTempo)->Value();
-  arp.octaves = GetParam(kArpOctaves)->Int();
-  arp.sort = GetParam(kArpSort)->Bool();
-  arp.keySync = GetParam(kArpKeySync)->Bool();
-  mEngine->SetArpeggiator(arp);
-  segrand::Transport transport;
-#if defined(VST3_API)
-  // iPlug2 marks sample position valid when VST3 supplies musical position.
-  transport.available = GetSamplePos() != -1. && GetTempo() > 0;
-  transport.running = GetTransportIsRunning();
-  transport.tempo = GetTempo();
-  transport.ppq = GetPPQPos();
-#endif
-  mEngine->SetTransport(transport);
-  mDisplayTempo.store(mEngine->Tempo(), std::memory_order_relaxed);
-  mDisplayHost.store(arp.hostSync && transport.available, std::memory_order_relaxed);
-
-  // Fixed stack buffers support arbitrary host block lengths without allocation.
-  std::array<float, 256> left, right;
-  for (int start = 0; start < nFrames; start += 256) {
-    const int count = std::min(256, nFrames - start);
-    mEngine->Process(left.data(), right.data(), count);
-    if (channels > 0)
-      for (int n = 0; n < count; ++n)
-        outputs[0][start + n] = sample(left[n]);
-    if (channels > 1)
-      for (int n = 0; n < count; ++n)
-        outputs[1][start + n] = sample(right[n]);
-    for (int ch = 2; ch < channels; ++ch)
-      std::fill(outputs[ch] + start, outputs[ch] + start + count, sample(0));
+  if (mIncomingMidi.Overflowed()) {
+    mEngine->Panic();
+    mIncomingMidi.Clear();
+    mInputControls.Reset();
+    mSwitchAssign.fill(-1);
   }
+  const unsigned count = mIncomingMidi.ReadyCount(nFrames);
+  ConfigureAudio(0);
+  std::array<float, 256> left{}, right{};
+  auto render = [&](int first, int frames) {
+    for (int start = first; start < first + frames; start += 256) {
+      const int n = std::min(256, first + frames - start);
+      mEngine->Process(left.data(), right.data(), n);
+      for (int ch = 0; ch < channels; ++ch)
+        for (int i = 0; i < n; ++i)
+          outputs[ch][start + i] = ch == 0   ? sample(left[i])
+                                   : ch == 1 ? sample(right[i])
+                                             : sample(0);
+    }
+  };
+  int position = 0;
+  for (unsigned i = 0; i < count; ++i) {
+    const auto &event = mIncomingMidi[i];
+    if (event.offset > position)
+      render(position, event.offset - position);
+    position = event.offset;
+    HandleControllerMidi({event.offset, event.status, event.data1, event.data2});
+    ConfigureAudio(position);
+  }
+  if (position < nFrames)
+    render(position, nFrames - position);
+  mIncomingMidi.Advance(count, nFrames);
+  mInputSamples += uint64_t(nFrames);
 }
 #endif

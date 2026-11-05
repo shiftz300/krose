@@ -1,0 +1,17 @@
+# Keep every MIDI controller event (relative encoders and button edges). The
+# pinned SDK collapses each parameter queue to its final point by default.
+set(_vst3_processor "${IPLUG2_DIR}/IPlug/VST3/IPlugVST3_ProcessorBase.cpp")
+file(READ "${_vst3_processor}" _vst3_source)
+set(_last_point "if (paramQueue->getPoint(numPoints - 1,  offsetSamples, value) == kResultTrue)")
+string(FIND "${_vst3_source}" "${_last_point}" _vst3_match)
+if(_vst3_match LESS 0)
+  message(FATAL_ERROR "Pinned iPlug VST3 parameter input source changed")
+endif()
+string(REPLACE "${_last_point}" [=[for (int32 point = paramQueue->getParameterId() >= kMIDICCParamStartIdx ? 0 : std::max(0, numPoints - 1); point < numPoints; ++point)
+        if (paramQueue->getPoint(point, offsetSamples, value) == kResultTrue)]=] _vst3_source "${_vst3_source}")
+set(_vst3_overlay "${CMAKE_BINARY_DIR}/generated/iplug-vst3/IPlugVST3_ProcessorBase.cpp")
+file(CONFIGURE OUTPUT "${_vst3_overlay}" CONTENT "${_vst3_source}" @ONLY)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_vst3_processor}")
+get_target_property(_vst3_sources iPlug2::VST3 INTERFACE_SOURCES)
+string(REPLACE "${_vst3_processor}" "${_vst3_overlay}" _vst3_sources "${_vst3_sources}")
+set_property(TARGET iPlug2::VST3 PROPERTY INTERFACE_SOURCES "${_vst3_sources}")

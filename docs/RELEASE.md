@@ -2,8 +2,16 @@
 
 普通 push 和 Pull Request 进行 Windows x64、macOS Universal（Apple Silicon + Intel）编译检查，开启 Release 与 LTO。编译检查使用单独的占位采样目录并显式关闭 PGO；占位数据不用于训练。检查 NSIS 安装／卸载和 macOS PKG 结构，不上传占位成品。
 
-真实安装包流程位于 `.github/workflows/release.yml`：v2 资源归档采用 XZ，直接保存原厂编码 Factory 库和 Concert 引用索引。CI 校验并提取后保留紧凑格式，后台按音色解码；安装时不展开整库 PCM。Windows 使用 clang-cl／lld-link，macOS arm64 与 x86_64 分别在对应原生 runner 上训练 PGO，并运行各自回归；macOS 两套 bundle 的资源及版本核对一致后合成 Universal。最终生成 Windows NSIS EXE 和 macOS Universal PKG。普通构建的真实安装包保留为 Actions artifact 14 天；推送 `v版本号` 标签时，两个平台均成功后自动创建 GitHub Release，附安装包和 SHA256SUMS.txt。标签须与 CMake、插件版本一致。
+真实安装包流程位于 `.github/workflows/release.yml`：v2 资源归档采用 XZ，直接保存原厂编码 Factory 库和 Concert 引用索引。CI 校验并提取后保留紧凑格式，后台按音色解码；安装时不展开整库 PCM。Windows 使用 clang-cl／lld-link，macOS arm64 与 x86_64 分别在对应原生 runner 上训练 PGO，并运行各自回归；macOS 两套 bundle 的资源及版本核对一致后合成 Universal。最终生成 Windows NSIS EXE、macOS Universal PKG，以及两平台的免安装独立版 ZIP。普通构建的真实安装包保留为 Actions artifact 14 天；推送 `v版本号` 标签时，两个平台均成功后自动创建 GitHub Release，附安装包和 SHA256SUMS.txt。标签须与 CMake、插件版本一致。
 
+
+## 免安装独立版
+
+Actions 另提供 `Krose-windows-x64-standalone` 与 `Krose-macos-universal-standalone`，正式标签 Release 同时附上 ZIP。Windows 包包含 `Krose/Krose.exe` 和同目录的 `Resources`；macOS 包包含自带资源的 `Krose.app`。完整解压后即可运行，支持没有 DAW 的独立试音；保留 ZIP 内的资源布局。安装器仍同时提供 APP 与 VST3。
+
+CI 在临时目录完整解压 ZIP，以 `--no-io --screenshot screenshot.png` 启动，检查原生界面截图，避免打开 CI 的音频／MIDI 设备；macOS 同时核对签名和 Universal 架构。便携版优先使用包内采样，不依赖已安装的共享资源。
+
+本地打包：`python3 tools/release/package_standalone.py --input build/plugin/out --output dist --version 0.2.0 --platform macos-arm64 --smoke`。Windows 指定 `--platform windows-x64`；合并后的 macOS 产物指定 `macos-universal`。
 
 ## 首次接入完整资源
 
@@ -27,8 +35,8 @@ CI 从锁文件读取标签、文件名及 SHA-256。归档工具仍支持旧 PC
 先在普通分支确认完整安装包构建成功，再推送与代码版本一致的标签：
 
 ```sh
-git tag -a v0.1.0 -m 'Krose 0.1.0'
-git push origin v0.1.0
+git tag -a v0.2.0 -m 'Krose 0.2.0'
+git push origin v0.2.0
 ```
 
 Windows NSIS 默认安装独立程序到 `Program Files\Krose`、VST3 到 `Common Files\VST3\Krose.vst3`，支持组件选择、开始菜单、系统卸载及 `/S` 静默安装；采样共用 `Common Files\Krose\Samples\版本号`，卸载保留用户收藏。macOS PKG 安装到 `/Applications/Krose.app` 和 `/Library/Audio/Plug-Ins/VST3/Krose.vst3`，关闭 bundle 重定位，采样共用 `/Library/Application Support/Krose/Samples/版本号`。便携 bundle 优先使用内置采样，安装版也可用 `KROSE_SAMPLE_DIRECTORY` 指定自定义位置。
@@ -45,4 +53,4 @@ PGO 只用于 Release 核心。Debug 和 Sanitizer 不使用 PGO；Sanitizer 也
 
 macOS 各架构独立训练，直接配置 `arm64;x86_64` 时启用 PGO 会报错。CI 使用 `macos-15`（arm64）和 `macos-15-intel`（x86_64）生成原生 bundle，再调用 `tools/release/merge_macos.py` 合成 Universal，最后重新签名、校验。
 
-复测：`cmake --preset plugin && cmake --build --preset plugin && ctest --preset plugin`。本机构建 PKG：`bash tools/release/package_macos.sh build/plugin 0.1.0`。
+复测：`cmake --preset plugin && cmake --build --preset plugin && ctest --preset plugin`。本机构建 PKG：`bash tools/release/package_macos.sh build/plugin 0.2.0`。

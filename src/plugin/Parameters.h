@@ -31,5 +31,15 @@ enum EParams {
   kArpOctaves = 26,
   kArpSort = 27,
   kArpKeySync = 28,
-  kNumParams = 29
+  kSW1Assign = 29,
+  kSW1Mode = 30,
+  kSW1State = 31,
+  kSW2Assign = 32,
+  kSW2Mode = 33,
+  kSW2State = 34,
+  kInputChannel = 35,
+  kProgramChange = 36,
+  kClockSource = 37,
+  kFXBypass = 38,
+  kNumParams = 39
 };
