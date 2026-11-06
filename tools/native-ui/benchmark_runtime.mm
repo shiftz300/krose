@@ -53,9 +53,9 @@ static NSView *native(NSView *view) {
       return result;
   return nil;
 }
-static void fold(NSView *view) {
+static void click(NSView *view, float x = 71, float y = 85) {
   auto point =
-      [view convertPoint:NSMakePoint(71, view.isFlipped ? 85 : view.bounds.size.height - 85)
+      [view convertPoint:NSMakePoint(x, view.isFlipped ? y : view.bounds.size.height - y)
                   toView:nil];
   for (auto type : {NSEventTypeLeftMouseDown, NSEventTypeLeftMouseUp}) {
     auto event = [NSEvent mouseEventWithType:type
@@ -261,8 +261,18 @@ int main(int argc, char **argv) {
         pump(.2);
         m.sample();
         if (animation && Clock::now() >= next) {
-          fold(animation);
-          next = Clock::now() + std::chrono::milliseconds(450);
+          if (std::string(name) == "ui_animation") {
+            // Exercise page, envelope, fader, button and both menu paths.
+            constexpr float positions[][2] = {{780,125},{930,125},{700,125},
+                {1200,67},{1057,150},{1057,240},{1145,67},{70,285},{70,285},
+                {620,331},{1006,162},{700,67},{550,123},{400,380}};
+            const auto &p = positions[n % 14];
+            click(animation, p[0], p[1]);
+            next = Clock::now() + std::chrono::milliseconds(150);
+          } else {
+            click(animation);
+            next = Clock::now() + std::chrono::milliseconds(450);
+          }
         }
         ++n;
       }
@@ -341,7 +351,8 @@ int main(int argc, char **argv) {
     auto phase = [&](const char *name, int program, int notes, bool arp = false,
                      bool switching = false, bool animate = false) {
       if (const char *only = std::getenv("KROSE_BENCH_CASE"))
-        if (name != std::string(only))
+        if (name != std::string(only) &&
+            !(std::string(only) == "ui_animation" && std::string(name) == "editor_idle_after_animation"))
           return;
       processor->setProcessing(true);
       {
@@ -360,6 +371,9 @@ int main(int argc, char **argv) {
     assert(panel);
     phase("editor_idle", 0, 0);
     phase("fx_animation", 0, 0, false, false, true);
+    phase("ui_animation", 0, 0, false, false, true);
+    click(panel,1006,162); click(panel,400,380); pump(.2);
+    phase("editor_idle_after_animation", 0, 0);
     phase("concert_8_notes", 0, 8);
     phase("concert_32_notes", 0, 32);
     phase("factory_8_notes", 1, 8);

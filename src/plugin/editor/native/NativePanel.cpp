@@ -161,15 +161,36 @@ void NativePanel::Button(IGraphics &g, const std::string &name, bool on, const s
   if (it == mData["assets"].end())
     return;
   auto r = (*it)["rect"];
-  Bitmap(g, key, r[0], r[1]);
+  const auto bounds = R(r[0], r[1], r[2], r[3]);
+  const double light = Visual("button:" + name, on ? 1 : 0);
+  if (light < 1) Bitmap(g, "button-" + name + "-off", r[0], r[1]);
+  if (light > 0) {
+    IBlend blend(EBlend::Default, float(light));
+    g.DrawBitmap(Image("button-" + name + "-on"), bounds, 1, &blend);
+  }
+  const bool hover = enabled && !mBrowsing && !mPresetOpen && mChoices.empty() &&
+                     bounds.Contains(mMouseX, mMouseY);
+  const double glow = Visual("hover:" + name, hover ? 1 : 0, .10);
+  if (glow > 0) g.FillRect(IColor(int(10 * glow), 255, 255, 255), bounds.GetPadded(-5));
+  if (mPointerDown && hover) mPressedButton = name;
+  double press = Visual("press:" + name,
+      mPointerDown && mPressedButton == name ? 1 : 0, .08);
+  const double clickAge = mFrameTime - mClickTime;
+  if (bounds.Contains(mClickX, mClickY) && clickAge >= 0 && clickAge < .09) {
+    press = std::max(press, .65 * (1 - clickAge / .09));
+    mVisualAnimating = true;
+  }
+  if (press > 0) g.FillRect(IColor(int(35 * press), 0, 0, 0), bounds.GetPadded(-5));
   if (enabled)
     HitBox(R(float(r[0]) + 3, float(r[1]) + 3, float(r[2]) - 6, float(r[3]) - 6), action, id, v);
 }
 void NativePanel::Draw(IGraphics &g) {
+  mFrameTime = std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+  mVisualAnimating = false;
   const bool profiling = std::getenv("KROSE_UI_PROFILE");
   const auto start =
       profiling ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point{};
-  const bool animating = profiling && FoldProgress() != double(mFold);
+
   mHits.clear();
   const char *capture = std::getenv("KROSE_NATIVE_CAPTURE");
   if (capture) {
@@ -190,6 +211,7 @@ void NativePanel::Draw(IGraphics &g) {
     mDrawTimes.push_back(
         std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start)
             .count());
+    const bool animating = mVisualAnimating || FoldProgress() != double(mFold);
     if (animating && mPreviousAnimating)
       mFrameGaps.push_back(
           std::chrono::duration<double, std::milli>(start - mPreviousFrame).count());
@@ -212,7 +234,7 @@ bool NativePanel::IsDirty() {
     mMeterLevels[slot] = value;
   }
   // Animation follows the graphics clock, not the slower host-message timer.
-  return IControl::IsDirty() || FoldProgress() != mRenderedFold ||
+  return IControl::IsDirty() || mVisualAnimating || FoldProgress() != mRenderedFold ||
          (meterChanged && FoldProgress() < 1);
 }
 double NativePanel::FoldProgress() const {
@@ -268,7 +290,8 @@ void NativePanel::Render(IGraphics &g) {
   for (auto k : knobs) {
     Bitmap(g, "knob-shell", k.x - 8, k.y - 8);
     g.DrawRotatedBitmap(Image("knob-pointer"), k.x + 24, k.y + 24,
-                        -135 + 270 * GetDelegate()->GetParam(k.id)->GetNormalized());
+                        -135 + 270 * Visual("knob:" + std::to_string(k.id),
+                            GetDelegate()->GetParam(k.id)->GetNormalized(), .12, mDrag == k.id));
     HitBox(R(k.x - 8, k.y - 8, 64, 64), "knob", k.id);
     double v = Value(k.id);
     std::string s = k.id == kParamOutput     ? Format(v, 1) + " dB"
@@ -290,7 +313,8 @@ void NativePanel::Render(IGraphics &g) {
   Button(g, "filter", mEG == 1, "eg", -1, 1);
   for (int i = 0; i < 4; ++i) {
     int id = (mEG ? kFilterAttack : kAmpAttack) + i;
-    float cx = 1057 + i * 60, cy = 132 + 135 * (1 - (Value(id) + 99) / 198);
+    float cx = 1057 + i * 60, cy = 132 + 135 * (1 -
+        Visual("fader:" + std::to_string(i), (Value(id) + 99) / 198, .12, mDrag == id));
     Bitmap(g, "fader-thumb", cx - 20, cy - 14.5);
     auto r = R(cx - 27, 278, 54, 15);
     Text(g, "mono12", Signed(Value(id)), r, 1);
@@ -315,7 +339,7 @@ void NativePanel::Render(IGraphics &g) {
       continue;
     int note = 36 + i + 12 * mOctave;
     float x = 198 + 34 * white++;
-    Bitmap(g, mLit[note] ? "white-down" : "white-up", x - 3, 393);
+    KeyImage(g, note, false, x - 3);
     HitBox(R(x, 396, 34, 216), "note", note);
     if (i % 12 == 0)
       Text(g, "arial9", "C" + std::to_string(note / 12 - 1), R(x, 590, 34, 18), 1);
@@ -329,12 +353,12 @@ void NativePanel::Render(IGraphics &g) {
     }
     int note = 36 + i + 12 * mOctave;
     float x = 198 + 34 * white - 10.203125f;
-    Bitmap(g, mLit[note] ? "black-down" : "black-up", std::floor(x) - 3, 393);
+    KeyImage(g, note, true, std::floor(x) - 3);
     HitBox(R(x, 396, 20.390625f, 134), "note", note);
   }
   // The pitch indicator shares the reference's unscaled travel distance.
-  Bitmap(g, "pitch-mark", 56, 491 - mPitch / 8192 * 50.82);
-  Bitmap(g, "pitch-mark", 128, 541.82 - mMod / 127 * 101.64);
+  Bitmap(g, "pitch-mark", 56, 491 - Visual("pitch", mPitch / 8192, .12, mDrag == -2) * 50.82);
+  Bitmap(g, "pitch-mark", 128, 541.82 - Visual("mod", mMod / 127, .12, mDrag == -3) * 101.64);
   HitBox(R(129, 433, 29, 127), "mod");
   HitBox(R(57, 433, 29, 127), "pitch");
   Bitmap(g, "kf-oct-down", 36, 589);
@@ -385,14 +409,25 @@ void NativePanel::Render(IGraphics &g) {
     g.FillRect(Paper, R(431, 260, 542, 24));
     Text(g, "lcd13", mPresetStatus, R(437, 263, 530, 20));
   }
+  const int lcdState = mPage + 8 * mSlot + 32 * mFxBand +
+                       256 * int(mControllers) + 512 * mControllerPage + 4096 * program;
+  if (mLCDState != lcdState) {
+    mLCDReveal.Snap(mLCDState < 0 ? 1 : .65);
+    mLCDReveal.Target(1, mFrameTime, .10);
+    mLCDState = lcdState;
+  }
+  const double lcdAlpha = mLCDReveal.At(mFrameTime);
+  mVisualAnimating |= mLCDReveal.Active(mFrameTime);
+  if (lcdAlpha < 1) g.FillRect(IColor(int(255 * (1 - lcdAlpha)), Paper.R, Paper.G, Paper.B),
+                              R(431, 115, 542, 169));
   LCDGrid(g, R(431, 115, 542, 169));
   g.PathClipRegion();
-  if (mBrowsing)
-    Browser(g);
-  if (!mChoices.empty())
-    Popup(g);
-  if (mPresetOpen)
-    PresetMenu(g);
+  // Opacity only: text stays on the pixel grid and hit regions are live immediately.
+  if (mBrowsing) g.FillRect(IColor(26, 0, 0, 0), mRECT);
+  Reveal(g, mBrowsing, 0, R(425, 123, 616, 410), &NativePanel::Browser);
+  Reveal(g, !mChoices.empty(), 1,
+         R(mPopupTarget.r.L - 4, 0, mPopupTarget.r.W() + 8, 648), &NativePanel::Popup);
+  Reveal(g, mPresetOpen, 2, R(505, 82, 586, 340), &NativePanel::PresetMenu);
   if (mKeyboardFocus && mFocus >= 0 && mFocus < int(mHits.size()))
     g.DrawRect(IColor(180, 215, 225, 230), mHits[mFocus].r.GetPadded(2), nullptr, 1);
 }
