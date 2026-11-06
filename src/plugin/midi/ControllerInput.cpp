@@ -1,8 +1,18 @@
 #include "../KrosePlugin.h"
 #include <algorithm>
 using namespace krose::midi;
+#if defined(VST3_API)
+Steinberg::tresult PLUGIN_API KrosePlugin::setParamNormalized(Steinberg::Vst::ParamID tag,
+                                                            Steinberg::Vst::ParamValue value) {
+  if (!std::isfinite(value))
+    return Steinberg::kResultFalse;
+  return Plugin::setParamNormalized(tag, std::clamp(value, 0., 1.));
+}
+#endif
 void KrosePlugin::SetMidiParameter(unsigned id, double normalized) {
-  if (id >= kNumMidiParameters) {
+  if (!std::isfinite(normalized)) return;
+  const int parameter = ParameterForMidiTarget(id);
+  if (parameter < 0) {
     if (normalized < .5)
       return;
     const unsigned program = unsigned(GetParam(kParamProgram)->Int());
@@ -19,13 +29,16 @@ void KrosePlugin::SetMidiParameter(unsigned id, double normalized) {
     }
     return;
   }
+  id = unsigned(parameter);
   auto *p = GetParam(id);
   const double before = p->GetNormalized();
   p->SetNormalized(std::clamp(normalized, 0., 1.));
   if (p->GetNormalized() == before)
     return;
+  if (id == kParamProgram)
+    mComparisonNeedsCapture.store(true, std::memory_order_relaxed);
   OnParamChange(id, kDelegate, 0);
-  mMidiChangedParams.fetch_or(uint64_t(1) << id, std::memory_order_release);
+  mMidiChangedParams[id / 64].fetch_or(uint64_t(1) << (id % 64), std::memory_order_release);
 }
 void KrosePlugin::ApplySwitches() {
   auto setAction = [&](SwitchAssignment a, bool state) {
@@ -81,7 +94,10 @@ void KrosePlugin::HandleControllerMidi(Message m, const int &position, RenderTo 
   };
   const bool consumed = mMidiMap.Process(
       m,
-      [&](unsigned target) { return target < kNumMidiParameters ? GetParam(target)->GetNormalized() : 0.; },
+      [&](unsigned target) {
+        const int id = ParameterForMidiTarget(target);
+        return id >= 0 ? GetParam(id)->GetNormalized() : 0.;
+      },
       write);
   if (consumed) {
     if ((type == 0x80 || (type == 0x90 && !m.data2)) && mInputControls.HasHeld(ch, m.data1 & 127))
@@ -193,6 +209,9 @@ void KrosePlugin::ApplyHostParameter(const HostParameter &parameter) {
 }
 
 void KrosePlugin::QueueHostParameter(int id, double value, int offset, int frames) {
+  if (id < 0 || id >= kNumParams || !std::isfinite(value))
+    return;
+  value = std::clamp(value, 0., 1.);
   if (frames <= 0) {
     ApplyHostParameter({0, id, value});
     return;
@@ -236,6 +255,8 @@ void KrosePlugin::FlushHostParameters() {
 #endif
 
 void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
+  if (nFrames <= 0 || !outputs)
+    return;
   const int channels = NOutChansConnected();
   if (!mEngine || !mPrepared) {
 #if defined(VST3_API)
@@ -255,10 +276,14 @@ void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
   const unsigned count = mIncomingMidi.ReadyCount(nFrames);
   int position = 0;
   std::array<float, 256> left{}, right{};
+  std::array<float, 2> fxPeaks{};
   auto renderTo = [&](int end) {
     while (position < end) {
       const int n = std::min(256, end - position);
       mEngine->Process(left.data(), right.data(), n);
+      const auto peaks = mEngine->FxPeaks();
+      for (unsigned slot = 0; slot < peaks.size(); ++slot)
+        fxPeaks[slot] = std::max(fxPeaks[slot], peaks[slot]);
       for (int ch = 0; ch < channels; ++ch)
         for (int i = 0; i < n; ++i)
           outputs[ch][position + i] = ch == 0   ? sample(left[i])
@@ -296,6 +321,13 @@ void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
   ClearHostParameters();
 #endif
   renderTo(nFrames);
+  for (unsigned slot = 0; slot < fxPeaks.size(); ++slot) {
+    // One audio writer and one UI reader. At most one bounded CAS per block;
+    // a concurrent read simply defers this transient to the next block.
+    auto previous = mFxPeaks[slot].load(std::memory_order_relaxed);
+    if (fxPeaks[slot] > previous)
+      mFxPeaks[slot].compare_exchange_strong(previous, fxPeaks[slot], std::memory_order_relaxed);
+  }
   mIncomingMidi.Advance(count, nFrames);
   mInputSamples += uint64_t(nFrames);
 }

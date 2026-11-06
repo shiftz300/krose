@@ -6,9 +6,11 @@ window.kroseNative.openBrowser = function(root) {
     Object.assign(dialog.style,{width:'610px',height:'390px',padding:'20px',background:'#282b2d',color:'#e1e1dc',border:'1px solid #717579',borderRadius:'6px',font:'15px sans-serif'});
     const heading=document.createElement('div');heading.textContent='PRESETS · '+this.presets.length;
     heading.style.marginBottom='12px';
-    const close=document.createElement('button');close.textContent='×';close.setAttribute('aria-label','关闭音色浏览');close.style.float='right';close.onclick=()=>dialog.close();heading.append(close);
+    const close=document.createElement('button');close.textContent='×';close.setAttribute('aria-label','关闭音色浏览');
+    Object.assign(close.style,{float:'right',width:'25px',height:'26px',padding:'0',border:'0',borderRadius:'0',background:'transparent',boxShadow:'none',color:'#e1e1dc',font:'24px/26px Arial, sans-serif',cursor:'pointer'});
+    close.onclick=()=>dialog.close();heading.append(close);
     const filters=document.createElement('div');Object.assign(filters.style,{display:'flex',gap:'8px',marginBottom:'12px'});
-    const search=document.createElement('input');search.type='search';search.placeholder='名称或编号';search.setAttribute('aria-label','搜索音色');search.style.flex='1';
+    const search=document.createElement('input');search.type='search';search.placeholder='名称或编号';search.setAttribute('aria-label','搜索音色');Object.assign(search.style,{flex:'1',background:'#232628',color:'#e1e1dc',border:'1px solid #767a7d',borderRadius:'2px',padding:'0 9px'});
     const bank=document.createElement('select');bank.setAttribute('aria-label','音色库');bank.add(new Option('全部音色库',''));
     for(const group of this.browser.groups) bank.add(new Option(group,group));
 

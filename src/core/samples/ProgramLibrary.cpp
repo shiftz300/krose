@@ -81,6 +81,10 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
           programCount > 0 && programCount <= 2048);
   const auto fileSize = std::filesystem::file_size(std::filesystem::u8path(key));
   Require(fileSize <= 512ull * 1024 * 1024);
+  uint64_t expected = 24 + 224 * 4 + 256 * 2 + 129 * 2 + (version == 3 ? 512 : 0) +
+                      uint64_t(sampleCount) * (version == 3 ? 40 : 32) +
+                      uint64_t(regionCount) * 96 + uint64_t(programCount) * 2232;
+  Require(expected <= fileSize); // Reject impossible tables before allocating metadata.
   auto bank = std::make_shared<ProgramLibrary>();
   bank->mPath = key;
   bank->mPreload = preload;
@@ -101,9 +105,6 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
     for (auto &v : bank->mSampleLut)
       v = in.I16();
   bank->samples.resize(sampleCount);
-  uint64_t expected = 24 + 224 * 4 + 256 * 2 + 129 * 2 + (version == 3 ? 512 : 0) +
-                      uint64_t(sampleCount) * (version == 3 ? 40 : 32) +
-                      uint64_t(regionCount) * 96 + uint64_t(programCount) * 2232;
   for (auto &sample : bank->samples) {
     sample.id = in.U32();
     const auto frames = in.U32();

@@ -12,8 +12,9 @@ const char *modes[] = {"ABSOLUTE",     "REL 2'S COMP", "REL OFFSET 64",
 const int config[] = {kSW1Assign,    kSW1Mode,       kSW2Assign,  kSW2Mode,
                       kInputChannel, kProgramChange, kClockSource};
 std::string Target(KrosePlugin *p, unsigned id) {
-  if (id < kNumMidiParameters)
-    return p->GetParam(id)->GetName();
+  const int parameter = ParameterForMidiTarget(id);
+  if (parameter >= 0)
+    return p->GetParam(parameter)->GetName();
   return id == KrosePlugin::kTargetNext       ? "NEXT PRESET"
          : id == KrosePlugin::kTargetPrevious ? "PREV PRESET"
                                               : "PANIC";
@@ -152,7 +153,7 @@ void NativePanel::Controllers(IGraphics &g) {
                            "Learn captures first message without changing sound.",
                            "Relative modes follow the keyboard's encoder setting.",
                            "Chord / scale / arp notes work as normal MIDI notes.",
-                           "DAW / MCU / HUI and vendor screens belong to the host."};
+                           "Right-click FX for UI size; MCU / HUI uses the DAW."};
     for (int i = 0; i < 5; ++i)
       Text(g, "lcd13", lines[i], R(438, 175 + 20 * i, 530, 19));
   }
@@ -245,7 +246,8 @@ void NativePanel::ControllerChoice(int id, int value) {
   map.Set(mMapSlot, b);
   mControllerStatus = "Edited / INPUT > STORE to keep";
 }
-void NativePanel::BeginLearn(int target) {
+void NativePanel::BeginLearn(int parameter) {
+  const int target = MidiTargetForParameter(parameter);
   auto *p = static_cast<KrosePlugin *>(GetDelegate());
   auto &map = p->MidiMappings();
   map.CancelLearn();
@@ -275,7 +277,7 @@ void NativePanel::BeginLearn(int target) {
   auto b = map.Get(slot);
   b.target = target;
   if (b.source == Source::Off) {
-    b.mode = (target >= kNumMidiParameters || p->GetParam(target)->Type() == IParam::kTypeBool)
+    b.mode = (p->GetParam(parameter)->Type() == IParam::kTypeBool)
                  ? Mode::Toggle
                  : Mode::Absolute;
     if ((target == kSW1State && Value(kSW1Mode)) || (target == kSW2State && Value(kSW2Mode)))

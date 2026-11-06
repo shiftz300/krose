@@ -13,9 +13,6 @@ namespace krose::ui {
 using namespace detail;
 namespace {
 constexpr const char *FxSlots[] = {"IFX 1", "IFX 2", "MFX 1", "MFX 2"};
-// Atlas columns follow the configured insert/send types after AUTO and OFF.
-constexpr std::array<int, segrand::kInsertTypes.size() - 2> InsertFxFaces{0, 1, 2, 3, 4};
-constexpr std::array<int, segrand::kSendTypes.size() - 2> SendFxFaces{5, 6, 7, 8};
 struct PanelResources {
   const nlohmann::json data = nlohmann::json::parse(kNativeData);
   const nlohmann::json programs = nlohmann::json::parse(kNativePrograms);
@@ -68,13 +65,18 @@ void NativePanel::OnInit() {
     f.size = it.value()["size"];
   }
   Image("fx-faces");
+  GetUI()->LoadFont("meter", "Roboto-Regular.ttf");
   Image("fx-region-0");
   FilterPrograms();
   mStoredMapping = ControllerHash();
+  auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
+  if (!plugin->ComparisonReady())
+    plugin->CaptureComparison();
 }
 double NativePanel::Value(int id) { return GetDelegate()->GetParam(id)->Value(); }
 void NativePanel::Set(int id, double v, bool gesture) {
   if (mParameters.Set(*GetDelegate(), id, v, gesture)) {
+    mPresetStatus.clear();
     // Editing an AUTO effect promotes only this slot to its explicit type.
     if (id >= kFxDetails && !Value(kFxType1 + mSlot) && FxType(mSlot) > 1)
       Set(kFxType1 + mSlot, FxType(mSlot));
@@ -196,8 +198,22 @@ void NativePanel::Draw(IGraphics &g) {
   }
 }
 bool NativePanel::IsDirty() {
+  const auto now = std::chrono::steady_clock::now();
+  const double dt = std::chrono::duration<double>(now - mMeterTick).count();
+  mMeterTick = now;
+  bool meterChanged = false;
+  auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
+  for (unsigned slot = 0; slot < mMeterLevels.size(); ++slot) {
+    const double peak = plugin->TakeFxPeak(slot);
+    double value = FxType(slot) == 4 && FxEnabled(slot)
+        ? std::max(peak, mMeterLevels[slot] * std::exp(-dt / .25)) : 0;
+    if (value < .0001) value = 0;
+    meterChanged |= std::abs(value - mMeterLevels[slot]) > .00001;
+    mMeterLevels[slot] = value;
+  }
   // Animation follows the graphics clock, not the slower host-message timer.
-  return IControl::IsDirty() || FoldProgress() != mRenderedFold;
+  return IControl::IsDirty() || FoldProgress() != mRenderedFold ||
+         (meterChanged && FoldProgress() < 1);
 }
 double NativePanel::FoldProgress() const {
   return mFXMotion
@@ -287,8 +303,8 @@ void NativePanel::Render(IGraphics &g) {
   Button(g, "kf-prev", false, "step", -1, -1);
   Button(g, "kf-next", false, "step", -1, 1);
   Button(g, "kf-browse", false, "browse");
-  Button(g, "kf-save", false, "", -1, 0, false);
-  Button(g, "kf-compare", false, "", -1, 0, false);
+  Button(g, "kf-save", false, "save");
+  Button(g, "kf-compare", static_cast<KrosePlugin *>(GetDelegate())->Comparing(), "compare");
   Button(g, "sw1", Value(kSW1State) > 0, "switch", 0);
   Button(g, "sw2", Value(kSW2State) > 0, "switch", 1);
   // Each white key is drawn first, then the raised black keys and their shadows.
@@ -318,7 +334,8 @@ void NativePanel::Render(IGraphics &g) {
   }
   // The pitch indicator shares the reference's unscaled travel distance.
   Bitmap(g, "pitch-mark", 56, 491 - mPitch / 8192 * 50.82);
-  Bitmap(g, "pitch-mark", 128, 541.82);
+  Bitmap(g, "pitch-mark", 128, 541.82 - mMod / 127 * 101.64);
+  HitBox(R(129, 433, 29, 127), "mod");
   HitBox(R(57, 433, 29, 127), "pitch");
   Bitmap(g, "kf-oct-down", 36, 589);
   Bitmap(g, "kf-oct-up", 132, 589);
@@ -364,6 +381,10 @@ void NativePanel::Render(IGraphics &g) {
   }
   g.PathClipRegion(R(424, 108, 556, 176));
   LCD(g);
+  if (!mPresetStatus.empty() && !mControllers && mPage == 0) {
+    g.FillRect(Paper, R(431, 260, 542, 24));
+    Text(g, "lcd13", mPresetStatus, R(437, 263, 530, 20));
+  }
   LCDGrid(g, R(431, 115, 542, 169));
   g.PathClipRegion();
   if (mBrowsing)
@@ -493,151 +514,6 @@ void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &bou
     if (!check && !choice) {
       HitBox(R(r.R - 19, r.T, 16, r.H() / 2), "increment", id, 1);
       HitBox(R(r.R - 19, r.MH(), 16, r.H() / 2), "increment", id, -1);
-    }
-  }
-}
-void NativePanel::DrawFxFace(IGraphics &g, const IRECT &module, int slot) {
-  constexpr int tile = 54;
-  const int type = FxType(slot);
-  if (type <= 1) {
-    DrawEmptyFxSlot(g, module, slot == 0);
-    return;
-  }
-  const int column = slot < 2 ? InsertFxFaces[type - 2] : SendFxFaces[type - 2];
-  const bool enabled = FxEnabled(slot);
-  auto pixel = [](float v) { return std::round(v * 2) / 2; };
-  // The display fills the inset only. The frame and shared marble are baked separately.
-  const float x = pixel(module.L + module.W() * .1f);
-  const float y = pixel(module.T + module.H() * .1f);
-  g.DrawBitmap(Image("fx-faces"), R(x, y, tile, tile), column * tile, enabled ? 0 : tile);
-  if (!enabled) {
-    const float left = pixel(module.L + module.W() * .35f);
-    const float right = pixel(module.L + module.W() * .65f);
-    const float top = pixel(module.T), bottom = pixel(module.T + module.H() / 24);
-    g.FillRect(IColor(255, 102, 102, 102), {left, top, right, bottom});
-  }
-}
-void NativePanel::DrawEmptyFxSlot(IGraphics &g, const IRECT &module, bool vertical) {
-  // Cover the entire baked housing and its shadow with the original bare marble.
-  const int left = int(std::floor(module.L)) - 2;
-  const int top = int(std::floor(module.T)) - 1;
-  const auto backing = R(left, top, 78, std::ceil(module.B) + 8 - top);
-  g.DrawBitmap(Image("fx-region-0"), backing, left, top - 19);
-
-  const float x = module.MW(), y = module.MH();
-  const auto rail = vertical ? R(x - 8, y - 30, 16, 60) : R(x - 30, y - 8, 60, 16);
-  g.PathClear();
-  g.PathRect(rail);
-  const auto direction = vertical ? EDirection::Vertical : EDirection::Horizontal;
-  g.PathFill(IPattern::CreateLinearGradient(rail, direction, {{IColor(0, 182, 81, 76), 0},
-                                                             {IColor(42, 182, 81, 76), .25f},
-                                                             {IColor(42, 182, 81, 76), .75f},
-                                                             {IColor(0, 182, 81, 76), 1}}));
-
-  // Match the FX lettering in the expanded panel artwork (#614239).
-  const IColor ink(255, 97, 66, 57);
-  constexpr float half = 6;
-  g.PathClear();
-  g.PathMoveTo(x, y - half);
-  g.PathLineTo(x + half, y);
-  g.PathLineTo(x, y + half);
-  g.PathLineTo(x - half, y);
-  g.PathClose();
-  g.PathFill(ink);
-}
-int NativePanel::FxType(int slot) {
-  const bool concert = Value(kParamProgram) == 0;
-  return segrand::ResolveFxType(int(Value(kFxType1 + slot)), slot, concert,
-                               concert && Value(kParamTone) == 2);
-}
-bool NativePanel::FxEnabled(int slot) {
-  return !Value(kFXBypass) && Value(kFxOn1 + slot) && Value(kFxAmount1 + slot) > 0 &&
-         FxType(slot) > 1 && (slot < 2 || Value(kParamSpace) > 0 ||
-                             (slot == 2 && Value(kFxType3) == 0));
-}
-std::string NativePanel::FxName(int slot) {
-  const int type = FxType(slot);
-  if (slot == 0 && !Value(kFxType1) && type == 2)
-    return "CONCERT EQ";
-  return slot < 2 ? segrand::kInsertTypes[type] : segrand::kSendTypes[type];
-}
-
-void NativePanel::FxPage(IGraphics &g) {
-  using namespace segrand;
-  for (int i = 0; i < 4; ++i) {
-    const auto rect = LCDRect(R(437 + 133 * i, 164, 133, 22));
-    const bool selected = i == mSlot;
-    if (selected)
-      g.FillRect(Ink, rect);
-    g.FillRect(Ink, LCDRect(R(rect.L, rect.B - 2.25f, rect.W(), 2.25f)));
-    Text(g, selected ? "light14" : "lcd14", FxSlots[i], R(rect.L, 164, rect.W(), 18), 1);
-    HitBox(rect, "fx-module", -1, i);
-  }
-
-  const int slot = mSlot;
-  const int typeParam = kFxType1 + slot, amount = kFxAmount1 + slot, enabled = kFxOn1 + slot;
-  const bool automatic = Value(typeParam) == 0;
-  const int type = FxType(slot);
-  Field(g, "Type", FxTypeField(), typeParam, (automatic ? "A: " : "") + FxName(slot));
-  const bool on = Value(enabled) && type > 1;
-  ControllerCell(g, on ? "ON" : "OFF", R(679, 190, 45, 21), type > 1 ? "toggle" : "inactive",
-                 enabled, 0, on);
-  Text(g, "lcd14", slot < 2 ? "Wet/Dry" : "Send", R(736, 192, 91, 19));
-  Field(g, "", R(850, 190, 117, 21), amount, Format(Value(amount)) + "%", type > 1);
-
-  if (type <= 1)
-    return;
-  if (automatic)
-    Text(g, "lcd14", "Edit a parameter to switch AUTO to manual", R(437, 264, 530, 18));
-
-  auto field = [&](int index, int detail) {
-    const auto &spec = kFxValues[detail];
-    const int param = FxDetailParameter(slot, detail);
-    const auto value = Format(Value(param), spec.step >= 1 ? 0 : spec.step >= .1 ? 1 : 2);
-    const float x = index % 2 == 0 ? 590 : 864;
-    const float y = 216 + 24 * (index / 2);
-    Field(g, std::string(spec.label) + spec.unit, R(x, y, 103, 21), param, value);
-  };
-  if (slot < 2) {
-    switch (type) {
-    case 2:
-      Text(g, "lcd14", "Band", R(437, 218, 47, 18));
-      for (int i = 0; i < 4; ++i)
-        ControllerCell(g, "B" + std::to_string(i + 1), R(492 + 49 * i, 216, 46, 21), "fx-band",
-                       -1, i, i == mFxBand);
-      field(1, kEqFreq + 3 * mFxBand);
-      field(2, kEqGain + 3 * mFxBand);
-      field(3, kEqQ + 3 * mFxBand);
-      break;
-    case 3:
-      field(0, kThreshold);
-      field(1, kRatio);
-      field(2, kAttack);
-      field(3, kRelease);
-      break;
-    case 4:
-      field(0, kCeiling);
-      field(1, kRelease);
-      break;
-    case 5: field(0, kDrive); break;
-    case 6: field(0, kBlend); break;
-    }
-  } else {
-    switch (type) {
-    case 2:
-      field(0, kDepth);
-      field(1, kLfoRate);
-      break;
-    case 3:
-      field(0, kDelayLeft);
-      field(1, kDelayRight);
-      field(2, kFeedback);
-      break;
-    case 4:
-    case 5:
-      field(0, kDecay);
-      field(1, kHiDamp);
-      break;
     }
   }
 }

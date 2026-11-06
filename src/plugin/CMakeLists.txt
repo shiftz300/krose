@@ -1,4 +1,10 @@
 include("${CMAKE_SOURCE_DIR}/cmake/NativeEditorResources.cmake")
+if(BUILD_TESTING)
+  krose_test(user-preset "${CMAKE_SOURCE_DIR}/tests/plugin/test_user_preset.cpp")
+  target_include_directories(test-user-preset PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
+  target_link_libraries(test-user-preset PRIVATE krose::core)
+endif()
 set(KROSE_LICENSE_RESOURCES
   "${CMAKE_SOURCE_DIR}/LICENSE"
   "${CMAKE_SOURCE_DIR}/NOTICE"
@@ -8,9 +14,9 @@ set(KROSE_LICENSE_RESOURCES
 iplug_add_plugin(Krose
   SOURCES
     KrosePlugin.cpp KrosePlugin.h
-    Parameters.cpp Parameters.h
+    Parameters.cpp Parameters.h storage/UserPreset.cpp
     midi/ControllerInput.cpp midi/ControllerState.cpp
-    editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp editor/native/PanelControllers.cpp resources/resource.h
+    editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp editor/native/PanelControllers.cpp editor/native/PanelEffects.cpp resources/resource.h
   RESOURCES ${KROSE_NATIVE_IMAGES} "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
     ${KROSE_LICENSE_RESOURCES}
     "${IPLUG2_DIR}/Examples/IPlugEffect/resources/fonts/Roboto-Regular.ttf"
@@ -18,6 +24,7 @@ iplug_add_plugin(Krose
   LINK krose::core)
 # Apply to SDK translation units as well as the plugin: all channels expose CC input.
 target_compile_definitions(Krose-vst3 PRIVATE VST3_NUM_CC_CHANS=16)
+target_include_directories(Krose-vst3 BEFORE PRIVATE "${CMAKE_BINARY_DIR}/generated/iplug-vst3")
 add_dependencies(Krose-vst3 segrand-assets krose-factory-assets)
 add_dependencies(Krose-app segrand-assets krose-factory-assets)
 foreach(target Krose-vst3 Krose-app)

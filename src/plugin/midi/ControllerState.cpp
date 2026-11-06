@@ -1,6 +1,7 @@
 #include "../KrosePlugin.h"
 #include "IPlugPaths.h"
 #include "NativeData.h"
+#include "../storage/JsonFile.h"
 #include "json.hpp"
 #include <cstdlib>
 #include <filesystem>
@@ -24,8 +25,8 @@ Json ReadSettings() {
       throw std::runtime_error("Cannot read MIDI settings");
     return Json{{"version", 1}, {"profiles", Json::array()}};
   }
-  auto value = Json::parse(file, nullptr, false);
-  if (value.is_discarded() || !value.is_object() || value.value("version", 0) != 1 ||
+  auto value = krose::storage::ReadJson(SettingsPath());
+  if (value.is_discarded() || !value.is_object() || !value.contains("version") || value["version"] != 1 ||
       !value.contains("profiles") || !value["profiles"].is_array())
     throw std::runtime_error("Invalid MIDI settings");
   return value;
@@ -34,11 +35,11 @@ constexpr int configIDs[] = {kSW1Assign,    kSW1Mode,       kSW2Assign,  kSW2Mod
                              kInputChannel, kProgramChange, kClockSource};
 } // namespace
 void KrosePlugin::InitializeMidiMappings() {
-  for (unsigned id = 0; id < kNumMidiParameters; ++id) {
+  for (unsigned id = 0; id < kNumParams; ++id) {
     const auto p = GetParam(id);
-    mMidiMap.SetStep(id, p->GetRange() > 0 ? p->GetStep() / p->GetRange() : 1);
+    mMidiMap.SetStep(MidiTargetForParameter(id), p->GetRange() > 0 ? p->GetStep() / p->GetRange() : 1);
   }
-  for (unsigned id = kNumMidiParameters; id < kMapTargets; ++id)
+  for (unsigned id = kNumMidiParameters; id < kNumMidiParameters + 3; ++id)
     mMidiMap.SetStep(id, 1);
   auto order = Json::parse(kNativeBrowser)["order"].get<std::vector<int>>();
   mNextPrograms.resize(order.size());
@@ -68,8 +69,8 @@ bool KrosePlugin::SerializeState(IByteChunk &chunk) const {
   for (unsigned slot = 0; slot < krose::midi::ControllerMap::kSlots; ++slot) {
     const auto b = mMidiMap.Get(slot);
     if (b.source != krose::midi::Source::Off && b.mode == krose::midi::Mode::Momentary &&
-        b.target < kNumMidiParameters)
-      momentary[b.target] = true;
+        ParameterForMidiTarget(b.target) >= 0)
+      momentary[ParameterForMidiTarget(b.target)] = true;
   }
   for (int id = 0; id < kNumParams; ++id) {
     double value = GetParam(id)->Value();
@@ -95,10 +96,23 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
   if (start < 0 || start > chunk.Size())
     return -1;
   const int available = chunk.Size() - start;
+  const auto validParameters = [&](int count) {
+    if (available < count * int(sizeof(double))) return false;
+    for (int id = 0; id < count; ++id) {
+      double value = 0;
+      const double margin = std::max(1., GetParam(id)->GetRange()) * 1e-9;
+      if (chunk.Get(&value, start + id * int(sizeof(double))) < 0 ||
+          !std::isfinite(value) || value < GetParam(id)->GetMin() - margin ||
+          value > GetParam(id)->GetMax() + margin)
+        return false;
+    }
+    return true;
+  };
   for (int count : {6, 17, 19, 29, kNumMidiParameters, int(kFxOn1)}) {
     const int bytes = count * int(sizeof(double));
     if (available != bytes && available != bytes + int(sizeof(int32_t)))
       continue;
+    if (!validParameters(count)) return -1;
     IByteChunk upgraded;
     upgraded.PutBytes(chunk.GetData() + start, bytes);
     for (int id = count; id < kNumParams; ++id) {
@@ -112,7 +126,7 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
   }
   const int parameters = kNumParams * int(sizeof(double));
   if (available == parameters || available == parameters + 4)
-    return UnserializeParams(chunk, start);
+    return validParameters(kNumParams) ? UnserializeParams(chunk, start) : -1;
   constexpr int mappingBytes = 16 + krose::midi::ControllerMap::kSlots * int(sizeof(uint64_t));
   int storedParams = kNumParams;
   for (int oldCount : {kNumMidiParameters, int(kFxOn1)}) {
@@ -123,7 +137,8 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
     }
   }
   const int storedBytes = storedParams * int(sizeof(double));
-  if (available < storedBytes + mappingBytes)
+  if ((available != storedBytes + mappingBytes && available != storedBytes + mappingBytes + 4) ||
+      !validParameters(storedParams))
     return -1;
   int pos = start + storedBytes;
   uint32_t magic = 0, version = 0, profile = 0, count = 0;
@@ -163,8 +178,12 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
 void KrosePlugin::RestoreMidiProfile() {
   try {
     auto settings = ReadSettings();
-    if (!settings["profiles"].empty())
-      LoadMidiProfile(std::min(3u, settings.value("selected", 0u)));
+    if (!settings["profiles"].empty()) {
+      const auto selected = settings.value("selected", Json(0u));
+      if (!selected.is_number_unsigned() || selected > 3)
+        throw std::runtime_error("Invalid MIDI profile selection");
+      LoadMidiProfile(selected.get<unsigned>());
+    }
   } catch (const std::exception &) {
     mMidiSettingsError = true;
   }
@@ -201,6 +220,8 @@ bool KrosePlugin::LoadMidiProfile(unsigned profile) {
       throw std::runtime_error("Invalid MIDI profile");
     std::array<krose::midi::Binding, krose::midi::ControllerMap::kSlots> parsed;
     for (unsigned i = 0; i < parsed.size(); ++i) {
+      if (!p["bindings"][i].is_number_unsigned())
+        throw std::runtime_error("Invalid binding encoding");
       const uint64_t word = p["bindings"][i].get<uint64_t>();
       parsed[i] = krose::midi::Binding::Decode(word);
       if (word >> 38 || !parsed[i].Valid(kMapTargets))
@@ -253,23 +274,7 @@ bool KrosePlugin::StoreMidiProfile(unsigned profile) {
     data["profiles"][profile] = {{"bindings", words}, {"config", config}};
     data["selected"] = profile;
     const auto destination = SettingsPath();
-    std::filesystem::create_directories(destination.parent_path());
-    auto temporary = destination;
-    temporary += ".tmp";
-    {
-      std::ofstream file(temporary, std::ios::trunc);
-      file << data.dump(2) << '\n';
-      file.flush();
-      if (!file)
-        throw std::runtime_error("MIDI settings write failed");
-    }
-#ifdef OS_WIN
-    if (!MoveFileExW(temporary.c_str(), destination.c_str(),
-                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-      throw std::runtime_error("MIDI settings replace failed");
-#else
-    std::filesystem::rename(temporary, destination);
-#endif
+    krose::storage::WriteJson(destination, data);
     mMidiProfile.store(profile);
     mMidiSettingsError = false;
     return true;

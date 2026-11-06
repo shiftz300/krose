@@ -25,6 +25,12 @@ public:
   void Process(float *left, float *right, int frames) noexcept;
   void Panic() noexcept;
   unsigned ActiveVoices() const noexcept;
+  std::array<float, 2> FxPeaks() const noexcept {
+    if (mOfflineLoadFailed)
+      return {};
+    return {mConcert.FxPeaks()[0] + mFactory.FxPeaks()[0],
+            mConcert.FxPeaks()[1] + mFactory.FxPeaks()[1]};
+  }
 
 private:
   std::unique_ptr<SampleLoader> mLoader;

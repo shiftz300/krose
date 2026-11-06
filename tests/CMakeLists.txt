@@ -34,6 +34,7 @@ krose_core_test(sample-loading core/test_sample_loading.cpp "${_factory}" "${_co
 krose_core_test(sample-codec core/test_sample_codec.cpp "${SEGRAND_GENERATED}")
 krose_core_test(midi-queue core/test_midi_queue.cpp)
 krose_core_test(effects core/test_effects.cpp)
+krose_core_test(effect-boundaries core/test_effect_boundaries.cpp)
 krose_core_test(modulation core/test_modulation.cpp "${_fixtures}/modulation/lfo-factory.bin" "${_fixtures}/modulation/pitch-lifecycle.bin" "${_fixtures}/modulation/ams-mixers.bin" "${_fixtures}/modulation/lfo-feedback.bin" "${_fixtures}/modulation/lfo-targets.bin" "${_fixtures}/modulation/eg-retriggers.bin")
 krose_test(image-memory ui/test_image_memory.cpp)
 krose_test(fx-motion ui/test_fx_motion.cpp)

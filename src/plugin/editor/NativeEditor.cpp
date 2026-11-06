@@ -47,28 +47,35 @@ void KrosePlugin::ConfigureEditor() {
     });
   };
 }
-void KrosePlugin::OnParamChangeUI(int id, EParamSource) {
+void KrosePlugin::OnParamChangeUI(int id, EParamSource source) {
   // VST3 controller/state changes can arrive while processing is suspended.
   if (id == kParamProgram && mEngine)
     mEngine->RequestProgram(GetParam(id)->Int());
+  if (id == kParamProgram && source != kUI)
+    mComparisonNeedsCapture.store(true, std::memory_order_relaxed);
   if (GetUI())
     GetUI()->SetAllControlsDirty();
 }
 void KrosePlugin::OnIdle() {
+  if (mComparisonNeedsCapture.exchange(false, std::memory_order_relaxed))
+    CaptureComparison();
 #if defined(VST3_API)
   const unsigned revision = mMidiMap.Revision();
   if (mNotifiedMapRevision.exchange(revision) != revision)
     setDirty(true);
 #endif
-  const uint64_t changed = mMidiChangedParams.exchange(0, std::memory_order_acq_rel);
-  for (int id = 0; id < kNumMidiParameters; ++id)
-    if (changed & (uint64_t(1) << id)) {
-      const double value = GetParam(id)->GetNormalized();
-      BeginInformHostOfParamChange(id);
-      InformHostOfParamChange(id, value);
-      EndInformHostOfParamChange(id);
-      SendParameterValueFromDelegate(id, value, true);
-    }
+  for (unsigned word = 0; word < mMidiChangedParams.size(); ++word) {
+    const uint64_t changed = mMidiChangedParams[word].exchange(0, std::memory_order_acq_rel);
+    for (unsigned bit = 0; bit < 64 && word * 64 + bit < kNumParams; ++bit)
+      if (changed & (uint64_t(1) << bit)) {
+        const int id = int(word * 64 + bit);
+        const double value = GetParam(id)->GetNormalized();
+        BeginInformHostOfParamChange(id);
+        InformHostOfParamChange(id, value);
+        EndInformHostOfParamChange(id);
+        SendParameterValueFromDelegate(id, value, true);
+      }
+  }
   if (!GetUI())
     return;
   auto *p = static_cast<krose::ui::NativePanel *>(GetUI()->GetControlWithTag(kEditorTag));
@@ -88,12 +95,12 @@ void KrosePlugin::OnUIOpen() {
     return;
   // The standalone owns the top-level window; never change a DAW's window icon.
   const HINSTANCE instance = GetModuleHandleW(nullptr);
-  for (int small = 0; small < 2; ++small) {
+  for (int iconSize = 0; iconSize < 2; ++iconSize) {
     const auto icon = LoadImageW(instance, MAKEINTRESOURCEW(IDI_ICON1), IMAGE_ICON,
-                                GetSystemMetrics(small ? SM_CXSMICON : SM_CXICON),
-                                GetSystemMetrics(small ? SM_CYSMICON : SM_CYICON), LR_SHARED);
+                                GetSystemMetrics(iconSize ? SM_CXSMICON : SM_CXICON),
+                                GetSystemMetrics(iconSize ? SM_CYSMICON : SM_CYICON), LR_SHARED);
     if (icon)
-      SendMessageW(window, WM_SETICON, small ? ICON_SMALL : ICON_BIG,
+      SendMessageW(window, WM_SETICON, iconSize ? ICON_SMALL : ICON_BIG,
                    reinterpret_cast<LPARAM>(icon));
   }
 }

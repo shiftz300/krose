@@ -10,6 +10,22 @@
 #include <fstream>
 #include <unistd.h>
 namespace {
+class Frame final : public Steinberg::IPlugFrame {
+public:
+  NSWindow *window;
+  bool allow = false;
+  explicit Frame(NSWindow *w) : window(w) {}
+  Steinberg::tresult PLUGIN_API queryInterface(const Steinberg::TUID, void **out) override {
+    *out = nullptr; return Steinberg::kNoInterface;
+  }
+  Steinberg::uint32 PLUGIN_API addRef() override { return 1; }
+  Steinberg::uint32 PLUGIN_API release() override { return 1; }
+  Steinberg::tresult PLUGIN_API resizeView(Steinberg::IPlugView *, Steinberg::ViewRect *r) override {
+    if (!allow) return Steinberg::kResultFalse;
+    [window setContentSize:NSMakeSize(r->getWidth(),r->getHeight())];
+    return Steinberg::kResultOk;
+  }
+};
 void pump(double seconds = .15) {
   NSDate *end = [NSDate dateWithTimeIntervalSinceNow:seconds];
   while (end.timeIntervalSinceNow > 0) {
@@ -357,6 +373,35 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       mouse(v,146,180,NSEventTypeLeftMouseUp);
       assert(std::abs(glide()-56./127.)<1e-8);
       setParameter("Glide",80./127.);
+      // Program selection establishes the Compare baseline; edits toggle A/B.
+      click(v,505,331);
+      const double baseline=glide();
+      mouse(v,175,200,NSEventTypeLeftMouseDown);
+      mouse(v,175,185,NSEventTypeLeftMouseDragged);
+      mouse(v,175,185,NSEventTypeLeftMouseUp);
+      const double edited=glide(); assert(edited!=baseline);
+      const double inputChannel=parameter("MIDI Input Channel");
+      click(v,925,331);assert(glide()==baseline);
+      click(v,925,331);assert(glide()==edited);
+      assert(parameter("MIDI Input Channel")==inputChannel);
+      // Missing or rejecting host frames retain the existing dimensions.
+      mouse(v,71,85,NSEventTypeRightMouseDown);mouse(v,71,85,NSEventTypeRightMouseUp);
+      pump();key(v,@"\uf72b",119);key(v,@"\r",36);
+      Steinberg::ViewRect unchanged{};view->getSize(&unchanged);assert(unchanged.getWidth()==1472);
+      Frame frame(window);view->setFrame(&frame);
+      mouse(v,71,85,NSEventTypeRightMouseDown);mouse(v,71,85,NSEventTypeRightMouseUp);
+      pump();key(v,@"\uf72b",119);key(v,@"\r",36);
+      view->getSize(&unchanged);assert(unchanged.getWidth()==1472);
+      frame.allow=true;
+      // Scaling changes only the window transform; control coordinates still work.
+      mouse(v,71,85,NSEventTypeRightMouseDown);mouse(v,71,85,NSEventTypeRightMouseUp);
+      pump();key(v,@"\uf72b",119);key(v,@"\r",36);
+      Steinberg::ViewRect scaled{};assert(view->getSize(&scaled)==Steinberg::kResultOk);
+      assert(scaled.getWidth()==2208 && scaled.getHeight()==972);
+      mouse(v,71*1.5,85*1.5,NSEventTypeRightMouseDown);mouse(v,71*1.5,85*1.5,NSEventTypeRightMouseUp);
+      pump();key(v,@"\uf729",115);for(int i=0;i<3;++i)key(v,@"\uf701",125);key(v,@"\r",36);
+      assert(view->getSize(&scaled)==Steinberg::kResultOk && scaled.getWidth()==1472);
+      view->setFrame(nullptr);
     }
     if (const char *path = std::getenv("KROSE_NATIVE_CAPTURE")) {
       pump();

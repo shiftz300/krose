@@ -1,6 +1,7 @@
 #include "IPlugPaths.h"
 #include "NativePanel.h"
 #include "PanelDrawing.h"
+#include "../../storage/JsonFile.h"
 #include <algorithm>
 #include <cstdlib>
 #include <filesystem>
@@ -23,7 +24,7 @@ std::set<std::string> ReadFavorites() {
   std::ifstream file(FavoritePath());
   if (!file)
     return {};
-  auto data = nlohmann::json::parse(file, nullptr, false);
+  auto data = krose::storage::ReadJson(FavoritePath());
   if (data.is_discarded() || !data.is_object() || !data.contains("programs") ||
       !data["programs"].is_array())
     return {};
@@ -50,23 +51,7 @@ void NativePanel::ToggleFavorite(int program) {
     if (!favorites.erase(id))
       favorites.insert(id);
     const auto path = FavoritePath();
-    std::filesystem::create_directories(path.parent_path());
-    auto temporary = path;
-    temporary += ".tmp";
-    {
-      std::ofstream file(temporary, std::ios::trunc);
-      file << Json{{"version", 1}, {"programs", favorites}}.dump(2) << '\n';
-      file.flush();
-      if (!file)
-        throw std::runtime_error("Favorites write failed");
-    }
-#ifdef OS_WIN
-    if (!MoveFileExW(temporary.c_str(), path.c_str(),
-                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-      throw std::runtime_error("Favorites replace failed");
-#else
-    std::filesystem::rename(temporary, path);
-#endif
+    krose::storage::WriteJson(path, Json{{"version", 1}, {"programs", favorites}});
     mFavorites = std::move(favorites);
     mFavoriteSaveFailed = false;
   } catch (const std::exception &) {

@@ -480,6 +480,7 @@ void ProgramEngine::Render(float *left, float *right, int frames) noexcept {
   }
 }
 void ProgramEngine::Process(float *left, float *right, int frames) noexcept {
+  mRack.ClearMeters();
   if (frames <= 0 || !left || !right)
     return;
   if (mEvents.Overflowed())

@@ -18,6 +18,8 @@ class KrosePlugin final : public Plugin {
 public:
   explicit KrosePlugin(const InstanceInfo &info);
 #if defined(VST3_API)
+  Steinberg::tresult PLUGIN_API setParamNormalized(Steinberg::Vst::ParamID tag,
+                                                 Steinberg::Vst::ParamValue value) override;
   Steinberg::uint32 PLUGIN_API getProcessContextRequirements() override {
     return kNeedProjectTimeMusic | kNeedTempo | kNeedTransportState;
   }
@@ -26,13 +28,21 @@ public:
   int UnserializeState(const IByteChunk &chunk, int startPos) override;
   bool SerializeState(IByteChunk &chunk) const override;
   static constexpr unsigned kTargetNext = kNumMidiParameters, kTargetPrevious = kNumMidiParameters + 1,
-                            kTargetPanic = kNumMidiParameters + 2, kMapTargets = kNumMidiParameters + 3;
+                            kTargetPanic = kNumMidiParameters + 2, kMapTargets = kNumParams + 3;
+  static_assert(kMapTargets <= 256, "MIDI target encoding uses eight bits");
   krose::midi::ControllerMap &MidiMappings() noexcept { return mMidiMap; }
   unsigned MidiProfile() const noexcept { return mMidiProfile.load(); }
   bool LoadMidiProfile(unsigned profile);
   bool StoreMidiProfile(unsigned profile);
   bool MidiSettingsError() const noexcept { return mMidiSettingsError; }
   void StandardMidiMappings();
+  void CaptureComparison();
+  void ToggleComparison();
+  bool Comparing() const { return mComparing; }
+  bool ComparisonReady() const { return mComparisonReady; }
+  bool SaveUserPreset(const std::string &path);
+  bool LoadUserPreset(const std::string &path);
+  float TakeFxPeak(unsigned slot) noexcept { return mFxPeaks[slot].exchange(0, std::memory_order_relaxed); }
 
 #if IPLUG_DSP
   void ProcessBlock(sample **inputs, sample **outputs, int nFrames) override;
@@ -53,6 +63,10 @@ public:
 #endif
 
 private:
+  void ApplySound(const std::array<double, kNumParams> &values);
+  std::array<double, kNumParams> mComparison{};
+  bool mComparisonReady = false, mComparing = false;
+  std::atomic<bool> mComparisonNeedsCapture{false};
   void InitializeParameters();
   void InitializeMidiMappings();
   void ConfigureAudio(int offset);
@@ -84,7 +98,7 @@ private:
 #endif
   std::array<std::array<uint8_t, 2>, 16> mProgramBank{};
   std::array<int, 128 * 12> mHardwarePrograms{};
-  std::atomic<uint64_t> mMidiChangedParams{0};
+  std::array<std::atomic<uint64_t>, (kNumParams + 63) / 64> mMidiChangedParams{};
   std::atomic<unsigned> mMidiProfile{0};
   std::array<int, 2> mSwitchAssign{{-1, -1}};
   std::array<bool, 2> mSwitchState{};
@@ -97,4 +111,5 @@ private:
   bool mPrepared = true;
   std::atomic<double> mDisplayTempo{120.};
   std::atomic<bool> mDisplayHost{false};
+  std::array<std::atomic<float>, 2> mFxPeaks{};
 };

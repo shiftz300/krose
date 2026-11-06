@@ -1,3 +1,4 @@
+#include <limits>
 // Headless integration test against the compiled VST3, using the SDK's host API.
 #include "public.sdk/source/vst/hosting/hostclasses.h"
 #include "public.sdk/source/vst/hosting/module.h"
@@ -351,10 +352,50 @@ int main(int argc,char** argv){
     double beforePan=0,afterPan=0;std::memcpy(&beforePan,original.getData()+6*8,8);std::memcpy(&afterPan,stepped.getData()+6*8,8);assert(afterPan==beforePan+3);
     processor->setProcessing(false);component->setActive(false);
     original.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&original)==kResultOk);
+    // A newly appended FX target (>64) survives mapping state and CC dispatch.
+    MemoryStream extended;extended.write(original.getData(),original.getSize(),nullptr);
+    const auto fxDecay=ids.at("MFX 2 Decay");assert(fxDecay>64);
+    auto fxBinding=b;fxBinding.mode=Mode::Absolute;fxBinding.target=fxDecay+3;
+    uint64_t fxWord=fxBinding.Encode();std::memcpy(extended.getData()+at(0),&fxWord,8);
+    extended.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&extended)==kResultOk);
+    assert(processor->setupProcessing(setup)==kResultOk);assert(component->setActive(true)==kResultOk);processor->setProcessing(true);
+    changes.clearQueue();assert(mapping->getMidiControllerAssignment(0,1,20,cc)==kResultOk);
+    changes.addParameterData(cc,index)->addPoint(37,1.,point);assert(processor->process(data)==kResultOk);
+    MemoryStream fxMapped;assert(component->getState(&fxMapped)==kResultOk);
+    double decay=0;std::memcpy(&decay,fxMapped.getData()+fxDecay*8,8);assert(decay==6.);
+    // Invalid floating-point MIDI/automation values must not reach SDK casts.
+    for(double invalid : {std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::infinity()}) {
+      changes.clearQueue();changes.addParameterData(cc,index)->addPoint(0,invalid,point);
+      changes.addParameterData(fxDecay,index)->addPoint(0,invalid,point);
+      EventList malformedNotes;Steinberg::Vst::Event malformed{};
+      malformed.type=Steinberg::Vst::Event::kNoteOnEvent;malformed.noteOn.pitch=60;malformed.noteOn.velocity=float(invalid);
+      malformedNotes.addEvent(malformed);data.inputEvents=&malformedNotes;
+      assert(processor->process(data)==kResultOk);data.inputEvents=nullptr;
+      MemoryStream valid;assert(component->getState(&valid)==kResultOk);
+      std::memcpy(&decay,valid.getData()+fxDecay*8,8);assert(decay==6.);
+      for(int i=0;i<512;++i)assert(std::isfinite(l[i])&&std::isfinite(r[i]));
+    }
+    processor->setProcessing(false);component->setActive(false);
+    original.seek(0,IBStream::kIBSeekSet,nullptr);assert(component->setState(&original)==kResultOk);
+    const auto validOutput=controller->getParamNormalized(ids.at("Output"));
+    assert(controller->setParamNormalized(ids.at("Output"),std::numeric_limits<double>::quiet_NaN())!=kResultOk);
+    assert(controller->getParamNormalized(ids.at("Output"))==validOutput);
     // Reject corrupt mapping metadata without partially restoring parameters.
     mapped.getData()[params*8]=0;mapped.seek(0,IBStream::kIBSeekSet,nullptr);component->setState(&mapped);
     MemoryStream afterCorrupt;assert(component->getState(&afterCorrupt)==kResultOk);
     std::memcpy(&restored,afterCorrupt.getData()+at(0),8);assert(restored==word);
+    // Reject nonfinite/out-of-range state before mutating any valid prefix.
+    MemoryStream intact; assert(component->getState(&intact)==kResultOk);
+    for(double invalid : {std::numeric_limits<double>::quiet_NaN(),
+                           std::numeric_limits<double>::infinity(), -1e100, 1e100}) {
+      MemoryStream broken; broken.write(intact.getData(),intact.getSize(),nullptr);
+      double prefix=1.; std::memcpy(broken.getData(),&prefix,8);
+      std::memcpy(broken.getData()+(params-1)*8,&invalid,8);
+      broken.seek(0,IBStream::kIBSeekSet,nullptr); component->setState(&broken);
+      MemoryStream unchanged; assert(component->getState(&unchanged)==kResultOk);
+      assert(unchanged.getSize()==intact.getSize());
+      assert(std::memcmp(unchanged.getData(),intact.getData(),intact.getSize())==0);
+    }
     // Restore an ordinary map and retain input configuration across legacy presets.
     b.source=Source::Off;word=b.Encode();std::memcpy(original.getData()+at(0),&word,8);
     double channel=3;std::memcpy(original.getData()+35*8,&channel,8);

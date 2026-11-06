@@ -1,12 +1,16 @@
 # 原生界面与素材维护
 
-VST3 与独立程序使用 C++、iPlug2 IGraphics 和 NanoVG；macOS 渲染器为 Metal，Windows 配置为 OpenGL 2。逻辑尺寸固定为 1472×648。插件不链接 WebKit。
+VST3 与独立程序使用 C++、iPlug2 IGraphics 和 NanoVG；macOS 渲染器为 Metal，Windows 配置为 OpenGL 2。逻辑尺寸为 1472×648，右键 FX 可按 60–150% 等比缩放。插件不链接 WebKit。
 
 ## 控件与显示
 
 原生面板包含旋钮、两套包络推子、61 键键盘、弯音、延音、Panic、LCD 音色页与控制设置、SW1／SW2、FX 收放和完整音色目录。顶部 PRESET 先显示 Favorites 与原厂分类，再展开音色列表；BROWSE 支持搜索和筛选。分类与条目保持原厂顺序。
 
-LCD 的菜单、边框、填充及箭头遵循屏幕像素网格，菜单宽度与输入框一致。列表超出屏幕时滚动；方向键、Home／End、回车与 Esc 支持键盘操作。旋钮和推子双击复位，普通按钮逐次处理连点。
+LCD 的菜单、边框、填充及箭头遵循屏幕像素网格，菜单宽度与输入框一致。列表超出屏幕时滚动；方向键、Home／End、回车与 Esc 支持键盘操作。旋钮和推子双击复位、滚轮调整，Shift 细调；普通按钮逐次处理连点。浏览器关闭入口只有叉号，搜索框使用深色底。
+
+SAVE／BROWSE → LOAD FILE 使用系统文件对话框；Compare 基准在打开编辑器、选音色、载入或保存时建立。`.krose` 文件只应用声音参数，SW、输入通道和 MIDI 映射保留。
+
+Limiter 表针读取 IFX 输出峰值，回落按实际时间计算；默认 AUTO 和其他算法图案仍用于识别类型，不宣称频谱／混响声场测量。Meter 数据通过固定大小原子值传递，音频线程不调用绘图。FX 页已独立到 `PanelEffects.cpp`。
 
 旋钮、推子、数值框、菜单和键盘编辑共用 `editor/ParameterBinding.h`。值直接读取 iPlug2 delegate，步进以参数最小值为基准，跳过未变化的写入；连续拖动与离散编辑分别维护配对的宿主手势，关闭窗口或中断拖动时结束手势。重绘比较使用 `kNumParams`，不另存一份可与宿主漂移的参数状态。
 

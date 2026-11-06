@@ -31,7 +31,10 @@ void NativePanel::OpenPopup(const Hit &h) {
     mChoices.push_back(std::move(s));
     mChoiceValues.push_back(v);
   };
-  if (h.action == "group" || h.action == "category") {
+  if (h.action == "scale") {
+    for (int scale : {60, 75, 85, 100, 125, 150})
+      add(std::to_string(scale) + "%", scale);
+  } else if (h.action == "group" || h.action == "category") {
     add(h.action == "group" ? "全部音色库" : "全部类型", -1);
     if (h.action == "category")
       add("FAVORITES", -2);
@@ -118,9 +121,20 @@ void NativePanel::Browser(IGraphics &g) {
   mHits.clear();
   g.FillRect(IColor(26, 0, 0, 0), mRECT);
   Bitmap(g, "browser-base", 431, 129);
+  // Replace the exported button chrome with a plain, high-contrast dismiss glyph.
+  g.FillRect(IColor(255, 40, 43, 45), R(992, 147, 31, 32));
+  const IColor closeInk(255, 225, 225, 220);
+  g.DrawLine(closeInk, 1002, 157.5f, 1013, 168.5f, nullptr, 1.75f);
+  g.DrawLine(closeInk, 1013, 157.5f, 1002, 168.5f, nullptr, 1.75f);
   HitBox(R(995, 150, 25, 26), "close");
+  Text(g, "arial13", "LOAD FILE", R(885, 150, 95, 26), 1);
+  HitBox(R(885, 150, 95, 26), "load");
+  g.FillRoundRect(IColor(255, 35, 38, 40), R(452, 183, 227, 31), 2);
+  g.DrawRect(IColor(255, 118, 122, 125), R(452, 183, 227, 31));
+  g.DrawCircle(IColor(255, 173, 179, 183), 466, 197, 5, nullptr, 1.5f);
+  g.DrawLine(IColor(255, 173, 179, 183), 470, 201, 475, 206, nullptr, 1.5f);
   g.PathClipRegion(R(481, 183, 185, 31));
-  Text(g, mSearch.empty() ? "placeholder15" : "search15", mSearch.empty() ? "名称或编号" : mSearch,
+  Text(g, "arial15", mSearch.empty() ? "名称或编号" : mSearch,
        R(481, 183, 185, 31));
   g.PathClipRegion();
   HitBox(R(452, 183, 227, 31), "search");
@@ -140,11 +154,10 @@ void NativePanel::Browser(IGraphics &g) {
   Chevron(g, R(892, 183, 128, 31), IColor(255, 227, 227, 227));
   HitBox(R(892, 183, 128, 31), "category");
   g.PathClipRegion(R(452, 226, 568, 292));
-  // Seven complete rows and part of an eighth fit in the viewport. Allow the
-  // final row to scroll fully into view, and limit clicks to visible row pixels.
+  // Keep seven complete rows; the last item can scroll fully into view.
   int maxScroll = std::max(0, int(mFiltered.size()) - 7);
   mScroll = std::clamp(mScroll, 0, maxScroll);
-  for (int row = 0; row < 8 && mScroll + row < int(mFiltered.size()); ++row) {
+  for (int row = 0; row < 7 && mScroll + row < int(mFiltered.size()); ++row) {
     int i = mFiltered[mScroll + row];
     auto &p = mPrograms[i];
     auto b = R(452, 226 + row * 39, 568, 37);

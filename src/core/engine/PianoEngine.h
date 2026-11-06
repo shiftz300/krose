@@ -23,6 +23,7 @@ public:
   void SetControls(const Controls &controls);
   void Queue(MidiEvent event) noexcept;
   void Process(float *left, float *right, int frames) noexcept;
+  const std::array<float, 2> &FxPeaks() const noexcept { return mRack.Peaks(); }
   void Panic() noexcept;
   unsigned ActiveVoices() const noexcept;
   void SetSamples(const SampleResidency *samples) noexcept;

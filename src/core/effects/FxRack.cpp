@@ -23,6 +23,9 @@ double Smooth(double rate, double ms) noexcept {
 } // namespace
 
 int ResolveFxType(int type, int slot, bool concert, bool wide) noexcept {
+  if (slot < 0 || slot >= 4 || type < 0 ||
+      type >= int(slot < 2 ? kInsertTypes.size() : kSendTypes.size()))
+    return 1;
   if (type != 0)
     return type;
   const int defaults[] = {concert ? 2 : 1, 1, wide ? 2 : 1, 4};
@@ -30,6 +33,9 @@ int ResolveFxType(int type, int slot, bool concert, bool wide) noexcept {
 }
 
 FxSends ResolveFxSends(const FxSettings &settings, double hall, double chorus, double space) noexcept {
+  hall = std::isfinite(hall) ? std::clamp(hall, 0., .5) : 0;
+  chorus = std::isfinite(chorus) ? std::clamp(chorus, 0., .5) : 0;
+  space = std::isfinite(space) ? std::clamp(space, 0., 2.) : 0;
   // AUTO uses the legacy tone's wet levels. Explicit MFX run in the two independent returns.
   const auto factor = [&](int slot) {
     const auto &s = settings[slot];
@@ -39,6 +45,8 @@ FxSends ResolveFxSends(const FxSettings &settings, double hall, double chorus, d
 }
 
 void FxRack::Prepare(double rate) {
+  if (!std::isfinite(rate) || rate < 32000 || rate > 192000)
+    throw std::invalid_argument("FX sample rate must be 32..192 kHz");
   mRate = rate;
   mSmoothing = Smooth(rate, 7);
   mExciterAlpha = 1 - std::exp(-2 * kPi * 2400 / rate);
@@ -126,7 +134,8 @@ double FxRack::ConcertEqMix() noexcept {
 }
 
 void FxRack::Insert(double &left, double &right) noexcept {
-  for (auto &slot : mInserts) {
+  for (size_t index = 0; index < mInserts.size(); ++index) {
+    auto &slot = mInserts[index];
     if (slot.type == 1 && slot.target == 1)
       continue;
     const double target = slot.type == slot.target ? slot.targetAmount : 0;
@@ -152,7 +161,9 @@ void FxRack::Insert(double &left, double &right) noexcept {
           auto &z = band.history[ch];
           const double in = signal[ch], out = b[0] * in + z[0];
           z[0] = b[1] * in + b[3] * out + z[1];
+          if (std::abs(z[0]) < 1e-25) z[0] = 0;
           z[1] = b[2] * in + b[4] * out;
+          if (std::abs(z[1]) < 1e-25) z[1] = 0;
           signal[ch] = out;
         }
       }
@@ -163,12 +174,13 @@ void FxRack::Insert(double &left, double &right) noexcept {
       const double peak = std::max(std::abs(left), std::abs(right));
       const double threshold = compressor ? slot.threshold : slot.ceiling;
       const double ratio = threshold / std::max(peak, threshold);
-      const double wanted = compressor ? slot.reciprocalRatio + (1 - slot.reciprocalRatio) * ratio : ratio;
+      const double wanted = compressor ? std::pow(ratio, 1 - slot.reciprocalRatio) : ratio;
       const double attack = compressor ? slot.attack : 1;
       slot.gain += (wanted < slot.gain ? attack : slot.release) * (wanted - slot.gain);
       const double gain = 1 + slot.amount * ((compressor ? 1.6 : 1) * slot.gain - 1);
       left *= gain;
       right *= gain;
+      mPeaks[index] = std::max(mPeaks[index], float(std::max(std::abs(left), std::abs(right))));
     } else if (slot.type == 5) {
       left += slot.amount * (std::tanh(slot.drive * left) / 27 - left);
       right += slot.amount * (std::tanh(slot.drive * right) / 27 - right);
@@ -210,6 +222,7 @@ void FxRack::ConfigureRoom(SendSlot &slot) noexcept {
 }
 
 void FxRack::SetReturns(const FxSettings &settings, double space) noexcept {
+  space = std::isfinite(space) ? std::clamp(space, 0., 2.) : 0;
   for (size_t i = 0; i < mSends.size(); ++i) {
     const auto &setting = settings[i + 2];
     auto &slot = mSends[i];
@@ -274,7 +287,8 @@ void FxRack::RenderSend(SendSlot &slot, const double *input, double *wet, int co
 }
 
 void FxRack::Returns(const double *input, double *wet, int count) noexcept {
-  assert(count >= 0 && count <= 128);
+  if (!input || !wet || count <= 0 || count > 128)
+    return;
   std::fill(wet, wet + count * 2, 0.);
   for (auto &slot : mSends)
     RenderSend(slot, input, wet, count);

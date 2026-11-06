@@ -65,6 +65,8 @@ public:
   // Interleaved stereo, up to 128 frames. Returns contain effect signal only.
   void Returns(const double *input, double *wet, int count) noexcept;
   double ConcertEqMix() noexcept;
+  void ClearMeters() noexcept { mPeaks.fill(0); }
+  const std::array<float, 2> &Peaks() const noexcept { return mPeaks; }
 
 private:
   struct RoomDeleter {
@@ -97,6 +99,7 @@ private:
   void ConfigureRoom(SendSlot &) noexcept;
   void RenderSend(SendSlot &, const double *input, double *wet, int count) noexcept;
   std::array<InsertSlot, 2> mInserts{};
+  std::array<float, 2> mPeaks{};
   std::array<SendSlot, 2> mSends{};
   double mRate = 48000, mEq = 1, mEqTarget = 1, mSmoothing = 1, mExciterAlpha = 1;
 };

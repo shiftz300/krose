@@ -58,7 +58,13 @@ enum EParams {
   kNumParams = kFxDetails + 2 * (segrand::kInsertDetailCount + segrand::kSendDetailCount)
 };
 
+// Keep the three original action targets (39..41) stable in saved MIDI maps.
 inline constexpr int kNumMidiParameters = kFXBypass + 1;
+inline constexpr int MidiTargetForParameter(int id) { return id < kNumMidiParameters ? id : id + 3; }
+inline constexpr int ParameterForMidiTarget(unsigned target) {
+  return target < kNumMidiParameters ? int(target) : target >= kNumMidiParameters + 3 &&
+      target < kNumParams + 3 ? int(target) - 3 : -1;
+}
 inline constexpr bool IsFxTypeParameter(int id) { return id >= kFxType1 && id <= kFxType4; }
 
 inline constexpr int FxDetailParameter(int slot, int detail) {

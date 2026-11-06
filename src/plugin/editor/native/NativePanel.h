@@ -7,6 +7,7 @@
 #include <array>
 #include <chrono>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -59,6 +60,7 @@ private:
   std::string FxName(int slot);
   void FxPage(IGraphics &);
   void DrawFxFace(IGraphics &, const IRECT &, int slot);
+  void DrawFxMeter(IGraphics &, const IRECT &, int slot);
   void DrawEmptyFxSlot(IGraphics &, const IRECT &, bool vertical);
   void Browser(IGraphics &);
   void Popup(IGraphics &);
@@ -86,6 +88,12 @@ private:
   void FilterPrograms();
   void Note(int, bool);
   void FinishEdit();
+  void PresetFile(bool save);
+  std::shared_ptr<int> mLifetime = std::make_shared<int>(0);
+  std::string mPresetStatus;
+  double mMod = 0, mWheelRemainder = 0;
+  std::array<double, 2> mMeterLevels{};
+  std::chrono::steady_clock::time_point mMeterTick{};
   void ProgramRow(IGraphics &);
   void Controllers(IGraphics &);
   bool ControllerAction(const Hit &);
