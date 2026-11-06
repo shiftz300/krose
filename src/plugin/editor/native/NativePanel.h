@@ -2,7 +2,6 @@
 #include "../../Parameters.h"
 #include "../ParameterBinding.h"
 #include "FXMotion.h"
-#include "UIMotion.h"
 #include "IControl.h"
 #include "json.hpp"
 #include <array>
@@ -54,20 +53,6 @@ private:
     int size;
   };
   void Render(IGraphics &);
-  double Visual(const std::string &, double target, double seconds = .12, bool immediate = false);
-  void Reveal(IGraphics &, bool open, int slot, const IRECT &, void (NativePanel::*)(IGraphics &));
-  void KeyImage(IGraphics &, int note, bool black, float x);
-  std::map<std::string, UIMotion> mVisuals;
-  std::array<UIMotion, 3> mReveal;
-  std::array<bool, 3> mRevealOpen{};
-  UIMotion mLCDReveal, mCategoryReveal;
-  int mDrawnCategory = -2;
-  int mLCDState = -1;
-  double mFrameTime = 0, mClickTime = -1;
-  float mClickX = -1, mClickY = -1;
-  bool mVisualAnimating = false;
-  std::string mPressedButton;
-  bool mPointerDown = false;
   double FoldProgress() const;
   void LCD(IGraphics &);
   int FxType(int slot);

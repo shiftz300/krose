@@ -218,18 +218,17 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
         // and return to the released frame on mouse-up (capture must survive).
         const auto path = "/tmp/krose-click-note-" + std::to_string(getpid()) + ".pam";
         setenv("KROSE_NATIVE_CAPTURE", path.c_str(), 1);
-        auto noteFrame = [&](NSEventType type, NSInteger count, double settle = .15) {
+        auto noteFrame = [&](NSEventType type, NSInteger count) {
           mouse(v, 210, 560, type, count);
-          pump(settle);
+          pump(.08);
           std::ifstream stream(path, std::ios::binary);
           std::string frame((std::istreambuf_iterator<char>(stream)), {});
           assert(!frame.empty());
           return frame;
         };
         const auto pressed = noteFrame(NSEventTypeLeftMouseDown, 1);
-        const auto releasing = noteFrame(NSEventTypeLeftMouseUp, 1, .025);
         const auto released = noteFrame(NSEventTypeLeftMouseUp, 1);
-        assert(pressed != released && releasing != released);
+        assert(pressed != released);
         assert(noteFrame(NSEventTypeLeftMouseDown, 2) == pressed);
         assert(noteFrame(NSEventTypeLeftMouseUp, 2) == released);
         unsetenv("KROSE_NATIVE_CAPTURE");

@@ -36,7 +36,6 @@ void NativePanel::Note(int note, bool down) {
   SetDirty(false);
 }
 void NativePanel::ReleaseHeld() {
-  mPointerDown = false;
   ReleaseSwitches();
   static_cast<KrosePlugin *>(GetDelegate())->MidiMappings().CancelLearn();
   for (int i = 0; i < 128; ++i)
@@ -211,8 +210,6 @@ void NativePanel::Activate(const Hit &h) {
 void NativePanel::OnMouseDown(float x, float y, const IMouseMod &mod) {
   mMouseX = x;
   mMouseY = y;
-  mPointerDown = !mod.R;
-  mPressedButton.clear();
   mKeyboardFocus = false;
   FinishEdit();
   for (int i = int(mHits.size()) - 1; i >= 0; --i) {
@@ -220,10 +217,6 @@ void NativePanel::OnMouseDown(float x, float y, const IMouseMod &mod) {
     if (!h.r.Contains(x, y))
       continue;
     mFocus = i;
-    if (!mod.R) {
-      mClickX = x; mClickY = y;
-      mClickTime = std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
-    }
     if (mod.R && h.action == "fold") {
       OpenPopup({R(38, 57, 140, 30), "scale"});
       return;
@@ -284,7 +277,6 @@ void NativePanel::OnMouseDrag(float, float y, float, float, const IMouseMod &mod
   }
 }
 void NativePanel::OnMouseUp(float, float, const IMouseMod &) {
-  mPointerDown = false;
   ReleaseSwitches();
   mParameters.End(*GetDelegate());
   if (mDrag == -2) {
@@ -566,15 +558,18 @@ bool NativePanel::OnKeyUp(float, float, const IKeyPress &key) {
   return false;
 }
 void NativePanel::OnMouseOver(float x, float y, const IMouseMod &) {
-  auto hitAt = [&](float px, float py) {
-    for (int i = int(mHits.size()) - 1; i >= 0; --i)
-      if (mHits[i].r.Contains(px, py)) return i;
-    return -1;
-  };
-  const bool changed = hitAt(mMouseX, mMouseY) != hitAt(x, y);
+  int before = -1, after = -1;
+  for (int i = 0; i < int(mHits.size()); ++i)
+    if (mHits[i].action == "tooltip") {
+      if (mHits[i].r.Contains(mMouseX, mMouseY))
+        before = i;
+      if (mHits[i].r.Contains(x, y))
+        after = i;
+    }
   mMouseX = x;
   mMouseY = y;
-  if (changed) SetDirty(false);
+  if (before != after)
+    SetDirty(false);
 }
 void NativePanel::OnMouseOut() {
   mMouseX = mMouseY = -1;

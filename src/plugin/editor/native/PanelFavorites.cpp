@@ -107,15 +107,8 @@ void NativePanel::PresetMenu(IGraphics &g) {
     g.FillTriangle(border, row.R - 12, row.MH() - 4, row.R - 12, row.MH() + 4, row.R - 8, row.MH());
     HitBox(row, "preset-category", -1, n - 1);
   }
-  if (mPresetCategory < -1) {
-    mDrawnCategory = -2;
+  if (mPresetCategory < -1)
     return;
-  }
-  if (mDrawnCategory != mPresetCategory) {
-    mCategoryReveal.Snap(.35);
-    mCategoryReveal.Target(1, mFrameTime, .10);
-    mDrawnCategory = mPresetCategory;
-  }
   g.FillRect(bg, child);
   g.DrawRect(border, child);
   mPresetScroll = std::clamp(mPresetScroll, 0, std::max(0, int(mPresetItems.size()) - 12));
@@ -140,9 +133,6 @@ void NativePanel::PresetMenu(IGraphics &g) {
                R(child.R - 3,
                  child.T + (child.H() - h) * mPresetScroll / (mPresetItems.size() - 12), 2, h));
   }
-  const double alpha = mCategoryReveal.At(mFrameTime);
-  mVisualAnimating |= mCategoryReveal.Active(mFrameTime);
-  if (alpha < 1) g.FillRect(IColor(int(255 * (1 - alpha)), bg.R, bg.G, bg.B), child.GetPadded(-1));
   if (mFavoriteSaveFailed)
     Text(g, "arial13", "FAVORITES NOT SAVED", R(child.L, child.B, child.W(), 24));
 }

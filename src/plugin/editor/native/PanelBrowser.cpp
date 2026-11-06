@@ -119,6 +119,7 @@ void NativePanel::Popup(IGraphics &g) {
 }
 void NativePanel::Browser(IGraphics &g) {
   mHits.clear();
+  g.FillRect(IColor(26, 0, 0, 0), mRECT);
   Bitmap(g, "browser-base", 431, 129);
   // Replace the exported button chrome with a plain, high-contrast dismiss glyph.
   g.FillRect(IColor(255, 40, 43, 45), R(992, 147, 31, 32));
