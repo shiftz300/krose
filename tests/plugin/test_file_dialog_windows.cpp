@@ -45,7 +45,12 @@ BOOL CALLBACK Respond(HWND window, LPARAM parameter) {
   }
   if (!edit) EnumChildWindows(window, FindFilename, LPARAM(&edit));
   if (!edit && !driver.cancel) return TRUE;
-  if (edit && !driver.cancel) SendMessageW(edit, WM_SETTEXT, 0, LPARAM(driver.filename.c_str()));
+  if (edit && !driver.cancel) {
+    SendMessageW(edit, WM_SETTEXT, 0, LPARAM(driver.filename.c_str()));
+    // Explorer stores the file name in its shell view as well as the nested
+    // edit. Notify the combo so IDOK uses the newly supplied Unicode path.
+    SendMessageW(window, WM_COMMAND, MAKEWPARAM(cmb13, CBN_EDITCHANGE), LPARAM(GetParent(edit)));
+  }
   driver.sent = true;
   PostMessageW(window, WM_COMMAND, driver.cancel ? IDCANCEL : IDOK, 0);
   return TRUE;
@@ -86,6 +91,8 @@ int main() {
   for (int i = 0; i < kNumParams; ++i) values[i] = double(i) / kNumParams;
   const auto requested = root / L"音色 piano"; // Dialog must append the .krose extension.
   auto saved = Select(owner, true, requested);
+  if (saved != root / L"音色 piano.krose")
+    std::cerr << "Unexpected save path: " << saved.u8string() << "\n";
   assert(saved == root / L"音色 piano.krose");
   WriteJson(saved, EncodePreset(values));
   const auto original = ReadJson(saved);
