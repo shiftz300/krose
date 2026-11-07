@@ -1,8 +1,9 @@
 // Run real Win32 open/save dialogs on the runner's desktop. Drive only this
-// test's own thread/windows; no desktop cursor, user files or audio devices.
+// test's own process/windows; no desktop cursor, user files or audio devices.
 #include "storage/PresetDialogWin.h"
 #include "storage/UserPreset.h"
 #include <dlgs.h>
+#include <commctrl.h>
 #include <atomic>
 #include <cassert>
 #include <chrono>
@@ -11,44 +12,57 @@
 
 namespace {
 struct Driver {
-  DWORD thread;
   HWND owner;
-  std::wstring filename;
   bool cancel;
   bool sent = false;
   unsigned confirmations = 0;
+  HWND dialog = nullptr;
 };
 BOOL CALLBACK Respond(HWND window, LPARAM parameter) {
   auto &driver = *reinterpret_cast<Driver *>(parameter);
+  DWORD process = 0; GetWindowThreadProcessId(window, &process);
+  if (process != GetCurrentProcessId()) return TRUE;
   if (!IsWindowVisible(window) || GetAncestor(window, GA_ROOTOWNER) != driver.owner) return TRUE;
   wchar_t name[64]{}; GetClassNameW(window, name, 64);
   if (std::wstring(name) != L"#32770") return TRUE;
-  if (GetDlgItem(window, IDYES)) {
+  if (GetDlgItem(window, IDYES) || (driver.sent && window != driver.dialog)) {
+    // Modern Explorer confirmations can use DirectUI controls on a different
+    // shell thread, without a child HWND for the Yes button. Task dialogs
+    // accept TDM_CLICK_BUTTON; classic message boxes accept WM_COMMAND.
     ++driver.confirmations;
+    PostMessageW(window, TDM_CLICK_BUTTON, IDYES, 0);
     PostMessageW(window, WM_COMMAND, IDYES, 0);
     return TRUE;
   }
   if (driver.sent) return TRUE;
   if (!GetDlgItem(window, IDOK) || !GetDlgItem(window, IDCANCEL)) return TRUE;
+  driver.dialog = window;
   driver.sent = true;
   PostMessageW(window, WM_COMMAND, driver.cancel ? IDCANCEL : IDOK, 0);
   return TRUE;
 }
 BOOL CALLBACK Cancel(HWND window, LPARAM owner) {
-  if (GetAncestor(window, GA_ROOTOWNER) == HWND(owner) && GetDlgItem(window, IDCANCEL))
+  DWORD process = 0; GetWindowThreadProcessId(window, &process);
+  if (process == GetCurrentProcessId() && GetAncestor(window, GA_ROOTOWNER) == HWND(owner)) {
+    PostMessageW(window, TDM_CLICK_BUTTON, IDCANCEL, 0);
     PostMessageW(window, WM_COMMAND, IDCANCEL, 0);
+    PostMessageW(window, WM_CLOSE, 0, 0);
+  }
   return TRUE;
 }
 std::filesystem::path Select(HWND owner, bool save, const std::filesystem::path &file, bool cancel = false) {
-  Driver driver{GetCurrentThreadId(), owner, file.wstring(), cancel};
+  Driver driver{owner, cancel};
   std::atomic<bool> finished{false};
   std::thread automation([&] {
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(20);
     while (!finished && std::chrono::steady_clock::now() < deadline) {
-      EnumThreadWindows(driver.thread, Respond, LPARAM(&driver));
+      EnumWindows(Respond, LPARAM(&driver));
       std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
-    if (!finished) EnumThreadWindows(driver.thread, Cancel, LPARAM(owner));
+    for (int retry=0;!finished && retry<40;++retry) {
+      EnumWindows(Cancel, LPARAM(owner));
+      std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    }
   });
   const auto original = std::filesystem::current_path();
   std::cout << "Dialog save=" << save << " cancel=" << cancel << std::endl;
