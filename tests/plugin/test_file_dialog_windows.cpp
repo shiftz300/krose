@@ -65,9 +65,15 @@ std::filesystem::path Select(HWND owner, bool save, const std::filesystem::path 
 }
 int main() {
   using namespace krose::storage;
-  const auto root = std::filesystem::temp_directory_path() /
+  auto root = std::filesystem::temp_directory_path() /
       (L"krose-dialog-" + std::to_wstring(GetCurrentProcessId())) / L"中文音色 空格";
   std::filesystem::create_directories(root);
+  // Runner TEMP can use RUNNER~1 while Explorer returns runneradmin. Compare
+  // the same long spelling; both paths already refer to the same directory.
+  std::vector<wchar_t> longName(32768);
+  const auto length = GetLongPathNameW(root.c_str(), longName.data(), DWORD(longName.size()));
+  assert(length && length < longName.size());
+  root = std::filesystem::path(longName.data());
   HWND owner = CreateWindowW(L"STATIC", L"Krose preset dialog regression", WS_OVERLAPPEDWINDOW,
                               50, 50, 500, 300, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
   assert(owner); ShowWindow(owner, SW_SHOW);
