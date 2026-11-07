@@ -3,6 +3,7 @@
 #include "../ParameterBinding.h"
 #include "FXMotion.h"
 #include "UIMotion.h"
+#include "FxAnalysis.h"
 #include "IControl.h"
 #include "json.hpp"
 #include <array>
@@ -75,6 +76,13 @@ private:
   std::string FxName(int slot);
   void FxPage(IGraphics &);
   void DrawFxFace(IGraphics &, const IRECT &, int slot);
+  bool UpdateFxVisuals();
+  void DrawFxSignal(IGraphics &, const IRECT &, int slot, int type);
+  std::array<FxAnalysis, 4> mFxAnalysis;
+  std::chrono::steady_clock::time_point mFxTick{};
+  float mOutputLevel = 0, mOutputReduction = 0;
+  double mOverloadUntil = 0;
+  bool mSafetyShown = false;
   void DrawFxMeter(IGraphics &, const IRECT &, int slot);
   void DrawEmptyFxSlot(IGraphics &, const IRECT &, bool vertical);
   void Browser(IGraphics &);
@@ -107,8 +115,7 @@ private:
   std::shared_ptr<int> mLifetime = std::make_shared<int>(0);
   std::string mPresetStatus;
   double mMod = 0, mWheelRemainder = 0;
-  std::array<double, 2> mMeterLevels{};
-  std::chrono::steady_clock::time_point mMeterTick{};
+  std::array<double, 4> mMeterLevels{};
   void ProgramRow(IGraphics &);
   void Controllers(IGraphics &);
   bool ControllerAction(const Hit &);

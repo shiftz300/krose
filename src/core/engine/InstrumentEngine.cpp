@@ -64,6 +64,7 @@ void InstrumentEngine::Queue(MidiEvent event) noexcept { mEvents.Push(event, fal
 
 void InstrumentEngine::Panic() noexcept {
   mArp.Reset();
+  mSafety.Reset();
   mConcert.Panic();
   mFactory.Panic();
   mEvents.Clear();
@@ -81,6 +82,7 @@ unsigned InstrumentEngine::ActiveVoices() const noexcept {
 void InstrumentEngine::Process(float *left, float *right, int frames) noexcept {
   if (frames <= 0 || !left || !right)
     return;
+  mSafety.ClearMeters();
   if (mOfflineLoadFailed) {
     mEvents.Discard();
     std::fill(left, left + frames, 0);
@@ -89,8 +91,13 @@ void InstrumentEngine::Process(float *left, float *right, int frames) noexcept {
   }
   // Bound generated MIDI per engine call even for very large offline blocks.
   if (frames > 256) {
-    for (int at = 0; at < frames; at += 256)
+    float peak = 0, reduction = 0;
+    for (int at = 0; at < frames; at += 256) {
       Process(left + at, right + at, std::min(256, frames - at));
+      peak = std::max(peak, mSafety.Peak());
+      reduction = std::max(reduction, mSafety.Reduction());
+    }
+    mSafety.MergeMeters(peak, reduction);
     return;
   }
   if (mEvents.Overflowed())
@@ -113,6 +120,7 @@ void InstrumentEngine::Process(float *left, float *right, int frames) noexcept {
     mPan += mPanSmooth * (mPanTarget - mPan);
     left[i] = (left[i] + otherLeft[i]) * (1 - std::max(mPan, 0.0));
     right[i] = (right[i] + otherRight[i]) * (1 + std::min(mPan, 0.0));
+    mSafety.Process(left[i], right[i]);
   }
   // A single residency stays pinned. Scan only while old voices can still
   // reference samples from a previous program.

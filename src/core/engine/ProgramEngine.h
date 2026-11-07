@@ -14,7 +14,7 @@ namespace segrand {
 struct SampleResidency;
 class ProgramEngine {
 public:
-  static constexpr unsigned kVoices = 128, kTails = 32, kEvents = 2048;
+  static constexpr unsigned kVoices = 128, kTails = kVoices, kEvents = 2048;
   explicit ProgramEngine(std::shared_ptr<const ProgramLibrary> library);
   ~ProgramEngine();
   void Prepare(double rate);
@@ -22,6 +22,7 @@ public:
   void SetControls(const Controls &controls) noexcept;
   void Queue(MidiEvent event) noexcept;
   void Process(float *left, float *right, int frames) noexcept;
+  FxMonitor &Monitor() noexcept { return mRack.Monitor(); }
   const std::array<float, 2> &FxPeaks() const noexcept { return mRack.Peaks(); }
   void Panic() noexcept;
   unsigned ActiveVoices() const noexcept;
@@ -55,6 +56,8 @@ private:
   std::unique_ptr<ConcertEffects, DeleteEffect> mRoom;
   std::array<Voice, kVoices> mVoices{};
   std::array<Voice, kTails> mTails{};
+  std::array<std::array<double, 2>, 96> mOverflowTail{};
+  unsigned mOverflowPosition = 0;
   EventQueue<kEvents> mEvents;
   std::array<bool, 16> mSustain{};
   std::array<int, 16> mPortamento{}, mPreviousPitch{};

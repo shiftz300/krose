@@ -83,6 +83,8 @@ void PianoEngine::Panic() noexcept {
   mMono.Reset();
   mVoices = {};
   mTails = {};
+  mOverflowTail = {};
+  mOverflowPosition = 0;
   mSustain.fill(false);
   mPortamento.fill(-1);
   mPreviousPitch.fill(-1);
@@ -141,8 +143,14 @@ void PianoEngine::Release(Voice &voice) noexcept {
 }
 void PianoEngine::Tail(Voice &voice) noexcept {
   auto tail = std::find_if(mTails.begin(), mTails.end(), [](const Voice &v) { return !v.sample; });
-  if (tail == mTails.end())
-    tail = mTails.begin();
+  if (tail == mTails.end()) {
+    tail = std::min_element(mTails.begin(), mTails.end(),
+        [](const Voice &a, const Voice &b) { return a.forcedRemaining < b.forcedRemaining; });
+    for (unsigned frame = 0; frame < 96 && tail->sample; ++frame) {
+      auto &audio = mOverflowTail[(mOverflowPosition + frame) % 96];
+      RenderVoice(*tail, audio[0], audio[1]);
+    }
+  }
   *tail = voice;
   tail->forcedRemaining = 96;
   voice = {};
@@ -188,13 +196,7 @@ void PianoEngine::NoteOn(int note, int velocity, int channel, int previousPitch)
         return a.released;
       return a.age < b.age;
     });
-    auto tail =
-        std::find_if(mTails.begin(), mTails.end(), [](const Voice &v) { return !v.sample; });
-    if (tail == mTails.end())
-      tail = mTails.begin();
-    *tail = *it;
-    tail->forcedRemaining = 96;
-    tail->released = false;
+    Tail(*it);
   }
   const int layer = VelocityLayer(velocity);
   const int selection =
@@ -365,7 +367,10 @@ void PianoEngine::Render(float *left, float *right, int frames) noexcept {
         active[voices++] = &v;
     for (int n = 0; n < count; ++n) {
       mGain.Advance();
-      double l = 0, r = 0;
+      auto &overflow = mOverflowTail[mOverflowPosition];
+      double l = overflow[0], r = overflow[1];
+      overflow = {};
+      mOverflowPosition = (mOverflowPosition + 1) % 96;
       for (unsigned v = 0; v < voices; ++v)
         RenderVoice(*active[v], l, r);
       dry[n * 2] = float(l);
@@ -381,11 +386,14 @@ void PianoEngine::Render(float *left, float *right, int frames) noexcept {
         left = dry[n * 2] + eq * (left - dry[n * 2]);
         right = dry[n * 2 + 1] + eq * (right - dry[n * 2 + 1]);
       }
-      mRack.Insert(left, right);
+      const double input = (dry[n * 2] + dry[n * 2 + 1]) * .5;
+      mRack.Insert(left, right, mControls.fx[0].type == 0 ? &input : nullptr);
     }
+    std::array<std::array<double, 256>, 3> legacyChorus{}, legacyHall{};
+    const bool monitoring = mRack.Monitor().Enabled();
     for (int p = 0; p < 3; ++p)
-      concert_effects_process_equalized(mEffects[p].get(), equalized.data(), audio[p].data(),
-                                        count);
+      concert_effects_process_components(mEffects[p].get(), equalized.data(), audio[p].data(), count,
+          monitoring ? legacyChorus[p].data() : nullptr, monitoring ? legacyHall[p].data() : nullptr);
     mRack.Returns(equalized.data(), returns.data(), count);
     for (int n = 0; n < count; ++n) {
       double l = returns[n * 2], r = returns[n * 2 + 1];
@@ -400,9 +408,22 @@ void PianoEngine::Render(float *left, float *right, int frames) noexcept {
         l = dry[n * 2] + (l - dry[n * 2]) * mFXBlend;
         r = dry[n * 2 + 1] + (r - dry[n * 2 + 1]) * mFXBlend;
       }
+      if (monitoring) {
+        for (int slot = 2; slot < 4; ++slot) {
+          if (mControls.fx[slot].type >= 2 && mControls.fx[slot].enabled) continue;
+          double wetL = 0, wetR = 0;
+          const auto &tap = slot == 2 ? legacyChorus : legacyHall;
+          for (int p = 0; p < 3; ++p) {
+            wetL += tap[p][n * 2] * mWeights[p];
+            wetR += tap[p][n * 2 + 1] * mWeights[p];
+          }
+          mRack.Monitor().Push(unsigned(slot), (equalized[n * 2] + equalized[n * 2 + 1]) * .5, wetL, wetR);
+        }
+      }
       left[start + n] = float(l * mOutput);
       right[start + n] = float(r * mOutput);
     }
+    mRack.Monitor().Publish();
   }
 }
 void PianoEngine::Process(float *left, float *right, int frames) noexcept {

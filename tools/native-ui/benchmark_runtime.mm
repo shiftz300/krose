@@ -145,6 +145,10 @@ struct Audio {
     parameter("Arp", arp ? 1 : 0);
     parameter("Arp Host Sync", 0);
     parameter("FX Bypass", 0);
+    if (const char *scene = std::getenv("KROSE_BENCH_CASE"); scene && std::string(scene) == "fx_visuals_32_notes") {
+      parameter("IFX 1 Type", 2./6); parameter("IFX 2 Type", 3./6);
+      parameter("MFX 1 Type", 2./5); parameter("MFX 2 Type", 4./5);
+    }
     parameter("MIDI Input Channel", 0);
     float left[128]{}, right[128]{};
     float *channels[] = {left, right};
@@ -304,8 +308,6 @@ int main(int argc, char **argv) {
     for (int i = 0; i < controller->getParameterCount(); ++i) {
       ParameterInfo p{};
       controller->getParameterInfo(i, p);
-      if (p.id >= 39)
-        continue;
       std::string name;
       for (auto c : p.title) {
         if (!c)
@@ -376,6 +378,7 @@ int main(int argc, char **argv) {
     phase("editor_idle_after_animation", 0, 0);
     phase("concert_8_notes", 0, 8);
     phase("concert_32_notes", 0, 32);
+    phase("fx_visuals_32_notes", 0, 32);
     phase("factory_8_notes", 1, 8);
     phase("factory_32_notes", 1, 32);
     phase("expansion_piano_8_notes", expansion, 8);

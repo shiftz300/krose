@@ -48,6 +48,7 @@ void FxRack::Prepare(double rate) {
   if (!std::isfinite(rate) || rate < 32000 || rate > 192000)
     throw std::invalid_argument("FX sample rate must be 32..192 kHz");
   mRate = rate;
+  mMonitor.Prepare(rate);
   mSmoothing = Smooth(rate, 7);
   mExciterAlpha = 1 - std::exp(-2 * kPi * 2400 / rate);
   for (auto &insert : mInserts)
@@ -133,11 +134,14 @@ double FxRack::ConcertEqMix() noexcept {
   return mEq;
 }
 
-void FxRack::Insert(double &left, double &right) noexcept {
+void FxRack::Insert(double &left, double &right, const double *autoEqInput) noexcept {
   for (size_t index = 0; index < mInserts.size(); ++index) {
     auto &slot = mInserts[index];
-    if (slot.type == 1 && slot.target == 1)
+    const double input = index == 0 && autoEqInput ? *autoEqInput : (left + right) * .5;
+    if (slot.type == 1 && slot.target == 1) {
+      mMonitor.Push(unsigned(index), input, left, right);
       continue;
+    }
     const double target = slot.type == slot.target ? slot.targetAmount : 0;
     slot.amount += mSmoothing * (target - slot.amount);
     if (slot.amount < 1e-5 && slot.type != slot.target) {
@@ -149,8 +153,10 @@ void FxRack::Insert(double &left, double &right) noexcept {
         band.history = {};
       }
     }
-    if (slot.amount < 1e-5)
+    if (slot.amount < 1e-5) {
+      mMonitor.Push(unsigned(index), input, left, right);
       continue;
+    }
     if (slot.type == 2) {
       std::array<double, 2> signal{left, right};
       for (auto &band : slot.eq) {
@@ -190,6 +196,8 @@ void FxRack::Insert(double &left, double &right) noexcept {
       left += slot.amount * slot.blend * std::tanh(30 * (left - slot.low[0]));
       right += slot.amount * slot.blend * std::tanh(30 * (right - slot.low[1]));
     }
+    mMonitor.Push(unsigned(index), input, left, right,
+        slot.type == 3 || slot.type == 4 ? 1 - slot.gain : 0);
   }
 }
 
@@ -290,7 +298,16 @@ void FxRack::Returns(const double *input, double *wet, int count) noexcept {
   if (!input || !wet || count <= 0 || count > 128)
     return;
   std::fill(wet, wet + count * 2, 0.);
-  for (auto &slot : mSends)
-    RenderSend(slot, input, wet, count);
+  for (unsigned slot = 0; slot < mSends.size(); ++slot) {
+    std::array<double, 256> returned{};
+    RenderSend(mSends[slot], input, returned.data(), count);
+    for (int n = 0; n < count; ++n) {
+      wet[n * 2] += returned[n * 2];
+      wet[n * 2 + 1] += returned[n * 2 + 1];
+      if (mSends[slot].target != 1)
+        mMonitor.Push(slot + 2, (input[n * 2] + input[n * 2 + 1]) * .5,
+                      returned[n * 2], returned[n * 2 + 1]);
+    }
+  }
 }
 } // namespace segrand

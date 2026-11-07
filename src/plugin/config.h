@@ -1,7 +1,7 @@
 #define PLUG_NAME "Krose"
 #define PLUG_MFR "Local Instruments"
-#define PLUG_VERSION_HEX 0x00000302
-#define PLUG_VERSION_STR "0.3.2"
+#define PLUG_VERSION_HEX 0x00000303
+#define PLUG_VERSION_STR "0.3.3"
 #define PLUG_UNIQUE_ID 'SeG1'
 #define PLUG_MFR_ID 'LocI'
 #define PLUG_URL_STR ""

@@ -99,6 +99,9 @@ void NativePanel::Activate(const Hit &h) {
   else if (h.action == "page") {
     mPage = int(h.value);
     mSlot = 0;
+  } else if (h.action == "fx-toggle") {
+    const int enabled = kFxOn1 + int(h.value);
+    Set(enabled, Value(enabled) ? 0 : 1);
   } else if (h.action == "fx-module" || h.action == "fx-add") {
     mPage = 2;
     mSlot = int(h.value);
@@ -173,7 +176,10 @@ void NativePanel::Activate(const Hit &h) {
     } else if (target.action == "midi-menu")
       ControllerChoice(target.id, v);
     else {
+      const bool adding = IsFxTypeParameter(target.id) && FxType(target.id - kFxType1) <= 1;
       Set(target.id, v);
+      if (adding && FxType(target.id - kFxType1) > 1)
+        Set(kFxOn1 + target.id - kFxType1, 1);
       if (target.id == kClockSource)
         Set(kArpHostSync, v != 1);
     }
@@ -226,6 +232,15 @@ void NativePanel::OnMouseDown(float x, float y, const IMouseMod &mod) {
     }
     if (mod.R && h.action == "fold") {
       OpenPopup({R(38, 57, 140, 30), "scale"});
+      return;
+    }
+    if (mod.R && (h.action == "fx-toggle" || h.action == "fx-add" || h.action == "fx-module")) {
+      // OFF removes the module while retaining its amount and algorithm settings.
+      // Empty slots ignore right-click; left-click opens their add menu.
+      const int slot = int(h.value);
+      if (FxType(slot) > 1)
+        Set(kFxType1 + slot, 1);
+      SetDirty(false);
       return;
     }
     if (mod.R && h.id >= 0 && h.id < kNumParams &&

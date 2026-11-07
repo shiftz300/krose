@@ -152,9 +152,9 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       number(v, 630, 225, @"100");
       assert(parameter("IFX 1 Drive") == 1.);
       capture("fx-drive", 760, 268);
-      capture("fx-drive-off", 702, 199);
+      capture("fx-drive-off", 71, 200);
       assert(parameter("IFX 1 On") == 0.);
-      click(v, 702, 199);
+      click(v, 71, 200);
       click(v, 640, 176); // IFX2 tab.
       click(v, 586, 200);
       click(v, 586, 192); // EQ.
@@ -235,6 +235,47 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
         unsetenv("KROSE_NATIVE_CAPTURE");
         std::filesystem::remove(path);
       }
+      // Module clicks toggle bypass without changing the LCD page or effect;
+      // right-click removes it, and adding into a bypassed empty slot enables it.
+      constexpr const char *fxTypes[] = {"IFX 1 Type", "IFX 2 Type", "MFX 1 Type", "MFX 2 Type"};
+      constexpr const char *fxOn[] = {"IFX 1 On", "IFX 2 On", "MFX 1 On", "MFX 2 On"};
+      constexpr const char *fxAmounts[] = {"IFX 1 Amount", "IFX 2 Amount", "MFX 1 Send", "MFX 2 Send"};
+      constexpr float fxPositions[][2] = {{71, 200}, {175, 85}, {253, 85}, {331, 85}};
+      double savedType[4], savedOn[4], savedAmount[4];
+      for (int slot = 0; slot < 4; ++slot) {
+        savedType[slot] = parameter(fxTypes[slot]);
+        savedOn[slot] = parameter(fxOn[slot]);
+        savedAmount[slot] = parameter(fxAmounts[slot]);
+        const double type = 2. / (slot < 2 ? 6 : 5);
+        setParameter(fxTypes[slot], type);
+        setParameter(fxOn[slot], 1);
+        setParameter(fxAmounts[slot], .37);
+        pump();
+        const auto &p = fxPositions[slot];
+        click(v, p[0], p[1]);
+        assert(parameter(fxOn[slot]) == 0. && parameter(fxTypes[slot]) == type);
+        click(v, p[0], p[1]);
+        assert(parameter(fxOn[slot]) == 1. && parameter(fxAmounts[slot]) == .37);
+        // The removed LCD switch leaves no invisible clickable target.
+        click(v, 850, 125); click(v, 437 + 133 * slot + 50, 176);
+        click(v, 702, 199);
+        assert(parameter(fxOn[slot]) == 1.);
+        click(v, p[0], p[1]);
+        mouse(v, p[0], p[1], NSEventTypeRightMouseDown);
+        mouse(v, p[0], p[1], NSEventTypeRightMouseUp); pump();
+        assert(parameter(fxTypes[slot]) == 1. / (slot < 2 ? 6 : 5));
+        assert(parameter(fxOn[slot]) == 0. && parameter(fxAmounts[slot]) == .37);
+        click(v, p[0], p[1]);
+        key(v, @"\uf729", 115);
+        key(v, @"\uf701", 125); key(v, @"\uf701", 125); key(v, @"\r", 36);
+        assert(parameter(fxTypes[slot]) == type && parameter(fxOn[slot]) == 1.);
+      }
+      for (int slot = 0; slot < 4; ++slot) {
+        setParameter(fxTypes[slot], savedType[slot]);
+        setParameter(fxOn[slot], savedOn[slot]);
+        setParameter(fxAmounts[slot], savedAmount[slot]);
+      }
+      click(v, 700, 125);
       // SWs are real controls. Momentary release must also work on editor close.
       click(v,70,410);assert(parameter("SW1")==1.);
       click(v,70,410);assert(parameter("SW1")==0.);

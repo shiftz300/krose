@@ -22,8 +22,12 @@ void NativePanel::DrawFxFace(IGraphics &g, const IRECT &module, int slot) {
   const float x = pixel(module.L + module.W() * .1f);
   const float y = pixel(module.T + module.H() * .1f);
   g.DrawBitmap(Image("fx-faces"), R(x, y, tile, tile), column * tile, enabled ? 0 : tile);
-  if (slot < 2 && type == 4 && enabled)
-    DrawFxMeter(g, R(x, y, tile, tile), slot);
+  if (enabled) {
+    if (slot < 2 && (type == 3 || type == 4))
+      DrawFxMeter(g, R(x, y, tile, tile), slot);
+    else
+      DrawFxSignal(g, R(x, y, tile, tile), slot, type);
+  }
   if (!enabled) {
     const float left = pixel(module.L + module.W() * .35f);
     const float right = pixel(module.L + module.W() * .65f);
@@ -35,8 +39,12 @@ void NativePanel::DrawFxMeter(IGraphics &g, const IRECT &r, int slot) {
   // Same glass and dial geometry as the approved face; the needle reads the
   // actual post-insert peak (dBFS), with a time-based 250 ms release.
   g.PathClear(); g.PathRect(r);
+  const bool compressor = FxType(slot) == 3;
   g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical,
-      {{IColor(255,169,156,112),0}, {IColor(255,229,213,155),.5f}, {IColor(255,201,188,144),1}}));
+      compressor ? std::initializer_list<IColorStop>{{IColor(255,153,154,150),0},
+          {IColor(255,218,220,214),.5f}, {IColor(255,181,185,180),1}} :
+          std::initializer_list<IColorStop>{{IColor(255,169,156,112),0},
+          {IColor(255,229,213,155),.5f}, {IColor(255,201,188,144),1}}));
   const float cx=r.MW(), cy=r.B-4, radius=23;
   const IColor ink(255,57,55,51), red(255,161,67,54);
   for (int j=0;j<36;++j) {
@@ -61,6 +69,9 @@ void NativePanel::DrawFxMeter(IGraphics &g, const IRECT &r, int slot) {
   const double angle = -2.47 + .225 * position;
   g.DrawLine(IColor(45,48,43,37),cx+1,cy,cx+28*std::cos(angle)+1,cy+28*std::sin(angle)+1,nullptr,1.2);
   g.DrawLine(IColor(255,170,56,50),cx,cy,cx+28*std::cos(angle),cy+28*std::sin(angle),nullptr,1);
+  const float reduction = mFxAnalysis[slot].reduction;
+  if (reduction > .001f)
+    g.FillRect(IColor(160,145,56,49), R(r.L+4,r.B-3,(r.W()-8)*reduction,1.5));
 }
 void NativePanel::DrawEmptyFxSlot(IGraphics &g, const IRECT &module, bool vertical) {
   // Cover the entire baked housing and its shadow with the original bare marble.
@@ -120,13 +131,10 @@ void NativePanel::FxPage(IGraphics &g) {
   }
 
   const int slot = mSlot;
-  const int typeParam = kFxType1 + slot, amount = kFxAmount1 + slot, enabled = kFxOn1 + slot;
+  const int typeParam = kFxType1 + slot, amount = kFxAmount1 + slot;
   const bool automatic = Value(typeParam) == 0;
   const int type = FxType(slot);
   Field(g, "Type", FxTypeField(), typeParam, (automatic ? "A: " : "") + FxName(slot));
-  const bool on = Value(enabled) && type > 1;
-  ControllerCell(g, on ? "ON" : "OFF", R(679, 190, 45, 21), type > 1 ? "toggle" : "inactive",
-                 enabled, 0, on);
   Text(g, "lcd14", slot < 2 ? "Wet/Dry" : "Send", R(736, 192, 91, 19));
   Field(g, "", R(850, 190, 117, 21), amount, Format(Value(amount)) + "%", type > 1);
 

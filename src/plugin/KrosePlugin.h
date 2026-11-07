@@ -42,6 +42,14 @@ public:
   bool ComparisonReady() const { return mComparisonReady; }
   bool SaveUserPreset(const std::string &path);
   bool LoadUserPreset(const std::string &path);
+  void EnableVisuals(bool enabled) noexcept { mVisualsEnabled.store(enabled, std::memory_order_relaxed); }
+  unsigned ReadFxVisual(unsigned slot, segrand::FxVisualSample *data, unsigned capacity) noexcept {
+    return mEngine ? mEngine->ReadVisual(slot, data, capacity) : 0;
+  }
+  double AudioRate() const noexcept { return mAudioRate.load(std::memory_order_relaxed); }
+  double VisualRate() const noexcept { return mVisualRate.load(std::memory_order_relaxed); }
+  float TakeOutputPeak() noexcept { return mOutputPeak.exchange(0, std::memory_order_relaxed); }
+  float TakeOutputReduction() noexcept { return mOutputReduction.exchange(0, std::memory_order_relaxed); }
   float TakeFxPeak(unsigned slot) noexcept { return mFxPeaks[slot].exchange(0, std::memory_order_relaxed); }
 
 #if IPLUG_DSP
@@ -67,6 +75,10 @@ private:
   std::array<double, kNumParams> mComparison{};
   bool mComparisonReady = false, mComparing = false;
   std::atomic<bool> mComparisonNeedsCapture{false};
+  std::atomic<uint64_t> mSoundGeneration{0};
+  std::atomic<bool> mVisualsEnabled{false};
+  std::atomic<double> mVisualRate{48000}, mAudioRate{48000};
+  std::atomic<float> mOutputPeak{0}, mOutputReduction{0};
   void InitializeParameters();
   void InitializeMidiMappings();
   void ConfigureAudio(int offset);

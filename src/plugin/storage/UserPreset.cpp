@@ -1,3 +1,4 @@
+#include "ParameterTransaction.h"
 #include "../KrosePlugin.h"
 #include "UserPreset.h"
 
@@ -9,6 +10,7 @@ void KrosePlugin::CaptureComparison() {
   mComparing = false;
 }
 void KrosePlugin::ApplySound(const std::array<double, kNumParams> &values) {
+  krose::storage::ParameterTransaction transaction(mSoundGeneration);
   for (int id = 0; id < kNumParams; ++id)
     if (krose::storage::SoundParameter(id) && GetParam(id)->GetNormalized() != values[id]) {
       BeginInformHostOfParamChangeFromUI(id);

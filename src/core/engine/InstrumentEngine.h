@@ -1,5 +1,6 @@
 #pragma once
 #include "engine/PianoEngine.h"
+#include "effects/OutputSafety.h"
 #include "engine/ProgramEngine.h"
 #include "midi/Arpeggiator.h"
 #include "midi/EventQueue.h"
@@ -25,6 +26,26 @@ public:
   void Process(float *left, float *right, int frames) noexcept;
   void Panic() noexcept;
   unsigned ActiveVoices() const noexcept;
+  void EnableMonitoring(bool enabled) noexcept {
+    mConcert.Monitor().Enable(enabled);
+    mFactory.Monitor().Enable(enabled);
+  }
+  unsigned ReadVisual(unsigned slot, FxVisualSample *output, unsigned capacity) noexcept {
+    std::array<FxVisualSample, FxMonitor::kCapacity> other;
+    capacity = std::min(capacity, unsigned(other.size()));
+    const auto a = mConcert.Monitor().Read(slot, output, capacity);
+    const auto b = mFactory.Monitor().Read(slot, other.data(), capacity);
+    for (unsigned i = a; i < b; ++i) output[i] = {};
+    for (unsigned i = 0; i < b; ++i) {
+      output[i].input += other[i].input;
+      output[i].left += other[i].left;
+      output[i].right += other[i].right;
+      output[i].reduction = std::max(output[i].reduction, other[i].reduction);
+    }
+    return std::max(a, b);
+  }
+  float OutputPeak() const noexcept { return mSafety.Peak(); }
+  float OutputReduction() const noexcept { return mSafety.Reduction(); }
   std::array<float, 2> FxPeaks() const noexcept {
     if (mOfflineLoadFailed)
       return {};
@@ -36,6 +57,7 @@ private:
   std::unique_ptr<SampleLoader> mLoader;
   const SampleResidency *mResidency = nullptr;
   Arpeggiator mArp;
+  OutputSafety mSafety;
   PianoEngine mConcert;
   ProgramEngine mFactory;
   EventQueue<PianoEngine::kEvents> mEvents;

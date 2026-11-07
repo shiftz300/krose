@@ -171,8 +171,14 @@ void concert_effects_equalize(ConcertEffects *e, const float *input, double *out
 }
 void concert_effects_process_equalized(ConcertEffects *e, const double *equalized, float *stereo,
                                        size_t frames) {
+  concert_effects_process_components(e, equalized, stereo, frames, NULL, NULL);
+}
+void concert_effects_process_components(ConcertEffects *e, const double *equalized, float *stereo,
+                                       size_t frames, double *chorus_output, double *hall_output) {
   if (!e || !stereo)
     return;
+  if (chorus_output) memset(chorus_output, 0, frames * 2 * sizeof(double));
+  if (hall_output) memset(hall_output, 0, frames * 2 * sizeof(double));
   Configuration *c = &e->c;
   State *s = &e->s;
   const int chorus_active = c->chorus_wet != 0 || s->chorus_wet != 0;
@@ -247,8 +253,11 @@ void concert_effects_process_equalized(ConcertEffects *e, const double *equalize
       double early = 0.3 * e->early[ch][(pos - c->early_delays[0]) & e->short_mask] +
                      0.2 * e->early[1 - ch][(pos - c->early_delays[1]) & e->short_mask] -
                      0.15 * e->early[ch][(pos - c->early_delays[2]) & e->short_mask];
-      stereo[n * 2 + ch] =
-          (float)(dry[ch] + s->chorus_wet * chorus[ch] + s->reverb_wet * (0.8 * wet[ch] + early));
+      const double chorus_wet = s->chorus_wet * chorus[ch];
+      const double hall_wet = s->reverb_wet * (0.8 * wet[ch] + early);
+      if (chorus_output) chorus_output[n * 2 + ch] = chorus_wet;
+      if (hall_output) hall_output[n * 2 + ch] = hall_wet;
+      stereo[n * 2 + ch] = (float)(dry[ch] + chorus_wet + hall_wet);
     }
     s->position = (pos + 1) & POSITION_MASK;
     s->phase += c->lfo_step;

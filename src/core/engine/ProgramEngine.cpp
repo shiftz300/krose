@@ -45,6 +45,8 @@ void ProgramEngine::Panic() noexcept {
   mMono.Reset();
   mVoices = {};
   mTails = {};
+  mOverflowTail = {};
+  mOverflowPosition = 0;
   mEvents.Clear();
   mSustain.fill(false);
   mPortamento.fill(-1);
@@ -118,8 +120,14 @@ unsigned ProgramEngine::ActiveVoices() const noexcept {
 }
 void ProgramEngine::Tail(Voice &voice) noexcept {
   auto it = std::find_if(mTails.begin(), mTails.end(), [](const Voice &v) { return !v.region; });
-  if (it == mTails.end())
-    it = mTails.begin();
+  if (it == mTails.end()) {
+    it = std::min_element(mTails.begin(), mTails.end(),
+        [](const Voice &a, const Voice &b) { return a.forced < b.forced; });
+    for (unsigned frame = 0; frame < 96 && it->region; ++frame) {
+      auto &audio = mOverflowTail[(mOverflowPosition + frame) % 96];
+      RenderVoice(*it, audio[0], audio[1]);
+    }
+  }
   *it = voice;
   it->forced = 96;
   voice = {};
@@ -449,7 +457,10 @@ void ProgramEngine::Render(float *left, float *right, int frames) noexcept {
         active[voices++] = &v;
     for (int i = 0; i < count; ++i) {
       mGain.Advance();
-      double l = 0, r = 0;
+      auto &overflow = mOverflowTail[mOverflowPosition];
+      double l = overflow[0], r = overflow[1];
+      overflow = {};
+      mOverflowPosition = (mOverflowPosition + 1) % 96;
       for (unsigned v = 0; v < voices; ++v)
         RenderVoice(*active[v], l, r);
       if (blend) {
@@ -463,7 +474,11 @@ void ProgramEngine::Render(float *left, float *right, int frames) noexcept {
       inserts[i * 2 + 1] = r;
     }
     // One shared return bus, not a separate reverb per voice or per Program.
-    concert_effects_process(mRoom.get(), bus.data(), count);
+    std::array<double, 256> legacyChorus{}, legacyHall{}, legacyEq;
+    const bool monitoring = mRack.Monitor().Enabled();
+    concert_effects_equalize(mRoom.get(), bus.data(), legacyEq.data(), count);
+    concert_effects_process_components(mRoom.get(), legacyEq.data(), bus.data(), count,
+        monitoring ? legacyChorus.data() : nullptr, monitoring ? legacyHall.data() : nullptr);
     mRack.Returns(inserts.data(), returns.data(), count);
     for (int i = 0; i < count; ++i) {
       mOutput += mSmooth * (mTarget - mOutput);
@@ -474,9 +489,19 @@ void ProgramEngine::Render(float *left, float *right, int frames) noexcept {
         bus[i * 2] = float(dry[i * 2] + (bus[i * 2] - dry[i * 2]) * mFXBlend);
         bus[i * 2 + 1] = float(dry[i * 2 + 1] + (bus[i * 2 + 1] - dry[i * 2 + 1]) * mFXBlend);
       }
+      if (monitoring) {
+        for (int slot = 2; slot < 4; ++slot) {
+          if (mControls.fx[slot].type >= 2 && mControls.fx[slot].enabled) continue;
+          double wetL = 0, wetR = 0;
+          const auto &tap = slot == 2 ? legacyChorus : legacyHall;
+          wetL = tap[i * 2]; wetR = tap[i * 2 + 1];
+          mRack.Monitor().Push(unsigned(slot), (inserts[i * 2] + inserts[i * 2 + 1]) * .5, wetL, wetR);
+        }
+      }
       left[start + i] = float(bus[i * 2] * mOutput);
       right[start + i] = float(bus[i * 2 + 1] * mOutput);
     }
+    mRack.Monitor().Publish();
   }
 }
 void ProgramEngine::Process(float *left, float *right, int frames) noexcept {

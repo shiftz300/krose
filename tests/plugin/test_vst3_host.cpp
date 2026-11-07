@@ -1,4 +1,5 @@
 #include <limits>
+#include <atomic>
 // Headless integration test against the compiled VST3, using the SDK's host API.
 #include "public.sdk/source/vst/hosting/hostclasses.h"
 #include "public.sdk/source/vst/hosting/module.h"
@@ -433,9 +434,40 @@ int main(int argc,char** argv){
   }
   auto* view=controller->createView(ViewType::kEditor);assert(view);
   if(openEditor) {
+    std::atomic<bool> visualAudio{false};
+    std::thread visualThread;
+    if (std::getenv("KROSE_UI_SIGNAL")) {
+      ProcessSetup setup{}; setup.processMode=kRealtime; setup.symbolicSampleSize=kSample32;
+      setup.maxSamplesPerBlock=128; setup.sampleRate=48000;
+      assert(processor->setupProcessing(setup)==kResultOk);
+      assert(component->setActive(true)==kResultOk); processor->setProcessing(true);
+      visualAudio=true;
+      visualThread=std::thread([&] {
+        float l[128]{},r[128]{};float* channels[]={l,r};AudioBusBuffers bus{};
+        bus.numChannels=2;bus.channelBuffers32=channels;
+        EventList events;ProcessData data{};data.processMode=kRealtime;data.symbolicSampleSize=kSample32;
+        data.numOutputs=1;data.outputs=&bus;data.inputEvents=&events;data.numSamples=128;
+        unsigned block=0;auto next=std::chrono::steady_clock::now();
+        while(visualAudio.load()) {
+          if(block%188==0) {
+            for(int note:{48,55,60,64,67,72}) {
+              Event event{};event.type=Event::kNoteOffEvent;event.busIndex=0;
+              event.noteOff.pitch=note;events.addEvent(event);
+              event.type=Event::kNoteOnEvent;event.noteOn.pitch=note;
+              event.noteOn.velocity=.8f;events.addEvent(event);
+            }
+          }
+          assert(processor->process(data)==kResultOk);events.clear();++block;
+          next+=std::chrono::nanoseconds(2666667);std::this_thread::sleep_until(next);
+        }
+      });
+    }
     gestures->tracking=true;
     verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);},[&]{return controller->getParamNormalized(ids["Program"]);},[&]{return controller->getParamNormalized(ids["Voice Mode"]);},[&]{return controller->getParamNormalized(ids["Glide"]);},[&](const char* name){return controller->getParamNormalized(ids.at(name));},[&](const char* name,double value){assert(controller->setParamNormalized(ids.at(name),value)==kResultOk);});
     gestures->tracking=false;
+    if (visualThread.joinable()) {
+      visualAudio=false;visualThread.join();processor->setProcessing(false);component->setActive(false);
+    }
     for(const auto& entry:gestures->depth)assert(entry.second==0);
     if(!std::getenv("KROSE_UI_REFERENCE")&&!std::getenv("KROSE_UI_BENCH"))
       assert(gestures->begins>0&&gestures->edits>0&&gestures->begins==gestures->ends);

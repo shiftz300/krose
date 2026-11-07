@@ -1,3 +1,4 @@
+#include "../storage/ParameterTransaction.h"
 #include "../KrosePlugin.h"
 #include "IPlugPaths.h"
 #include "NativeData.h"
@@ -65,6 +66,8 @@ void KrosePlugin::StandardMidiMappings() {
   }
 }
 bool KrosePlugin::SerializeState(IByteChunk &chunk) const {
+  const auto generation = mSoundGeneration.load(std::memory_order_acquire);
+  if (uint32_t(generation)) return false;
   std::array<bool, kNumParams> momentary{};
   for (unsigned slot = 0; slot < krose::midi::ControllerMap::kSlots; ++slot) {
     const auto b = mMidiMap.Get(slot);
@@ -90,9 +93,10 @@ bool KrosePlugin::SerializeState(IByteChunk &chunk) const {
     const uint64_t word = mMidiMap.Get(i).Encode();
     chunk.Put(&word);
   }
-  return true;
+  return mSoundGeneration.load(std::memory_order_acquire) == generation;
 }
 int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
+  krose::storage::ParameterTransaction transaction(mSoundGeneration);
   if (start < 0 || start > chunk.Size())
     return -1;
   const int available = chunk.Size() - start;

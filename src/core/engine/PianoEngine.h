@@ -16,13 +16,14 @@ namespace segrand {
 struct SampleResidency;
 class PianoEngine {
 public:
-  static constexpr unsigned kVoices = 64, kTails = 16, kEvents = 2048, kChunk = 128;
+  static constexpr unsigned kVoices = 64, kTails = kVoices, kEvents = 2048, kChunk = 128;
   explicit PianoEngine(std::shared_ptr<const SampleBank> bank);
   ~PianoEngine();
   void Prepare(double sampleRate);
   void SetControls(const Controls &controls);
   void Queue(MidiEvent event) noexcept;
   void Process(float *left, float *right, int frames) noexcept;
+  FxMonitor &Monitor() noexcept { return mRack.Monitor(); }
   const std::array<float, 2> &FxPeaks() const noexcept { return mRack.Peaks(); }
   void Panic() noexcept;
   unsigned ActiveVoices() const noexcept;
@@ -55,6 +56,8 @@ private:
   const SampleResidency *mResidency = nullptr;
   std::array<Voice, kVoices> mVoices{};
   std::array<Voice, kTails> mTails{};
+  std::array<std::array<double, 2>, 96> mOverflowTail{};
+  unsigned mOverflowPosition = 0;
   EventQueue<kEvents> mEvents;
   std::array<std::unique_ptr<ConcertEffects, EffectDeleter>, 3> mEffects;
   std::array<bool, 16> mSustain{};

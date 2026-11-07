@@ -63,6 +63,9 @@ void KrosePlugin::OnReset() {
     return;
   try {
     mEngine->Prepare(GetSampleRate());
+    const double rate = GetSampleRate();
+    mAudioRate.store(rate, std::memory_order_relaxed);
+    mVisualRate.store(rate, std::memory_order_relaxed);
     mIncomingMidi.Clear();
 #if defined(VST3_API)
     ClearHostParameters();

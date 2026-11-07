@@ -1,5 +1,6 @@
 #pragma once
 #include "effects/concert_effects.h"
+#include "effects/FxMonitor.h"
 #include <array>
 #include <cstddef>
 #include <memory>
@@ -60,15 +61,17 @@ public:
   void Prepare(double rate);
   void Reset() noexcept;
   void SetInserts(const FxSettings &settings, bool concert) noexcept;
-  void Insert(double &left, double &right) noexcept;
+  void Insert(double &left, double &right, const double *autoEqInput = nullptr) noexcept;
   void SetReturns(const FxSettings &settings, double space) noexcept;
   // Interleaved stereo, up to 128 frames. Returns contain effect signal only.
   void Returns(const double *input, double *wet, int count) noexcept;
   double ConcertEqMix() noexcept;
+  FxMonitor &Monitor() noexcept { return mMonitor; }
   void ClearMeters() noexcept { mPeaks.fill(0); }
   const std::array<float, 2> &Peaks() const noexcept { return mPeaks; }
 
 private:
+  FxMonitor mMonitor;
   struct RoomDeleter {
     void operator()(ConcertEffects *p) const noexcept { concert_effects_destroy(p); }
   };

@@ -70,6 +70,7 @@ void NativePanel::OnInit() {
   FilterPrograms();
   mStoredMapping = ControllerHash();
   auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
+  plugin->EnableVisuals(true);
   if (!plugin->ComparisonReady())
     plugin->CaptureComparison();
 }
@@ -220,22 +221,9 @@ void NativePanel::Draw(IGraphics &g) {
   }
 }
 bool NativePanel::IsDirty() {
-  const auto now = std::chrono::steady_clock::now();
-  const double dt = std::chrono::duration<double>(now - mMeterTick).count();
-  mMeterTick = now;
-  bool meterChanged = false;
-  auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
-  for (unsigned slot = 0; slot < mMeterLevels.size(); ++slot) {
-    const double peak = plugin->TakeFxPeak(slot);
-    double value = FxType(slot) == 4 && FxEnabled(slot)
-        ? std::max(peak, mMeterLevels[slot] * std::exp(-dt / .25)) : 0;
-    if (value < .0001) value = 0;
-    meterChanged |= std::abs(value - mMeterLevels[slot]) > .00001;
-    mMeterLevels[slot] = value;
-  }
-  // Animation follows the graphics clock, not the slower host-message timer.
+  const bool signalChanged = UpdateFxVisuals();
   return IControl::IsDirty() || mVisualAnimating || FoldProgress() != mRenderedFold ||
-         (meterChanged && FoldProgress() < 1);
+         (signalChanged && FoldProgress() < 1) || mOutputReduction > .0001f;
 }
 double NativePanel::FoldProgress() const {
   return mFXMotion
@@ -303,6 +291,11 @@ void NativePanel::Render(IGraphics &g) {
     auto r = R(k.x - 10, k.y + 55, 68, 22);
     Text(g, "mono12", mEdit == k.id ? mEditText : s, r, 1);
     HitBox(r, "edit", k.id);
+  }
+  const double clock = mFrameTime;
+  if (clock < mOverloadUntil) {
+    Text(g, "mono10", "SAFE", R(1336, 258, 68, 16), 1);
+    g.FillRect(IColor(180, 155, 67, 62), R(1346, 275, 48 * std::clamp(mOutputReduction, 0.f, 1.f), 2));
   }
   Bitmap(g, "knob-shell", 221, 168);
   Bitmap(g, "knob-pointer", 229, 176);
@@ -390,7 +383,7 @@ void NativePanel::Render(IGraphics &g) {
         auto a = h["rect"];
         auto r = R(a[0], a[1], a[2], a[3]);
         const bool empty = FxType(slot) <= 1;
-        HitBox(r, empty ? "fx-add" : "fx-module", -1, slot);
+        HitBox(r, empty ? "fx-add" : "fx-toggle", -1, slot);
         if (r.Contains(mMouseX, mMouseY)) {
           const std::string label = std::string(FxSlots[slot]) + " / " +
                                     (empty ? "ADD FX" : FxEnabled(slot) ? FxName(slot) : "OFF");

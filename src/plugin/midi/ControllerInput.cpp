@@ -119,6 +119,9 @@ void KrosePlugin::HandleControllerMidi(Message m, const int &position, RenderTo 
     ConfigureAudio(position);
 }
 void KrosePlugin::ConfigureAudio(int offset) {
+  const auto generation = mSoundGeneration.load(std::memory_order_acquire);
+  if (uint32_t(generation)) return;
+  mEngine->EnableMonitoring(mVisualsEnabled.load(std::memory_order_relaxed));
   mMidiMap.Synchronize([&](unsigned target, double value) { SetMidiParameter(target, value); });
   ApplySwitches();
   const int filter = GetParam(kInputChannel)->Int();
@@ -162,7 +165,6 @@ void KrosePlugin::ConfigureAudio(int offset) {
   };
   controls.ampEg = envelope(kAmpAttack);
   controls.filterEg = envelope(kFilterAttack);
-  mEngine->SetControls(controls, GetRenderingOffline());
   segrand::ArpControls arp;
   arp.enabled = GetParam(kArpEnabled)->Bool();
   arp.latch = GetParam(kArpLatch)->Bool();
@@ -195,6 +197,8 @@ void KrosePlugin::ConfigureAudio(int offset) {
     transport.ppq = GetPPQPos() + offset * GetTempo() / (60 * GetSampleRate());
 #endif
   }
+  if (mSoundGeneration.load(std::memory_order_acquire) != generation) return;
+  mEngine->SetControls(controls, GetRenderingOffline());
   mEngine->SetArpeggiator(arp);
   mEngine->SetTransport(transport);
   mDisplayTempo.store(mEngine->Tempo(), std::memory_order_relaxed);
@@ -277,10 +281,13 @@ void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
   int position = 0;
   std::array<float, 256> left{}, right{};
   std::array<float, 2> fxPeaks{};
+  float outputPeak = 0, outputReduction = 0;
   auto renderTo = [&](int end) {
     while (position < end) {
       const int n = std::min(256, end - position);
       mEngine->Process(left.data(), right.data(), n);
+      outputPeak = std::max(outputPeak, mEngine->OutputPeak());
+      outputReduction = std::max(outputReduction, mEngine->OutputReduction());
       const auto peaks = mEngine->FxPeaks();
       for (unsigned slot = 0; slot < peaks.size(); ++slot)
         fxPeaks[slot] = std::max(fxPeaks[slot], peaks[slot]);
@@ -328,6 +335,12 @@ void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
     if (fxPeaks[slot] > previous)
       mFxPeaks[slot].compare_exchange_strong(previous, fxPeaks[slot], std::memory_order_relaxed);
   }
+  auto publish = [](std::atomic<float> &meter, float value) {
+    auto old = meter.load(std::memory_order_relaxed);
+    if (value > old) meter.compare_exchange_strong(old, value, std::memory_order_relaxed);
+  };
+  publish(mOutputPeak, outputPeak);
+  publish(mOutputReduction, outputReduction);
   mIncomingMidi.Advance(count, nFrames);
   mInputSamples += uint64_t(nFrames);
 }

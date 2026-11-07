@@ -106,6 +106,7 @@ void KrosePlugin::OnUIOpen() {
 }
 #endif
 void KrosePlugin::OnUIClose() {
+  EnableVisuals(false);
   if (GetUI()) {
     auto *p = static_cast<krose::ui::NativePanel *>(GetUI()->GetControlWithTag(kEditorTag));
     if (p)
