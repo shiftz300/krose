@@ -4,6 +4,7 @@
 #include <atomic>
 #include <cstddef>
 #include <cmath>
+#include <memory>
 
 namespace segrand {
 struct FxVisualSample {
@@ -14,6 +15,9 @@ struct FxVisualSample {
 class FxMonitor {
 public:
   static constexpr unsigned kCapacity = 8192;
+  // Allocate once with the engine, before processing. Keep large display rings
+  // off host/PGO thread stacks (Windows commonly reserves only 1 MiB).
+  FxMonitor() : mSlots(std::make_unique<std::array<Ring, 4>>()) {}
   void Prepare(double rate) noexcept {
     (void) rate; // Preserve the full stream: decimation would alias high frequencies.
   }
@@ -21,17 +25,17 @@ public:
   bool Enabled() const noexcept { return mEnabled; }
   void Push(unsigned slot, double input, double left, double right, double reduction = 0) noexcept {
     if (!mEnabled) return;
-    auto &ring = mSlots[slot];
+    auto &ring = (*mSlots)[slot];
     if (ring.written - ring.read.load(std::memory_order_acquire) >= kCapacity) return;
     ring.samples[ring.written % kCapacity] = {float(input), float(left), float(right), float(reduction)};
     ++ring.written;
   }
   void Publish() noexcept {
     if (!mEnabled) return;
-    for (auto &ring : mSlots) ring.published.store(ring.written, std::memory_order_release);
+    for (auto &ring : *mSlots) ring.published.store(ring.written, std::memory_order_release);
   }
   unsigned Read(unsigned slot, FxVisualSample *output, unsigned capacity) noexcept {
-    auto &ring = mSlots[slot];
+    auto &ring = (*mSlots)[slot];
     const auto at = ring.read.load(std::memory_order_relaxed);
     const auto end = ring.published.load(std::memory_order_acquire);
     const unsigned count = std::min(capacity, end - at);
@@ -45,7 +49,7 @@ private:
     unsigned written = 0;
     std::atomic<unsigned> published{0}, read{0};
   };
-  std::array<Ring, 4> mSlots;
+  std::unique_ptr<std::array<Ring, 4>> mSlots;
   bool mEnabled = false;
 };
 }

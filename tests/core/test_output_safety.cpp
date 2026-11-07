@@ -10,6 +10,7 @@
 #include <thread>
 
 int main() {
+  static_assert(sizeof(segrand::FxMonitor) <= 64, "Visual rings must not live on thread stacks");
   std::atomic<uint64_t> generation{0};
   {
     krose::storage::ParameterTransaction outer(generation);

@@ -3,6 +3,7 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string_view>
 
@@ -31,7 +32,8 @@ int main(int argc, char **argv) {
     unsigned index = 0;
     double checksum = 0;
     for (double rate : {44100., 48000., 96000.}) for (auto id : ids) {
-      InstrumentEngine engine(concert, library);
+      auto instance = std::make_unique<InstrumentEngine>(concert, library);
+      auto &engine = *instance;
       engine.Prepare(rate);
       Controls controls;
       controls.program = int(Program(*library, id));
