@@ -4,6 +4,14 @@ if(BUILD_TESTING)
   target_include_directories(test-user-preset PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
   target_link_libraries(test-user-preset PRIVATE krose::core)
+  if(WIN32)
+    krose_test(native-file-dialog "${CMAKE_SOURCE_DIR}/tests/plugin/test_file_dialog_windows.cpp")
+    target_include_directories(test-native-file-dialog PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+      "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
+    target_compile_options(test-native-file-dialog PRIVATE /utf-8)
+    target_link_libraries(test-native-file-dialog PRIVATE krose::core comdlg32 user32)
+    set_tests_properties(native-file-dialog PROPERTIES TIMEOUT 90 RUN_SERIAL TRUE)
+  endif()
 endif()
 set(KROSE_LICENSE_RESOURCES
   "${CMAKE_SOURCE_DIR}/LICENSE"

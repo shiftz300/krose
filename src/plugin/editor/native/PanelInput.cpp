@@ -1,4 +1,5 @@
 #include "../../KrosePlugin.h"
+#include "../../storage/PresetDialogWin.h"
 #include "NativePanel.h"
 #include "PanelDrawing.h"
 namespace krose::ui {
@@ -616,6 +617,18 @@ void NativePanel::PresetFile(bool save) {
     SetDirty(false);
   };
   WDL_String file(save ? "Untitled.krose" : ""), path;
+#ifdef _WIN32
+  try {
+    const auto chosen = krose::storage::PresetDialog(static_cast<HWND>(GetUI()->GetWindow()), save);
+    file.Set(chosen.u8string().c_str());
+    complete(file, path);
+  } catch (const std::exception &) {
+    mPresetStatus = "PRESET FILE ERROR";
+    SetDirty(false);
+  }
+  GetUI()->ReleaseMouseCapture();
+#else
   GetUI()->PromptForFile(file, path, save ? EFileAction::Save : EFileAction::Open, "krose", complete);
+#endif
 }
 } // namespace krose::ui
