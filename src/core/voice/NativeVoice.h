@@ -10,7 +10,7 @@ namespace segrand {
 // dynamic sources; the accepted Concert path retains neutral external inputs.
 class NativeVoice {
 public:
-  void SetOffsets(EnvelopeOffsets offsets) noexcept { mOffsets = offsets; }
+  void SetOffsets(EnvelopeOffsets offsets) noexcept;
   void Start(int note, int velocity, int oscillator, int slotLevel) noexcept;
   void StartProgram(const uint8_t *program, int note, int velocity, int oscillator, int slotLevel,
                     const ModulationSources *initial = nullptr) noexcept;

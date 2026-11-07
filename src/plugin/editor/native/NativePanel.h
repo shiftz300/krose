@@ -60,10 +60,9 @@ private:
   void KeyImage(IGraphics &, int note, bool black, float x);
   std::map<std::string, UIMotion> mVisuals;
   std::array<UIMotion, 3> mReveal;
-  std::array<bool, 3> mRevealOpen{};
-  UIMotion mLCDReveal, mCategoryReveal;
+  std::array<ILayerPtr, 3> mRevealLayers;
+  UIMotion mCategoryReveal;
   int mDrawnCategory = -2;
-  int mLCDState = -1;
   double mFrameTime = 0, mClickTime = -1;
   float mClickX = -1, mClickY = -1;
   bool mVisualAnimating = false;
@@ -90,6 +89,8 @@ private:
   void OpenPopup(const Hit &);
   void PresetMenu(IGraphics &);
   void PresetCategory(int category);
+  std::vector<std::string> mArpFamilies;
+  int mArpFamily = 0;
   void LoadFavorites();
   void ToggleFavorite(int program);
   void Heart(IGraphics &, const IRECT &, int program);
@@ -133,7 +134,8 @@ private:
   std::map<std::string, Font> mFonts;
   std::vector<Hit> mHits;
   std::vector<int> mFiltered;
-  std::array<bool, 128> mHeld{}, mLit{};
+  std::array<bool, 128> mHeld{}, mLit{}, mHostLit{};
+  std::array<uint64_t, 3> mHostExpression{};
   ParameterBinding<kNumParams> mParameters;
   int mPage = 0, mEG = 0, mOctave = 0, mSlot = 0, mFxBand = 0, mDrag = -1, mDragNote = -1, mEdit = -1,
       mScroll = 0, mGroup = -1, mCategory = -1, mFocus = -1;
@@ -144,7 +146,8 @@ private:
   std::string mEditText, mSearch, mHover;
   std::vector<std::string> mChoices;
   std::vector<int> mChoiceValues;
-  Hit mPopupTarget;
+  Hit mPopupTarget, mNumericPress;
+  bool mNumericPending = false, mNumericDragging = false;
   int mPopupScroll = 0, mPopupFocus = 0, mPopupRows = 12;
   bool mPresetOpen = false, mFavoriteSaveFailed = false;
   int mPresetCategory = -2, mPresetRootFocus = 0, mPresetFocus = 0, mPresetScroll = 0,

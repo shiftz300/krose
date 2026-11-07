@@ -126,6 +126,16 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
     assert(v);
     [window makeFirstResponder:v];
     std::cout << "Native editor ready pass " << pass << std::endl;
+    if (const char *directory = std::getenv("KROSE_UI_MIDI_TEST")) {
+      setParameter("MIDI Input Channel",0);
+      for(int phase=0;phase<5;++phase) {
+        setParameter("__midi_test_phase",phase);pump(.4);
+        const std::string path=std::string(directory)+"/host-midi-"+std::to_string(phase)+".pam";
+        setenv("KROSE_NATIVE_CAPTURE",path.c_str(),1);click(v,700,125);pump(.08);unsetenv("KROSE_NATIVE_CAPTURE");
+        if(phase==1){assert(parameter("Cutoff")>.7);assert(parameter("Amp Attack")>.7);}
+      }
+      view->removed();[window orderOut:nil];return;
+    }
     if (std::getenv("KROSE_UI_BENCH")) {
       memory("editor");
       for(int n=0;n<12;++n){click(v,71,85);pump(.45);}
@@ -146,11 +156,11 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       capture("fx", 850, 125);
       capture("fx-dropdown", 586, 200);
       click(v, 586, 252);
-      assert(std::abs(parameter("IFX 1 Type") - 5. / 6) < 1e-8);
+      assert(std::abs(parameter("IFX 1 Type") - 5. / 10) < 1e-8);
       number(v, 887, 198, @"70");
       assert(parameter("IFX 1 Amount") == .7);
       number(v, 630, 225, @"100");
-      assert(parameter("IFX 1 Drive") == 1.);
+      assert(std::abs(parameter("IFX 1 Drive") - 99. / 199) < 1e-9);
       capture("fx-drive", 760, 268);
       capture("fx-drive-off", 71, 200);
       assert(parameter("IFX 1 On") == 0.);
@@ -165,13 +175,13 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       click(v, 766, 176); // MFX1 tab.
       click(v, 586, 200);
       click(v, 586, 252); // Plate.
-      assert(parameter("MFX 1 Type") == 1.);
+      assert(std::abs(parameter("MFX 1 Type")-5./14)<1e-8);
       capture("fx-plate", 760, 268);
       auto effectIcons = [&](const char *name, double ifx1, double ifx2, double mfx1, double mfx2) {
-        setParameter("IFX 1 Type", ifx1 / 6);
-        setParameter("IFX 2 Type", ifx2 / 6);
-        setParameter("MFX 1 Type", mfx1 / 5);
-        setParameter("MFX 2 Type", mfx2 / 5);
+        setParameter("IFX 1 Type", ifx1 / 10);
+        setParameter("IFX 2 Type", ifx2 / 10);
+        setParameter("MFX 1 Type", mfx1 / 14);
+        setParameter("MFX 2 Type", mfx2 / 14);
         capture(name, 760, 268);
       };
       effectIcons("fx-icons-a", 2, 3, 2, 3);
@@ -181,7 +191,7 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       setParameter("MFX 1 On", 1);
       capture("fx-add-menu", 175, 85);
       click(v, 586, 212); // Compressor.
-      assert(parameter("IFX 2 Type") == .5);
+      assert(parameter("IFX 2 Type") == .3);
       capture("fx-added", 760, 268);
 
       capture("arp", 930, 125);
@@ -246,7 +256,7 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
         savedType[slot] = parameter(fxTypes[slot]);
         savedOn[slot] = parameter(fxOn[slot]);
         savedAmount[slot] = parameter(fxAmounts[slot]);
-        const double type = 2. / (slot < 2 ? 6 : 5);
+        const double type = 2. / (slot < 2 ? 10 : 14);
         setParameter(fxTypes[slot], type);
         setParameter(fxOn[slot], 1);
         setParameter(fxAmounts[slot], .37);
@@ -263,13 +273,21 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
         click(v, p[0], p[1]);
         mouse(v, p[0], p[1], NSEventTypeRightMouseDown);
         mouse(v, p[0], p[1], NSEventTypeRightMouseUp); pump();
-        assert(parameter(fxTypes[slot]) == 1. / (slot < 2 ? 6 : 5));
+        assert(parameter(fxTypes[slot]) == 1. / (slot < 2 ? 10 : 14));
         assert(parameter(fxOn[slot]) == 0. && parameter(fxAmounts[slot]) == .37);
         click(v, p[0], p[1]);
         key(v, @"\uf729", 115);
         key(v, @"\uf701", 125); key(v, @"\uf701", 125); key(v, @"\r", 36);
         assert(parameter(fxTypes[slot]) == type && parameter(fxOn[slot]) == 1.);
       }
+      // Appended MFX algorithms remain editable inside the same pixel LCD.
+      setParameter("MFX 1 Type",11./14);
+      setParameter("MFX 1 Layout",0.);
+      click(v,850,125);click(v,766,176);click(v,669,226);
+      number(v,915,225,@"6");
+      assert(std::abs(parameter("MFX 1 Band 7")-2./3)<1e-8);
+      click(v,586,200);click(v,586,272); // Last visible row: Auto Pan.
+      assert(parameter("MFX 1 Type")==1.);
       for (int slot = 0; slot < 4; ++slot) {
         setParameter(fxTypes[slot], savedType[slot]);
         setParameter(fxOn[slot], savedOn[slot]);
@@ -330,19 +348,22 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       number(v, 930, 199, @"20.00");
       assert(parameter("Arp Tempo") == 0.);
       number(v, 930, 199, @"143.25");
+      // Two-level pattern picker: Built-in category, then individual entries.
       click(v, 635, 177);
-      key(v, @"\uf701", 125);
-      key(v, @"\r", 36);
-      assert(parameter("Arp Pattern") == 1.);
+      key(v, @"\uf729", 115); key(v, @"\r", 36);
+      key(v, @"\uf72b", 119); key(v, @"\r", 36);
+      assert(std::abs(parameter("Arp Pattern") - 4. / 1284) < 1e-9);
       click(v, 635, 177);
-      key(v, @"\uf72b", 119);
-      key(v, @"\r", 36);
-      assert(parameter("Arp Pattern") == 1.); // End reaches the final enum value.
-      click(v, 635, 177);
-      key(v, @"\uf729", 115);
-      key(v, @"\uf701", 125);
-      key(v, @"\r", 36);
-      assert(parameter("Arp Pattern") == .25);
+      key(v, @"\uf729", 115); key(v, @"\r", 36);
+      key(v, @"\uf729", 115); key(v, @"\uf701", 125); key(v, @"\uf701", 125); key(v, @"\r", 36);
+      assert(std::abs(parameter("Arp Pattern") - 1. / 1284) < 1e-9);
+      // Drag a numeric value vertically without entering a text editor.
+      const double beforeDrag = parameter("Arp Tempo");
+      mouse(v, 920, 199, NSEventTypeLeftMouseDown);
+      mouse(v, 920, 179, NSEventTypeLeftMouseDragged);
+      mouse(v, 920, 179, NSEventTypeLeftMouseUp); pump();
+      assert(parameter("Arp Tempo") > beforeDrag);
+      number(v, 930, 199, @"143.25");
       click(v, 700, 125);
       click(v, 1145, 331);
       assert(std::abs(mode() - .5) < 1e-8);

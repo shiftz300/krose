@@ -275,7 +275,7 @@ int main(int argc,char** argv){
     using namespace krose::midi;
     constexpr int fxType = 39, fxAmount = 43, oldParams = 39, previewParams = 47;
     assert(ids.at("IFX 1 Type") == fxType && ids.at("IFX 1 Amount") == fxAmount);
-    controller->setParamNormalized(fxType, 5. / 6);
+    controller->setParamNormalized(fxType, 5. / 10);
     controller->setParamNormalized(fxAmount, .7);
     const auto drive = ids.at("IFX 1 Drive"), on = ids.at("IFX 1 On");
     controller->setParamNormalized(drive, 1.);
@@ -288,7 +288,7 @@ int main(int argc,char** argv){
     controller->setParamNormalized(fxAmount, 0.);
     fxState.seek(0, IBStream::kIBSeekSet, nullptr);
     assert(component->setState(&fxState) == kResultOk);
-    assert(std::abs(controller->getParamNormalized(fxType) - 5. / 6) < 1e-8);
+    assert(std::abs(controller->getParamNormalized(fxType) - 5. / 10) < 1e-8);
     assert(controller->getParamNormalized(fxAmount) == .7);
     assert(controller->getParamNormalized(drive) == 1.);
     assert(controller->getParamNormalized(on) == 0.);
@@ -363,7 +363,7 @@ int main(int argc,char** argv){
     changes.clearQueue();assert(mapping->getMidiControllerAssignment(0,1,20,cc)==kResultOk);
     changes.addParameterData(cc,index)->addPoint(37,1.,point);assert(processor->process(data)==kResultOk);
     MemoryStream fxMapped;assert(component->getState(&fxMapped)==kResultOk);
-    double decay=0;std::memcpy(&decay,fxMapped.getData()+fxDecay*8,8);assert(decay==6.);
+    double decay=0;std::memcpy(&decay,fxMapped.getData()+fxDecay*8,8);assert(decay==20.);
     // Invalid floating-point MIDI/automation values must not reach SDK casts.
     for(double invalid : {std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::infinity()}) {
       changes.clearQueue();changes.addParameterData(cc,index)->addPoint(0,invalid,point);
@@ -373,7 +373,7 @@ int main(int argc,char** argv){
       malformedNotes.addEvent(malformed);data.inputEvents=&malformedNotes;
       assert(processor->process(data)==kResultOk);data.inputEvents=nullptr;
       MemoryStream valid;assert(component->getState(&valid)==kResultOk);
-      std::memcpy(&decay,valid.getData()+fxDecay*8,8);assert(decay==6.);
+      std::memcpy(&decay,valid.getData()+fxDecay*8,8);assert(decay==20.);
       for(int i=0;i<512;++i)assert(std::isfinite(l[i])&&std::isfinite(r[i]));
     }
     processor->setProcessing(false);component->setActive(false);
@@ -435,8 +435,30 @@ int main(int argc,char** argv){
   auto* view=controller->createView(ViewType::kEditor);assert(view);
   if(openEditor) {
     std::atomic<bool> visualAudio{false};
+    std::atomic<int> midiPhase{0};
+    const bool midiSyncTest = std::getenv("KROSE_UI_MIDI_TEST");
+    ParamID pitchID=0, modID=0, pedalID=0, cutoffID=0, attackID=0;
+    if (midiSyncTest) {
+      // The earlier mapping regressions deliberately replace the default map.
+      // Install one explicit CC74 target for this independent UI sync check.
+      MemoryStream state; assert(component->getState(&state)==kResultOk);
+      const int parameterCount=(state.getSize()-16-64*8-4)/8;
+      krose::midi::Binding binding; binding.source=krose::midi::Source::CC;
+      binding.number=74; binding.target=ids.at("Cutoff"); binding.pickup=false;
+      const uint64_t word=binding.Encode();
+      std::memcpy(state.getData()+parameterCount*8+16+60*8,&word,8);
+      binding.number=73;binding.target=ids.at("Amp Attack");
+      const uint64_t attackWord=binding.Encode();
+      std::memcpy(state.getData()+parameterCount*8+16+61*8,&attackWord,8);
+      state.seek(0,IBStream::kIBSeekSet,nullptr); assert(component->setState(&state)==kResultOk);
+      assert(mapping->getMidiControllerAssignment(0,0,kPitchBend,pitchID)==kResultOk);
+      assert(mapping->getMidiControllerAssignment(0,0,kCtrlModWheel,modID)==kResultOk);
+      assert(mapping->getMidiControllerAssignment(0,0,kCtrlSustainOnOff,pedalID)==kResultOk);
+      assert(mapping->getMidiControllerAssignment(0,0,74,cutoffID)==kResultOk);
+      assert(mapping->getMidiControllerAssignment(0,0,73,attackID)==kResultOk);
+    }
     std::thread visualThread;
-    if (std::getenv("KROSE_UI_SIGNAL")) {
+    if (std::getenv("KROSE_UI_SIGNAL") || midiSyncTest) {
       ProcessSetup setup{}; setup.processMode=kRealtime; setup.symbolicSampleSize=kSample32;
       setup.maxSamplesPerBlock=128; setup.sampleRate=48000;
       assert(processor->setupProcessing(setup)==kResultOk);
@@ -447,9 +469,36 @@ int main(int argc,char** argv){
         bus.numChannels=2;bus.channelBuffers32=channels;
         EventList events;ProcessData data{};data.processMode=kRealtime;data.symbolicSampleSize=kSample32;
         data.numOutputs=1;data.outputs=&bus;data.inputEvents=&events;data.numSamples=128;
+        ParameterChanges controls;
+        data.inputParameterChanges=&controls;
+        int sentPhase=-1;
         unsigned block=0;auto next=std::chrono::steady_clock::now();
         while(visualAudio.load()) {
-          if(block%188==0) {
+          if (midiSyncTest && sentPhase != midiPhase.load()) {
+            sentPhase=midiPhase.load();
+            const auto cc = [&](ParamID id,double value) { int index=0,point=0;controls.addParameterData(id,index)->addPoint(0,value,point); };
+            auto note = [&](int n,bool on,int channel=0) {
+              Event e{};e.busIndex=0;
+              if(on){e.type=Event::kNoteOnEvent;e.noteOn.channel=channel;e.noteOn.pitch=n;e.noteOn.velocity=.8f;}
+              else{e.type=Event::kNoteOffEvent;e.noteOff.channel=channel;e.noteOff.pitch=n;}
+              events.addEvent(e);
+            };
+            cc(ids.at("Arp"),0);cc(ids.at("MIDI Input Channel"),0);
+            if(sentPhase==1) {
+              cc(pitchID,.75);cc(modID,.8);cc(pedalID,1);cc(cutoffID,.8);cc(attackID,.75);
+              for(int n:{60,64,67})note(n,true);
+              note(60,true,1);
+            } else if(sentPhase==2) {
+              for(int n:{60,64,67})note(n,false);
+            } else if(sentPhase==3) {
+              cc(pedalID,0);
+            } else if(sentPhase==4) {
+              note(60,false,1);cc(pitchID,.5);cc(modID,0);cc(cutoffID,64./127);cc(attackID,64./127);
+            } else {
+              cc(pitchID,.5);cc(modID,0);cc(pedalID,0);cc(cutoffID,64./127);cc(attackID,64./127);
+            }
+          }
+          if(!midiSyncTest && block%188==0) {
             for(int note:{48,55,60,64,67,72}) {
               Event event{};event.type=Event::kNoteOffEvent;event.busIndex=0;
               event.noteOff.pitch=note;events.addEvent(event);
@@ -457,13 +506,16 @@ int main(int argc,char** argv){
               event.noteOn.velocity=.8f;events.addEvent(event);
             }
           }
-          assert(processor->process(data)==kResultOk);events.clear();++block;
+          assert(processor->process(data)==kResultOk);events.clear();controls.clearQueue();++block;
           next+=std::chrono::nanoseconds(2666667);std::this_thread::sleep_until(next);
         }
       });
     }
     gestures->tracking=true;
-    verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);},[&]{return controller->getParamNormalized(ids["Program"]);},[&]{return controller->getParamNormalized(ids["Voice Mode"]);},[&]{return controller->getParamNormalized(ids["Glide"]);},[&](const char* name){return controller->getParamNormalized(ids.at(name));},[&](const char* name,double value){assert(controller->setParamNormalized(ids.at(name),value)==kResultOk);});
+    verifyEditor(view,[&]{return controller->getParamNormalized(ids["Velocity"]);},[&]{return controller->getParamNormalized(ids["Program"]);},[&]{return controller->getParamNormalized(ids["Voice Mode"]);},[&]{return controller->getParamNormalized(ids["Glide"]);},[&](const char* name){return controller->getParamNormalized(ids.at(name));},[&](const char* name,double value){
+      if (std::string(name)=="__midi_test_phase") midiPhase.store(int(value));
+      else assert(controller->setParamNormalized(ids.at(name),value)==kResultOk);
+    });
     gestures->tracking=false;
     if (visualThread.joinable()) {
       visualAudio=false;visualThread.join();processor->setProcessing(false);component->setActive(false);

@@ -13,8 +13,19 @@ public:
   InstrumentEngine(std::shared_ptr<const SampleBank> concert,
                    std::shared_ptr<const ProgramLibrary> factory);
   void Prepare(double rate);
-  void SetControls(const Controls &controls, bool offline = false);
+  // False while a requested bank is loading: keep the previous complete sound.
+  bool SetControls(const Controls &controls, bool offline = false);
   void RequestProgram(int program) noexcept;
+  ProgramEffects FactoryEffects(int program) const noexcept {
+    if (program > 0) return mFactory.FactoryEffects(unsigned(program-1));
+    ProgramEffects concert;
+    concert.sourceIDs = {7, 7, 64, 105};
+    concert.slots[1].type = 1; // AUTO IFX1 already contains the accepted two EQs.
+    return concert;
+  }
+  ArpControls FactoryArp(int program) const noexcept {
+    return program > 0 ? mFactory.FactoryArp(unsigned(program-1)) : ArpControls{};
+  }
   bool SamplesReady(int program) const noexcept { return !mLoader || mLoader->ReadyFor(program); }
   int CurrentProgram() const noexcept { return mProgram; }
   int FailedProgram() const noexcept { return mLoader ? mLoader->FailedProgram() : -1; }

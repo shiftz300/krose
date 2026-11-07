@@ -49,8 +49,7 @@ void KrosePlugin::ConfigureEditor() {
 }
 void KrosePlugin::OnParamChangeUI(int id, EParamSource source) {
   // VST3 controller/state changes can arrive while processing is suspended.
-  if (id == kParamProgram && mEngine)
-    mEngine->RequestProgram(GetParam(id)->Int());
+  if (id == kParamProgram) SelectProgramDefaults();
   if (id == kParamProgram && source != kUI)
     mComparisonNeedsCapture.store(true, std::memory_order_relaxed);
   if (GetUI())
@@ -70,6 +69,11 @@ void KrosePlugin::OnIdle() {
       if (changed & (uint64_t(1) << bit)) {
         const int id = int(word * 64 + bit);
         const double value = GetParam(id)->GetNormalized();
+#if defined(VST3_API)
+        // MIDI changes the DSP's IParam directly. Keep VST3's separate
+        // controller cache synchronized before notifying the host/editor.
+        SetVST3ParamNormalized(id, value);
+#endif
         BeginInformHostOfParamChange(id);
         InformHostOfParamChange(id, value);
         EndInformHostOfParamChange(id);

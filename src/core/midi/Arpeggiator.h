@@ -1,14 +1,39 @@
 #pragma once
 #include "EngineTypes.h"
+#include "midi/ArpPatterns.h"
 #include <array>
+#include <algorithm>
 #include <cstdint>
 
 namespace segrand {
 struct ArpControls {
-  bool enabled = false, latch = false, hostSync = true, sort = true, keySync = true;
-  int pattern = 0, resolution = 3, gate = 80, octaves = 1;
+  bool enabled = false, latch = false, hostSync = true, sort = true, keySync = true, keyboard = false;
+  int pattern = 0, resolution = 3, gate = 80, octaves = 1, swing = 0, velocity = 129;
   double tempo = 120;
 };
+inline ArpControls ProgramArpeggiator(const uint8_t *p) noexcept {
+  ArpControls c;
+  if (!p) return c;
+  c.enabled = p[0x4d8] & 1;
+  c.pattern = std::clamp(int(p[0x4dc] | unsigned(p[0x4dd]) << 8), 0, kArpPatternCount-1);
+  c.resolution = (p[0x4de] >> 2) & 7;
+  c.octaves = (p[0x4de] & 3) + 1;
+  c.sort = p[0x4df] & 1; c.latch = p[0x4df] & 2;
+  c.keySync = p[0x4df] & 4; c.keyboard = p[0x4df] & 8;
+  c.gate = std::clamp(int(p[0x4e0]),1,101);
+  c.velocity = std::clamp(int(p[0x4e1]),1,129);
+  c.swing = std::clamp(int(int8_t(p[0x4e2])),-100,100);
+  c.tempo = std::clamp((p[0x4d4] + 256u*p[0x4d5] + 65536u*p[0x4d6])/100.,20.,300.);
+  if (c.enabled && c.pattern >= 5) {
+    const auto pattern = Pattern(c.pattern);
+    bool content = false;
+    for (int i = 0; i < pattern.Length(); ++i) content |= pattern.Step(i).tones != 0;
+    // Expansion libraries may reference user patterns absent from PRELOAD.
+    // Keep the playable instrument instead of silently routing it into an empty sequence.
+    if (!content) c.enabled = false;
+  }
+  return c;
+}
 struct Transport {
   bool available = false, running = false;
   double tempo = 120, ppq = 0;
@@ -40,8 +65,14 @@ private:
     unsigned count = 0;
     uint64_t step = 0;
     int sounding = -1;
+    struct Note {
+      int pitch = -1, velocity = 0, tone = 0;
+      bool playing = false, tie = false;
+      double on = 0, off = 0;
+    };
+    std::array<Note,20> notes;
     bool pedal = false, scheduled = false;
-    double next = 0, off = 0;
+    double next = 0, off = 0, eventDue = 1e100;
     void Remove(unsigned note) noexcept;
     void RemoveReleased() noexcept;
     unsigned Ordered(unsigned index, bool sort) const noexcept;
@@ -50,6 +81,8 @@ private:
   void Silence(int channel, int offset, void *context, Emit emit) noexcept;
   void Schedule(Channel &channel) noexcept;
   void UpdateClock() noexcept;
+  void PatternStep(Channel &, int channel, int frame, double step, void *, Emit) noexcept;
+  void PatternNotes(Channel &, int channel, int frame, void *, Emit) noexcept;
   std::array<Channel, 16> mChannels{};
   ArpControls mControls;
   Transport mTransport;

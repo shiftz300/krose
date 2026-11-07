@@ -12,7 +12,23 @@
       "file": "events.tsv",
       "bytes": 3500,
       "sha256": "8892ceebad04a1ffb4a8c6ee19341879bdbaf7a18a0ad51bfe2f5da1b24c01cc"
+    },
+    {
+      "file": "user-cases.tsv",
+      "bytes": 225,
+      "sha256": "a4f82cfcc751168d1011761767b3dcadec11aa84148b6e590e19df192f8c1a20"
+    },
+    {
+      "file": "user-events.tsv",
+      "bytes": 4166,
+      "sha256": "5c254e3fd65075192c1fd1d45f5846c4c0a32b37ef8f9fc7d49c3b95d470c464"
     }
   ],
-  "scope": "Original five built-in generators; 200 cases, 9600 notes and five continuous clock traces"
+  "scope": "Original five built-in generators; 200 cases, 9600 notes and five continuous clock traces",
+  "user_pattern_source": {
+    "firmware_sha256": "3005f0eca3f3772bcb810c526ceebb15562747d3cdcdf5d20faae4a539520c54",
+    "preload_sha256": "71bf82f1183e36422f31fb253be8a3010435f46d6fb7f3bd35d432116adb557b",
+    "method": "Original ARM constructor, pattern binding, note input, tick dispatcher and stop via isolated Unicorn; output at 0x3644; three held keys 60/64/67 velocity90; gate101 velocity129; stop at final tick",
+    "scope": "12 original patterns; pitches, velocities and tick timestamps; not TG audio"
+  }
 }

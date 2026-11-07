@@ -67,6 +67,9 @@ struct Driver {
 struct RtMidiError {};
 struct MidiInput {
   bool present = true, open = true, fail = false;
+  std::vector<std::string> ports{"Keyboard"};
+  unsigned getPortCount() const { return present ? unsigned(ports.size()) : 0; }
+  std::string getPortName(unsigned i) const { return ports.at(i); }
   void closePort() { open = false; }
   bool isPortOpen() const { return open; }
 };
@@ -86,18 +89,28 @@ struct IPlugAPPHost {
   Pointers mInputBufPtrs, mOutputBufPtrs;
   std::atomic<bool> mExiting{false}, mAudioDone{false}, mAudioEnding{false};
   bool mNoIO = false, mFallbackOutput = false;
-  bool mMidiInputMissing = false;
+  bool mMidiInputMissing = false, mMidiListDirty = false;
+  std::string mActiveMidiInput;
+  std::vector<std::string> mMidiPorts;
+  void ProbeMidiIO() {}
+  void RefreshMidiPreferences() {}
   unsigned mVecWait = 1, mRecoveryOutput = 0, starts = 0;
   double mSampleRate = 48000;
   struct { Name mAudioInDev{""}, mAudioOutDev{"USB"}, mMidiInDev{"Keyboard"}; unsigned mAudioSR = 48000, mBufferSize = 64; } mState;
   std::optional<unsigned> mDefaultInputDev, mDefaultOutputDev;
   bool IsScreenshotMode() { return false; }
-  int GetMIDIPortNumber(ERoute, const char *) { return mMidiIn->present ? 1 : -1; }
-  bool SelectMIDIDeviceImpl(ERoute, const char *) {
+  int GetMIDIPortNumber(ERoute, const char *name) {
+    if (std::string_view(name) == OFF_TEXT) return 0;
+    if (!mMidiIn->present) return -1;
+    auto at = std::find(mMidiIn->ports.begin(),mMidiIn->ports.end(),name);
+    return at == mMidiIn->ports.end() ? -1 : int(at - mMidiIn->ports.begin()) + 1;
+  }
+  bool SelectMIDIDeviceImpl(ERoute direction, const char *name) {
     if (mMidiIn->fail) throw RtMidiError{};
-    mMidiIn->open = true;
-    mMidiInputMissing = false;
-    return true;
+    const int port = GetMIDIPortNumber(direction,name);
+    mMidiIn->open = port > 0;
+    mMidiInputMissing = port < 0;
+    return port >= 0;
   }
   Plug *GetPlug() { return mIPlug.get(); }
   std::optional<unsigned> GetAudioDeviceID(const char *name) {
@@ -169,6 +182,28 @@ int main() {
   host.mMidiIn->fail = false;
   host.PollMidi();
   assert(!host.mMidiInputMissing && host.mMidiIn->open);
+  IPlugAPPHost automatic;
+  automatic.mState.mMidiInDev.value = "Automatic";
+  automatic.mMidiIn->ports = {"KeyLab DAW", "KeyLab MIDI"};
+  automatic.PollMidi();
+  assert(automatic.mActiveMidiInput == "KeyLab MIDI" && automatic.mMidiIn->open);
+  automatic.mMidiIn->ports.push_back("M-WAVE MIDI");
+  automatic.PollMidi();
+  assert(automatic.mActiveMidiInput == "KeyLab MIDI"); // No surprise switch during a performance.
+  automatic.mMidiIn->ports = {"M-WAVE MIDI"};
+  automatic.PollMidi();assert(automatic.mActiveMidiInput == "M-WAVE MIDI");
+  automatic.mState.mMidiInDev.value = "KeyLab MIDI"; // An explicit preference survives fallback.
+  automatic.PollMidi();assert(automatic.mActiveMidiInput == "M-WAVE MIDI");
+  automatic.mMidiIn->ports.push_back("KeyLab MIDI");
+  automatic.PollMidi();assert(automatic.mActiveMidiInput == "KeyLab MIDI");
+  automatic.mState.mMidiInDev.value = "off";
+  automatic.PollMidi();assert(!automatic.mMidiIn->open && automatic.mActiveMidiInput.empty());
+  automatic.mState.mMidiInDev.value = "Automatic";
+  automatic.PollMidi();assert(automatic.mMidiIn->open);
+  automatic.mMidiIn->present = false;
+  automatic.PollMidi();assert(!automatic.mMidiIn->open);
+  automatic.mMidiIn->present = true;
+  automatic.PollMidi();assert(automatic.mMidiIn->open);
   // Removal, no devices, retry failure, fallback at a different rate, reconnect.
   host.mDAC->devices.clear(); host.mDAC->running = host.mDAC->open = false;
   host.PollAudio(); assert(host.starts == 1 && !host.mDefaultOutputDev);

@@ -41,7 +41,7 @@ flowchart LR
 
 产品测试读取冻结的独立证据：8,900 条原 CPU 声部记录和 8,944 个选样场景，检查采样 ID、立体声侧、力度权重、选样音高及空键区。所有 1,161 个原始 Program 逐项渲染，要求输出有限且有声。另检查跨块 MIDI、延音、独占组、抢占、实时零分配、旧状态恢复和 Concert 输出一致性。
 
-完整目录的收录与声音还原程度分别记录：每 OSC 的 LFO、动态 AMS、Pitch EG 和四种滤波路由已连接，具体范围与剩余差异见 [调制链路](MODULATION.md)。滤波控制字到 Hz/Q、插值、循环拼接、鼓增益和空间效果仍采用主机实现；OSC 微调已接入。原厂鼓 start-offset 和逐音色 IFX/MFX 配置仍有未接入部分。当前控件范围见 [原生界面](NATIVE_UI.md)。
+完整目录的收录与声音还原程度分别记录：每 OSC 的 LFO、动态 AMS、Pitch EG 和四种滤波路由已连接，具体范围与剩余差异见 [调制链路](MODULATION.md)。滤波控制字到 Hz/Q、插值、循环拼接、鼓增益和空间效果仍采用主机实现；OSC 微调已接入。逐音色 IFX/MFX 配置与用户 ARP 已接入；原厂鼓 start-offset、逐键滤波与完整七槽 FX 路由仍有差异。当前控件范围见 [原生界面](NATIVE_UI.md)。
 
 缺失采样已显示在浏览器中。Nu Pop／Nu DISCO 的共享鼓组编号已经原导入器验证，详见 [资源复核](https://github.com/shiftz300/krose-source/blob/main/research/docs/architecture/RESOURCE_GAPS.md)。
 

@@ -1,12 +1,20 @@
 // Project-owned adaptations of the pinned iPlug2 APP host. Included in the
 // generated host translation unit, never in the VST3 build.
 #include <string_view>
+#include "standalone/MidiDevices.h"
 bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char *name) {
   if ((direction == ERoute::kInput && !mMidiIn) || (direction == ERoute::kOutput && !mMidiOut))
     return false;
   const bool missing = mMidiInputMissing;
   try {
-    return SelectMIDIDeviceImpl(direction, name);
+    if (direction == ERoute::kInput && std::string_view(name) == krose::standalone::kAutomaticMidi) {
+      PollMidi();
+      return true;
+    }
+    const bool selected = SelectMIDIDeviceImpl(direction, name);
+    if (direction == ERoute::kInput && selected)
+      mActiveMidiInput = std::string_view(name) == OFF_TEXT ? "" : name;
+    return selected;
   } catch (const RtMidiError &) {
     if (direction == ERoute::kInput) {
       if (!missing) mRuntime.CancelMidi();
@@ -82,19 +90,33 @@ void IPlugAPPHost::PollAudio() {
 void IPlugAPPHost::PollMidi() {
   if (mExiting || mNoIO || IsScreenshotMode() || !mMidiIn)
     return;
-  const auto *preferred = mState.mMidiInDev.Get();
-  if (std::string_view(preferred) == OFF_TEXT || std::string_view(preferred) == "virtual input")
-    return;
   try {
-    const bool present = GetMIDIPortNumber(ERoute::kInput, preferred) > 0;
-    if (!present && !mMidiInputMissing) {
-      mMidiIn->closePort();
-      mRuntime.CancelMidi();
-      mMidiInputMissing = true;
-    } else if (present && (mMidiInputMissing || !mMidiIn->isPortOpen()))
-      SelectMIDIDevice(ERoute::kInput, preferred);
+    std::vector<std::string> ports;
+    for (unsigned i = 0; i < mMidiIn->getPortCount(); ++i)
+      ports.push_back(mMidiIn->getPortName(i));
+    if (ports != mMidiPorts) {
+      mMidiPorts = ports;
+      mMidiListDirty = true;
+      ProbeMidiIO();
+    }
+    RefreshMidiPreferences();
+    const std::string preferred = mState.mMidiInDev.Get();
+    const auto desired = preferred == "virtual input" ? preferred :
+        krose::standalone::ChooseMidiInput(preferred, mActiveMidiInput, ports);
+    if (desired.empty()) {
+      if (mMidiIn->isPortOpen()) {
+        mMidiIn->closePort();
+        mRuntime.CancelMidi();
+      }
+      mActiveMidiInput.clear();
+      mMidiInputMissing = preferred != OFF_TEXT;
+    } else if (desired != mActiveMidiInput || mMidiInputMissing || !mMidiIn->isPortOpen()) {
+      if (SelectMIDIDeviceImpl(ERoute::kInput, desired.c_str()))
+        mActiveMidiInput = desired;
+    }
   } catch (const RtMidiError &) {
-    mMidiInputMissing = true; // Keep the saved name; retry on the next tick.
+    if (!mMidiInputMissing) mRuntime.CancelMidi();
+    mMidiInputMissing = true; // Keep the saved preference and retry next tick.
   }
 }
 

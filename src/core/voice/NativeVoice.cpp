@@ -88,6 +88,42 @@ int MixerValue(const uint8_t *p, const std::array<int, 46> &sources) {
 }
 } // namespace
 
+void NativeVoice::SetOffsets(EnvelopeOffsets offsets) noexcept {
+  const auto previous = mOffsets;
+  mOffsets = offsets;
+  if (!mOsc || mEnded) return;
+  const auto eg = mOsc + 0x118;
+  const int phase = mStage >= 8 ? 3 : mStage / 2;
+  int target = (mStage & 1) ? mLow : mLow + mDelta;
+  double duration = std::max<int64_t>(24, mRemaining);
+  bool changed = false;
+  if (!mReleased && phase >= 2 && phase < 4 && previous.sustain != offsets.sustain) {
+    target = std::clamp(int(eg[6]) + offsets.sustain, 0, 99) * 330;
+    duration = 48; // Two control ticks; the gain slew removes audio-rate steps.
+    changed = true;
+  } else if (phase == 0 && previous.attack != offsets.attack) {
+    duration *= double(native_data::kEgTime[std::clamp(eg[1] + offsets.attack, 0, 99)]) /
+                std::max(1u, native_data::kEgTime[std::clamp(eg[1] + previous.attack, 0, 99)]);
+    changed = true;
+  } else if (phase == 1 && previous.decay != offsets.decay) {
+    duration *= double(native_data::kEgTime[std::clamp(eg[3] + offsets.decay, 0, 99)]) /
+                std::max(1u, native_data::kEgTime[std::clamp(eg[3] + previous.decay, 0, 99)]);
+    changed = true;
+  } else if (mReleased && mStage >= 8 && previous.release != offsets.release) {
+    duration *= mProgram == native_data::kProgram ? std::exp2((offsets.release-previous.release)/16.) :
+        double(native_data::kEgTime[std::clamp(eg[7] + offsets.release, 0, 99)]) /
+        std::max(1u, native_data::kEgTime[std::clamp(eg[7] + previous.release, 0, 99)]);
+    changed = true;
+  }
+  if (!changed) return;
+  mStage = phase >= 2 && !mReleased ? 4 : phase == 3 ? 8 : phase * 2;
+  if (mLevel >= target) ++mStage;
+  mLow = std::min(mLevel, target);
+  mDelta = std::abs(mLevel-target);
+  mTotal = uint32_t(std::clamp(duration,24.,double(INT32_MAX)));
+  mRemaining = mTotal; mProgress = 0;
+  mCoefficient = Coefficient(mCurve, mTotal / 24);
+}
 void NativeVoice::Start(int note, int velocity, int oscillator, int slotLevel) noexcept {
   StartProgram(native_data::kProgram, note, velocity, oscillator, slotLevel);
 }

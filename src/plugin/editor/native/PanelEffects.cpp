@@ -5,8 +5,8 @@ namespace krose::ui {
 using namespace detail;
 namespace {
 constexpr const char *FxSlots[] = {"IFX 1", "IFX 2", "MFX 1", "MFX 2"};
-constexpr std::array<int, segrand::kInsertTypes.size() - 2> InsertFxFaces{0, 1, 2, 3, 4};
-constexpr std::array<int, segrand::kSendTypes.size() - 2> SendFxFaces{5, 6, 7, 8};
+constexpr std::array<int, segrand::kInsertTypes.size() - 2> InsertFxFaces{0, 1, 2, 3, 4, 0, 5, 5, 5};
+constexpr std::array<int, segrand::kSendTypes.size() - 2> SendFxFaces{5, 6, 7, 8, 0, 1, 2, 3, 4, 0, 5, 5, 5};
 }
 void NativePanel::DrawFxFace(IGraphics &g, const IRECT &module, int slot) {
   constexpr int tile = 54;
@@ -21,25 +21,33 @@ void NativePanel::DrawFxFace(IGraphics &g, const IRECT &module, int slot) {
   // The display fills the inset only. The frame and shared marble are baked separately.
   const float x = pixel(module.L + module.W() * .1f);
   const float y = pixel(module.T + module.H() * .1f);
-  g.DrawBitmap(Image("fx-faces"), R(x, y, tile, tile), column * tile, enabled ? 0 : tile);
-  if (enabled) {
-    if (slot < 2 && (type == 3 || type == 4))
+  const double light = Visual("fx-enable:" + std::to_string(slot), enabled ? 1 : 0, enabled ? .20 : .24);
+  g.DrawBitmap(Image("fx-faces"), R(x, y, tile, tile), column * tile, tile);
+  if (light > 0) {
+    if (light < 1) g.StartLayer(this, R(x, y, tile, tile));
+    g.DrawBitmap(Image("fx-faces"), R(x, y, tile, tile), column * tile, 0);
+    if (segrand::FxAlgorithm(type,slot) == 3 || segrand::FxAlgorithm(type,slot) == 4)
       DrawFxMeter(g, R(x, y, tile, tile), slot);
     else
       DrawFxSignal(g, R(x, y, tile, tile), slot, type);
+    if (light < 1) {
+      auto layer = g.EndLayer();
+      IBlend blend(EBlend::Default, float(light));
+      g.DrawLayer(layer, &blend);
+    }
   }
-  if (!enabled) {
+  if (light < 1) {
     const float left = pixel(module.L + module.W() * .35f);
     const float right = pixel(module.L + module.W() * .65f);
     const float top = pixel(module.T), bottom = pixel(module.T + module.H() / 24);
-    g.FillRect(IColor(255, 102, 102, 102), {left, top, right, bottom});
+    g.FillRect(IColor(int(255 * (1-light)), 102, 102, 102), {left, top, right, bottom});
   }
 }
 void NativePanel::DrawFxMeter(IGraphics &g, const IRECT &r, int slot) {
   // Same glass and dial geometry as the approved face; the needle reads the
   // actual post-insert peak (dBFS), with a time-based 250 ms release.
   g.PathClear(); g.PathRect(r);
-  const bool compressor = FxType(slot) == 3;
+  const bool compressor = segrand::FxAlgorithm(FxType(slot),slot) == 3;
   g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical,
       compressor ? std::initializer_list<IColorStop>{{IColor(255,153,154,150),0},
           {IColor(255,218,220,214),.5f}, {IColor(255,181,185,180),1}} :
@@ -138,8 +146,13 @@ void NativePanel::FxPage(IGraphics &g) {
   Text(g, "lcd14", slot < 2 ? "Wet/Dry" : "Send", R(736, 192, 91, 19));
   Field(g, "", R(850, 190, 117, 21), amount, Format(Value(amount)) + "%", type > 1);
 
-  if (type <= 1)
+  if (type <= 1) {
+    const auto native = static_cast<KrosePlugin *>(GetDelegate())->FactoryEffects();
+    if (native.sourceIDs[slot] > 0)
+      Text(g, "lcd13", std::string("Native: ") + segrand::ProgramEffects::Name(native.sourceIDs[slot]) +
+          " (not implemented)", R(437, 238, 530, 40));
     return;
+  }
   if (automatic)
     Text(g, "lcd14", "Edit a parameter to switch AUTO to manual", R(437, 264, 530, 18));
 
@@ -151,47 +164,38 @@ void NativePanel::FxPage(IGraphics &g) {
     const float y = 216 + 24 * (index / 2);
     Field(g, std::string(spec.label) + spec.unit, R(x, y, 103, 21), param, value);
   };
-  if (slot < 2) {
-    switch (type) {
-    case 2:
-      Text(g, "lcd14", "Band", R(437, 218, 47, 18));
-      for (int i = 0; i < 4; ++i)
-        ControllerCell(g, "B" + std::to_string(i + 1), R(492 + 49 * i, 216, 46, 21), "fx-band",
-                       -1, i, i == mFxBand);
-      field(1, kEqFreq + 3 * mFxBand);
-      field(2, kEqGain + 3 * mFxBand);
-      field(3, kEqQ + 3 * mFxBand);
-      break;
-    case 3:
-      field(0, kThreshold);
-      field(1, kRatio);
-      field(2, kAttack);
-      field(3, kRelease);
-      break;
-    case 4:
-      field(0, kCeiling);
-      field(1, kRelease);
-      break;
-    case 5: field(0, kDrive); break;
-    case 6: field(0, kBlend); break;
-    }
-  } else {
-    switch (type) {
-    case 2:
-      field(0, kDepth);
-      field(1, kLfoRate);
-      break;
-    case 3:
-      field(0, kDelayLeft);
-      field(1, kDelayRight);
-      field(2, kFeedback);
-      break;
-    case 4:
-    case 5:
-      field(0, kDecay);
-      field(1, kHiDamp);
-      break;
-    }
+  const int algorithm = FxAlgorithm(type,slot);
+  switch (algorithm) {
+  case 2:
+    mFxBand = std::clamp(mFxBand,0,3);
+    Text(g, "lcd14", "Band", R(437, 218, 47, 18));
+    for (int i=0;i<4;++i)
+      ControllerCell(g,"B"+std::to_string(i+1),R(492+49*i,216,46,21),"fx-band",-1,i,i==mFxBand);
+    field(1,kEqFreq+3*mFxBand); field(2,kEqGain+3*mFxBand); field(3,kEqQ+3*mFxBand);
+    break;
+  case 3:
+    field(0,kThreshold); field(1,kRatio); field(2,kAttack); field(3,kRelease); break;
+  case 4: field(0,kCeiling); field(1,kRelease); break;
+  case 5: field(0,kDrive); break;
+  case 6: field(0,kBlend); break;
+  case 7: {
+    mFxBand = std::clamp(mFxBand,0,6);
+    for (int i=0;i<7;++i)
+      ControllerCell(g,std::to_string(i+1),R(437+36*i,216,33,21),"fx-band",-1,i,i==mFxBand);
+    const int layout = std::clamp(int(Value(FxDetailParameter(slot,kGraphicType))),0,11);
+    const auto frequency = kGraphicFrequencies[layout][mFxBand];
+    const auto param = FxDetailParameter(slot,kGraphicGain+mFxBand);
+    Field(g,Format(frequency)+" Hz",R(864,216,103,21),param,Format(Value(param),1));
+    Field(g,"Layout",R(590,240,103,21),FxDetailParameter(slot,kGraphicType),kGraphicLayouts[layout]);
+    field(3,kFxTrim);
+    break;
+  }
+  case 8: case 9: case 10: case 11:
+    field(0,kDepth); field(1,kLfoRate); break;
+  case 12:
+    field(0,kDelayLeft); field(1,kDelayRight); field(2,kFeedback); break;
+  case 13: case 14:
+    field(0,kDecay); field(1,kHiDamp); break;
   }
 }
 

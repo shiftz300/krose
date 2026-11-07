@@ -1,5 +1,7 @@
 #include "engine/ProgramEngine.h"
 #include "samples/SampleResidency.h"
+#include "voice/ProgramLevels.h"
+#include "voice/DrumVoiceData.h"
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
@@ -35,11 +37,15 @@ void ProgramEngine::Prepare(double rate) {
   mRoom = std::move(room);
   mRate = rate;
   mGain.Prepare(rate);
+  mBendSmooth = 1-std::exp(-1/(rate*.002));
   mSmooth = 1 - std::exp(-1 / (rate * .02));
   mOutput = mTarget;
+  mProgramLevelTarget = mControls.balancePrograms ? ProgramLevelGain(mLibrary->programs[mProgram].id.data()) : 1.;
+  mProgramLevel = mProgramLevelTarget;
   Panic();
 }
 void ProgramEngine::Panic() noexcept {
+  mProgramLevel = mProgramLevelTarget;
   mAge = 0;
   mRandom = 1;
   mMono.Reset();
@@ -52,7 +58,6 @@ void ProgramEngine::Panic() noexcept {
   mPortamento.fill(-1);
   mPreviousPitch.fill(-1);
   mFXBlend = mControls.fxBypass ? 0 : 1;
-  mBend.fill(1);
   mGain.Reset();
   for (auto &cc : mCC)
     cc.fill(255);
@@ -87,6 +92,7 @@ void ProgramEngine::SetProgram(unsigned index) noexcept {
         Tail(voice);
   }
   mProgram = index;
+  mProgramLevelTarget = mControls.balancePrograms ? ProgramLevelGain(mLibrary->programs[mProgram].id.data()) : 1.;
 }
 void ProgramEngine::SetControls(const Controls &c) noexcept {
   if (!std::isfinite(c.outputDb) || !std::isfinite(c.space) || !std::isfinite(c.velocityCurve) ||
@@ -99,6 +105,8 @@ void ProgramEngine::SetControls(const Controls &c) noexcept {
       if (voice.region)
         Tail(voice);
   }
+  if (c.balancePrograms != mControls.balancePrograms)
+    mProgramLevelTarget = c.balancePrograms ? ProgramLevelGain(mLibrary->programs[mProgram].id.data()) : 1.;
   mControls = c;
   mControls.voiceMode = mode;
   mControls.glide = std::clamp(c.glide, 0, 127);
@@ -134,7 +142,7 @@ void ProgramEngine::Tail(Voice &voice) noexcept {
 }
 void ProgramEngine::Release(Voice &voice) noexcept {
   voice.down = false;
-  if (!voice.region || voice.program->drum || voice.released)
+  if (!voice.region || (voice.program->drum && !voice.drumNoteOff) || voice.released)
     return;
   voice.released = true;
   voice.amplitude.ReleaseProgram(mControls.releaseSeconds / kNativeReleaseBaseSeconds);
@@ -233,6 +241,7 @@ void ProgramEngine::NoteOn(int note, int velocity, int channel, int previousPitc
     v.program = &p;
     v.note = note;
     v.channel = channel;
+    v.bend = v.bendTarget = BendTarget(v);
     v.down = true;
     v.age = age;
     v.glide.Start(p.drum ? -1 : previousPitch, note, GlideAmount(channel));
@@ -254,7 +263,21 @@ void ProgramEngine::NoteOn(int note, int velocity, int channel, int previousPitc
         if (r.flags & 1)
           v.position[ch] = mLibrary->samples[r.sample[ch]].frames - 1;
       }
-    if (!p.drum) {
+    if (p.drum) {
+      const unsigned kit = (p.controls[0x566] | (unsigned(p.controls[0x567]) << 8)) & 4095;
+      if (kit < 58) {
+        const auto &key = drum_data::kKeys[drum_data::kKeyIndex[kit][note]];
+        v.drumAttack = key.offsets[2 * r.slot];
+        v.drumDecay = key.offsets[2 * r.slot + 1];
+        v.drumNoteOff = !(p.controls[0x508] & 64) || note < p.controls[0x50d] ||
+                        note > p.controls[0x50e] || key.noteOff;
+      }
+      auto offsets = mControls.ampEg;
+      offsets.attack += v.drumAttack; offsets.decay += v.drumDecay;
+      v.amplitude.SetOffsets(offsets);
+      v.amplitude.StartProgram(p.controls.data(), note, velocity, r.oscillator, 127);
+      v.slew.Reset(uint16_t(v.amplitude.Level()));
+    } else {
       v.amplitude.SetOffsets(mControls.ampEg);
       v.filter.SetOffsets(mControls.filterEg, mControls.cutoff, mControls.resonance);
       v.amplitude.StartProgram(p.controls.data(), note, velocity, r.oscillator,
@@ -311,7 +334,8 @@ void ProgramEngine::Midi(const MidiEvent &e) noexcept {
     mPressure[ch] = uint8_t(note);
   else if (type == 0xe0) {
     mBendValue[ch] = value * 128 + note - 8192;
-    mBend[ch] = std::pow(2, ((value * 128 + note - 8192) / 8192.) * 2 / 12);
+    for (auto &v : mVoices) if (v.region && v.channel == ch) v.bendTarget = BendTarget(v);
+    for (auto &v : mTails) if (v.region && v.channel == ch) v.bendTarget = BendTarget(v);
   } else if (type == 0xb0) {
     mGain.Set(ch, note, value);
     mCC[ch][note] = uint8_t(value);
@@ -324,12 +348,10 @@ void ProgramEngine::Midi(const MidiEvent &e) noexcept {
     } else if (note == 65)
       mPortamento[ch] = value >= 64 ? 1 : 0;
     else if (note == 120) {
+      // All Sound Off still silences immediately to the ear, but retains the
+      // existing short tail ramp instead of cutting a nonzero waveform.
       for (auto &v : mVoices)
-        if (v.channel == ch)
-          v = {};
-      for (auto &v : mTails)
-        if (v.channel == ch)
-          v = {};
+        if (v.region && v.channel == ch) Tail(v);
     } else if (note == 123) {
       for (auto &v : mVoices)
         if (v.region && v.channel == ch) {
@@ -345,7 +367,8 @@ void ProgramEngine::Midi(const MidiEvent &e) noexcept {
       mSustain[ch] = false;
       mPortamento[ch] = -1;
       mPreviousPitch[ch] = -1;
-      mBend[ch] = 1;
+      for (auto &v : mVoices) if(v.region && v.channel == ch) v.bendTarget = 1;
+      for (auto &v : mTails) if(v.region && v.channel == ch) v.bendTarget = 1;
       for (auto &v : mVoices)
         if (v.region && v.channel == ch && !v.down)
           Release(v);
@@ -362,10 +385,18 @@ ModulationSources ProgramEngine::Sources(const Voice &v) const noexcept {
                                 mPressure[v.channel], mBendValue[v.channel]);
   return s;
 }
+double ProgramEngine::BendTarget(const Voice &v) const noexcept {
+  const auto osc = v.program->controls.data()+0x564+380*v.region->oscillator;
+  const int bend = mBendValue[v.channel];
+  const int raw = osc[bend < 0 ? 0x83 : 0x82];
+  const int semitones = raw < 128 ? raw : raw-256;
+  return std::exp2((std::abs(bend)/8192.)*semitones/12.);
+}
 void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept {
   if (!v.region)
     return;
   const auto &r = *v.region;
+  v.bend += mBendSmooth*(v.bendTarget-v.bend);
   std::array<double, 2> audio{};
   for (int ch = 0; ch < 2; ++ch) {
     if (r.sample[ch] == UINT32_MAX)
@@ -373,7 +404,7 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
     const auto &sample = mLibrary->samples[r.sample[ch]];
     const PCM24 &pcm = v.residency ? *(*v.residency->factory)[r.sample[ch]] : sample.pcm;
     const bool reverse = r.flags & 1;
-    const bool loop = !reverse && !v.program->drum && (sample.flags & 16) &&
+    const bool loop = !reverse && (sample.flags & 16) &&
                       sample.loopEnd - sample.loopStart >= 8;
     auto &pos = v.position[ch];
     const double period = sample.loopEnd - sample.loopStart;
@@ -384,6 +415,13 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
       return;
     }
     audio[ch] = Read(pcm, pos);
+    if (!loop) {
+      // Non-looped/reverse samples can end at a nonzero value. A 2 ms tail
+      // removes the hard cut without changing the drum's attack or timing.
+      const double remaining = reverse ? pos : pcm.size() - 1 - pos;
+      const double frames = remaining / std::max(1e-9, v.step[ch] * v.bend * v.glideRatio);
+      audio[ch] *= std::clamp(frames / (mRate * .002), 0., 1.);
+    }
     if (loop) {
       const double seam = std::min(32., period / 8);
       if (pos > sample.loopEnd - seam) {
@@ -392,11 +430,11 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
         audio[ch] += t * t * (3 - 2 * t) * (pcm[sample.loopStart] - pcm[sample.loopEnd]);
       }
     }
-    pos += (reverse ? -1 : 1) * v.step[ch] * mBend[v.channel] * v.glideRatio;
+    pos += (reverse ? -1 : 1) * v.step[ch] * v.bend * v.glideRatio;
   }
   v.glideRatio = v.glide.Advance(mRate);
   double l = audio[0], rr = r.sample[1] == UINT32_MAX ? audio[0] : audio[1];
-  double level = v.program->drum ? .75 : v.slew.Current() / 65536.;
+  double level = v.program->drum ? .75 * v.slew.Current() / 32767. : v.slew.Current() / 65536.;
   if (!v.program->drum && mControls.filterEnabled)
     v.filter.Process(l, rr);
   level *= r.gain * v.velocityTrim * mGain.Current(v.channel);
@@ -411,7 +449,7 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
   }
   left += l * level * v.panL;
   right += rr * level * v.panR;
-  if (!v.program->drum) {
+  {
     v.audioPhase += kNativeAudioHz / mRate;
     while (v.audioPhase >= 1) {
       v.slew.Advance();
@@ -420,20 +458,24 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
     v.phase += kNativeControlHz / mRate;
     if (v.phase >= 1) {
       v.phase -= 1;
-      v.amplitude.SetOffsets(mControls.ampEg);
-      v.filter.SetOffsets(mControls.filterEg, mControls.cutoff, mControls.resonance);
+      auto offsets = mControls.ampEg;
+      offsets.attack += v.drumAttack; offsets.decay += v.drumDecay;
+      v.amplitude.SetOffsets(offsets);
       v.amplitude.Tick();
-      v.filter.AdvanceModulationEnvelope();
-      v.modulation.SetRandomState(mRandom);
-      v.modulation.Tick(Sources(v), uint32_t(uint64_t(v.ageSeconds * mTempo * 8)), &mCC[v.channel]);
-      mRandom = v.modulation.RandomState();
-      v.amplitude.SetModulation(v.modulation.sources, v.modulation.lfo);
-      v.filter.SetModulation(v.modulation.sources, v.modulation.lfo);
-      for (int ch = 0; ch < 2; ++ch)
-        if (r.sample[ch] != UINT32_MAX)
-          v.step[ch] =
-              mLibrary->Step(*v.program, r, ch, v.note, mRate, v.modulation.PitchOffset());
-      v.slew.SetTarget(v.amplitude.Gain());
+      if (!v.program->drum) {
+        v.filter.SetOffsets(mControls.filterEg, mControls.cutoff, mControls.resonance);
+        v.filter.AdvanceModulationEnvelope();
+        v.modulation.SetRandomState(mRandom);
+        v.modulation.Tick(Sources(v), uint32_t(uint64_t(v.ageSeconds * mTempo * 8)), &mCC[v.channel]);
+        mRandom = v.modulation.RandomState();
+        v.amplitude.SetModulation(v.modulation.sources, v.modulation.lfo);
+        v.filter.SetModulation(v.modulation.sources, v.modulation.lfo);
+        for (int ch = 0; ch < 2; ++ch)
+          if (r.sample[ch] != UINT32_MAX)
+            v.step[ch] =
+                mLibrary->Step(*v.program, r, ch, v.note, mRate, v.modulation.PitchOffset());
+      }
+      v.slew.SetTarget(v.program->drum ? uint16_t(v.amplitude.Level()) : v.amplitude.Gain());
     }
     if (v.amplitude.Finished() && v.slew.Silent())
       v.region = nullptr;
@@ -482,6 +524,7 @@ void ProgramEngine::Render(float *left, float *right, int frames) noexcept {
     mRack.Returns(inserts.data(), returns.data(), count);
     for (int i = 0; i < count; ++i) {
       mOutput += mSmooth * (mTarget - mOutput);
+      mProgramLevel += mSmooth * (mProgramLevelTarget - mProgramLevel);
       mFXBlend += mSmooth * ((mControls.fxBypass ? 0. : 1.) - mFXBlend);
       bus[i * 2] += float(returns[i * 2]);
       bus[i * 2 + 1] += float(returns[i * 2 + 1]);
@@ -498,8 +541,8 @@ void ProgramEngine::Render(float *left, float *right, int frames) noexcept {
           mRack.Monitor().Push(unsigned(slot), (inserts[i * 2] + inserts[i * 2 + 1]) * .5, wetL, wetR);
         }
       }
-      left[start + i] = float(bus[i * 2] * mOutput);
-      right[start + i] = float(bus[i * 2 + 1] * mOutput);
+      left[start + i] = float(bus[i * 2] * mOutput * mProgramLevel);
+      right[start + i] = float(bus[i * 2 + 1] * mOutput * mProgramLevel);
     }
     mRack.Monitor().Publish();
   }

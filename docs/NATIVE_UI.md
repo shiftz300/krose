@@ -32,8 +32,8 @@ FX 收放是独立的显示状态，不改变音频。动画使用基于单调�
 
 点 LCD 的 FX 标签，进入 IFX 1、IFX 2、MFX 1、MFX 2 四个参数页。上排选择槽位，当前页显示效果类型、Wet/Dry 或 Send，以及当前算法的参数。左侧效果模块单击切换启用／旁通，保留类型和参数；右键移除效果，恢复空槽菱形。LCD 内不再显示 ON／OFF 按钮。右键槽位标签也可移除对应效果。OFF 类型和自动解析为空的槽显示淡红轨道与棕色菱形，点菱形直接选择效果。已有类型的槽在关闭、全局绕过或效果量为零时熄灯并灰显，类型和参数仍保留。切换算法时，图案随算法更新。
 
-- IFX 串联处理主声。EQ 按 Band 选择四个频段，分别调整 Freq、Gain 和 Q。压缩显示阈值、比率、起音和释放，限幅显示 Ceiling 与释放。Drive 与 Exciter 分别显示 Drive 和 Blend。
-- MFX 从 IFX 2 后并联取信号。Chorus 显示深度与 LFO 频率，延迟显示左右时间与反馈，Hall 和 Plate 显示衰减时间与高频阻尼。手动设定的两路 MFX 可使用相同效果并各自调整。
+- IFX 串联处理主声。四段 EQ 可调整 Freq、Gain 和 Q；七段 Graphic EQ 保留原厂 12 组频点布局、七段增益与 Trim。压缩、限幅、Drive、Exciter、Phaser、Tremolo 和 Auto Pan 均在当前槽内编辑。新增类型菜单在 LCD 内滚动。
+- MFX 从 IFX 2 后并联取信号，支持 Chorus、Stereo Delay、Hall、Plate，以及 EQ、七段 Graphic EQ、压缩、限幅、Drive、Exciter、Phaser、Tremolo、Auto Pan。参数仍由四个槽位标签管理。
 - AUTO 保留 Krose 的默认处理。编辑 AUTO 的算法参数会将该槽切到对应的手动类型。参数和开关随宿主工程保存。
 - C107 Trumpet Overblown 的试听设置为 IFX 1 选 Drive，Drive 60、Wet/Dry 70%，MFX 2 保持 AUTO。
 
@@ -84,3 +84,17 @@ python3 tools/native-ui/publish_complete.py
 素材导出要求 2× 显示缩放；发布脚本校验尺寸并更新冻结清单。图片处理依赖 Pillow。收起状态的截图在动画结束后获取，显式隐藏被裁剪画布，避免离屏截图遗漏 clip-path。
 
 原生 Cocoa 交互测试位于 `tests/plugin/test_editor_mac.mm`；测试通过 `KROSE_FAVORITES_FILE` 和 `KROSE_MIDI_MAP_FILE` 隔离用户设置。Windows GUI、不同 DPI 以及 DAW 长时间演奏需在目标环境验收。
+
+## 本轮交互修复
+
+- LCD 状态行的分类／编号和 Tempo 共用文字基线；切页取消整屏白色叠层，边框和背光保持稳定。
+- 菜单打开／关闭、按钮灯和 FX 旁通有时间驱动的淡入淡出；关闭中的图层不占用点击区域。预设背景保持清晰，不使用模糊。
+- 数值区域支持上下拖动、Shift 细调；短按仍可输入数值，滚轮操作保留。
+- 编辑器从音频线程快照读取按键、弯音、Mod 和延音状态，MIDI 映射与宿主自动化更新旋钮／推子／按钮。拖动滚轮时忽略过期快照，下一条实际 MIDI 输入继续同步。
+- ARP 的 EDIT 菜单和分类模式选择位于 LCD 内，不移动整机控件块。
+
+选择工厂音色会同步载入其主通路效果与琶音，复位相对 Tone Adjust。四个效果槽保持不变：沿主输入总线跟随 IFX 串接，优先保留前两个有效插入和两路 MFX；不把未进入主通路的 IFX5 强行插入。原厂效果名、双槽分配、发送和返回从原 Program 读取。当前主机算法覆盖范围仍有限：未实现的效果在 LCD 标出原名，不继承上一音色的效果，也不冒充完整原厂 DSP；超过两级的插入和主效果串接仍有还原差异。
+
+七段 EQ 的频点来自 v1.2.4 固件 `0x37cb30` 表，参数位域和 ±18 dB 增益按原数据读取；音频使用主机 biquad。Phaser 为六级 allpass，Tremolo／Auto Pan 使用主机调制器，保留能解释的原深度、速率和效果量。原 DSP 的反馈、波形整形、Dmod 和全部时间定律仍有差异。普通 Limiter 使用限幅器路径，不再映射为压缩器。
+
+`.krose` 文件为格式 4，新增参数只追加 ID。格式 1–3 转换旧范围和算法枚举；旧 103／106 参数宿主状态也能恢复。已有宿主自动化若保存归一化 FX 类型曲线，需要按新枚举数量复核；宿主状态中的物理算法编号保持兼容。

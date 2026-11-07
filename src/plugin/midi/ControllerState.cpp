@@ -112,7 +112,7 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
     }
     return true;
   };
-  for (int count : {6, 17, 19, 29, kNumMidiParameters, int(kFxOn1)}) {
+  for (int count : {6, 17, 19, 29, kNumMidiParameters, int(kFxOn1), int(kArpSwing), int(kExtendedFxDetails)}) {
     const int bytes = count * int(sizeof(double));
     if (available != bytes && available != bytes + int(sizeof(int32_t)))
       continue;
@@ -133,7 +133,7 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
     return validParameters(kNumParams) ? UnserializeParams(chunk, start) : -1;
   constexpr int mappingBytes = 16 + krose::midi::ControllerMap::kSlots * int(sizeof(uint64_t));
   int storedParams = kNumParams;
-  for (int oldCount : {kNumMidiParameters, int(kFxOn1)}) {
+  for (int oldCount : {kNumMidiParameters, int(kFxOn1), int(kArpSwing), int(kExtendedFxDetails)}) {
     const int bytes = oldCount * int(sizeof(double)) + mappingBytes;
     if (available == bytes || available == bytes + 4) {
       storedParams = oldCount;

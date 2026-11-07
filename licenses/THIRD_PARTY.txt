@@ -1,4 +1,4 @@
-Krose 0.3.3 third-party notices
+Krose 0.4.0 third-party notices
 
 Scope: these notices describe upstream components, not an Apache-2.0 grant
 from Krose over third-party code or manufacturer resources. Original Krose

@@ -54,9 +54,20 @@ KrosePlugin::KrosePlugin(const InstanceInfo &info)
 }
 
 void KrosePlugin::OnParamChange(int paramIdx, EParamSource, int) {
-  if (paramIdx == kParamProgram && mEngine)
-    mEngine->RequestProgram(GetParam(kParamProgram)->Int());
+  if (paramIdx == kParamProgram) SelectProgramDefaults();
 }
+void KrosePlugin::SelectProgramDefaults() {
+  if (!mEngine) return;
+  const int program = GetParam(kParamProgram)->Int();
+  mEngine->RequestProgram(program);
+  if (uint32_t(mSoundGeneration.load(std::memory_order_acquire))) {
+    mDefaultsProgram.store(program, std::memory_order_release);
+    return; // A saved sound owns its FX, ARP and Tone Adjust values.
+  }
+  if (mDefaultsProgram.exchange(program, std::memory_order_acq_rel) != program)
+    LoadFactoryEffects(program);
+}
+
 #if IPLUG_DSP
 void KrosePlugin::OnReset() {
   if (!mEngine)
@@ -67,6 +78,7 @@ void KrosePlugin::OnReset() {
     mAudioRate.store(rate, std::memory_order_relaxed);
     mVisualRate.store(rate, std::memory_order_relaxed);
     mIncomingMidi.Clear();
+    mKeyboard.Reset();
 #if defined(VST3_API)
     ClearHostParameters();
 #endif

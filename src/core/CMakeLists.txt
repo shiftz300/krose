@@ -6,6 +6,7 @@ set(KROSE_CORE_SOURCES
   samples/SampleBank.cpp
   engine/ProgramEngine.cpp
   engine/InstrumentEngine.cpp
+  midi/ArpPatterns.cpp
   midi/Arpeggiator.cpp
   engine/PianoEngine.cpp
   voice/NativeVoice.cpp
@@ -13,6 +14,7 @@ set(KROSE_CORE_SOURCES
   voice/PitchEnvelope.cpp
   voice/NativeModulation.cpp
   voice/NativeFilter.cpp
+  effects/ProgramEffects.cpp
   effects/FxRack.cpp
   effects/concert_effects.c)
 find_package(Threads REQUIRED)

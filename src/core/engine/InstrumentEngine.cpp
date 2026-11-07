@@ -26,8 +26,7 @@ void InstrumentEngine::RequestProgram(int program) noexcept {
   if (mLoader)
     mLoader->Request(std::clamp(program, 0, int(mProgramCount) - 1));
 }
-void InstrumentEngine::SetControls(const Controls &controls, bool offline) {
-  mPanTarget = std::clamp(controls.pan, -64, 63) / (controls.pan < 0 ? 64.0 : 63.0);
+bool InstrumentEngine::SetControls(const Controls &controls, bool offline) {
   const int program = std::clamp(controls.program, 0, int(mProgramCount) - 1);
   RequestProgram(program);
   const SampleResidency *ready = mResidency;
@@ -36,6 +35,8 @@ void InstrumentEngine::SetControls(const Controls &controls, bool offline) {
   if (mLoader && program != mProgram)
     ready = offline ? mLoader->Wait(program) : mLoader->Acquire(program);
   mOfflineLoadFailed = offline && mLoader && !ready;
+  if (program != mProgram && mLoader && !ready) return false;
+  mPanTarget = std::clamp(controls.pan, -64, 63) / (controls.pan < 0 ? 64.0 : 63.0);
   if (program != mProgram && (!mLoader || ready)) {
     if (mArp.Controls().enabled) {
       mArp.Reset();
@@ -59,6 +60,7 @@ void InstrumentEngine::SetControls(const Controls &controls, bool offline) {
   }
   mConcert.SetControls(controls);
   mFactory.SetControls(controls);
+  return true;
 }
 void InstrumentEngine::Queue(MidiEvent event) noexcept { mEvents.Push(event, false); }
 

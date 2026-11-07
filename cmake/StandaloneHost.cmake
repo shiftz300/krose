@@ -20,7 +20,7 @@ endfunction()
 
 file(READ "${_app_original}/IPlugAPP_host.h" _header)
 _app_replace(_header "#include <cstdlib>" "#include <cstdlib>\n#include \"standalone/Runtime.h\"")
-_app_replace(_header "  bool InitMidi();" "  bool InitMidi();\n  void PollAudio();\n  void PollMidi();")
+_app_replace(_header "  bool InitMidi();" "  bool InitMidi();\n  void PollAudio();\n  void PollMidi();\n  void RefreshMidiPreferences();")
 _app_replace(_header "  bool SelectMIDIDevice(" "  bool SelectMIDIDeviceImpl(ERoute direction, const char* portName);\n  bool SelectMIDIDevice(")
 foreach(_flag mExiting mAudioEnding mAudioDone)
   _app_replace(_header "bool ${_flag} = false;" "std::atomic<bool> ${_flag}{false};")
@@ -30,7 +30,12 @@ _app_replace(_header "  bool mNoIO = false;" [=[  bool mNoIO = false;
   std::unique_ptr<Timer> mRecoveryTimer;
   uint32_t mRecoveryOutput = 0;
   bool mFallbackOutput = false;]=])
-_app_replace(_header "  bool mFallbackOutput = false;" "  bool mFallbackOutput = false;\n  bool mMidiInputMissing = false;")
+_app_replace(_header "  bool mFallbackOutput = false;" [=[  bool mFallbackOutput = false;
+  bool mMidiInputMissing = false, mMidiListDirty = false;
+  std::string mActiveMidiInput;
+  std::vector<std::string> mMidiPorts;
+  HWND mMidiPreferences = nullptr;]=])
+_app_replace(_header ", mMidiInDev(OFF_TEXT)" ", mMidiInDev(\"Automatic\")")
 file(CONFIGURE OUTPUT "${_app_overlay}/IPlugAPP_host.h" CONTENT "${_header}" @ONLY)
 
 file(READ "${_app_original}/IPlugAPP_host.cpp" _host)
@@ -101,10 +106,41 @@ _app_replace(_host "  for (int i = 0; i < iParams.nChannels; i++)" [=[  // Open 
   mInputBufPtrs.Empty();
   mOutputBufPtrs.Empty();
   for (int i = 0; i < iParams.nChannels; i++)]=])
+_app_replace(_host [=["indev", "no input"]=] [=["indev", "Automatic"]=])
+_app_replace(_host "    // if settings file doesn't exist, populate with default values, otherwise overwrite" [=[    // Migrate the old default-off behavior once. Explicit Off remains available.
+    if (!GetPrivateProfileInt("midi", "selectionVersion", 0, mINIPath.Get()) &&
+        (std::string_view(mState.mMidiInDev.Get()) == OFF_TEXT ||
+         std::string_view(mState.mMidiInDev.Get()) == "no input"))
+      mState.mMidiInDev.Set("Automatic");
+    // if settings file doesn't exist, populate with default values, otherwise overwrite]=])
+_app_replace(_host "  WritePrivateProfileString(\"midi\", \"indev\"," "  WritePrivateProfileString(\"midi\", \"selectionVersion\", \"1\", ini);\n  WritePrivateProfileString(\"midi\", \"indev\",")
+_app_replace(_host "    mMidiInputDevNames.push_back(OFF_TEXT);" "    mMidiInputDevNames.push_back(\"Automatic\");\n    mMidiInputDevNames.push_back(OFF_TEXT);")
 file(CONFIGURE OUTPUT "${_app_overlay}/IPlugAPP_host.cpp" CONTENT "${_host}" @ONLY)
 
 file(READ "${_app_original}/IPlugAPP_dialog.cpp" _dialog)
 _app_replace(_dialog "void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)\n{" "void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)\n{\n  ProbeAudioIO();\n  ProbeMidiIO();")
+# Device names can be UTF-8 and must be written inside the string's size.
+_app_replace(_dialog "tempString.reserve(len);" "tempString.resize(len);")
+_app_replace(_dialog "    for (int i=0; i<mMidiInputDevNames.size(); i++)" [=[    SendDlgItemMessage(hwndDlg, IDC_COMBO_MIDI_IN_DEV, CB_RESETCONTENT, 0, 0);
+    SendDlgItemMessage(hwndDlg, IDC_COMBO_MIDI_OUT_DEV, CB_RESETCONTENT, 0, 0);
+    SendDlgItemMessage(hwndDlg, IDC_COMBO_MIDI_IN_CHAN, CB_RESETCONTENT, 0, 0);
+    SendDlgItemMessage(hwndDlg, IDC_COMBO_MIDI_OUT_CHAN, CB_RESETCONTENT, 0, 0);
+    for (int i=0; i<mMidiInputDevNames.size(); i++)]=])
+_app_replace(_dialog [=[      mState.mMidiInDev.Set("off");
+      UpdateINI();
+      indevidx = 0;]=] [=[      // Preserve a missing preferred device instead of disabling MIDI.
+      indevidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_MIDI_IN_DEV, CB_ADDSTRING, 0,
+                                    (LPARAM)mState.mMidiInDev.Get());]=])
+_app_replace(_dialog "      _this->PopulatePreferencesDialog(hwndDlg);" "      _this->mMidiPreferences = hwndDlg;\n      _this->PopulatePreferencesDialog(hwndDlg);")
+# Clear the preferences handle on destruction, scoped to its own switch.
+string(FIND "${_dialog}" "WDL_DLGRET IPlugAPPHost::PreferencesDlgProc" _prefs_start)
+string(SUBSTRING "${_dialog}" 0 ${_prefs_start} _prefs_prefix)
+string(SUBSTRING "${_dialog}" ${_prefs_start} -1 _prefs_body)
+string(FIND "${_prefs_body}" "    case WM_COMMAND:" _prefs_command)
+string(SUBSTRING "${_prefs_body}" 0 ${_prefs_command} _prefs_head)
+string(SUBSTRING "${_prefs_body}" ${_prefs_command} -1 _prefs_tail)
+set(_dialog "${_prefs_prefix}${_prefs_head}    case WM_DESTROY:\n      _this->mMidiPreferences = nullptr;\n      return TRUE;\n\n${_prefs_tail}")
+string(APPEND _dialog "\n#include \"standalone/MidiPreferences.inc\"\n")
 file(CONFIGURE OUTPUT "${_app_overlay}/IPlugAPP_dialog.cpp" CONTENT "${_dialog}" @ONLY)
 
 file(READ "${_app_original}/IPlugAPP.cpp" _app)

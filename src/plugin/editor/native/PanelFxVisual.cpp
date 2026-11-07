@@ -39,6 +39,7 @@ bool NativePanel::UpdateFxVisuals() {
 }
 void NativePanel::DrawFxSignal(IGraphics &g, const IRECT &r, int slot, int type) {
   const auto &data = mFxAnalysis[slot];
+  const int algorithm = segrand::FxAlgorithm(type,slot);
   const IColor grid(50,159,180,169), line(235,180,231,217), quiet(105,174,191,183);
   g.FillRect(IColor(255,32,51,45),r);
   g.PathClipRegion(r);
@@ -55,7 +56,7 @@ void NativePanel::DrawFxSignal(IGraphics &g, const IRECT &r, int slot, int type)
       g.DrawLine(color,r.L+3+(i-1)*(r.W()-6)/(bands.size()-1),bandY(bands[i-1]),
           r.L+3+i*(r.W()-6)/(bands.size()-1),bandY(bands[i]),nullptr,.7);
   };
-  if (slot < 2 && type == 2) {
+  if (algorithm == 2 || algorithm == 7) {
     spectrum(data.bands,quiet);
     if (slot == 0 && Value(kFxType1) == 0) {
       // AUTO uses the recovered Concert EQ, rather than the manual four bands.
@@ -76,22 +77,25 @@ void NativePanel::DrawFxSignal(IGraphics &g, const IRECT &r, int slot, int type)
     auto response = [&](double f) {
       std::complex<double> transfer(1,0);
       const auto z = std::polar(1.,-6.283185307179586*f/std::max(32000.,rate));
-      for (int b=0;b<4;++b) {
-        const double hz=std::min(Value(FxDetailParameter(slot,b*3)),rate*.45);
-        const double gain=std::pow(10.,Value(FxDetailParameter(slot,b*3+1))/40);
-        const double q=Value(FxDetailParameter(slot,b*3+2));
+      const bool graphic = algorithm == 7;
+      const int layout = std::clamp(int(Value(FxDetailParameter(slot,segrand::kGraphicType))),0,11);
+      for (int b=0;b<(graphic?7:4);++b) {
+        const double hz=std::min(graphic ? segrand::kGraphicFrequencies[layout][b] : Value(FxDetailParameter(slot,b*3)),rate*.45);
+        const double gain=std::pow(10.,Value(FxDetailParameter(slot,graphic?segrand::kGraphicGain+b:b*3+1))/40);
+        const double q=graphic ? 1.4 : Value(FxDetailParameter(slot,b*3+2));
         const double w=6.283185307179586*hz/rate, a=std::sin(w)/(2*q), mid=-2*std::cos(w);
         transfer *= ((1+a*gain)+mid*z+(1-a*gain)*z*z) /
                     ((1+a/gain)+mid*z+(1-a/gain)*z*z);
       }
-      const double wet = Value(kFxAmount1+slot)/100;
+      transfer *= Value(FxDetailParameter(slot,segrand::kFxTrim))/100;
+      const double wet = slot<2 ? Value(kFxAmount1+slot)/100 : 1;
       return 20*std::log10(std::max(1e-6,std::abs(1.+wet*(transfer-1.))));
     };
     for (int i=1;i<48;++i) {
       const auto y = [&](int j) { return float(r.MH()-std::clamp(response(30*std::pow(500.,j/47.)),-24.,24.)*r.H()/48); };
       g.DrawLine(line,r.L+(i-1)*r.W()/47,y(i-1),r.L+i*r.W()/47,y(i),nullptr,1);
     }
-  } else if (slot < 2) {
+  } else if (algorithm <= 10) {
     spectrum(data.inputBands,quiet);
     spectrum(data.bands,line);
     // Live input/output transfer points expose drive and exciter saturation.

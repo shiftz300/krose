@@ -157,7 +157,7 @@ int main(int argc,char** argv){
  std::cout<<"PASS LFO/controller block invariance, six rates and channel isolation\n";
  engine.SetProgram(4);engine.Prepare(48000);engine.Queue({0,0x90,36,100});Audio one(12000);Process(engine,one,127);
  engine.Prepare(48000);engine.Queue({0,0x90,36,100});engine.Queue({1,0x80,36,0});engine.Queue({2,0xb0,64,0});Audio two(12000);Process(engine,two,127);assert(one.l==two.l&&one.r==two.r);
- engine.Queue({0,0xb0,120,0});Audio silence(128);Process(engine,silence,128);assert(Energy(silence)<1e-15);
+ engine.Queue({0,0xb0,120,0});Audio silence(128);Process(engine,silence,128);Process(engine,silence,128);assert(Energy(silence)<1e-15); // Includes the 96-frame click-free All Sound Off ramp.
  // The source kit's open/closed hats share a nonzero exclusive group.
  const auto hat=selected(kit,54,100),open=selected(kit,58,100);assert(hat>=0&&open>=0);assert(bank->regions[hat].exclusive&&bank->regions[hat].exclusive==bank->regions[open].exclusive);
  engine.Prepare(48000);engine.Queue({0,0x90,58,100});Audio begin(1000);Process(engine,begin,64);engine.Queue({0,0x90,54,100});Audio shut(128);Process(engine,shut,128);assert(engine.ActiveVoices()<=1);

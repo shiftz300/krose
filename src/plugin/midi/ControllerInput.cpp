@@ -24,6 +24,7 @@ void KrosePlugin::SetMidiParameter(unsigned id, double normalized) {
                        GetParam(kParamProgram)->ToNormalized(mPreviousPrograms[program]));
     if (id == kTargetPanic && mEngine) {
       mEngine->Panic();
+      mKeyboard.Reset();
       mInputControls.Reset();
       mSwitchAssign.fill(-1);
     }
@@ -60,7 +61,10 @@ void KrosePlugin::ApplySwitches() {
     mSwitchAssign[sw] = assignment;
     mSwitchState[sw] = state;
     mInputControls.Configure(sw, SwitchAssignment(assignment), state,
-                             [&](Message m) { mEngine->Queue({0, m.status, m.data1, m.data2}); });
+                             [&](Message m) {
+                               mKeyboard.Process(m.status, m.data1, m.data2);
+                               mEngine->Queue({0, m.status, m.data1, m.data2});
+                             });
     if (old >= 0 && old != assignment)
       setAction(SwitchAssignment(old), mInputControls.Active(SwitchAssignment(old)));
     setAction(SwitchAssignment(assignment), mInputControls.Active(SwitchAssignment(assignment)));
@@ -90,6 +94,7 @@ void KrosePlugin::HandleControllerMidi(Message m, const int &position, RenderTo 
     reconfigure = true;
   };
   auto emit = [&](Message event) {
+    mKeyboard.Process(event.status, event.data1, event.data2);
     mEngine->Queue({event.offset - position, event.status, event.data1, event.data2});
   };
   const bool consumed = mMidiMap.Process(
@@ -128,6 +133,7 @@ void KrosePlugin::ConfigureAudio(int offset) {
   if (mInputFilter != filter) {
     if (mInputFilter >= 0) {
       mEngine->Panic();
+      mKeyboard.Reset();
       mInputControls.Reset();
       mSwitchAssign.fill(-1);
       ApplySwitches();
@@ -154,8 +160,7 @@ void KrosePlugin::ConfigureAudio(int offset) {
     slot.enabled = GetParam(kFxOn1 + i)->Bool();
     if (!slot.enabled || slot.type < 2)
       continue;
-    const int first = i < 2 ? 0 : segrand::kDepth;
-    const int end = i < 2 ? int(segrand::kDepth) : int(segrand::kFxDetailCount);
+    const int first = 0, end = segrand::kFxDetailCount;
     for (int j = first; j < end; ++j)
       slot.detail[j] = GetParam(FxDetailParameter(i, j))->Value();
   }
@@ -169,6 +174,9 @@ void KrosePlugin::ConfigureAudio(int offset) {
   arp.enabled = GetParam(kArpEnabled)->Bool();
   arp.latch = GetParam(kArpLatch)->Bool();
   arp.pattern = GetParam(kArpPattern)->Int();
+  arp.swing = GetParam(kArpSwing)->Int();
+  arp.velocity = GetParam(kArpVelocity)->Int();
+  arp.keyboard = GetParam(kArpKeyboard)->Bool();
   arp.resolution = GetParam(kArpResolution)->Int();
   arp.gate = GetParam(kArpGate)->Int();
   arp.hostSync = GetParam(kArpHostSync)->Bool() && GetParam(kClockSource)->Int() != 1;
@@ -198,7 +206,7 @@ void KrosePlugin::ConfigureAudio(int offset) {
 #endif
   }
   if (mSoundGeneration.load(std::memory_order_acquire) != generation) return;
-  mEngine->SetControls(controls, GetRenderingOffline());
+  if (!mEngine->SetControls(controls, GetRenderingOffline())) return;
   mEngine->SetArpeggiator(arp);
   mEngine->SetTransport(transport);
   mDisplayTempo.store(mEngine->Tempo(), std::memory_order_relaxed);
@@ -242,7 +250,7 @@ void KrosePlugin::SortHostParameters() {
     mHostParameterCount = unsigned(std::remove_if(begin, begin + kNumParams,
         [](const HostParameter &point) { return point.offset < 0; }) - begin);
   std::sort(begin, begin + mHostParameterCount,
-            [](const HostParameter &a, const HostParameter &b) { return a.offset < b.offset; });
+            [](const HostParameter &a, const HostParameter &b) { return a.offset == b.offset ? a.id < b.id : a.offset < b.offset; });
 }
 
 void KrosePlugin::ClearHostParameters() noexcept {
@@ -273,6 +281,7 @@ void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
 
   if (mIncomingMidi.Overflowed()) {
     mEngine->Panic();
+    mKeyboard.Reset();
     mIncomingMidi.Clear();
     mInputControls.Reset();
     mSwitchAssign.fill(-1);
@@ -341,6 +350,7 @@ void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
   };
   publish(mOutputPeak, outputPeak);
   publish(mOutputReduction, outputReduction);
+  mKeyboard.Publish();
   mIncomingMidi.Advance(count, nFrames);
   mInputSamples += uint64_t(nFrames);
 }

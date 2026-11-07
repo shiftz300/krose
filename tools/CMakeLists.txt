@@ -21,3 +21,11 @@ set_target_properties(benchmark-effects PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${C
 add_executable(benchmark-core audio/benchmark_core.cpp)
 target_link_libraries(benchmark-core PRIVATE krose::core)
 set_target_properties(benchmark-core PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+add_executable(audit-program-levels audio/audit_program_levels.cpp)
+target_link_libraries(audit-program-levels PRIVATE krose::core)
+set_target_properties(audit-program-levels PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+add_executable(audit-program-audio audio/audit_program_audio.cpp)
+target_link_libraries(audit-program-audio PRIVATE krose::core)
+set_target_properties(audit-program-audio PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")

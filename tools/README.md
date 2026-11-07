@@ -16,6 +16,8 @@ python3 -m pip install -r tools/native-ui/requirements.txt
 - `resources/native_bank.py`：维护阶段从原厂波形重建紧凑资源，使用 C++ 校验器逐采样核对；不参与普通构建。
 - `native-ui/ci_assets.py`：生成编译检查专用占位资源，不用于发行。
 - `audio/`：离线音频渲染与性能基准；`benchmark-core` 同时记录回调耗时和确定性音频哈希。
+- `audio/audit_program_audio.cpp`：全音色、全鼓键及密集和弦诊断，音频窗口与 TSV 写入指定位置。`audio/analyze_program_audio.py` 使用可选的 NumPy 做离线音高候选筛查，不参与插件运行。`audio/calibrate_program_levels.py` 结合原厂 FX 电平与压力峰值生成静态补偿。
+- `resources/extract_effect_metadata.py`、`extract_drum_controls.py`：从锁定哈希的原件生成产品所需参数表，不参与普通构建。
 - `native-ui/prepare.py`、`complete_assets.py`、`field_assets.py`、`publish_complete.py`：完整界面素材导出流程，见[原生界面移植](../docs/NATIVE_UI.md)。
 - `native-ui/compact_fonts.py`、`compare.py`：字体图集与图片对比，仅使用 Pillow。
 

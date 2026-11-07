@@ -30,6 +30,7 @@ NativePanel::NativePanel()
       mBrowser(Resources().browser), mLCD(Resources().lcd), mProgramOrder(Resources().order) {
   // Buttons and keys must receive every press, including OS double-clicks.
   mDblAsSingleClick = true;
+  for (auto &motion : mReveal) motion.Snap(0);
 }
 NativePanel::~NativePanel() {
   if (const char *path = std::getenv("KROSE_UI_PROFILE")) {
@@ -63,6 +64,13 @@ void NativePanel::OnInit() {
     for (size_t i = 0; i < f.chars.size(); ++i)
       f.indices.emplace(f.chars[i], i);
     f.size = it.value()["size"];
+  }
+  mArpFamilies = {"Built-in"};
+  for (int i = 5; i <= 1029; ++i) {
+    const std::string name = segrand::ArpPatternName(i).data();
+    const auto family = name.substr(0, name.find('-'));
+    if (std::find(mArpFamilies.begin(), mArpFamilies.end(), family) == mArpFamilies.end())
+      mArpFamilies.push_back(family);
   }
   Image("fx-faces");
   GetUI()->LoadFont("meter", "Roboto-Regular.ttf");
@@ -163,7 +171,7 @@ void NativePanel::Button(IGraphics &g, const std::string &name, bool on, const s
     return;
   auto r = (*it)["rect"];
   const auto bounds = R(r[0], r[1], r[2], r[3]);
-  const double light = Visual("button:" + name, on ? 1 : 0);
+  const double light = Visual("button:" + name, on ? 1 : 0, on ? .18 : .22);
   if (light < 1) Bitmap(g, "button-" + name + "-off", r[0], r[1]);
   if (light > 0) {
     IBlend blend(EBlend::Default, float(light));
@@ -221,8 +229,25 @@ void NativePanel::Draw(IGraphics &g) {
   }
 }
 bool NativePanel::IsDirty() {
+  const auto keys = static_cast<KrosePlugin *>(GetDelegate())->KeyboardKeys();
+  bool keysChanged = false;
+  for (unsigned note = 0; note < 128; ++note) {
+    const bool lit = (keys[note / 64] >> (note % 64)) & 1;
+    keysChanged |= lit != mHostLit[note];
+    mHostLit[note] = lit;
+  }
+  const auto expression = static_cast<KrosePlugin *>(GetDelegate())->MidiExpression();
+  for (unsigned i = 0; i < expression.size(); ++i) {
+    if (expression[i] == mHostExpression[i]) continue;
+    mHostExpression[i] = expression[i];
+    if (i == 0 && mDrag != -2) mPitch = int(expression[i] & 0xffffu) - 8192;
+    if (i == 1 && mDrag != -3) mMod = expression[i] & 0xffffu;
+    if (i == 2) mSustain = bool(expression[i] & 0xffffu);
+    keysChanged = true;
+  }
+  keysChanged = mParameters.Changed(*GetDelegate()) || keysChanged;
   const bool signalChanged = UpdateFxVisuals();
-  return IControl::IsDirty() || mVisualAnimating || FoldProgress() != mRenderedFold ||
+  return keysChanged || IControl::IsDirty() || mVisualAnimating || FoldProgress() != mRenderedFold ||
          (signalChanged && FoldProgress() < 1) || mOutputReduction > .0001f;
 }
 double NativePanel::FoldProgress() const {
@@ -402,17 +427,7 @@ void NativePanel::Render(IGraphics &g) {
     g.FillRect(Paper, R(431, 260, 542, 24));
     Text(g, "lcd13", mPresetStatus, R(437, 263, 530, 20));
   }
-  const int lcdState = mPage + 8 * mSlot + 32 * mFxBand +
-                       256 * int(mControllers) + 512 * mControllerPage + 4096 * program;
-  if (mLCDState != lcdState) {
-    mLCDReveal.Snap(mLCDState < 0 ? 1 : .65);
-    mLCDReveal.Target(1, mFrameTime, .10);
-    mLCDState = lcdState;
-  }
-  const double lcdAlpha = mLCDReveal.At(mFrameTime);
-  mVisualAnimating |= mLCDReveal.Active(mFrameTime);
-  if (lcdAlpha < 1) g.FillRect(IColor(int(255 * (1 - lcdAlpha)), Paper.R, Paper.G, Paper.B),
-                              R(431, 115, 542, 169));
+  // Header, bezel and backlight remain stable on page changes.
   LCDGrid(g, R(431, 115, 542, 169));
   g.PathClipRegion();
   // Opacity only: text stays on the pixel grid and hit regions are live immediately.
@@ -488,7 +503,7 @@ void NativePanel::ProgramRow(IGraphics &g) {
   stamp(sprites["note"], 4, 162, 2);
   stamp(sprites["="], 5, 169, 4);
   stamp(sprites["]"], 3, 222, 1);
-  text(Format(Value(kArpHostSync) && mHost ? mTempo : Value(kArpTempo), 2), 178, 0);
+  text(Format(Value(kArpHostSync) && mHost ? mTempo : Value(kArpTempo), 2), 178, 2);
   stamp(mLCD["symbols"]["AC"]["rows"], 13, 227, 2);
 }
 void NativePanel::Chevron(IGraphics &g, const IRECT &r, const IColor &color) {
@@ -597,21 +612,20 @@ void NativePanel::LCD(IGraphics &g) {
     Field(g, "Space", R(621.5, 264, 68, 24), kParamSpace, Format(Value(kParamSpace)));
   }
   if (mPage == 3) {
-    Text(g, "lcd13",
-         std::string("ARP ") + (Value(kArpEnabled) ? "ON" : "OFF") + " · LATCH " +
-             (Value(kArpLatch) ? "ON" : "OFF"),
-         R(437, 257, 530, 18));
-    const char *patterns[] = {"UP", "DOWN", "ALT 1", "ALT 2", "RANDOM"};
+    const auto pattern = segrand::ArpPatternName(int(Value(kArpPattern)));
     const char *rates[] = {"1/32T", "1/32", "1/16T", "1/16", "1/8T", "1/8", "1/4T", "1/4"};
-    Field(g, "Pattern:", R(585, 168, 108, 18), kArpPattern, patterns[int(Value(kArpPattern))]);
-    Field(g, "Resolution:", R(859, 168, 108, 18), kArpResolution,
+    Field(g, "Pattern:", R(547, 168, 364, 18), kArpPattern, pattern.data());
+    ControllerCell(g, "EDIT", LCDRect(R(921, 168, 46, 18)), "arp-edit");
+    Field(g, "Resolution:", R(859, 212, 108, 18), kArpResolution,
           rates[int(Value(kArpResolution))]);
-    Field(g, "Gate (%):", R(625, 190, 68, 18), kArpGate, Format(Value(kArpGate)));
+    Field(g, "Gate (%):", R(625, 190, 68, 18), kArpGate, Value(kArpGate) == 101 ? "STEP" : Format(Value(kArpGate)));
     Field(g, "Tempo:", R(883, 190, 84, 18), kArpTempo, Format(Value(kArpTempo), 2));
     Field(g, "Octave:", R(625, 212, 68, 18), kArpOctaves, Format(Value(kArpOctaves)));
-    Field(g, "Sort:", R(949, 212, 18, 18), kArpSort, "");
+    Field(g, "Sort:", R(949, 234, 18, 18), kArpSort, "");
     Field(g, "Key Sync:", R(675, 234, 18, 18), kArpKeySync, "");
-    Field(g, "Swing (%):", R(899, 234, 68, 18), -1, "0", false);
+    Field(g, "Swing (%):", R(625, 257, 68, 18), kArpSwing, Format(Value(kArpSwing)), Value(kArpPattern) >= 5);
+    Field(g, "Velocity:", R(899, 257, 68, 18), kArpVelocity,
+          Value(kArpVelocity) == 129 ? "STEP" : Value(kArpVelocity) == 128 ? "KEY" : Format(Value(kArpVelocity)));
   }
   if (mPage == 2)
     FxPage(g);

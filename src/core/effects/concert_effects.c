@@ -89,7 +89,7 @@ ConcertEffects *concert_effects_create(double rate, const double coefficients[40
                                       double seconds, double reverb_wet, double chorus_wet,
                                       double tone_hz) {
   if (!isfinite(rate) || rate < 32000 || rate > 192000 || !coefficients || !isfinite(trim) ||
-      trim < 0 || trim > 2 || !isfinite(seconds) || seconds < 0.3 || seconds > 6 ||
+      trim < 0 || trim > 2 || !isfinite(seconds) || seconds < 0.3 || seconds > 20 ||
       !isfinite(reverb_wet) || reverb_wet < 0 || reverb_wet > 0.5 || !isfinite(chorus_wet) ||
       chorus_wet < 0 || chorus_wet > 0.5 || !isfinite(tone_hz) ||
       (tone_hz != 0 && (tone_hz < 2000 || tone_hz > 20000)))

@@ -29,3 +29,13 @@ add_custom_command(OUTPUT "${SEGRAND_GENERATED}/Factory.samples" "${SEGRAND_GENE
   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${KROSE_FACTORY_ASSET_DIR}/FactoryPrograms.h" "${SEGRAND_GENERATED}/FactoryPrograms.h"
   DEPENDS "${KROSE_FACTORY_ASSET_DIR}/Factory.samples" "${KROSE_FACTORY_ASSET_DIR}/FactoryPrograms.h" VERBATIM)
 add_custom_target(krose-factory-assets DEPENDS "${SEGRAND_GENERATED}/Factory.samples" "${SEGRAND_GENERATED}/FactoryPrograms.h")
+
+# Small immutable pattern records are compiled into the shared core. No firmware
+# parsing, file I/O, per-instance copy or decompression on the audio thread.
+segrand_check_asset_bundle("${CMAKE_SOURCE_DIR}/assets/arpeggiator")
+file(READ "${CMAKE_SOURCE_DIR}/assets/arpeggiator/FactoryPatterns.bin" _arp_hex HEX)
+string(REGEX REPLACE "(..)" "0x\\1," _arp_bytes "${_arp_hex}")
+file(CONFIGURE OUTPUT "${SEGRAND_GENERATED}/ArpPatternData.h"
+  CONTENT "#pragma once\nnamespace segrand {\ninline constexpr unsigned char kArpPatternBytes[] = {@_arp_bytes@};\n}\n" @ONLY)
+unset(_arp_hex)
+unset(_arp_bytes)

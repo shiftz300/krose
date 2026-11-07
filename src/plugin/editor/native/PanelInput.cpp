@@ -38,6 +38,7 @@ void NativePanel::Note(int note, bool down) {
 }
 void NativePanel::ReleaseHeld() {
   mPointerDown = false;
+  mNumericPending = mNumericDragging = false;
   ReleaseSwitches();
   static_cast<KrosePlugin *>(GetDelegate())->MidiMappings().CancelLearn();
   for (int i = 0; i < 128; ++i)
@@ -100,6 +101,8 @@ void NativePanel::Activate(const Hit &h) {
   else if (h.action == "page") {
     mPage = int(h.value);
     mSlot = 0;
+  } else if (h.action == "arp-edit") {
+    OpenPopup({LCDRect(R(547,168,420,18)), "arp-edit"});
   } else if (h.action == "fx-toggle") {
     const int enabled = kFxOn1 + int(h.value);
     Set(enabled, Value(enabled) ? 0 : 1);
@@ -156,7 +159,17 @@ void NativePanel::Activate(const Hit &h) {
     int v = int(h.value);
     auto target = mPopupTarget;
     mChoices.clear();
-    if (target.action == "scale") {
+    if (target.action == "arp-edit") {
+      if (v == 0) OpenPopup({LCDRect(R(547,168,364,18)), "field", kArpPattern});
+      else if (v == 1) static_cast<KrosePlugin *>(GetDelegate())->RestoreFactoryArp();
+      else if (v == 2) Set(kArpKeyboard, !Value(kArpKeyboard));
+    } else if (target.action == "arp-families") {
+      mArpFamily = std::clamp(v, 0, int(mArpFamilies.size())-1);
+      OpenPopup({LCDRect(R(547,168,364,18)), "arp-pattern-items", kArpPattern});
+    } else if (target.action == "arp-pattern-items") {
+      if (v < 0) OpenPopup({LCDRect(R(547,168,364,18)), "field", kArpPattern});
+      else Set(kArpPattern, v);
+    } else if (target.action == "scale") {
       const float scale = float(v) / 100;
 #if defined(VST3_API)
       auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
@@ -257,6 +270,16 @@ void NativePanel::OnMouseDown(float x, float y, const IMouseMod &mod) {
       SetDirty(false);
       return;
     }
+    const auto *parameter = h.id >= 0 && h.id < kNumParams ? GetDelegate()->GetParam(h.id) : nullptr;
+    if (!mod.R && parameter && (h.action == "edit" || h.action == "field") &&
+        parameter->Type() != IParam::kTypeEnum && parameter->Type() != IParam::kTypeBool) {
+      mNumericPress = h;
+      mNumericPending = true;
+      mNumericDragging = false;
+      mDragY = y;
+      mDragValue = Value(h.id);
+      return;
+    }
     if (h.action == "knob" || h.action == "fader") {
       mDrag = h.id;
       mDragY = y;
@@ -282,8 +305,20 @@ void NativePanel::OnMouseDown(float x, float y, const IMouseMod &mod) {
   }
 }
 void NativePanel::OnMouseDrag(float, float y, float, float, const IMouseMod &mod) {
+  if (mNumericPending && !mNumericDragging && std::abs(y - mDragY) >= 3) {
+    mNumericDragging = true;
+    mDrag = mNumericPress.id;
+    mHover = "numeric";
+    mEdit = -1;
+    mParameters.Begin(*GetDelegate(), mDrag);
+  }
   if (mDrag >= 0) {
     auto *p = GetDelegate()->GetParam(mDrag);
+    if (mHover == "numeric") {
+      const double perPixel = std::max(p->GetStep(), p->GetRange() / 200.);
+      Set(mDrag, mDragValue + (mDragY - y) * perPixel * (mod.S ? .1 : 1.), false);
+      return;
+    }
     Set(mDrag,
         mHover == "fader" ? 99 - 198 * std::clamp((y - 132) / 135.f, 0.f, 1.f)
                           : mDragValue + (mDragY - y) * p->GetRange() / 160. * (mod.S ? .1 : 1.),
@@ -301,8 +336,11 @@ void NativePanel::OnMouseDrag(float, float y, float, float, const IMouseMod &mod
 }
 void NativePanel::OnMouseUp(float, float, const IMouseMod &) {
   mPointerDown = false;
+  const bool editNumber = mNumericPending && !mNumericDragging;
+  mNumericPending = mNumericDragging = false;
   ReleaseSwitches();
   mParameters.End(*GetDelegate());
+  if (editNumber) Activate(mNumericPress);
   if (mDrag == -2) {
     mPitch = 0;
     GetDelegate()->SendMidiMsgFromUI(IMidiMsg(0, 0xe0, 0, 64));

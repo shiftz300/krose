@@ -131,8 +131,11 @@ int main(int argc, char **argv) {
     auto begin = std::chrono::steady_clock::now();
     do {
       realtime = true;
-      lazy.SetControls(controls);
+      const bool published = lazy.SetControls(controls);
       realtime = false;
+      // Commit FX and calibrated level on the same block in both engines.
+      // Their held voices continue reading their original immutable PCM.
+      if (published) reference.SetControls(controls);
       same(lazy, reference);
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
       assert(std::chrono::steady_clock::now() - begin < std::chrono::seconds(5));

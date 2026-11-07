@@ -13,7 +13,7 @@
 
 namespace krose::storage {
 // Used by both APP and VST3. The dialog owns no audio resources and never
-// changes the process working directory. Paths remain UTF-16 until file I/O.
+// leaves the process working directory changed. Paths remain UTF-16 until file I/O.
 inline std::filesystem::path PresetDialog(HWND owner, bool save,
                                          const std::filesystem::path &directory = {},
                                          const std::filesystem::path &suggestedName = {}) {
@@ -33,9 +33,14 @@ inline std::filesystem::path PresetDialog(HWND owner, bool save,
   dialog.lpstrInitialDir = folder.empty() ? nullptr : folder.c_str();
   dialog.Flags = OFN_EXPLORER | OFN_ENABLESIZING | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST |
                  (save ? OFN_OVERWRITEPROMPT : OFN_FILEMUSTEXIST);
+  const auto workingDirectory = std::filesystem::current_path();
   const bool chosen = save ? GetSaveFileNameW(&dialog) : GetOpenFileNameW(&dialog);
+  const auto error = chosen ? 0 : CommDlgExtendedError();
+  // Explorer Save can change CWD despite OFN_NOCHANGEDIR. Restore before
+  // returning on accept, cancel and failure, preserving host relative paths.
+  std::filesystem::current_path(workingDirectory);
   if (!chosen) {
-    if (CommDlgExtendedError()) throw std::runtime_error("Cannot open preset file dialog");
+    if (error) throw std::runtime_error("Cannot open preset file dialog");
     return {}; // Cancel is not an error and must not apply any sound changes.
   }
   return std::filesystem::path(name.data());

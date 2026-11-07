@@ -65,7 +65,7 @@ int main() {
       if (block % 7 == 0) {
         for (int slot = 0; slot < 4; ++slot) {
           seed = seed * 1664525u + 1013904223u;
-          settings[slot].type = int(seed % (slot < 2 ? 7 : 6));
+          settings[slot].type = int(seed % (slot < 2 ? kInsertTypes.size() : kSendTypes.size()));
           settings[slot].amount = block % 11 ? 100 : NAN;
           settings[slot].enabled = block % 23 != 0;
           for (int id = 0; id < kFxDetailCount; ++id)

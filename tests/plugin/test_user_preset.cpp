@@ -18,6 +18,28 @@ int main() {
   for (int id = 0; id < kNumParams; ++id) values[id] = double(id) / kNumParams;
   WriteJson(path, EncodePreset(values));
   assert(DecodePreset(ReadJson(path)) == values);
+  auto legacy = EncodePreset(values);
+  legacy["version"] = 1;
+  legacy["values"][FxDetailParameter(2, segrand::kDecay)] = 1.;
+  legacy["values"][FxDetailParameter(0, segrand::kDrive)] = 1.;
+  const auto migrated = DecodePreset(legacy);
+  assert(std::abs(migrated[FxDetailParameter(2, segrand::kDecay)] - 5.7 / 19.7) < 1e-12);
+  assert(std::abs(migrated[FxDetailParameter(0, segrand::kDrive)] - 99. / 199) < 1e-12);
+  // The last released 106-parameter schema keeps original type numbers and
+  // supplies neutral values for newly appended algorithm controls.
+  auto previous = EncodePreset(values); previous["version"] = 3;
+  previous["values"].erase(previous["values"].begin()+kExtendedFxDetails, previous["values"].end());
+  previous["values"][kFxType1]=5./6; previous["values"][kFxType3]=5./5;
+  const auto upgraded=DecodePreset(previous);
+  assert(std::abs(upgraded[kFxType1]-5./10)<1e-12);
+  assert(std::abs(upgraded[kFxType3]-5./14)<1e-12);
+  assert(upgraded[FxDetailParameter(2,segrand::kGraphicGain)]==.5);
+  assert(upgraded[FxDetailParameter(2,segrand::kFxTrim)]==1.);
+  for(int slot=0;slot<4;++slot) for(int detail=0;detail<segrand::kFxDetailCount;++detail) {
+    const int id=FxDetailParameter(slot,detail); assert(id>=kFxDetails && id<kNumParams);
+    for(int other=0;other<slot;++other)for(int d=0;d<segrand::kFxDetailCount;++d)
+      assert(id!=FxDetailParameter(other,d));
+  }
   auto extended = EncodePreset(values);
   extended["notes"] = std::string(1024 * 1024, 'x');
   WriteJson(path, extended);
@@ -39,7 +61,7 @@ int main() {
   }
   for (int mutation = 0; mutation < 5; ++mutation) {
     auto bad = EncodePreset(values);
-    if (mutation == 0) bad["version"] = 2;
+    if (mutation == 0) bad["version"] = 5;
     if (mutation == 1) bad["values"].erase(0);
     if (mutation == 2) bad["values"][0] = "nan";
     if (mutation == 3) bad["values"][0] = nullptr;

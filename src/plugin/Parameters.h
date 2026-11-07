@@ -1,5 +1,6 @@
 #pragma once
 #include "effects/FxRack.h"
+#include "midi/ArpPatterns.h"
 
 // Serialized parameter IDs. Append new IDs; never reorder existing entries.
 enum EParams {
@@ -55,7 +56,14 @@ enum EParams {
   kFxOn3 = 49,
   kFxOn4 = 50,
   kFxDetails = 51,
-  kNumParams = kFxDetails + 2 * (segrand::kInsertDetailCount + segrand::kSendDetailCount)
+  kArpSwing = kFxDetails + 2 * (segrand::kInsertDetailCount + segrand::kSendDetailCount),
+  kArpVelocity,
+  kArpKeyboard,
+  kExtendedFxDetails,
+  // All four positions can host native dynamics/EQ/modulation. Original IDs
+  // 0..105 are immutable; the missing detail fields are appended here.
+  kNumParams = kExtendedFxDetails + 2 * (segrand::kFxDetailCount - segrand::kInsertDetailCount) +
+               2 * (segrand::kFxDetailCount - segrand::kSendDetailCount)
 };
 
 // Keep the three original action targets (39..41) stable in saved MIDI maps.
@@ -68,7 +76,11 @@ inline constexpr int ParameterForMidiTarget(unsigned target) {
 inline constexpr bool IsFxTypeParameter(int id) { return id >= kFxType1 && id <= kFxType4; }
 
 inline constexpr int FxDetailParameter(int slot, int detail) {
-  return slot < 2 ? kFxDetails + slot * segrand::kInsertDetailCount + detail
-                  : kFxDetails + 2 * segrand::kInsertDetailCount +
-                        (slot - 2) * segrand::kSendDetailCount + detail - segrand::kDepth;
+  if (slot < 2) return detail < segrand::kDepth ? kFxDetails + slot*segrand::kInsertDetailCount+detail :
+      kExtendedFxDetails + slot*(segrand::kFxDetailCount-segrand::kInsertDetailCount)+detail-segrand::kDepth;
+  if (detail >= segrand::kDepth && detail < segrand::kGraphicGain)
+    return kFxDetails + 2*segrand::kInsertDetailCount + (slot-2)*segrand::kSendDetailCount+detail-segrand::kDepth;
+  return kExtendedFxDetails + 2*(segrand::kFxDetailCount-segrand::kInsertDetailCount) +
+      (slot-2)*(segrand::kFxDetailCount-segrand::kSendDetailCount) +
+      (detail < segrand::kDepth ? detail : detail-segrand::kSendDetailCount);
 }

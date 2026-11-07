@@ -11,7 +11,8 @@ double NativePanel::Visual(const std::string &key, double target, double seconds
 }
 void NativePanel::KeyImage(IGraphics &g, int note, bool black, float x) {
   const std::string prefix = black ? "black-" : "white-";
-  const double down = Visual("key:" + std::to_string(note), mLit[note] ? 1 : 0, .09, mLit[note]);
+  const bool lit = mLit[note] || mHostLit[note];
+  const double down = Visual("key:" + std::to_string(note), lit ? 1 : 0, .09, lit);
   if (down < 1) Bitmap(g, prefix + "up", x, 393);
   if (down > 0) {
     auto &image = Image(prefix + "down");
@@ -22,20 +23,23 @@ void NativePanel::KeyImage(IGraphics &g, int note, bool black, float x) {
 void NativePanel::Reveal(IGraphics &g, bool open, int slot, const IRECT &bounds,
                          void (NativePanel::*draw)(IGraphics &)) {
   auto &motion = mReveal[slot];
-  if (open && !mRevealOpen[slot]) {
-    motion.Snap(.35);
-    motion.Target(1, mFrameTime, .10);
-  }
-  mRevealOpen[slot] = open;
-  if (!open) return; // Dismiss immediately; no invisible overlay consumes input.
+  motion.Target(open ? 1 : 0, mFrameTime, open ? .18 : .22);
   const double alpha = motion.At(mFrameTime);
   mVisualAnimating |= motion.Active(mFrameTime);
-  if (alpha == 1) { (this->*draw)(g); return; }
-  // Only transient layers, never a permanent full-window animation cache.
-  g.StartLayer(this, bounds);
-  (this->*draw)(g);
-  auto layer = g.EndLayer();
-  IBlend blend(EBlend::Default, float(alpha));
-  g.DrawLayer(layer, &blend);
+  if (open) {
+    // Redraw only open menus, so closed cached layers never recreate hitboxes.
+    // At the first press render a zero-alpha frame to establish input immediately.
+    if (g.CheckLayer(mRevealLayers[slot])) g.ResumeLayer(mRevealLayers[slot]);
+    else g.StartLayer(this, bounds);
+    IBlend erase(EBlend::DstOut);
+    g.FillRect(COLOR_WHITE, bounds, &erase);
+    (this->*draw)(g);
+    mRevealLayers[slot] = g.EndLayer();
+  }
+  if (alpha > 0 && mRevealLayers[slot]) {
+    IBlend blend(EBlend::Default, float(alpha));
+    g.DrawLayer(mRevealLayers[slot], &blend);
+  }
+  if (!open && alpha == 0) mRevealLayers[slot].reset();
 }
 } // namespace krose::ui

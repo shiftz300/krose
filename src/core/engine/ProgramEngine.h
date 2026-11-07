@@ -1,5 +1,7 @@
 #pragma once
 #include "EngineTypes.h"
+#include "effects/ProgramEffects.h"
+#include "midi/Arpeggiator.h"
 #include "effects/concert_effects.h"
 #include "midi/ChannelGain.h"
 #include "midi/EventQueue.h"
@@ -19,6 +21,12 @@ public:
   ~ProgramEngine();
   void Prepare(double rate);
   void SetProgram(unsigned index) noexcept;
+  ProgramEffects FactoryEffects(unsigned index) const noexcept {
+    return ProgramEffects::Decode(index < mLibrary->programs.size() ? mLibrary->programs[index].controls.data() : nullptr);
+  }
+  ArpControls FactoryArp(unsigned index) const noexcept {
+    return ProgramArpeggiator(index < mLibrary->programs.size() ? mLibrary->programs[index].controls.data() : nullptr);
+  }
   void SetControls(const Controls &controls) noexcept;
   void Queue(MidiEvent event) noexcept;
   void Process(float *left, float *right, int frames) noexcept;
@@ -39,6 +47,7 @@ private:
     const ProgramRegion *region = nullptr;
     const InstrumentProgram *program = nullptr;
     std::array<double, 2> position{}, step{};
+    double bend = 1, bendTarget = 1;
     NativeVoice amplitude;
     NativeSlew slew;
     NativeFilter filter;
@@ -46,6 +55,8 @@ private:
     double phase = 0, audioPhase = 0, velocityTrim = 1, panL = 1, panR = 1, ageSeconds = 0;
     uint64_t age = 0;
     int note = 0, channel = 0, forced = 0;
+    int drumAttack = 0, drumDecay = 0;
+    bool drumNoteOff = false;
     bool down = false, released = false;
   };
   struct DeleteEffect {
@@ -67,7 +78,6 @@ private:
            : mPortamento[channel]   ? std::max(1, mControls.glide ? mControls.glide : 64)
                                     : 0;
   }
-  std::array<double, 16> mBend{};
   ChannelGain mGain;
   std::array<std::array<uint8_t, 128>, 16> mCC{}, mPolyPressure{};
   std::array<uint8_t, 16> mPressure{};
@@ -77,7 +87,8 @@ private:
   FxRack mRack;
   Controls mControls;
   MonoPerformance mMono;
-  double mRate = 48000, mOutput = 0.5, mTarget = 0.5, mSmooth = 0;
+  double mRate = 48000, mOutput = 0.5, mTarget = 0.5, mSmooth = 0, mBendSmooth = 0;
+  double mProgramLevel = 1, mProgramLevelTarget = 1;
   unsigned mProgram = 0;
   uint64_t mAge = 0;
   void Midi(const MidiEvent &event) noexcept;
@@ -86,6 +97,7 @@ private:
   void Release(Voice &voice) noexcept;
   void Tail(Voice &voice) noexcept;
   void RenderVoice(Voice &voice, double &left, double &right) noexcept;
+  double BendTarget(const Voice &) const noexcept;
   ModulationSources Sources(const Voice &voice) const noexcept;
   void Render(float *left, float *right, int frames) noexcept;
 };

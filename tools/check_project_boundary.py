@@ -52,6 +52,8 @@ def main():
                 assert forbidden not in text,(path,forbidden)
     for path in [ROOT/'CMakeLists.txt', *sorted((ROOT/'cmake').glob('*.cmake')), *sorted((ROOT/'src').rglob('CMakeLists.txt'))]:
         text=path.read_text()
+        # Bundled licensing text is packaging metadata, not a DSP/UI build input.
+        text=text.replace('"${CMAKE_SOURCE_DIR}/docs/LICENSING.md"','')
         for forbidden in ('CMAKE_SOURCE_DIR}/research','CMAKE_SOURCE_DIR}/docs','CMAKE_SOURCE_DIR}/output','find_package(Python3','prepare_voice_assets.py','prepare_plugin_assets.py','editor.html.in','tools/native-ui/reference'):
             assert forbidden not in text,(path,forbidden)
     logs=ROOT/'build/structure-isolation';logs.mkdir(parents=True,exist_ok=True)

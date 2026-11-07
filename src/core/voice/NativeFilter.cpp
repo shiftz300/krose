@@ -14,6 +14,21 @@ int Mod(int intensity, int source) {
 using namespace envelope_math;
 } // namespace
 
+void NativeFilter::SetOffsets(EnvelopeOffsets eg, int cutoff, int resonance) noexcept {
+  const auto previous = mOffsets;
+  mOffsets = eg; mCutoff = cutoff; mResonance = resonance;
+  if (!mOsc) return;
+  const int phase = mStage >= 8 ? 3 : mStage / 2;
+  const bool sustain = !mReleased && phase >= 2 && phase < 4 && mStage < 8 && previous.sustain != eg.sustain;
+  const bool timing = (phase == 0 && previous.attack != eg.attack) ||
+      (phase == 1 && previous.decay != eg.decay) || (mStage >= 8 && previous.release != eg.release);
+  if (!sustain && !timing) return;
+  const double remaining = std::clamp(double(mRemaining) / std::max(1u, mTotal),0.,1.);
+  Prepare(sustain ? 2 : phase);
+  mTotal = sustain ? 48 : uint32_t(std::clamp(mTotal * remaining,24.,double(INT32_MAX)));
+  mRemaining = mTotal;
+  mCoefficient = Coefficient(mCurve, mTotal / 24);
+}
 void NativeFilter::Start(const NativeVoice &amplitude, int oscillator, int velocity,
                          double sampleRate) noexcept {
   StartProgram(native_data::kProgram, amplitude, oscillator, velocity, sampleRate);
@@ -21,6 +36,7 @@ void NativeFilter::Start(const NativeVoice &amplitude, int oscillator, int veloc
 void NativeFilter::StartProgram(const uint8_t *program, const NativeVoice &amplitude,
                                 int oscillator, int velocity, double sampleRate) noexcept {
   mOsc = program + 0x564 + 380 * std::clamp(oscillator, 0, 1);
+  mReleased = false;
   mVelocity = std::clamp(velocity, 1, 127);
   mRate = sampleRate;
   mBranches = {};
@@ -126,8 +142,10 @@ void NativeFilter::SetModulation(const ModulationSources &sources,
   UpdateAudio(unsigned(std::lround(mRate / kNativeControlHz)));
 }
 void NativeFilter::Release() noexcept {
-  if (mOsc)
+  if (mOsc) {
+    mReleased = true;
     Prepare(3);
+  }
 }
 void NativeFilter::UpdateWords() noexcept {
   mSources[4] = (mLevel * 32770) >> 18;
@@ -176,11 +194,15 @@ void NativeFilter::UpdateAudio(unsigned frames) noexcept {
   // Standard RBJ biquads: https://www.w3.org/TR/audio-eq-cookbook/
   constexpr double pi = 3.14159265358979323846;
   for (int branch = 0; branch < 2; ++branch) {
-    double frequency = std::min(ApproximateHz(Word(branch, 1) + 317 * mCutoff), mRate * 0.45),
+    const int type = mOsc[0xA0 + ((mOsc[0x88] & 3) == 3 ? 0 : branch * 0x24)] & 3;
+    // Separate engineering HPF anchor: the LPF's 20 kHz endpoint removed
+    // essentially all energy from low-rate noise PCM (GM Rain / Wind Chime).
+    // This is host response calibration, not a recovered TG transfer law.
+    double frequency = std::min(ApproximateHz(Word(branch, 1) + 317 * mCutoff) /
+                                   (type == 1 ? 5. : 1.), mRate * 0.45),
            q = ApproximateQ(Word(branch, 2) + 321 * mResonance);
     const double w = 2 * pi * frequency / mRate, c = std::cos(w), alpha = std::sin(w) / (2 * q),
                  a0 = 1 + alpha;
-    const int type = mOsc[0xA0 + ((mOsc[0x88] & 3) == 3 ? 0 : branch * 0x24)] & 3;
     double b0 = 0, b1 = 0, b2 = 0;
     if (type == 0) {
       b0 = (1 - c) / 2;
@@ -191,16 +213,20 @@ void NativeFilter::UpdateAudio(unsigned frames) noexcept {
       b1 = -1 - c;
       b2 = b0;
     } else if (type == 2) {
-      b0 = alpha;
-      b2 = -alpha;
+      // Instrument BPF: constant skirt gain, resonant peak = Q (RBJ).
+      // Unity-peak normalization suppressed serial resonant patches such as
+      // D105 by tens of dB. Control words and pole locations stay unchanged.
+      b0 = std::sin(w) / 2;
+      b2 = -b0;
     } else {
       b0 = 1;
       b1 = -2 * c;
       b2 = 1;
     }
     const double gain = (Word(branch, 0) / 32768.0) * (Word(branch, 3) / 32768.0);
-    mBranches[branch].Set(
-        {b0 / a0 * gain, b1 / a0 * gain, b2 / a0 * gain, -2 * c / a0, (1 - alpha) / a0}, frames);
+    const bool bypass = mOsc[0xA0 + ((mOsc[0x88] & 3) == 3 ? 0 : branch*0x24)] & 128;
+    mBranches[branch].Set(bypass ? std::array<double,5>{gain,0,0,0,0} :
+        std::array<double,5>{b0/a0*gain,b1/a0*gain,b2/a0*gain,-2*c/a0,(1-alpha)/a0}, frames);
   }
 }
 void NativeFilter::Biquad::Set(const std::array<double, 5> &next, unsigned frames) noexcept {

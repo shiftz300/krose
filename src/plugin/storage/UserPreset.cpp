@@ -51,3 +51,32 @@ bool KrosePlugin::LoadUserPreset(const std::string &path) {
     return false;
   }
 }
+
+void KrosePlugin::LoadFactoryEffects(int program) {
+  const auto effects = mEngine->FactoryEffects(program);
+  krose::storage::ParameterTransaction transaction(mSoundGeneration);
+  const auto write = [&](int id, double value) { SetMidiParameter(MidiTargetForParameter(id), GetParam(id)->ToNormalized(value)); };
+  // Tone Adjust values are relative to the selected Program, not global controls.
+  for (int id = kParamCutoff; id <= kFilterRelease; ++id) write(id, 0);
+  RestoreFactoryArp();
+  for (unsigned slot = 0; slot < effects.slots.size(); ++slot) {
+    const auto &effect = effects.slots[slot];
+    write(kFxType1 + slot, effect.type);
+    write(kFxOn1 + slot, effect.enabled);
+    write(kFxAmount1 + slot, effect.amount);
+    const int first = 0, end = segrand::kFxDetailCount;
+    for (int detail = first; detail < end; ++detail) write(FxDetailParameter(slot, detail), effect.detail[detail]);
+  }
+}
+
+void KrosePlugin::RestoreFactoryArp() {
+  if (!mEngine) return;
+  const auto arp = mEngine->FactoryArp(GetParam(kParamProgram)->Int());
+  krose::storage::ParameterTransaction transaction(mSoundGeneration);
+  const auto write = [&](int id, double value) { SetMidiParameter(MidiTargetForParameter(id), GetParam(id)->ToNormalized(value)); };
+  write(kArpEnabled, arp.enabled); write(kArpLatch, arp.latch);
+  write(kArpPattern, arp.pattern); write(kArpResolution, arp.resolution);
+  write(kArpGate, arp.gate); write(kArpTempo, arp.tempo);
+  write(kArpOctaves, arp.octaves); write(kArpSort, arp.sort); write(kArpKeySync, arp.keySync);
+  write(kArpSwing, arp.swing); write(kArpVelocity, arp.velocity); write(kArpKeyboard, arp.keyboard);
+}

@@ -1,0 +1,14 @@
+{
+  "format_version": 1,
+  "source_sha256": "71bf82f1183e36422f31fb253be8a3010435f46d6fb7f3bd35d432116adb557b",
+  "source_offset": 5273488,
+  "record_size": 552,
+  "count": 1280,
+  "files": [
+    {
+      "file": "FactoryPatterns.bin",
+      "bytes": 706560,
+      "sha256": "9941b831e358e83000a332e1315a7a94c9ba962615126021c0c066dddd9f65e8"
+    }
+  ]
+}

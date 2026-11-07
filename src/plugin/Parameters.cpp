@@ -26,13 +26,13 @@ void KrosePlugin::InitializeParameters() {
 
   GetParam(kArpEnabled)->InitBool("Arp", false);
   GetParam(kArpLatch)->InitBool("Arp Latch", false);
-  GetParam(kArpPattern)
-      ->InitEnum("Arp Pattern", 0, 5, "", IParam::kFlagsNone, "", "UP", "DOWN", "ALT 1", "ALT 2",
-                 "RANDOM");
+  GetParam(kArpPattern)->InitEnum("Arp Pattern", 0, segrand::kArpPatternCount);
+  for (int i = 0; i < segrand::kArpPatternCount; ++i)
+    GetParam(kArpPattern)->SetDisplayText(i, segrand::ArpPatternName(i).data());
   GetParam(kArpResolution)
       ->InitEnum("Arp Resolution", 3, 8, "", IParam::kFlagsNone, "", "1/32T", "1/32", "1/16T",
                  "1/16", "1/8T", "1/8", "1/4T", "1/4");
-  GetParam(kArpGate)->InitInt("Arp Gate", 80, 1, 100, "%");
+  GetParam(kArpGate)->InitInt("Arp Gate", 80, 1, 101, "%");
   GetParam(kArpHostSync)->InitBool("Arp Host Sync", true);
   GetParam(kArpTempo)->InitDouble("Arp Tempo", 120, 20, 300, .01, "BPM");
   GetParam(kArpOctaves)->InitInt("Arp Octaves", 1, 1, 4);
@@ -66,18 +66,25 @@ void KrosePlugin::InitializeParameters() {
     GetParam(kFxAmount1 + i)->InitInt(amounts[i], 50, 0, 100, "%");
     const auto slot = std::string(i < 2 ? "IFX " : "MFX ") + std::to_string(i % 2 + 1);
     GetParam(kFxOn1 + i)->InitBool((slot + " On").c_str(), true);
-    const int first = i < 2 ? 0 : segrand::kDepth;
-    const int end = i < 2 ? int(segrand::kDepth) : int(segrand::kFxDetailCount);
+    const int first = 0, end = segrand::kFxDetailCount;
     for (int j = first; j < end; ++j) {
       const auto &spec = segrand::kFxValues[j];
       std::string name = slot + " ";
       if (j < segrand::kThreshold)
         name += "B" + std::to_string(j / 3 + 1) + " ";
       name += spec.label;
-      GetParam(FxDetailParameter(i, j))->InitDouble(name.c_str(), spec.initial, spec.min,
-                                                    spec.max, spec.step, spec.unit);
+      auto *parameter = GetParam(FxDetailParameter(i, j));
+      if (j == segrand::kGraphicType) {
+        parameter->InitEnum(name.c_str(), 0, int(segrand::kGraphicLayouts.size()));
+        for (int layout=0;layout<int(segrand::kGraphicLayouts.size());++layout)
+          parameter->SetDisplayText(layout,segrand::kGraphicLayouts[layout]);
+      } else parameter->InitDouble(name.c_str(), spec.initial, spec.min, spec.max, spec.step, spec.unit);
     }
   }
+
+  GetParam(kArpSwing)->InitInt("Arp Swing", 0, -100, 100, "%");
+  GetParam(kArpVelocity)->InitInt("Arp Velocity", 129, 1, 129);
+  GetParam(kArpKeyboard)->InitBool("Arp Keyboard", false);
 
   // Factory presets contain sound parameters only; controller profiles are global.
   auto preset = [&](const char *name, int tone, int program, double space) {

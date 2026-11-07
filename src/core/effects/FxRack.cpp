@@ -22,6 +22,12 @@ double Smooth(double rate, double ms) noexcept {
 }
 } // namespace
 
+int FxAlgorithm(int type, int slot) noexcept {
+  if (slot < 2) return type;
+  constexpr int types[] = {0,1,11,12,13,14,2,3,4,5,6,7,8,9,10};
+  return type >= 0 && type < int(std::size(types)) ? types[type] : 1;
+}
+
 int ResolveFxType(int type, int slot, bool concert, bool wide) noexcept {
   if (slot < 0 || slot >= 4 || type < 0 ||
       type >= int(slot < 2 ? kInsertTypes.size() : kSendTypes.size()))
@@ -60,10 +66,11 @@ void FxRack::Prepare(double rate) {
     slot.room.reset(concert_effects_create(rate, identity, 1, 1.8, 0, 0, 0));
     if (!slot.room)
       throw std::runtime_error("Could not prepare FX return");
-    slot.delaySize = size_t(std::ceil(rate * .55)) + 2;
+    slot.delaySize = size_t(std::ceil(rate * kFxValues[kDelayLeft].max / 1000)) + 2;
     // valid prevents reads of unwritten cells. Keep unused delay pages untouched.
     slot.delay.reset(new std::array<float, 2>[slot.delaySize]);
     slot.configured.fill(std::numeric_limits<double>::quiet_NaN());
+    slot.processor.configured.fill(std::numeric_limits<double>::quiet_NaN());
   }
   Reset();
 }
@@ -74,6 +81,8 @@ void FxRack::Reset() noexcept {
     slot.amount = slot.targetAmount;
     slot.gain = 1;
     slot.low = {};
+    slot.allpass = {};
+    slot.phase = 0;
     for (auto &band : slot.eq) {
       band.coefficient = band.target;
       band.history = {};
@@ -87,22 +96,30 @@ void FxRack::Reset() noexcept {
     slot.delayRight = slot.targetRight;
     ConfigureRoom(slot);
     concert_effects_reset(slot.room.get());
+    auto &processor = slot.processor;
+    processor.type = processor.target = FxAlgorithm(slot.type, 2);
+    processor.amount = processor.targetAmount = 1;
+    processor.gain = 1; processor.low = {}; processor.allpass = {}; processor.phase = 0;
+    for (auto &band : processor.eq) { band.coefficient = band.target; band.history = {}; }
   }
   mEq = mEqTarget;
 }
 
 void FxRack::ConfigureInsert(InsertSlot &slot, const FxSlot &setting) noexcept {
-  std::array<double, kInsertDetailCount> detail;
-  for (int i = 0; i < kInsertDetailCount; ++i)
+  std::array<double, kFxDetailCount> detail;
+  for (int i = 0; i < kFxDetailCount; ++i)
     detail[i] = Detail(setting, i);
-  if (detail == slot.configured)
+  if (detail == slot.configured && slot.type == slot.target)
     return;
   slot.configured = detail;
-  for (int i = 0; i < 4; ++i) {
-    const double f = std::min(detail[3 * i], mRate * .45);
-    const double a = std::sqrt(Gain(detail[3 * i + 1]));
+  const bool graphic = slot.target == 7;
+  const auto &centers = kGraphicFrequencies[std::clamp(int(detail[kGraphicType]),0,11)];
+  for (int i = 0; i < 7; ++i) {
+    if (!graphic && i >= 4) { slot.eq[i].target = {1,0,0,0,0}; continue; }
+    const double f = std::min(graphic ? centers[i] : detail[3*i], mRate * .45);
+    const double a = std::sqrt(Gain(graphic ? detail[kGraphicGain+i] : detail[3*i+1]));
     const double w = 2 * kPi * f / mRate;
-    const double alpha = std::sin(w) / (2 * detail[3 * i + 2]);
+    const double alpha = std::sin(w) / (2 * (graphic ? 1.4 : detail[3 * i + 2]));
     const double mid = -2 * std::cos(w), norm = 1 + alpha / a;
     slot.eq[i].target = {(1 + alpha * a) / norm, mid / norm, (1 - alpha * a) / norm,
                          -mid / norm, -(1 - alpha / a) / norm};
@@ -114,6 +131,9 @@ void FxRack::ConfigureInsert(InsertSlot &slot, const FxSlot &setting) noexcept {
   slot.release = Smooth(mRate, detail[kRelease]);
   slot.drive = detail[kDrive];
   slot.blend = .035 * (detail[kBlend] / 30);
+  slot.rate = detail[kLfoRate];
+  slot.depth = detail[kDepth] / 100;
+  slot.trim = detail[kFxTrim] / 100;
 }
 
 void FxRack::SetInserts(const FxSettings &settings, bool concert) noexcept {
@@ -147,7 +167,7 @@ void FxRack::Insert(double &left, double &right, const double *autoEqInput) noex
     if (slot.amount < 1e-5 && slot.type != slot.target) {
       slot.type = slot.target;
       slot.gain = 1;
-      slot.low = {};
+      slot.low = {}; slot.allpass = {}; slot.phase = 0;
       for (auto &band : slot.eq) {
         band.coefficient = band.target;
         band.history = {};
@@ -157,8 +177,17 @@ void FxRack::Insert(double &left, double &right, const double *autoEqInput) noex
       mMonitor.Push(unsigned(index), input, left, right);
       continue;
     }
-    if (slot.type == 2) {
-      std::array<double, 2> signal{left, right};
+    ProcessInsert(slot, left, right);
+    if (slot.type == 3 || slot.type == 4)
+      mPeaks[index] = std::max(mPeaks[index], float(std::max(std::abs(left),std::abs(right))));
+    mMonitor.Push(unsigned(index), input, left, right,
+        slot.type == 3 || slot.type == 4 ? 1 - slot.gain : 0);
+  }
+}
+
+void FxRack::ProcessInsert(InsertSlot &slot, double &left, double &right) noexcept {
+    if (slot.type == 2 || slot.type == 7) {
+      std::array<double, 2> signal{left*slot.trim, right*slot.trim};
       for (auto &band : slot.eq) {
         auto &b = band.coefficient;
         for (size_t i = 0; i < b.size(); ++i)
@@ -186,7 +215,6 @@ void FxRack::Insert(double &left, double &right, const double *autoEqInput) noex
       const double gain = 1 + slot.amount * ((compressor ? 1.6 : 1) * slot.gain - 1);
       left *= gain;
       right *= gain;
-      mPeaks[index] = std::max(mPeaks[index], float(std::max(std::abs(left), std::abs(right))));
     } else if (slot.type == 5) {
       left += slot.amount * (std::tanh(slot.drive * left) / 27 - left);
       right += slot.amount * (std::tanh(slot.drive * right) / 27 - right);
@@ -196,9 +224,31 @@ void FxRack::Insert(double &left, double &right, const double *autoEqInput) noex
       left += slot.amount * slot.blend * std::tanh(30 * (left - slot.low[0]));
       right += slot.amount * slot.blend * std::tanh(30 * (right - slot.low[1]));
     }
-    mMonitor.Push(unsigned(index), input, left, right,
-        slot.type == 3 || slot.type == 4 ? 1 - slot.gain : 0);
-  }
+    else if (slot.type >= 8 && slot.type <= 10) {
+      const double wave = std::sin(slot.phase);
+      if (slot.type == 8) {
+        // Six first-order allpasses, stable for the full sweep. State is kept
+        // when parameters move, and cleared only after a type fades to zero.
+        for (int ch = 0; ch < 2; ++ch) {
+          double signal = ch ? right : left;
+          const double hz = 250 * std::exp2(3 * slot.depth * std::sin(slot.phase + ch*.5));
+          const double t = std::tan(kPi * std::min(hz,mRate*.4) / mRate), a = (t-1)/(t+1);
+          for (auto &state : slot.allpass[ch]) {
+            const double output = a*signal+state;
+            state = signal-a*output; signal = output;
+          }
+          auto &output = ch ? right : left;
+          output += .5*slot.amount*(signal-output);
+        }
+      } else if (slot.type == 9) {
+        const double gain = 1-slot.amount*slot.depth*.5*(1+wave);
+        left *= gain; right *= gain;
+      } else {
+        const double pan = wave*slot.amount*slot.depth;
+        left *= 1-std::max(0.,pan); right *= 1+std::min(0.,pan);
+      }
+      slot.phase = std::fmod(slot.phase+2*kPi*slot.rate/mRate,2*kPi);
+    }
 }
 
 void FxRack::ConfigureSend(SendSlot &slot, const FxSlot &setting) noexcept {
@@ -237,9 +287,12 @@ void FxRack::SetReturns(const FxSettings &settings, double space) noexcept {
     const int type = setting.type;
     slot.target = setting.enabled && type >= 2 && type < int(kSendTypes.size()) ? type : 1;
     const double level = std::clamp(Amount(setting) * space, 0., 1.);
-    slot.targetAmount = slot.target == 1 ? 0 : level * (slot.target == 2 ? .64 : slot.target == 3 ? .5 : .9);
-    if (slot.target != 1)
+    slot.targetAmount = slot.target == 1 ? 0 : level * (slot.target == 2 ? .64 : slot.target == 3 ? .5 : slot.target >= 6 ? 1. : .9);
+    if (slot.target != 1) {
       ConfigureSend(slot, setting);
+      slot.processor.target = FxAlgorithm(slot.target, 2);
+      ConfigureInsert(slot.processor, setting);
+    }
   }
 }
 
@@ -249,6 +302,10 @@ void FxRack::RenderSend(SendSlot &slot, const double *input, double *wet, int co
     slot.cursor = slot.valid = 0;
     slot.delayLeft = slot.targetLeft;
     slot.delayRight = slot.targetRight;
+    slot.processor.type = slot.processor.target;
+    slot.processor.amount = 1;
+    slot.processor.gain = 1; slot.processor.low = {}; slot.processor.allpass = {}; slot.processor.phase = 0;
+    for (auto &band : slot.processor.eq) { band.coefficient = band.target; band.history = {}; }
     if (slot.type == 2 || slot.type >= 4) {
       ConfigureRoom(slot);
       concert_effects_reset(slot.room.get());
@@ -258,6 +315,16 @@ void FxRack::RenderSend(SendSlot &slot, const double *input, double *wet, int co
   if (slot.type == 1 || (target == 0 && slot.amount < 1e-5))
     return;
 
+  if (slot.type >= 6) {
+    for (int n = 0; n < count; ++n) {
+      slot.amount += mSmoothing*(target-slot.amount);
+      double left = input[n*2], right = input[n*2+1];
+      ProcessInsert(slot.processor,left,right);
+      // MFX is an independent wet return, so retain its entire processed bus.
+      wet[n*2] += left*slot.amount; wet[n*2+1] += right*slot.amount;
+    }
+    return;
+  }
   if (slot.type == 3) {
     const auto size = slot.delaySize;
     const auto read = [&](double delay, size_t channel) {

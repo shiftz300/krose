@@ -5,6 +5,7 @@
 #include "engine/InstrumentEngine.h"
 #include "midi/ControllerMap.h"
 #include "midi/InputControls.h"
+#include "midi/KeyboardMonitor.h"
 #include <array>
 #include <atomic>
 #include <memory>
@@ -42,6 +43,12 @@ public:
   bool ComparisonReady() const { return mComparisonReady; }
   bool SaveUserPreset(const std::string &path);
   bool LoadUserPreset(const std::string &path);
+  std::array<uint64_t, 2> KeyboardKeys() const noexcept { return mKeyboard.Read(); }
+  std::array<uint64_t, 3> MidiExpression() const noexcept { return mKeyboard.Expression(); }
+  segrand::ProgramEffects FactoryEffects() const noexcept {
+    return mEngine ? mEngine->FactoryEffects(GetParam(kParamProgram)->Int()) : segrand::ProgramEffects{};
+  }
+  void RestoreFactoryArp();
   void EnableVisuals(bool enabled) noexcept { mVisualsEnabled.store(enabled, std::memory_order_relaxed); }
   unsigned ReadFxVisual(unsigned slot, segrand::FxVisualSample *data, unsigned capacity) noexcept {
     return mEngine ? mEngine->ReadVisual(slot, data, capacity) : 0;
@@ -71,6 +78,10 @@ public:
 #endif
 
 private:
+  krose::midi::KeyboardMonitor mKeyboard;
+  void SelectProgramDefaults();
+  void LoadFactoryEffects(int program);
+  std::atomic<int> mDefaultsProgram{0};
   void ApplySound(const std::array<double, kNumParams> &values);
   std::array<double, kNumParams> mComparison{};
   bool mComparisonReady = false, mComparing = false;

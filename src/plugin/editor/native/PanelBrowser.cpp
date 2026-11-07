@@ -31,7 +31,23 @@ void NativePanel::OpenPopup(const Hit &h) {
     mChoices.push_back(std::move(s));
     mChoiceValues.push_back(v);
   };
-  if (h.action == "scale") {
+  if (h.action == "arp-edit") {
+    add("Choose pattern", 0);
+    add("Reset Program ARP", 1);
+    add(Value(kArpKeyboard) ? "Keyboard thru: ON" : "Keyboard thru: OFF", 2);
+  } else if (h.id == kArpPattern && h.action != "arp-pattern-items") {
+    mPopupTarget.action = "arp-families";
+    for (int i = 0; i < int(mArpFamilies.size()); ++i) add(mArpFamilies[i], i);
+  } else if (h.action == "arp-pattern-items") {
+    add("< Categories", -1);
+    for (int i = 0; i <= 1029; ++i) {
+      const std::string name = segrand::ArpPatternName(i).data();
+      const auto family = i < 5 ? "Built-in" : name.substr(0, name.find('-'));
+      if (family == mArpFamilies[mArpFamily]) add(name, i);
+    }
+    auto selected = std::find(mChoiceValues.begin(), mChoiceValues.end(), int(Value(kArpPattern)));
+    mPopupFocus = selected == mChoiceValues.end() ? 0 : int(selected-mChoiceValues.begin());
+  } else if (h.action == "scale") {
     for (int scale : {60, 75, 85, 100, 125, 150})
       add(std::to_string(scale) + "%", scale);
   } else if (h.action == "group" || h.action == "category") {
@@ -59,7 +75,10 @@ void NativePanel::OpenPopup(const Hit &h) {
     mPopupFocus = std::min(maximum, int(Value(h.id)));
   }
   mPopupRows = std::min(12, int(mChoices.size()));
-  if ((h.action == "field" && !IsFxTypeParameter(h.id)) || h.action == "midi-menu") {
+  // Effect types start at y=142 inside the LCD; appended algorithms scroll
+  // through the same seven rows instead of spilling onto the panel below.
+  if (IsFxTypeParameter(h.id)) mPopupRows = std::min(mPopupRows, 7);
+  if ((h.action == "field" && !IsFxTypeParameter(h.id)) || h.action == "midi-menu" || mPopupTarget.action.rfind("arp-",0) == 0) {
     // Keep LCD menus inside the display; scroll when the available side is short.
     float room = std::max(284 - h.r.B - 2, h.r.T - (mControllers ? 140 : 164) - 2);
     mPopupRows = std::min(mPopupRows, std::max(1, int(room / 22)));
@@ -69,7 +88,7 @@ void NativePanel::OpenPopup(const Hit &h) {
   SetDirty(false);
 }
 void NativePanel::Popup(IGraphics &g) {
-  bool lcd = mPopupTarget.action == "field" || mPopupTarget.action == "midi-menu";
+  bool lcd = mPopupTarget.action == "field" || mPopupTarget.action == "midi-menu" || mPopupTarget.action.rfind("arp-",0) == 0;
   const bool effectType = IsFxTypeParameter(mPopupTarget.id);
   const float rowHeight = effectType ? 20 : lcd ? 22 : 26;
   int count = mPopupRows;
