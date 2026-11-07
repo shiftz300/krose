@@ -18,15 +18,6 @@ struct Driver {
   bool sent = false;
   unsigned confirmations = 0;
 };
-BOOL CALLBACK FindFilename(HWND child, LPARAM output) {
-  wchar_t name[64]{}; GetClassNameW(child, name, 64);
-  const int id = GetDlgCtrlID(child), parent = GetDlgCtrlID(GetParent(child));
-  if (std::wstring(name) == L"Edit" && (id == edt1 || parent == cmb13 || id == 1001)) {
-    *reinterpret_cast<HWND *>(output) = child;
-    return FALSE;
-  }
-  return TRUE;
-}
 BOOL CALLBACK Respond(HWND window, LPARAM parameter) {
   auto &driver = *reinterpret_cast<Driver *>(parameter);
   if (!IsWindowVisible(window) || GetAncestor(window, GA_ROOTOWNER) != driver.owner) return TRUE;
@@ -38,19 +29,7 @@ BOOL CALLBACK Respond(HWND window, LPARAM parameter) {
     return TRUE;
   }
   if (driver.sent) return TRUE;
-  auto edit = GetDlgItem(window, edt1);
-  if (!edit) {
-    const auto combo = GetDlgItem(window, cmb13);
-    if (combo) edit = FindWindowExW(combo, nullptr, L"Edit", nullptr);
-  }
-  if (!edit) EnumChildWindows(window, FindFilename, LPARAM(&edit));
-  if (!edit && !driver.cancel) return TRUE;
-  if (edit && !driver.cancel) {
-    SendMessageW(edit, WM_SETTEXT, 0, LPARAM(driver.filename.c_str()));
-    // Explorer stores the file name in its shell view as well as the nested
-    // edit. Notify the combo so IDOK uses the newly supplied Unicode path.
-    SendMessageW(window, WM_COMMAND, MAKEWPARAM(cmb13, CBN_EDITCHANGE), LPARAM(GetParent(edit)));
-  }
+  if (!GetDlgItem(window, IDOK) || !GetDlgItem(window, IDCANCEL)) return TRUE;
   driver.sent = true;
   PostMessageW(window, WM_COMMAND, driver.cancel ? IDCANCEL : IDOK, 0);
   return TRUE;
@@ -72,9 +51,14 @@ std::filesystem::path Select(HWND owner, bool save, const std::filesystem::path 
     if (!finished) EnumThreadWindows(driver.thread, Cancel, LPARAM(owner));
   });
   const auto original = std::filesystem::current_path();
-  const auto result = krose::storage::PresetDialog(owner, save, file.parent_path());
+  std::cout << "Dialog save=" << save << " cancel=" << cancel << std::endl;
+  const auto result = krose::storage::PresetDialog(owner, save, file.parent_path(), file.filename());
   finished = true; automation.join();
-  assert(driver.sent && std::filesystem::current_path() == original);
+  if (!driver.sent) std::cerr << "No file dialog action: save=" << save << " cancel=" << cancel << "\n";
+  assert(driver.sent);
+  if (std::filesystem::current_path() != original)
+    std::cerr << "Changed CWD: " << std::filesystem::current_path().u8string() << "\n";
+  assert(std::filesystem::current_path() == original);
   assert(!save || !std::filesystem::exists(file) || cancel || driver.confirmations > 0);
   return result;
 }

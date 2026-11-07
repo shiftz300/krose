@@ -15,12 +15,13 @@ namespace krose::storage {
 // Used by both APP and VST3. The dialog owns no audio resources and never
 // changes the process working directory. Paths remain UTF-16 until file I/O.
 inline std::filesystem::path PresetDialog(HWND owner, bool save,
-                                         const std::filesystem::path &directory = {}) {
+                                         const std::filesystem::path &directory = {},
+                                         const std::filesystem::path &suggestedName = {}) {
   std::vector<wchar_t> name(32768, L'\0');
-  if (save) {
-    constexpr wchar_t initial[] = L"Untitled.krose";
-    std::copy(std::begin(initial), std::end(initial), name.begin());
-  }
+  const auto initial = suggestedName.empty() ? (save ? std::wstring(L"Untitled.krose") : std::wstring())
+                                              : suggestedName.filename().wstring();
+  if (initial.size() >= name.size()) throw std::runtime_error("Preset filename too long");
+  std::copy(initial.begin(), initial.end(), name.begin());
   const auto folder = directory.wstring();
   OPENFILENAMEW dialog{};
   dialog.lStructSize = sizeof(dialog);
