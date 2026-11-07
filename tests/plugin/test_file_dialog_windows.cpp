@@ -18,6 +18,15 @@ struct Driver {
   bool sent = false;
   unsigned confirmations = 0;
 };
+BOOL CALLBACK FindFilename(HWND child, LPARAM output) {
+  wchar_t name[64]{}; GetClassNameW(child, name, 64);
+  const int id = GetDlgCtrlID(child), parent = GetDlgCtrlID(GetParent(child));
+  if (std::wstring(name) == L"Edit" && (id == edt1 || parent == cmb13 || id == 1001)) {
+    *reinterpret_cast<HWND *>(output) = child;
+    return FALSE;
+  }
+  return TRUE;
+}
 BOOL CALLBACK Respond(HWND window, LPARAM parameter) {
   auto &driver = *reinterpret_cast<Driver *>(parameter);
   if (!IsWindowVisible(window) || GetAncestor(window, GA_ROOTOWNER) != driver.owner) return TRUE;
@@ -34,6 +43,7 @@ BOOL CALLBACK Respond(HWND window, LPARAM parameter) {
     const auto combo = GetDlgItem(window, cmb13);
     if (combo) edit = FindWindowExW(combo, nullptr, L"Edit", nullptr);
   }
+  if (!edit) EnumChildWindows(window, FindFilename, LPARAM(&edit));
   if (!edit && !driver.cancel) return TRUE;
   if (edit && !driver.cancel) SendMessageW(edit, WM_SETTEXT, 0, LPARAM(driver.filename.c_str()));
   driver.sent = true;
