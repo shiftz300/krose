@@ -83,7 +83,7 @@ void NativePanel::Activate(const Hit &h) {
     PresetFile(h.action == "save");
   } else if (h.action == "compare") {
     static_cast<KrosePlugin *>(GetDelegate())->ToggleComparison();
-  } else if (h.action == "scale") {
+  } else if (h.action == "scale" || h.action == "ui-scale") {
     OpenPopup(h);
   } else if (ControllerAction(h)) {
   } else if (h.action == "increment")
@@ -97,7 +97,7 @@ void NativePanel::Activate(const Hit &h) {
   } else if (h.action == "set")
     Set(h.id, h.value);
   else if (h.action == "eg")
-    mEG = int(h.value);
+    Set(kEGTarget, h.value);
   else if (h.action == "page") {
     mPage = int(h.value);
     mSlot = 0;
@@ -169,18 +169,20 @@ void NativePanel::Activate(const Hit &h) {
     } else if (target.action == "arp-pattern-items") {
       if (v < 0) OpenPopup({LCDRect(R(547,168,364,18)), "field", kArpPattern});
       else Set(kArpPattern, v);
-    } else if (target.action == "scale") {
-      const float scale = float(v) / 100;
-#if defined(VST3_API)
+    } else if (target.action == "scale" || target.action == "ui-scale") {
       auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
+      const float scale = plugin->EditorDrawScale(v);
+#if defined(VST3_API)
       const float platform = GetUI()->GetPlatformWindowScale();
-      if (!plugin->EditorResize(int(1472 * scale * platform), int(648 * scale * platform))) {
+      if (!plugin->EditorResize(int(PLUG_WIDTH * scale * platform), int(PLUG_HEIGHT * scale * platform))) {
         mPresetStatus = "HOST DOES NOT ALLOW WINDOW RESIZE";
+        mControllerStatus=mPresetStatus;
         SetDirty(false);
         return;
       }
 #endif
-      GetUI()->Resize(1472, 648, scale);
+      GetUI()->Resize(PLUG_WIDTH, PLUG_HEIGHT, scale);
+      mControllerStatus=plugin->SetEditorScalePercent(v) ? "UI size applied and saved" : "UI size applied / SAVE FAILED";
     } else if (target.action == "group") {
       mGroup = v;
       FilterPrograms();
@@ -248,7 +250,12 @@ void NativePanel::OnMouseDown(float x, float y, const IMouseMod &mod) {
       OpenPopup({R(38, 57, 140, 30), "scale"});
       return;
     }
-    if (mod.R && (h.action == "fx-toggle" || h.action == "fx-add" || h.action == "fx-module")) {
+    const bool middle = !mod.L && !mod.R && !mod.IsTouch();
+    if ((mod.R || middle) && (h.action == "fx-toggle" || h.action == "fx-add" || h.action == "fx-module")) {
+      if (mod.R) {
+        Activate({h.r, "fx-module", -1, h.value});
+        return;
+      }
       // OFF removes the module while retaining its amount and algorithm settings.
       // Empty slots ignore right-click; left-click opens their add menu.
       const int slot = int(h.value);
@@ -257,6 +264,7 @@ void NativePanel::OnMouseDown(float x, float y, const IMouseMod &mod) {
       SetDirty(false);
       return;
     }
+    if (middle) return;
     if (mod.R && h.id >= 0 && h.id < kNumParams &&
         (h.action == "knob" || h.action == "fader" || h.action == "field" || h.action == "toggle" ||
          h.action == "set" || h.action == "edit")) {

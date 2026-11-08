@@ -87,10 +87,18 @@ void NativePanel::Set(int id, double v, bool gesture) {
   if (mParameters.Set(*GetDelegate(), id, v, gesture)) {
     mPresetStatus.clear();
     // Editing an AUTO effect promotes only this slot to its explicit type.
-    if (id >= kFxDetails && !Value(kFxType1 + mSlot) && FxType(mSlot) > 1)
+    if (id >= kFxDetails && id < kEGTarget && !Value(kFxType1 + mSlot) && FxType(mSlot) > 1)
       Set(kFxType1 + mSlot, FxType(mSlot));
     SetDirty(false);
   }
+}
+void NativePanel::OpenFxEditor(unsigned slot) {
+  if (slot>=4) return;
+  FinishEdit();
+  mChoices.clear(); mPresetOpen=false; mBrowsing=false;
+  mControllers=false; mPage=2; mSlot=int(slot); mFxBand=0;
+  mKeyboardFocus=false;
+  SetDirty(false);
 }
 void NativePanel::Refresh(double tempo, bool host, bool loading, bool loadFailed) {
   bool changed = tempo != mTempo || host != mHost || FoldProgress() != mRenderedFold ||
@@ -100,6 +108,14 @@ void NativePanel::Refresh(double tempo, bool host, bool loading, bool loadFailed
   mTempo = tempo;
   mHost = host;
   changed = mParameters.Changed(*GetDelegate()) || changed;
+  if (mControllers && mControllerPage == 2) {
+    const auto buffer = static_cast<KrosePlugin *>(GetDelegate())->AudioBufferSize();
+    changed = changed || buffer != mAudioBuffer;
+    mAudioBuffer = buffer;
+    const auto status = static_cast<KrosePlugin *>(GetDelegate())->ArturiaStatus();
+    changed = changed || status != mArturiaStatus;
+    mArturiaStatus = status;
+  }
   auto &map = static_cast<KrosePlugin *>(GetDelegate())->MidiMappings();
   if (mControllers && (mMapRevision != map.Revision() ||
                        (mControllerPage == 3 && mLastMidi != map.LastMessage()))) {
@@ -327,10 +343,11 @@ void NativePanel::Render(IGraphics &g) {
   HitBox(R(221, 168, 64, 64), "step", -1, 1);
   Button(g, "arp", Value(kArpEnabled) > 0, "toggle", kArpEnabled);
   Button(g, "latch", Value(kArpLatch) > 0, "toggle", kArpLatch);
-  Button(g, "amp", mEG == 0, "eg", -1, 0);
-  Button(g, "filter", mEG == 1, "eg", -1, 1);
+  const bool filterEG = Value(kEGTarget) > 0;
+  Button(g, "amp", !filterEG, "eg", -1, 0);
+  Button(g, "filter", filterEG, "eg", -1, 1);
   for (int i = 0; i < 4; ++i) {
-    int id = (mEG ? kFilterAttack : kAmpAttack) + i;
+    int id = (filterEG ? kFilterAttack : kAmpAttack) + i;
     float cx = 1057 + i * 60, cy = 132 + 135 * (1 -
         Visual("fader:" + std::to_string(i), (Value(id) + 99) / 198, .12, mDrag == id));
     Bitmap(g, "fader-thumb", cx - 20, cy - 14.5);
@@ -410,8 +427,11 @@ void NativePanel::Render(IGraphics &g) {
         const bool empty = FxType(slot) <= 1;
         HitBox(r, empty ? "fx-add" : "fx-toggle", -1, slot);
         if (r.Contains(mMouseX, mMouseY)) {
-          const std::string label = std::string(FxSlots[slot]) + " / " +
-                                    (empty ? "ADD FX" : FxEnabled(slot) ? FxName(slot) : "OFF");
+          const bool dry = !Value(kFxAmount1 + slot) ||
+              (slot >= 2 && !Value(kParamSpace) && !(slot == 2 && !Value(kFxType3)));
+          const std::string state = empty ? "ADD FX" : !Value(kFxOn1 + slot) ? "OFF" :
+              Value(kFXBypass) ? "BYPASS" : dry ? FxName(slot) + " / DRY" : FxName(slot);
+          const std::string label = std::string(FxSlots[slot]) + " / " + state;
           float width = TextWidth("mono10", label) + 14;
           auto box = R(r.L, r.B + 3, width, 23);
           g.FillRoundRect(IColor(255, 34, 50, 47), box, 2);

@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-基于 iPlug2 的 KROSS 2 采样乐器，提供 macOS arm64 VST3 和独立程序。当前接入 1,161 个出厂／GM／扩展 Program，另保留 Concert 兼容入口；原厂分类顺序与固定尺寸界面共用同一套目录和源码。
+基于 iPlug2 的 KROSS 2 采样乐器，提供 macOS Universal 和 Windows x64 的 VST3 与独立程序。当前接入 1,161 个出厂／GM／扩展 Program，另保留 Concert 兼容入口；原厂分类顺序与可缩放的原生界面共用同一套目录和源码。
 
 ![选中 A000 Kross Grand Piano 1 的 Krose 原生主界面](docs/screenshots/krose-main.webp)
 
@@ -11,6 +11,8 @@
 | [![支持搜索、筛选和收藏的音色浏览器](docs/screenshots/krose-browser.webp)](docs/screenshots/krose-browser.webp) | [![四个 FX 槽位和 LCD 中的 Hall 混响参数](docs/screenshots/krose-fx.webp)](docs/screenshots/krose-fx.webp) |
 
 原生界面使用 IGraphics／NanoVG。采样按当前音色在后台加载，近期缓存与仍在发声的旧音符共享采样；切换期间保留播放。机制、内存实测和效果优化见 [采样加载](docs/SAMPLES.md)。
+
+KeyLab Essential mk3 可在独立版和 Ableton Live 中使用音色／参数屏幕、RGB FX 按钮及硬件映射，详见[控制器设置](docs/CONTROLLERS.md)。发行包另附 Ableton 控制脚本 ZIP。界面尺寸与独立版音频缓冲可在 LCD 的 `CTRL → INPUT` 页调整。
 
 原始固件和研究代码独立保存于 [krose-source](https://github.com/shiftz300/krose-source)。产品保留冻结运行资源、测试夹具及原生界面资源；普通构建不依赖研究目录。
 

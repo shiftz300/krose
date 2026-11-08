@@ -1,0 +1,336 @@
+{
+  "id": "application/vnd.ableton.plugin-configuration",
+  "version": "1.0",
+  "device-id": "device:vst3:instr:f2aee70d-00de-4f4e-4c6f-634953654731?n=Krose",
+  "mpe-enabled": false,
+  "mpe-settings": {
+    "zone-type": 0,
+    "first-note-channel": 1,
+    "last-note-channel": 15
+  },
+  "groups": [
+    {
+      "name": "Default",
+      "parameters": [
+        {
+          "name": "Tone",
+          "id": 0,
+          "x-slot": 0,
+          "y-slot": 0
+        },
+        {
+          "name": "Output",
+          "id": 1,
+          "x-slot": 0,
+          "y-slot": 1
+        },
+        {
+          "name": "Space",
+          "id": 2,
+          "x-slot": 0,
+          "y-slot": 2
+        },
+        {
+          "name": "Release",
+          "id": 3,
+          "x-slot": 0,
+          "y-slot": 3
+        },
+        {
+          "name": "Velocity",
+          "id": 4,
+          "x-slot": 1,
+          "y-slot": 0
+        },
+        {
+          "name": "Program",
+          "id": 5,
+          "x-slot": 1,
+          "y-slot": 1
+        },
+        {
+          "name": "Pan",
+          "id": 6,
+          "x-slot": 1,
+          "y-slot": 2
+        },
+        {
+          "name": "Cutoff",
+          "id": 7,
+          "x-slot": 1,
+          "y-slot": 3
+        },
+        {
+          "name": "Resonance",
+          "id": 8,
+          "x-slot": 2,
+          "y-slot": 0
+        },
+        {
+          "name": "Amp Attack",
+          "id": 9,
+          "x-slot": 2,
+          "y-slot": 1
+        },
+        {
+          "name": "Amp Decay",
+          "id": 10,
+          "x-slot": 2,
+          "y-slot": 2
+        },
+        {
+          "name": "Amp Sustain",
+          "id": 11,
+          "x-slot": 2,
+          "y-slot": 3
+        },
+        {
+          "name": "Amp Release",
+          "id": 12,
+          "x-slot": 3,
+          "y-slot": 0
+        },
+        {
+          "name": "Filter Attack",
+          "id": 13,
+          "x-slot": 3,
+          "y-slot": 1
+        },
+        {
+          "name": "Filter Decay",
+          "id": 14,
+          "x-slot": 3,
+          "y-slot": 2
+        },
+        {
+          "name": "Filter Sustain",
+          "id": 15,
+          "x-slot": 3,
+          "y-slot": 3
+        },
+        {
+          "name": "Filter Release",
+          "id": 16,
+          "x-slot": 4,
+          "y-slot": 0
+        },
+        {
+          "name": "Voice Mode",
+          "id": 17,
+          "x-slot": 4,
+          "y-slot": 1
+        },
+        {
+          "name": "Glide",
+          "id": 18,
+          "x-slot": 4,
+          "y-slot": 2
+        },
+        {
+          "name": "Arp",
+          "id": 19,
+          "x-slot": 4,
+          "y-slot": 3
+        },
+        {
+          "name": "Arp Latch",
+          "id": 20,
+          "x-slot": 5,
+          "y-slot": 0
+        },
+        {
+          "name": "Arp Pattern",
+          "id": 21,
+          "x-slot": 5,
+          "y-slot": 1
+        },
+        {
+          "name": "Arp Resolution",
+          "id": 22,
+          "x-slot": 5,
+          "y-slot": 2
+        },
+        {
+          "name": "Arp Gate",
+          "id": 23,
+          "x-slot": 5,
+          "y-slot": 3
+        },
+        {
+          "name": "Arp Host Sync",
+          "id": 24,
+          "x-slot": 6,
+          "y-slot": 0
+        },
+        {
+          "name": "Arp Tempo",
+          "id": 25,
+          "x-slot": 6,
+          "y-slot": 1
+        },
+        {
+          "name": "Arp Octaves",
+          "id": 26,
+          "x-slot": 6,
+          "y-slot": 2
+        },
+        {
+          "name": "Arp Sort",
+          "id": 27,
+          "x-slot": 6,
+          "y-slot": 3
+        },
+        {
+          "name": "Arp Key Sync",
+          "id": 28,
+          "x-slot": 7,
+          "y-slot": 0
+        },
+        {
+          "name": "SW1 Assign",
+          "id": 29,
+          "x-slot": 7,
+          "y-slot": 1
+        },
+        {
+          "name": "SW1 Mode",
+          "id": 30,
+          "x-slot": 7,
+          "y-slot": 2
+        },
+        {
+          "name": "SW1",
+          "id": 31,
+          "x-slot": 7,
+          "y-slot": 3
+        },
+        {
+          "name": "SW2 Assign",
+          "id": 32,
+          "x-slot": 8,
+          "y-slot": 0
+        },
+        {
+          "name": "SW2 Mode",
+          "id": 33,
+          "x-slot": 8,
+          "y-slot": 1
+        },
+        {
+          "name": "SW2",
+          "id": 34,
+          "x-slot": 8,
+          "y-slot": 2
+        },
+        {
+          "name": "MIDI Input Channel",
+          "id": 35,
+          "x-slot": 8,
+          "y-slot": 3
+        },
+        {
+          "name": "MIDI Program Change",
+          "id": 36,
+          "x-slot": 9,
+          "y-slot": 0
+        },
+        {
+          "name": "Clock Source",
+          "id": 37,
+          "x-slot": 9,
+          "y-slot": 1
+        },
+        {
+          "name": "FX Bypass",
+          "id": 38,
+          "x-slot": 9,
+          "y-slot": 2
+        },
+        {
+          "name": "IFX 1 Type",
+          "id": 39,
+          "x-slot": 9,
+          "y-slot": 3
+        },
+        {
+          "name": "IFX 2 Type",
+          "id": 40,
+          "x-slot": 10,
+          "y-slot": 0
+        },
+        {
+          "name": "MFX 1 Type",
+          "id": 41,
+          "x-slot": 10,
+          "y-slot": 1
+        },
+        {
+          "name": "MFX 2 Type",
+          "id": 42,
+          "x-slot": 10,
+          "y-slot": 2
+        },
+        {
+          "name": "IFX 1 Amount",
+          "id": 43,
+          "x-slot": 10,
+          "y-slot": 3
+        },
+        {
+          "name": "IFX 2 Amount",
+          "id": 44,
+          "x-slot": 11,
+          "y-slot": 0
+        },
+        {
+          "name": "MFX 1 Send",
+          "id": 45,
+          "x-slot": 11,
+          "y-slot": 1
+        },
+        {
+          "name": "MFX 2 Send",
+          "id": 46,
+          "x-slot": 11,
+          "y-slot": 2
+        },
+        {
+          "name": "IFX 1 On",
+          "id": 47,
+          "x-slot": 11,
+          "y-slot": 3
+        },
+        {
+          "name": "IFX 2 On",
+          "id": 48,
+          "x-slot": 12,
+          "y-slot": 0
+        },
+        {
+          "name": "MFX 1 On",
+          "id": 49,
+          "x-slot": 12,
+          "y-slot": 1
+        },
+        {
+          "name": "MFX 2 On",
+          "id": 50,
+          "x-slot": 12,
+          "y-slot": 2
+        },
+        {
+          "name": "EG Target",
+          "id": 194,
+          "x-slot": 12,
+          "y-slot": 3
+        },
+        {
+          "name": "FX Edit",
+          "id": 195,
+          "x-slot": 13,
+          "y-slot": 0
+        }
+      ]
+    }
+  ]
+}

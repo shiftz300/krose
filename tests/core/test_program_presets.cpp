@@ -16,6 +16,10 @@ int main(int argc,char**argv) {
   assert(fx.sourceSlots[0]==0&&fx.sourceSlots[1]==1);
   assert(std::abs(fx.slots[3].detail[kDecay]-1.8)<1e-12);
   assert(fx.slots[3].amount>0&&fx.slots[3].amount<10);
+  const auto bells=ProgramEffects::Decode(bank->programs[find("B094")].controls.data());
+  assert((bells.sourceIDs==std::array<int,4>{8,0,69,106}));
+  assert(bells.slots[2].detail[kLfoRate]==1. && bells.slots[2].detail[kDepth]==15.25);
+  assert(bells.slots[3].detail[kDecay]==3.6);
   // A native Graphic7EQ can occupy MFX, with all seven signed gains intact.
   auto raw=bank->programs[find("A000")].controls;
   auto *payload=raw.data()+0x194;

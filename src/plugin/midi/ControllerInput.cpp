@@ -1,4 +1,6 @@
 #include "../KrosePlugin.h"
+#include "KeyLabEssential.h"
+#include "KeyLabParameters.h"
 #include <algorithm>
 using namespace krose::midi;
 #if defined(VST3_API)
@@ -36,6 +38,7 @@ void KrosePlugin::SetMidiParameter(unsigned id, double normalized) {
   p->SetNormalized(std::clamp(normalized, 0., 1.));
   if (p->GetNormalized() == before)
     return;
+  mHardwareParameter.store(int(id), std::memory_order_relaxed);
   if (id == kParamProgram)
     mComparisonNeedsCapture.store(true, std::memory_order_relaxed);
   OnParamChange(id, kDelegate, 0);
@@ -85,6 +88,72 @@ void KrosePlugin::HandleControllerMidi(Message m, const int &position, RenderTo 
     mMidiClock.Process(m, mInputSamples + uint64_t(m.offset), GetSampleRate());
   }
 #endif
+  // Only the standalone's selected, positively matched mk3 input can use this
+  // map. VST3 delegates controller ownership to Live's remote script.
+#if defined(APP_API)
+  if (mArturiaConnected.load(std::memory_order_relaxed)) {
+    using namespace krose::midi::essential;
+    const auto control = Decode(m.status, m.data1);
+    if (control.kind != Kind::None) {
+      const int program = GetParam(kParamProgram)->Int();
+      const bool filterEG = GetParam(kEGTarget)->Bool();
+      if (program != mPickupProgram) { mArturiaPickup.Reset(); mPickupProgram = program; }
+      if (int(filterEG) != mPickupEG) { mArturiaPickup.Reset(0,8); mPickupEG = int(filterEG); }
+      auto set = [&](int id, double value) {
+        renderTo(m.offset);
+        SetMidiParameter(MidiTargetForParameter(id), value);
+        ConfigureAudio(position);
+      };
+      if (control.kind == Kind::Knob) {
+        mHardwareControlTouched.store(true, std::memory_order_relaxed);
+        if (control.index == 1) {
+          int steps = ProgramKnobDelta(m.data2, mHardwareValuePosition.exchange(m.data2));
+          int next = program;
+          for (int i = 0; i < std::abs(steps) && unsigned(next) < mNextPrograms.size(); ++i)
+            next = steps > 0 ? mNextPrograms[next] : mPreviousPrograms[next];
+          if (steps) set(kParamProgram, GetParam(kParamProgram)->ToNormalized(next));
+        } else if (kKnobControls[control.index].parameter >= 0)
+          set(kKnobControls[control.index].parameter, m.data2 / 127.);
+      }
+      if (control.kind == Kind::Fader) {
+        mHardwareControlTouched.store(true, std::memory_order_relaxed);
+        int id = FaderParameter(control.index, filterEG);
+        const auto *p = GetParam(id);
+        if (mArturiaPickup.Accept(control.index, m.data2 / 127., p->GetNormalized())) {
+          set(id, m.data2 / 127.);
+          mArturiaPickup.Applied(control.index, p->GetNormalized());
+        }
+      }
+      if (control.kind == Kind::Program && Relative(m.data2)) {
+        if (unsigned(program) < mNextPrograms.size())
+          set(kParamProgram, GetParam(kParamProgram)->ToNormalized(Relative(m.data2) > 0 ? mNextPrograms[program] : mPreviousPrograms[program]));
+      }
+      if (control.kind == Kind::FxEdit) {
+        if (mFxButtonProgram!=program) { mArturiaFxButtons.Reset(); mFxButtonProgram=program; }
+        const auto action=mArturiaFxButtons.Input(control.index,m.data2!=0,
+            (mInputSamples+uint64_t(m.offset))/GetSampleRate());
+        if (action==FxPressAction::Edit) RequestFxEditor(control.index);
+        if (action==FxPressAction::Toggle) {
+          const unsigned slot=control.index;
+          const bool concert=program==0;
+          if (segrand::ResolveFxType(GetParam(kFxType1+slot)->Int(),slot,concert,
+              concert && GetParam(kParamTone)->Int()==2)>1)
+            set(kFxOn1+slot,GetParam(kFxOn1+slot)->Bool() ? 0 : 1);
+        }
+      }
+      if (control.kind == Kind::Pad) {
+        const int id = kPadParameters[control.index];
+        const bool down = type == 0x90 && m.data2;
+        if (control.index >= 6 && GetParam(id - 1)->Bool()) {
+          mArturiaHeld[control.index - 6] = down;
+          set(id, down ? 1 : 0);
+        }
+        else if (down) set(id, GetParam(id)->Bool() ? 0 : 1);
+      }
+      return;
+    }
+  }
+#endif
   const int filter = GetParam(kInputChannel)->Int();
   if (type < 0xf0 && filter && filter != int(ch + 1))
     return;
@@ -127,6 +196,14 @@ void KrosePlugin::ConfigureAudio(int offset) {
   const auto generation = mSoundGeneration.load(std::memory_order_acquire);
   if (uint32_t(generation)) return;
   mEngine->EnableMonitoring(mVisualsEnabled.load(std::memory_order_relaxed));
+#if defined(APP_API)
+  if (!mArturiaConnected.load(std::memory_order_relaxed))
+    for (unsigned i = 0; i < mArturiaHeld.size(); ++i)
+      if (mArturiaHeld[i]) {
+        mArturiaHeld[i] = false;
+        SetMidiParameter(MidiTargetForParameter(kSW1State + int(i) * 3), 0);
+      }
+#endif
   mMidiMap.Synchronize([&](unsigned target, double value) { SetMidiParameter(target, value); });
   ApplySwitches();
   const int filter = GetParam(kInputChannel)->Int();
@@ -323,6 +400,21 @@ void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
     }
   };
   applyThrough(0);
+#endif
+#if defined(APP_API)
+  const int fxProgram=GetParam(kParamProgram)->Int();
+  if (!mArturiaConnected.load(std::memory_order_relaxed) || mFxButtonProgram!=fxProgram) {
+    mArturiaFxButtons.Reset();mFxButtonProgram=fxProgram;
+  }
+  const unsigned fxHeld=mArturiaFxButtons.Tick(mInputSamples/GetSampleRate());
+  for (unsigned slot=0;slot<4;++slot) if (fxHeld & (1u<<slot)) {
+    const bool concert=fxProgram==0;
+    if (segrand::ResolveFxType(GetParam(kFxType1+slot)->Int(),slot,concert,
+        concert && GetParam(kParamTone)->Int()==2)>1) {
+      const int id=kFxOn1+slot;
+      SetMidiParameter(MidiTargetForParameter(id),GetParam(id)->Bool() ? 0 : 1);
+    }
+  }
 #endif
   ConfigureAudio(0);
   for (unsigned i = 0; i < count; ++i) {

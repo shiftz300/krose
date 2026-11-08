@@ -1,5 +1,13 @@
 # CI 与安装包发行
 
+## 0.4.1
+
+- 插件公开厂商名统一为 `maincore`，Windows 安装器与 Ableton 参数配置目录同步更新；保留原有插件 ID 和安装包标识，旧工程继续使用同一插件。
+- KeyLab Essential mk3 独立版与 Ableton 集成：音色／参数屏幕、RGB 灯、七个旋钮、包络推子及四键 FX 编辑入口；短按编辑，长按约 0.6 秒切换开关。
+- AMP／FILTER 选择同步硬件目标和屏幕字段；新增可保存的 UI SIZE 控件及独立版 BUFFER 控件。
+- 修复密集 MIDI 时间戳累积、推子重复拾取和 FX 鼠标交互；修正 B094 的 Chorus LFO／深度转换。
+- Release 同时提供 Ableton 控制脚本 ZIP。安装器仍采用现有签名策略，升级与实物验证范围见 [控制器说明](CONTROLLERS.md)。
+
 ## 0.4.0
 
 本版包含音色电平与播放边界修复、原厂 FX／ARP 配置随音色恢复、1,280 条用户琶音、扩展四槽效果、实时 ADSR 与 MIDI 显示，以及独立程序的 MIDI 自动选择与设备列表刷新。新增参数保留旧 ID，旧宿主状态与 `.krose` 文件可迁移。独立版自带资源，可以直接试音；剩余算法差异见 [完成度](STATUS.md)。
@@ -19,7 +27,7 @@ Actions 另提供 `Krose-windows-x64-standalone` 与 `Krose-macos-universal-stan
 
 CI 在临时目录完整解压 ZIP，以 `--no-io --screenshot screenshot.png` 启动，检查原生界面截图，避免打开 CI 的音频／MIDI 设备；macOS 同时核对签名和 Universal 架构。便携版优先使用包内采样，不依赖已安装的共享资源。
 
-本地打包：`python3 tools/release/package_standalone.py --input build/plugin/out --output dist --version 0.4.0 --platform macos-arm64 --smoke`。Windows 指定 `--platform windows-x64`；合并后的 macOS 产物指定 `macos-universal`。
+本地打包：`python3 tools/release/package_standalone.py --input build/plugin/out --output dist --version 0.4.1 --platform macos-arm64 --smoke`。Windows 指定 `--platform windows-x64`；合并后的 macOS 产物指定 `macos-universal`。
 
 ## 首次接入完整资源
 
@@ -40,11 +48,13 @@ CI 从锁文件读取标签、文件名及 SHA-256。归档工具仍支持旧 PC
 
 ## 发布
 
+标签触发编译、回归、打包与发布，无需单独上传安装包。重跑同一版本时，在全部构建成功后替换 Release 的同名文件并重新生成校验和。
+
 先在普通分支确认完整安装包构建成功，再推送与代码版本一致的标签：
 
 ```sh
-git tag -a v0.4.0 -m 'Krose 0.4.0'
-git push origin v0.4.0
+git tag -a v0.4.1 -m 'Krose 0.4.1'
+git push origin v0.4.1
 ```
 
 Windows NSIS 默认安装独立程序到 `Program Files\Krose`、VST3 到 `Common Files\VST3\Krose.vst3`，支持组件选择、开始菜单、系统卸载及 `/S` 静默安装；采样共用 `Common Files\Krose\Samples\版本号`，卸载保留用户收藏。macOS PKG 安装到 `/Applications/Krose.app` 和 `/Library/Audio/Plug-Ins/VST3/Krose.vst3`，关闭 bundle 重定位，采样共用 `/Library/Application Support/Krose/Samples/版本号`。便携 bundle 优先使用内置采样，安装版也可用 `KROSE_SAMPLE_DIRECTORY` 指定自定义位置。
@@ -61,4 +71,4 @@ PGO 只用于 Release 核心。Debug 和 Sanitizer 不使用 PGO；Sanitizer 也
 
 macOS 各架构独立训练，直接配置 `arm64;x86_64` 时启用 PGO 会报错。CI 使用 `macos-15`（arm64）和 `macos-15-intel`（x86_64）生成原生 bundle，再调用 `tools/release/merge_macos.py` 合成 Universal，最后重新签名、校验。
 
-复测：`cmake --preset plugin && cmake --build --preset plugin && ctest --preset plugin`。本机构建 PKG：`bash tools/release/package_macos.sh build/plugin 0.4.0`。
+复测：`cmake --preset plugin && cmake --build --preset plugin && ctest --preset plugin`。本机构建 PKG：`bash tools/release/package_macos.sh build/plugin 0.4.1`。

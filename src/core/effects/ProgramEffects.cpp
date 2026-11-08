@@ -18,6 +18,11 @@ int Raw(const uint8_t *payload, const effect_data::Field &f) noexcept {
 }
 double Display(int value, uint32_t display) noexcept {
   switch(display) {
+  // Native v1.2.4 0x7457c -> 0x745b8: hundredths of Hz, three linear ranges.
+  // The descriptor stores an index; interpreting it as Hz hits the host ceiling.
+  case 0x745b8:return (value<=40 ? 2*value : value<=52 ? 10*value-320 : 100*value-5000)/100.;
+  // Native 0x97bf4 -> 0x746b4: samples at 48 kHz, formatted as milliseconds.
+  case 0x746b4:return value<=99 ? value : 10*value-900;
   case 0x7624c:return value*10+20;
   case 0x7625c:return value*10+50;
   case 0x7626c:return value*100+300;
@@ -59,7 +64,8 @@ int HostType(int id, bool send) noexcept {
 void Parameters(FxSlot &slot, const uint8_t *payload, int id) noexcept {
   if(id<=0||id>=int(effect_data::kEffects.size())||slot.type<=1)return;
   const auto &definition=effect_data::kEffects[id];
-  unsigned frequency=0, q=0, gain=0, graphic=0;
+  unsigned frequency=0, q=0, gain=0, graphic=0, tapCount=0;
+  double tapDepth=0;
   for(unsigned i=0;i<definition.count;++i) {
     const auto &f=effect_data::kFields[definition.first+i];
     const std::string_view label(f.label);
@@ -83,6 +89,7 @@ void Parameters(FxSlot &slot, const uint8_t *payload, int id) noexcept {
     if(label=="Drive:"||label=="1 Saturate:")slot.detail[kDrive]=value;
     if(label=="Blend:")slot.detail[kBlend]=std::abs(value);
     if(label=="Depth:")slot.detail[kDepth]=value;
+    if(id==69 && label=="Dep:") { tapDepth+=value; ++tapCount; }
     if(label=="LFO [Hz]:"||label=="Speed[Hz]:")slot.detail[kLfoRate]=std::abs(value);
     if(label=="L Dly[ms]:")slot.detail[kDelayLeft]=value;
     if(label=="R Dly[ms]:")slot.detail[kDelayRight]=value;
@@ -90,6 +97,9 @@ void Parameters(FxSlot &slot, const uint8_t *payload, int id) noexcept {
     if(label=="Time [s]:")slot.detail[kDecay]=value;
     if(label=="HiDamp[%]:")slot.detail[kHiDamp]=value;
   }
+  // Four independent tap depths are represented by one depth in the current
+  // chorus approximation. Preserve their mean instead of the unrelated default.
+  if(tapCount) slot.detail[kDepth]=tapDepth/tapCount;
   for(int i=0;i<kFxDetailCount;++i)slot.detail[i]=std::clamp(slot.detail[i],kFxValues[i].min,kFxValues[i].max);
   slot.amount=std::clamp(slot.amount,0.,100.);
 }

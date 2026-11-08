@@ -54,6 +54,7 @@ struct Device {
 struct Driver {
   bool running = false, open = false, fail = false;
   unsigned closed = 0, aborted = 0;
+  unsigned rejectBuffer = 0, roundBuffer = 0;
   std::vector<Device> devices;
   bool isStreamOpen() { return open; }
   bool isStreamRunning() { return running; }
@@ -95,6 +96,8 @@ struct IPlugAPPHost {
   void ProbeMidiIO() {}
   void RefreshMidiPreferences() {}
   unsigned mVecWait = 1, mRecoveryOutput = 0, starts = 0;
+  unsigned mBufferSize = 64, saves = 0;
+  void UpdateINI() { ++saves; }
   double mSampleRate = 48000;
   struct { Name mAudioInDev{""}, mAudioOutDev{"USB"}, mMidiInDev{"Keyboard"}; unsigned mAudioSR = 48000, mBufferSize = 64; } mState;
   std::optional<unsigned> mDefaultInputDev, mDefaultOutputDev;
@@ -121,9 +124,10 @@ struct IPlugAPPHost {
     mDefaultOutputDev.reset();
     if (!mDAC->devices.empty()) mDefaultOutputDev = mDAC->devices.front().id;
   }
-  bool InitAudio(unsigned, unsigned output, unsigned rate, unsigned) {
+  bool InitAudio(unsigned, unsigned output, unsigned rate, unsigned frames) {
     ++starts;
-    if (mDAC->fail) return false;
+    if (mDAC->fail || frames == mDAC->rejectBuffer) return false;
+    mBufferSize = mDAC->roundBuffer ? mDAC->roundBuffer : frames;
     mDAC->open = mDAC->running = true;
     mSampleRate = rate;
     mRecoveryOutput = output;
@@ -137,6 +141,7 @@ struct IPlugAPPHost {
   void PollMidi();
   bool SelectMIDIDevice(ERoute, const char *);
   bool TryToChangeAudio();
+  bool SetAudioBufferSize(unsigned);
   static int AudioCallback(void *, void *, uint32_t, double, RtAudioStreamStatus, void *);
   static void MIDICallback(double, std::vector<uint8_t> *, void *);
   static void ErrorCallback(RtAudioErrorType, const std::string &);
@@ -145,6 +150,20 @@ std::unique_ptr<IPlugAPPHost> IPlugAPPHost::sInstance;
 #include "standalone/HostCallbacks.inc"
 
 int main() {
+  IPlugAPPHost buffers;
+  buffers.mDAC->devices = {{1, "USB"}};
+  assert(buffers.TryToChangeAudio());
+  assert(buffers.SetAudioBufferSize(128) && buffers.mBufferSize == 128 && buffers.saves == 1);
+  const auto starts = buffers.starts;
+  assert(buffers.SetAudioBufferSize(128) && buffers.starts == starts);
+  assert(!buffers.SetAudioBufferSize(127) && buffers.starts == starts);
+  buffers.mDAC->rejectBuffer = 32;
+  assert(!buffers.SetAudioBufferSize(32) && buffers.mDAC->running &&
+         buffers.mState.mBufferSize == 128 && buffers.saves == 1);
+  buffers.mDAC->roundBuffer = 128;
+  assert(buffers.SetAudioBufferSize(96) && buffers.mState.mBufferSize == 128 && buffers.saves == 2);
+  buffers.mNoIO = true;
+  assert(!buffers.SetAudioBufferSize(256));
   IPlugAPPHost host;
   IPlugAPPHost noMidi;
   noMidi.mMidiIn.reset();

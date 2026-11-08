@@ -1,6 +1,7 @@
 #include "../../KrosePlugin.h"
 #include "NativePanel.h"
 #include "PanelDrawing.h"
+#include "../../standalone/AudioSettings.h"
 namespace krose::ui {
 using namespace detail;
 using namespace krose::midi;
@@ -35,7 +36,7 @@ void NativePanel::ControllerCell(IGraphics &g, const std::string &text, IRECT r,
   r = LCDRect(r);
   g.FillRect(selected ? Ink : Paper, r);
   LCDFrame(g, r);
-  const bool choice = action == "field" || action == "midi-menu";
+  const bool choice = action == "field" || action == "midi-menu" || action == "ui-scale";
   if (choice)
     LCDChevron(g, r, selected ? Paper : Ink);
   g.PathClipRegion(R(r.L + 3, r.T + 3, r.W() - (choice ? 25 : 6), r.H() - 6));
@@ -117,32 +118,43 @@ void NativePanel::Controllers(IGraphics &g) {
     ControllerCell(g,
                    "USER " + std::to_string(p->MidiProfile() + 1) +
                        (ControllerHash() != mStoredMapping ? " *" : ""),
-                   R(438, 144, 173, 27), "midi-menu", 5);
-    ControllerCell(g, "STORE", R(622, 144, 101, 27), "map-store");
+                   R(438, 144, 173, 24), "midi-menu", 5);
+    ControllerCell(g, "STORE", R(622, 144, 101, 24), "map-store");
     ControllerCell(g,
                    Value(kInputChannel) ? "INPUT CH " + Format(Value(kInputChannel)) : "INPUT OMNI",
-                   R(734, 144, 228, 27), "field", kInputChannel);
+                   R(734, 144, 228, 24), "field", kInputChannel);
     auto enumText = [&](int id) {
       auto *v = p->GetParam(id);
       return std::string(v->GetDisplayText(v->Int()));
     };
-    ControllerCell(g, "CLOCK: " + enumText(kClockSource), R(438, 181, 253, 27), "field",
+    ControllerCell(g, "CLOCK: " + enumText(kClockSource), R(438, 174, 253, 24), "field",
                    kClockSource);
 #if defined(APP_API)
-    ControllerCell(g, "PGM: " + enumText(kProgramChange), R(702, 181, 260, 27), "field",
+    ControllerCell(g, "PGM: " + enumText(kProgramChange), R(702, 174, 260, 24), "field",
                    kProgramChange);
 #else
-    ControllerCell(g, "PGM: HOST / DAW", R(702, 181, 260, 27), "controller-pgm-info");
+    ControllerCell(g, "PGM: HOST / DAW", R(702, 174, 260, 24), "controller-pgm-info");
 #endif
-    ControllerCell(g, "STANDARD CC", R(438, 220, 166, 27), "map-standard");
-    ControllerCell(g, "CLEAR MAP", R(615, 220, 157, 27), "map-clear-all");
-    ControllerCell(g, "PANIC", R(783, 220, 179, 27), "panic");
-    Text(g, "lcd13",
+    const unsigned buffer = p->AudioBufferSize();
+#if defined(APP_API)
+    const double ms = p->AudioRate() > 0 ? buffer * 1000. / p->AudioRate() : 0;
+    ControllerCell(g, buffer ? "BUFFER: " + std::to_string(buffer)+" / "+Format(ms,2)+"ms" : "BUFFER: AUDIO OFF",
+                   R(438, 204, 253, 24), buffer ? "midi-menu" : "", 6);
+#else
+    ControllerCell(g, "BUFFER: HOST / DAW", R(438, 204, 253, 24), "controller-buffer-info");
+#endif
+    const int scale=int(std::lround(GetUI()->GetDrawScale()*100));
+    ControllerCell(g,"UI SIZE: "+std::string(p->EditorScalePercent() ? "" : "AUTO ")+std::to_string(scale)+"%",
+                   R(702,204,260,24),"ui-scale");
+    ControllerCell(g, "STANDARD CC", R(438, 234, 166, 24), "map-standard");
+    ControllerCell(g, "CLEAR MAP", R(615, 234, 157, 24), "map-clear-all");
+    ControllerCell(g, "PANIC", R(783, 234, 179, 24), "panic");
+    ControllerCell(g,
          p->MidiSettingsError() ? "SAVE FAILED - check settings file permissions"
          : mControllerStatus.empty()
-             ? "STORE saves this map for other projects. DAW saves its own copy."
+             ? p->ArturiaStatus()
              : mControllerStatus,
-         R(438, 259, 531, 20));
+         R(438, 264, 524, 19), "controller-arturia");
   } else {
     uint32_t rx = map.LastMessage();
     unsigned s = rx & 255, a = (rx >> 8) & 127, b = (rx >> 16) & 127;
@@ -153,7 +165,7 @@ void NativePanel::Controllers(IGraphics &g) {
                            "Learn captures first message without changing sound.",
                            "Relative modes follow the keyboard's encoder setting.",
                            "Chord / scale / arp notes work as normal MIDI notes.",
-                           "Right-click FX for UI size; MCU / HUI uses the DAW."};
+                           "INPUT > UI SIZE changes the window; FX right-click also works."};
     for (int i = 0; i < 5; ++i)
       Text(g, "lcd13", lines[i], R(438, 175 + 20 * i, 530, 19));
   }
@@ -202,6 +214,12 @@ void NativePanel::ControllerMenu(const Hit &h) {
       add("USER " + std::to_string(i + 1), i);
     mPopupFocus = p->MidiProfile();
   }
+  if (h.id == 6) {
+    for (unsigned frames : krose::standalone::kBufferSizes) {
+      if (frames == p->AudioBufferSize()) mPopupFocus = int(mChoices.size());
+      add(std::to_string(frames) + " SAMPLES", int(frames));
+    }
+  }
   const float room = std::max(284 - h.r.B - 2, h.r.T - 140 - 2);
   mPopupRows = std::min(int(mChoices.size()), std::max(1, int(room / 22)));
   mPopupScroll =
@@ -212,6 +230,12 @@ void NativePanel::ControllerChoice(int id, int value) {
   auto &map = p->MidiMappings();
   auto b = map.Get(mMapSlot);
   map.CancelLearn();
+  if (id == 6) {
+    ReleaseHeld();
+    mControllerStatus = p->SetAudioBufferSize(unsigned(value)) ? "Buffer applied and saved" :
+        "Buffer unavailable - previous setting restored";
+    return;
+  }
   if (id == 0) {
     mMapSlot = value;
     return;
@@ -354,6 +378,15 @@ bool NativePanel::ControllerAction(const Hit &h) {
     mControllerStatus = "Slot cleared";
   } else if (h.action == "controller-pgm-info") {
     mControllerStatus = "VST3: use DAW program selection and host clock";
+  } else if (h.action == "controller-buffer-info") {
+    mControllerStatus = "Set the buffer in your DAW Audio Preferences";
+  } else if (h.action == "controller-arturia") {
+#if defined(APP_API)
+    p->SetArturiaEnabled(!p->ArturiaEnabled());
+    mControllerStatus.clear();
+#else
+    mControllerStatus = "Live: select Krose KeyLab Essential in MIDI settings";
+#endif
   } else if (h.action == "map-store") {
     if (p->StoreMidiProfile(p->MidiProfile())) {
       mStoredMapping = ControllerHash();

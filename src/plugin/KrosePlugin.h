@@ -6,6 +6,7 @@
 #include "midi/ControllerMap.h"
 #include "midi/InputControls.h"
 #include "midi/KeyboardMonitor.h"
+#include "midi/KeyLabControls.h"
 #include <array>
 #include <atomic>
 #include <memory>
@@ -14,6 +15,7 @@
 
 using namespace iplug;
 using namespace igraphics;
+namespace krose::standalone { class ArturiaController; }
 
 class KrosePlugin final : public Plugin {
 public:
@@ -36,6 +38,15 @@ public:
   bool LoadMidiProfile(unsigned profile);
   bool StoreMidiProfile(unsigned profile);
   bool MidiSettingsError() const noexcept { return mMidiSettingsError; }
+  bool ArturiaEnabled() const noexcept { return mArturiaEnabled; }
+  bool SetArturiaEnabled(bool enabled);
+  std::string ArturiaStatus() const;
+  void RequestFxEditor(unsigned slot) noexcept;
+  int EditorScalePercent() const noexcept { return mEditorScale; }
+  float EditorDrawScale(int percentage) const;
+  bool SetEditorScalePercent(int percentage);
+  unsigned AudioBufferSize() const;
+  bool SetAudioBufferSize(unsigned frames);
   void StandardMidiMappings();
   void CaptureComparison();
   void ToggleComparison();
@@ -78,6 +89,28 @@ public:
 #endif
 
 private:
+  void PollArturia();
+  void HandleFxEditorParameter(EParamSource source);
+  std::atomic<int> mFxEditorRequest{-1};
+  std::atomic<int> mLastFxEditorCode{0};
+  bool mArturiaEnabled = true;
+  int mEditorScale = 0; // Auto-fit until the user explicitly chooses a size.
+  std::atomic<int> mHardwareParameter{-1};
+  std::atomic<bool> mHardwareControlTouched{false};
+  std::atomic<int> mHardwareValuePosition{-1};
+#if defined(APP_API)
+  std::shared_ptr<krose::standalone::ArturiaController> mArturia;
+  void *mStandaloneHost = nullptr;
+  std::atomic<bool> mArturiaConnected{false};
+  krose::midi::essential::Pickup mArturiaPickup;
+  krose::midi::essential::FxButtonPresses mArturiaFxButtons;
+  int mFxButtonProgram = -1;
+  std::array<bool, 2> mArturiaHeld{};
+  int mPickupProgram = -1;
+  int mPickupEG = -1;
+  int mHardwareProgram = -1;
+  double mHardwareNextUpdate = 0;
+#endif
   krose::midi::KeyboardMonitor mKeyboard;
   void SelectProgramDefaults();
   void LoadFactoryEffects(int program);

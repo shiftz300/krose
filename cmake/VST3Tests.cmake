@@ -42,6 +42,9 @@ add_executable(test-vst3-host tests/plugin/test_vst3_host.cpp tests/plugin/test_
   "${SDK_ROOT}/public.sdk/source/common/memorystream.cpp")
 target_link_libraries(test-vst3-host PRIVATE segrand-sdk-hosting)
 target_compile_options(test-vst3-host PRIVATE -UNDEBUG)
+target_include_directories(test-vst3-host PRIVATE "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
+target_compile_definitions(test-vst3-host PRIVATE
+  KROSE_LIVE_CONFIGURATION="${CMAKE_SOURCE_DIR}/integrations/ableton/Defaults/Plug-In Configurations/VST3s/maincore/Krose/Default.appc")
 add_dependencies(test-vst3-host Krose-vst3)
 add_test(NAME vst3-host COMMAND test-vst3-host "$<TARGET_BUNDLE_DIR:Krose-vst3>")
 

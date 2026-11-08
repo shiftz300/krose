@@ -85,6 +85,11 @@ void KrosePlugin::InitializeParameters() {
   GetParam(kArpSwing)->InitInt("Arp Swing", 0, -100, 100, "%");
   GetParam(kArpVelocity)->InitInt("Arp Velocity", 129, 1, 129);
   GetParam(kArpKeyboard)->InitBool("Arp Keyboard", false);
+  GetParam(kEGTarget)->InitEnum("EG Target", 0, 2, "", IParam::kFlagsNone, "", "AMP", "FILTER");
+  // Duplicate phases let repeated presses reopen the same editor after
+  // navigating elsewhere, with one reliable host parameter change per press.
+  GetParam(kFxEditorRequest)->InitEnum("FX Edit",0,8,"",IParam::kFlagsNone,"",
+      "IFX 1","IFX 2","MFX 1","MFX 2","IFX 1","IFX 2","MFX 1","MFX 2");
 
   // Factory presets contain sound parameters only; controller profiles are global.
   auto preset = [&](const char *name, int tone, int program, double space) {

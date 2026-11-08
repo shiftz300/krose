@@ -48,6 +48,8 @@ void KrosePlugin::ConfigureEditor() {
   };
 }
 void KrosePlugin::OnParamChangeUI(int id, EParamSource source) {
+  if (id == kFxEditorRequest) HandleFxEditorParameter(source);
+  if (source == kUI) mHardwareParameter.store(id, std::memory_order_relaxed);
   // VST3 controller/state changes can arrive while processing is suspended.
   if (id == kParamProgram) SelectProgramDefaults();
   if (id == kParamProgram && source != kUI)
@@ -56,6 +58,7 @@ void KrosePlugin::OnParamChangeUI(int id, EParamSource source) {
     GetUI()->SetAllControlsDirty();
 }
 void KrosePlugin::OnIdle() {
+  PollArturia();
   if (mComparisonNeedsCapture.exchange(false, std::memory_order_relaxed))
     CaptureComparison();
 #if defined(VST3_API)
@@ -83,6 +86,10 @@ void KrosePlugin::OnIdle() {
   if (!GetUI())
     return;
   auto *p = static_cast<krose::ui::NativePanel *>(GetUI()->GetControlWithTag(kEditorTag));
+  if (p) {
+    const int slot=mFxEditorRequest.exchange(-1,std::memory_order_acq_rel);
+    if (slot>=0) p->OpenFxEditor(unsigned(slot));
+  }
   if (p)
     p->Refresh(mDisplayTempo.load(std::memory_order_relaxed),
                mDisplayHost.load(std::memory_order_relaxed),

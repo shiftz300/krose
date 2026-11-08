@@ -7,6 +7,9 @@
 
 KrosePlugin::KrosePlugin(const InstanceInfo &info)
     : Plugin(info, MakeConfig(kNumParams, segrand::kInstrumentProgramCount + 2)) {
+#if defined(APP_API)
+  mStandaloneHost = info.pAppHost;
+#endif
   InitializeParameters();
   InitializeMidiMappings();
   RestoreMidiProfile();
@@ -47,14 +50,37 @@ KrosePlugin::KrosePlugin(const InstanceInfo &info)
   // iPlug2 defines its platform graphics factory in this translation unit.
   mMakeGraphicsFunc = [this]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS,
-                        GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
+                        EditorDrawScale(mEditorScale));
   };
   ConfigureEditor();
 #endif
 }
+float KrosePlugin::EditorDrawScale(int percentage) const {
+#if IPLUG_EDITOR
+  return percentage > 0 ? percentage/100.f : GetScaleForScreen(PLUG_WIDTH,PLUG_HEIGHT);
+#else
+  return percentage > 0 ? percentage/100.f : 1.f;
+#endif
+}
 
-void KrosePlugin::OnParamChange(int paramIdx, EParamSource, int) {
+void KrosePlugin::OnParamChange(int paramIdx, EParamSource source, int) {
+  if (paramIdx == kFxEditorRequest) HandleFxEditorParameter(source);
   if (paramIdx == kParamProgram) SelectProgramDefaults();
+}
+void KrosePlugin::RequestFxEditor(unsigned slot) noexcept {
+  if (slot >= 4) return;
+  mFxEditorRequest.store(int(slot),std::memory_order_release);
+  mHardwareParameter.store(kFxType1+int(slot),std::memory_order_relaxed);
+}
+void KrosePlugin::HandleFxEditorParameter(EParamSource source) {
+  const int code=GetParam(kFxEditorRequest)->Int();
+  const int previous=mLastFxEditorCode.exchange(code,std::memory_order_relaxed);
+  if (source==kReset || source==kPresetRecall ||
+      uint32_t(mSoundGeneration.load(std::memory_order_acquire))) {
+    mFxEditorRequest.store(-1,std::memory_order_release);
+    return;
+  }
+  if (code!=previous) RequestFxEditor(unsigned(code)%4);
 }
 void KrosePlugin::SelectProgramDefaults() {
   if (!mEngine) return;
@@ -85,6 +111,10 @@ void KrosePlugin::OnReset() {
     mInputControls.Reset();
     mMidiMap.ResetRuntime();
     mMidiClock.Reset();
+#if defined(APP_API)
+    mArturiaFxButtons.Reset();
+    mFxButtonProgram=-1;
+#endif
     mSwitchAssign.fill(-1);
     mInputSamples = 0;
     mInputFilter = -1;

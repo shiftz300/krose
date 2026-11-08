@@ -22,10 +22,11 @@ inline std::string ChooseMidiInput(std::string_view preferred, std::string_view 
     std::transform(lower.begin(), lower.end(), lower.begin(),
                    [](unsigned char ch) { return char(std::tolower(ch)); });
     if (lower.find("daw") == std::string::npos && lower.find("mcu") == std::string::npos &&
-        lower.find("hui") == std::string::npos && port != "From Krose") return port;
+        lower.find("hui") == std::string::npos && lower.find("alv") == std::string::npos &&
+        lower.find("dinthru") == std::string::npos && lower.find("din thru") == std::string::npos &&
+        port != "From Krose") return port;
   }
-  // Never automatically connect our own virtual output back to our input.
-  for (const auto &port : ports) if (port != "From Krose") return port;
+  // Control/thru ports must be selected explicitly if no musical input exists.
   return {};
 }
 }

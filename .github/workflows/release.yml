@@ -3,7 +3,7 @@ on:
   push:
     branches: [main, master, 'codex/**']
     tags: ['v*']
-    paths: ['src/**', 'cmake/**', 'tests/**', 'assets/**', 'packaging/**', 'tools/**', 'CMakeLists.txt', '.github/workflows/**']
+    paths: ['src/**', 'cmake/**', 'tests/**', 'assets/**', 'packaging/**', 'integrations/**', 'tools/**', 'CMakeLists.txt', '.github/workflows/**']
   workflow_dispatch:
 permissions:
   contents: read
@@ -98,6 +98,8 @@ jobs:
         run: |
           python -B tests/tools/test_pgo_configuration.py
           python -B tests/tools/test_macos_merge.py
+          python -B tests/tools/test_ableton_controller.py
+          python -B tests/tools/test_ableton_surface.py
       - name: Fetch pinned dependencies
         run: python tools/bootstrap_plugin.py
       - name: Configure native macOS Release with PGO
@@ -236,6 +238,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
           name: Krose-windows-x64
@@ -252,6 +257,8 @@ jobs:
         with:
           name: Krose-macos-universal-standalone
           path: dist
+      - name: Package Ableton controller integration
+        run: python3 tools/install_ableton_controller.py --archive "dist/Krose-${GITHUB_REF_NAME#v}-Ableton-KeyLab-Essential.zip"
       - name: Publish installers and checksums
         env:
           GH_TOKEN: ${{ github.token }}
@@ -259,7 +266,14 @@ jobs:
         run: |
           cd dist
           sha256sum *.exe *.pkg *.zip > SHA256SUMS.txt
-          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag \
-            --title "Krose $GITHUB_REF_NAME" --generate-notes \
-            --notes 'Includes standalone and VST3. macOS supports Apple Silicon and Intel. Installers are currently unsigned/not notarized.' \
-            *.exe *.pkg *.zip SHA256SUMS.txt
+          notes='Includes standalone, VST3 and KeyLab Essential mk3 Ableton integration. Manufacturer: maincore. macOS supports Apple Silicon and Intel. Installers are currently unsigned/not notarized.'
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber \
+              *.exe *.pkg *.zip SHA256SUMS.txt
+            gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --title "Krose $GITHUB_REF_NAME" --notes "$notes"
+          else
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag \
+              --title "Krose $GITHUB_REF_NAME" --generate-notes --notes "$notes" \
+              *.exe *.pkg *.zip SHA256SUMS.txt
+          fi

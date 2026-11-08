@@ -41,6 +41,7 @@ krose/
     check_project_boundary.py      不含 SDK／tools／research 的隔离构建检查
     package_plugin.py              本地便携交付与签名／校验记录
   packaging/                       Windows NSIS 脚本及资源归档锁
+  integrations/ableton/             KeyLab Essential mk3 控制表面脚本
   docs/                            当前架构、使用与维护说明
   licenses/                        第三方许可证
   build/                           显式构建时生成，Git 忽略

@@ -1,7 +1,7 @@
 name: Native compile and installer checks
 on:
   push:
-    paths: ['src/**', 'cmake/**', 'packaging/**', 'CMakeLists.txt', 'tools/**', '.github/workflows/**']
+    paths: ['src/**', 'cmake/**', 'packaging/**', 'integrations/**', 'tests/**', 'CMakeLists.txt', 'tools/**', '.github/workflows/**']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -31,6 +31,8 @@ jobs:
         run: |
           python -B tests/tools/test_pgo_configuration.py
           python -B tests/tools/test_macos_merge.py
+          python -B tests/tools/test_ableton_controller.py
+          python -B tests/tools/test_ableton_surface.py
       - name: Read product version
         shell: bash
         run: |

@@ -47,9 +47,13 @@ void NativePanel::OpenPopup(const Hit &h) {
     }
     auto selected = std::find(mChoiceValues.begin(), mChoiceValues.end(), int(Value(kArpPattern)));
     mPopupFocus = selected == mChoiceValues.end() ? 0 : int(selected-mChoiceValues.begin());
-  } else if (h.action == "scale") {
+  } else if (h.action == "scale" || h.action == "ui-scale") {
+    add("AUTO / FIT SCREEN",0);
     for (int scale : {60, 75, 85, 100, 125, 150})
-      add(std::to_string(scale) + "%", scale);
+      add(std::to_string(scale) + "% / "+std::to_string(PLUG_WIDTH*scale/100)+"x"+std::to_string(PLUG_HEIGHT*scale/100), scale);
+    const auto selected=static_cast<KrosePlugin *>(GetDelegate())->EditorScalePercent();
+    auto it=std::find(mChoiceValues.begin(),mChoiceValues.end(),selected);
+    mPopupFocus=it==mChoiceValues.end() ? 0 : int(it-mChoiceValues.begin());
   } else if (h.action == "group" || h.action == "category") {
     add(h.action == "group" ? "全部音色库" : "全部类型", -1);
     if (h.action == "category")
@@ -88,7 +92,7 @@ void NativePanel::OpenPopup(const Hit &h) {
   SetDirty(false);
 }
 void NativePanel::Popup(IGraphics &g) {
-  bool lcd = mPopupTarget.action == "field" || mPopupTarget.action == "midi-menu" || mPopupTarget.action.rfind("arp-",0) == 0;
+  bool lcd = mPopupTarget.action == "field" || mPopupTarget.action == "midi-menu" || mPopupTarget.action == "ui-scale" || mPopupTarget.action.rfind("arp-",0) == 0;
   const bool effectType = IsFxTypeParameter(mPopupTarget.id);
   const float rowHeight = effectType ? 20 : lcd ? 22 : 26;
   int count = mPopupRows;
@@ -99,6 +103,7 @@ void NativePanel::Popup(IGraphics &g) {
   else if (top + count * rowHeight > (lcd ? 284 : 646))
     top = mPopupTarget.r.T - 2 - count * rowHeight;
   top = std::max(2.f, top);
+  if (mPopupTarget.action=="ui-scale") top=std::clamp(top,115.f,284-count*rowHeight);
   auto r = R(left, top, width, count * rowHeight);
   if (lcd)
     r = LCDRect(r);

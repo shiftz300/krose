@@ -9,6 +9,17 @@
 #include <filesystem>
 #include <fstream>
 #include <unistd.h>
+// AppKit's convenience mouse-event factory leaves other-button events with
+// buttonNumber=0. Supply the real middle-button number without posting OS input.
+@interface KroseMiddleMouseEvent : NSEvent
+@property(nonatomic, strong) NSEvent *backing;
+@end
+@implementation KroseMiddleMouseEvent
+- (NSInteger)buttonNumber { return 2; }
+- (NSPoint)locationInWindow { return self.backing.locationInWindow; }
+- (NSEventModifierFlags)modifierFlags { return self.backing.modifierFlags; }
+- (NSEventSubtype)subtype { return self.backing.subtype; }
+@end
 namespace {
 class Frame final : public Steinberg::IPlugFrame {
 public:
@@ -58,10 +69,17 @@ void mouse(NSView *v, float x, float y, NSEventType type, NSInteger count = 1) {
                                eventNumber:0
                                 clickCount:count
                                   pressure:1];
+  if (type == NSEventTypeOtherMouseDown || type == NSEventTypeOtherMouseUp) {
+    KroseMiddleMouseEvent *middle = [[KroseMiddleMouseEvent alloc] init];
+    middle.backing = e;
+    e = middle;
+  }
   if (type == NSEventTypeLeftMouseDown)
     [v mouseDown:e];
   else if(type==NSEventTypeRightMouseDown)[v rightMouseDown:e];
   else if(type==NSEventTypeRightMouseUp)[v rightMouseUp:e];
+  else if(type==NSEventTypeOtherMouseDown)[v otherMouseDown:e];
+  else if(type==NSEventTypeOtherMouseUp)[v otherMouseUp:e];
   else if (type == NSEventTypeLeftMouseDragged)
     [v mouseDragged:e];
   else
@@ -223,6 +241,43 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       return;
     }
     if (pass == 0) {
+      // The bank selection and the visible four faders share host parameters.
+      const double savedAmp=parameter("Amp Attack"), savedFilter=parameter("Filter Attack");
+      const double savedIfx=parameter("IFX 1 Type");
+      click(v,1220,67);
+      assert(parameter("EG Target")==1. && parameter("IFX 1 Type")==savedIfx);
+      mouse(v,1057,200,NSEventTypeLeftMouseDown);
+      mouse(v,1057,160,NSEventTypeLeftMouseDragged);
+      mouse(v,1057,160,NSEventTypeLeftMouseUp); pump();
+      assert(parameter("Filter Attack")!=savedFilter && parameter("Amp Attack")==savedAmp);
+      const double filterAfter=parameter("Filter Attack");
+      click(v,1147,67);
+      assert(parameter("EG Target")==0.);
+      mouse(v,1057,200,NSEventTypeLeftMouseDown);
+      mouse(v,1057,160,NSEventTypeLeftMouseDragged);
+      mouse(v,1057,160,NSEventTypeLeftMouseUp); pump();
+      assert(parameter("Amp Attack")!=savedAmp && parameter("Filter Attack")==filterAfter);
+      setParameter("Amp Attack",savedAmp);setParameter("Filter Attack",savedFilter);
+      // Each hardware edit command opens its own slot; repeated presses
+      // reopen it after leaving FX, without toggling or replacing the effect.
+      const char *editTypes[]={"IFX 1 Type","IFX 2 Type","MFX 1 Type","MFX 2 Type"};
+      const char *editAmounts[]={"IFX 1 Amount","IFX 2 Amount","MFX 1 Send","MFX 2 Send"};
+      const char *editOn[]={"IFX 1 On","IFX 2 On","MFX 1 On","MFX 2 On"};
+      for (int slot=0;slot<4;++slot) {
+        const double type=parameter(editTypes[slot]), amount=parameter(editAmounts[slot]), on=parameter(editOn[slot]);
+        const double active=slot<2 ? .2 : 4./14;
+        setParameter(editTypes[slot],active);
+        for (int press=0;press<2;++press) {
+          click(v,700,125);
+          const int code=int(std::lround(parameter("FX Edit")*7));
+          setParameter("FX Edit",(code==slot ? slot+4 : slot)/7.);pump();
+          number(v,887,198,press ? @"43" : @"42");
+          assert(std::abs(parameter(editAmounts[slot])-(press ? .43 : .42))<1e-8);
+          assert(parameter(editTypes[slot])==active && parameter(editOn[slot])==on);
+        }
+        setParameter(editTypes[slot],type);setParameter(editAmounts[slot],amount);
+      }
+      click(v,700,125);
       if (!std::getenv("KROSE_NATIVE_CAPTURE")) {
         // Compare actual Metal frames: the second note must light while held
         // and return to the released frame on mouse-up (capture must survive).
@@ -246,7 +301,8 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
         std::filesystem::remove(path);
       }
       // Module clicks toggle bypass without changing the LCD page or effect;
-      // right-click removes it, and adding into a bypassed empty slot enables it.
+      // right-click edits it; a middle click removes it. Adding into a bypassed
+      // empty slot enables it while retaining its saved amount.
       constexpr const char *fxTypes[] = {"IFX 1 Type", "IFX 2 Type", "MFX 1 Type", "MFX 2 Type"};
       constexpr const char *fxOn[] = {"IFX 1 On", "IFX 2 On", "MFX 1 On", "MFX 2 On"};
       constexpr const char *fxAmounts[] = {"IFX 1 Amount", "IFX 2 Amount", "MFX 1 Send", "MFX 2 Send"};
@@ -273,6 +329,17 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
         click(v, p[0], p[1]);
         mouse(v, p[0], p[1], NSEventTypeRightMouseDown);
         mouse(v, p[0], p[1], NSEventTypeRightMouseUp); pump();
+        assert(parameter(fxTypes[slot]) == type && parameter(fxOn[slot]) == 0.);
+        // Right-click selected this slot: editing Send/Wet-Dry must affect it.
+        number(v,887,198,@"0");
+        assert(parameter(fxAmounts[slot]) == 0.);
+        click(v,p[0],p[1]);
+        assert(parameter(fxOn[slot]) == 1. && parameter(fxAmounts[slot]) == 0.);
+        click(v,p[0],p[1]);
+        assert(parameter(fxOn[slot]) == 0.);
+        setParameter(fxAmounts[slot], .37);
+        mouse(v, p[0], p[1], NSEventTypeOtherMouseDown);
+        mouse(v, p[0], p[1], NSEventTypeOtherMouseUp); pump();
         assert(parameter(fxTypes[slot]) == 1. / (slot < 2 ? 10 : 14));
         assert(parameter(fxOn[slot]) == 0. && parameter(fxAmounts[slot]) == .37);
         click(v, p[0], p[1]);
@@ -409,6 +476,9 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
         key(v, [NSString stringWithFormat:@"%c", c]);
       key(v, @"\r", 36);
       assert(std::abs(program() - 1.) < 1e-8);
+      // Factory program changes restore their own ARP. Establish the explicit
+      // edited state whose persistence across editor destruction is tested.
+      setParameter("Arp", 1.);
       click(v, 71, 85);
       click(v, 71, 85, 2);
       pump(.6); // The second click reverses the transition before it settles.
@@ -462,8 +532,16 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       Steinberg::ViewRect scaled{};assert(view->getSize(&scaled)==Steinberg::kResultOk);
       assert(scaled.getWidth()==2208 && scaled.getHeight()==972);
       mouse(v,71*1.5,85*1.5,NSEventTypeRightMouseDown);mouse(v,71*1.5,85*1.5,NSEventTypeRightMouseUp);
-      pump();key(v,@"\uf729",115);for(int i=0;i<3;++i)key(v,@"\uf701",125);key(v,@"\r",36);
+      pump();key(v,@"\uf729",115);for(int i=0;i<4;++i)key(v,@"\uf701",125);key(v,@"\r",36);
       assert(view->getSize(&scaled)==Steinberg::kResultOk && scaled.getWidth()==1472);
+      // The same control is visible in CTRL > INPUT, with an LCD-pixel menu.
+      click(v,480,125);click(v,810,125);click(v,832,216);
+      key(v,@"\uf729",115);key(v,@"\uf701",125);key(v,@"\uf701",125);key(v,@"\r",36);
+      assert(view->getSize(&scaled)==Steinberg::kResultOk && scaled.getWidth()==1104 && scaled.getHeight()==486);
+      click(v,832*.75,216*.75);
+      key(v,@"\uf729",115);for(int i=0;i<4;++i)key(v,@"\uf701",125);key(v,@"\r",36);
+      assert(view->getSize(&scaled)==Steinberg::kResultOk && scaled.getWidth()==1472);
+      click(v,480,125);
       view->setFrame(nullptr);
     }
     if (const char *path = std::getenv("KROSE_NATIVE_CAPTURE")) {

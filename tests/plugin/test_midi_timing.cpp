@@ -26,6 +26,24 @@ int main() {
   runtime.BeginAudio(64, 48000, 1.0113333333333333);
   runtime.DrainMidi(0, 64, emit);
   assert(events.size() == 4 && events[3].offset == 0);
+  // CoreMIDI can pack an entire chord in one packet. The pinned RtMidi
+  // callback repeats that packet's delta for each message; these must not
+  // accumulate into artificial future timestamps or smear the chord.
+  Runtime packed;
+  std::vector<Event> chord;
+  packed.PushMidi(0, 5., 0x90, 48, 100);
+  packed.BeginAudio(480, 48000, 5.01);
+  packed.DrainMidi(0, 480, [](int, uint8_t, uint8_t, uint8_t) {});
+  for (uint8_t note : {60, 64, 67, 72})
+    packed.PushMidi(.1, 5.1, 0x90, note, 100);
+  for (unsigned block = 0; block < 10; ++block) {
+    packed.BeginAudio(480, 48000, 5.02 + block * .01);
+    packed.DrainMidi(0, 480, [&](int o, uint8_t s, uint8_t n, uint8_t v) {
+      chord.push_back({o,s,n,v});
+    });
+  }
+  assert(chord.size() == 4);
+  for (const auto &event : chord) assert(event.offset == chord.front().offset);
   // No stale held notes from a stopped stream, even across a rate change.
   runtime.PushMidi(.001, 1.013, 0x90, 72, 100);
   runtime.Reset();

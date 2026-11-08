@@ -112,7 +112,7 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
     }
     return true;
   };
-  for (int count : {6, 17, 19, 29, kNumMidiParameters, int(kFxOn1), int(kArpSwing), int(kExtendedFxDetails)}) {
+  for (int count : {6, 17, 19, 29, kNumMidiParameters, int(kFxOn1), int(kArpSwing), int(kExtendedFxDetails), int(kEGTarget), int(kFxEditorRequest)}) {
     const int bytes = count * int(sizeof(double));
     if (available != bytes && available != bytes + int(sizeof(int32_t)))
       continue;
@@ -133,7 +133,7 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
     return validParameters(kNumParams) ? UnserializeParams(chunk, start) : -1;
   constexpr int mappingBytes = 16 + krose::midi::ControllerMap::kSlots * int(sizeof(uint64_t));
   int storedParams = kNumParams;
-  for (int oldCount : {kNumMidiParameters, int(kFxOn1), int(kArpSwing), int(kExtendedFxDetails)}) {
+  for (int oldCount : {kNumMidiParameters, int(kFxOn1), int(kArpSwing), int(kExtendedFxDetails), int(kEGTarget), int(kFxEditorRequest)}) {
     const int bytes = oldCount * int(sizeof(double)) + mappingBytes;
     if (available == bytes || available == bytes + 4) {
       storedParams = oldCount;
@@ -182,6 +182,12 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
 void KrosePlugin::RestoreMidiProfile() {
   try {
     auto settings = ReadSettings();
+    mArturiaEnabled = settings.value("arturia_feedback", true);
+    const auto scale=settings.value("ui_scale",Json(0));
+    if (scale.is_number_integer()) {
+      const int value=scale.get<int>();
+      if (value==0 || (value>=60 && value<=150)) mEditorScale=value;
+    }
     if (!settings["profiles"].empty()) {
       const auto selected = settings.value("selected", Json(0u));
       if (!selected.is_number_unsigned() || selected > 3)
@@ -190,6 +196,31 @@ void KrosePlugin::RestoreMidiProfile() {
     }
   } catch (const std::exception &) {
     mMidiSettingsError = true;
+  }
+}
+bool KrosePlugin::SetEditorScalePercent(int percentage) {
+  if (percentage!=0 && (percentage<60 || percentage>150)) return false;
+  mEditorScale=percentage;
+  std::lock_guard<std::mutex> guard(settingsMutex);
+  try {
+    auto data=ReadSettings();
+    data["ui_scale"]=percentage;
+    krose::storage::WriteJson(SettingsPath(),data);
+    return true;
+  } catch (const std::exception &) { return false; }
+}
+bool KrosePlugin::SetArturiaEnabled(bool enabled) {
+  std::lock_guard<std::mutex> guard(settingsMutex);
+  try {
+    auto data = ReadSettings();
+    data["arturia_feedback"] = enabled;
+    krose::storage::WriteJson(SettingsPath(), data);
+    mArturiaEnabled = enabled;
+    mMidiSettingsError = false;
+    return true;
+  } catch (const std::exception &) {
+    mMidiSettingsError = true;
+    return false;
   }
 }
 bool KrosePlugin::LoadMidiProfile(unsigned profile) {

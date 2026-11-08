@@ -189,8 +189,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 0,4,0,0
-PRODUCTVERSION 0,4,0,0
+FILEVERSION 0,4,1,0
+PRODUCTVERSION 0,4,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -205,12 +205,12 @@ BEGIN
     BEGIN
         BLOCK "040004e4"
         BEGIN
-            VALUE "FileVersion", "0.4.0"
-            VALUE "ProductVersion", "0.4.0"
+            VALUE "FileVersion", "0.4.1"
+            VALUE "ProductVersion", "0.4.1"
             VALUE "FileDescription", "Krose"
             VALUE "InternalName", "Krose"
             VALUE "ProductName", "Krose"
-            VALUE "CompanyName", "Local Instruments"
+            VALUE "CompanyName", "maincore"
             VALUE "LegalCopyright", "Krose local instrument"
             VALUE "LegalTrademarks", "VST is a trademark of Steinberg Media Technologies GmbH, Audio Unit is a trademark of Apple, Inc."
         END

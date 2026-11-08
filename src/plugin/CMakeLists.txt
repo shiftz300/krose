@@ -22,8 +22,8 @@ set(KROSE_LICENSE_RESOURCES
 iplug_add_plugin(Krose
   SOURCES
     KrosePlugin.cpp KrosePlugin.h
-    Parameters.cpp Parameters.h storage/UserPreset.cpp
-    midi/ControllerInput.cpp midi/ControllerState.cpp
+    Parameters.cpp Parameters.h storage/UserPreset.cpp standalone/AudioSettings.cpp
+    midi/ControllerInput.cpp midi/ControllerState.cpp midi/ArturiaFeedback.cpp
     editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp editor/native/PanelControllers.cpp editor/native/PanelEffects.cpp editor/native/PanelFxVisual.cpp editor/native/PanelMotion.cpp resources/resource.h
   RESOURCES ${KROSE_NATIVE_IMAGES} "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
     ${KROSE_LICENSE_RESOURCES}

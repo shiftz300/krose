@@ -22,6 +22,8 @@
 #include <vector>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
+#include "json.hpp"
 #include <unistd.h>
 #include "../../src/plugin/midi/ControllerMap.h"
 using namespace Steinberg;
@@ -62,9 +64,13 @@ int main(int argc,char** argv){
   if(!module){std::cerr<<error<<'\n';return 1;}
   auto host=owned(new HostApplication);
   PluginContextFactory::instance().setPluginContext(host.get());
+  assert(module->getFactory().info().vendor()=="maincore");
   auto classes=module->getFactory().classInfos();
   auto info=std::find_if(classes.begin(),classes.end(),[](const auto& x){return x.category()==kVstAudioEffectClass;});
   assert(info!=classes.end());
+  assert(info->vendor()=="maincore");
+  // A display-name correction must not orphan saved Live sets.
+  assert(info->ID().toString()=="F2AEE70D00DE4F4E4C6F634953654731");
   PlugProvider provider(module->getFactory(),*info,true);assert(provider.initialize());
   auto component=provider.getComponentPtr();auto controller=provider.getControllerPtr();
   FUnknownPtr<IAudioProcessor> processor(component);assert(processor&&controller);
@@ -73,6 +79,38 @@ int main(int argc,char** argv){
   std::map<std::string,ParamID> ids;
   for(int i=0;i<controller->getParameterCount();++i){ParameterInfo p{};assert(controller->getParameterInfo(i,p)==kResultOk);std::string name;for(auto c:p.title){if(!c)break;name+=char(c);}ids.emplace(name,p.id);}
   for(const char* name:{"Tone","Output","Space","Release","Velocity","Program"})assert(ids.count(name));
+  {
+    // Bank selection is shared with the controller bridge and survives an
+    // editor reopen/state restore. Previous full states default to AMP.
+    const auto bank=ids.at("EG Target");
+    assert(bank==194);
+    controller->setParamNormalized(bank,1.);
+    MemoryStream selected; assert(component->getState(&selected)==kResultOk);
+    controller->setParamNormalized(bank,0.);
+    selected.seek(0,IBStream::kIBSeekSet,nullptr);
+    assert(component->setState(&selected)==kResultOk);
+    assert(controller->getParamNormalized(bank)==1.);
+    const auto fullCount=ids.at("FX Edit")+1;
+    for (auto oldCount : {bank,ids.at("FX Edit")}) {
+      MemoryStream previous;
+      previous.write(selected.getData(),oldCount*8,nullptr);
+      previous.write(selected.getData()+fullCount*8,selected.getSize()-fullCount*8,nullptr);
+      previous.seek(0,IBStream::kIBSeekSet,nullptr);
+      assert(component->setState(&previous)==kResultOk);
+      assert(controller->getParamNormalized(bank)==(oldCount>bank ? 1. : 0.));
+    }
+    controller->setParamNormalized(bank,0.);
+  }
+  {
+    std::ifstream input(KROSE_LIVE_CONFIGURATION);
+    assert(input.good());
+    const auto config = nlohmann::json::parse(input);
+    for (const auto &group : config.at("groups"))
+      for (const auto &p : group.at("parameters")) {
+        const auto name = p.at("name").get<std::string>();
+        assert(ids.count(name) && ids.at(name) == p.at("id").get<ParamID>());
+      }
+  }
   assert(component->getBusCount(kAudio,kInput)==0&&component->getBusCount(kAudio,kOutput)==1);
   SpeakerArrangement stereo=SpeakerArr::kStereo;
   assert(processor->setBusArrangements(nullptr,0,&stereo,1)==kResultOk);
@@ -517,6 +555,10 @@ int main(int argc,char** argv){
       else assert(controller->setParamNormalized(ids.at(name),value)==kResultOk);
     });
     gestures->tracking=false;
+    if (!std::getenv("KROSE_UI_REFERENCE") && !std::getenv("KROSE_UI_BENCH") && !std::getenv("KROSE_UI_MIDI_TEST")) {
+      const auto saved=nlohmann::json::parse(std::ifstream(std::getenv("KROSE_MIDI_MAP_FILE")));
+      assert(saved.at("ui_scale")==100);
+    }
     if (visualThread.joinable()) {
       visualAudio=false;visualThread.join();processor->setProcessing(false);component->setActive(false);
     }

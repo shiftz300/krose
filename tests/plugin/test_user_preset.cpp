@@ -18,6 +18,11 @@ int main() {
   for (int id = 0; id < kNumParams; ++id) values[id] = double(id) / kNumParams;
   WriteJson(path, EncodePreset(values));
   assert(DecodePreset(ReadJson(path)) == values);
+  auto preBank = EncodePreset(values);
+  preBank["values"].erase(preBank["values"].begin()+kEGTarget,preBank["values"].end());
+  const auto preBankValues=DecodePreset(preBank);
+  assert(preBankValues[kEGTarget]==0);
+  for (int id=0;id<kEGTarget;++id) assert(preBankValues[id]==values[id]);
   auto legacy = EncodePreset(values);
   legacy["version"] = 1;
   legacy["values"][FxDetailParameter(2, segrand::kDecay)] = 1.;
@@ -51,7 +56,7 @@ int main() {
   assert(normalized[0] == 0 && normalized[1] == 1);
   for (int id = 0; id < kNumParams; ++id) {
     assert(ParameterForMidiTarget(MidiTargetForParameter(id)) == id);
-    assert(SoundParameter(id) == (id < kSW1Assign || id >= kFXBypass));
+    assert(SoundParameter(id) == (id < kEGTarget && (id < kSW1Assign || id >= kFXBypass)));
   }
   for (unsigned target : {39u, 40u, 41u, unsigned(kNumParams + 3), UINT32_MAX})
     assert(ParameterForMidiTarget(target) == -1);
@@ -62,7 +67,7 @@ int main() {
   for (int mutation = 0; mutation < 5; ++mutation) {
     auto bad = EncodePreset(values);
     if (mutation == 0) bad["version"] = 5;
-    if (mutation == 1) bad["values"].erase(0);
+    if (mutation == 1) bad["values"] = nlohmann::json::array({0.1});
     if (mutation == 2) bad["values"][0] = "nan";
     if (mutation == 3) bad["values"][0] = nullptr;
     if (mutation == 4) bad["format"] = "other-app";

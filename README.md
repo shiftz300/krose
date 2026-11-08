@@ -2,7 +2,7 @@
 
 [中文](README.zh-CN.md)
 
-An iPlug2 sample instrument reconstructing KROSS 2 sounds, with macOS arm64 VST3 and standalone builds. The catalog contains 1,161 factory, GM and expansion Programs plus the compatible Concert entry. The fixed-size editor and preset browser share the product catalog and original category order.
+An iPlug2 sample instrument reconstructing KROSS 2 sounds, with macOS Universal and Windows x64 VST3 and standalone builds. The catalog contains 1,161 factory, GM and expansion Programs plus the compatible Concert entry. The scalable native editor and preset browser share the product catalog and original category order.
 
 ![Krose native editor with A000 Kross Grand Piano 1 selected](docs/screenshots/krose-main.webp)
 
@@ -11,6 +11,8 @@ An iPlug2 sample instrument reconstructing KROSS 2 sounds, with macOS arm64 VST3
 | [![Searchable preset browser with filters and favorites](docs/screenshots/krose-browser.webp)](docs/screenshots/krose-browser.webp) | [![Four FX slots and Hall reverb controls on the LCD](docs/screenshots/krose-fx.webp)](docs/screenshots/krose-fx.webp) |
 
 The native editor uses IGraphics/NanoVG. Samples load per selected Program on a background thread, with a shared recent cache and pinned samples for existing voices. Playback continues during loading. See [sample loading and effects optimization](docs/SAMPLES.md) for measured memory use and switching behavior.
+
+KeyLab Essential mk3 integration provides preset/parameter display, RGB FX buttons and mapped controls in standalone Krose and Ableton Live. See [controller setup](docs/CONTROLLERS.md); releases include a separate Ableton script ZIP. Window size and standalone audio buffer are available in the LCD's `CTRL → INPUT` page.
 
 Original firmware and research code live in [krose-source](https://github.com/shiftz300/krose-source). Frozen runtime assets, fixtures and native editor resources remain here; normal builds do not use the research workspace.
 

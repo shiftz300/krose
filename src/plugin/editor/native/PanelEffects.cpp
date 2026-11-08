@@ -115,9 +115,8 @@ int NativePanel::FxType(int slot) {
                                concert && Value(kParamTone) == 2);
 }
 bool NativePanel::FxEnabled(int slot) {
-  return !Value(kFXBypass) && Value(kFxOn1 + slot) && Value(kFxAmount1 + slot) > 0 &&
-         FxType(slot) > 1 && (slot < 2 || Value(kParamSpace) > 0 ||
-                             (slot == 2 && Value(kFxType3) == 0));
+  // A zero send/wet value is a silent enabled slot, not its bypass switch.
+  return !Value(kFXBypass) && Value(kFxOn1 + slot) && FxType(slot) > 1;
 }
 std::string NativePanel::FxName(int slot) {
   const int type = FxType(slot);

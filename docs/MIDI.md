@@ -48,7 +48,7 @@ INPUT CH 对演奏和映射共同生效，改通道时清理旧声部。VST3 向
 - Catalog Banks：LSB 为 0；MSB 0–5 对应 A–F，6 对应 GM 主表，7／8／9 对应 EXPCM001／002／004；PC 从 0 开始。此为插件的目录选择约定，不代表原琴 MIDI Implementation 的银行协议；GM 变体仍可通过 Krose Index 选择。
 - MIDI Clock：在 ARP 页顶部速度栏开关同步；24 PPQN，支持只发 Clock 的键盘；收到 Stop 后后续 Clock 不会自行重新启动。时钟超时暂停琶音器；内部速度值作为尚未测出速度时的回退。
 
-键盘内部的和弦、音阶、琶音功能，只要输出普通 MIDI 音符就可以使用。MCU／HUI、DAW 运输控制以及 Arturia 私有屏幕反馈由宿主或其控制表面脚本处理。没有添加品牌私有协议仿真，未做实物键盘兼容认证。
+键盘内部的和弦、音阶、琶音功能，只要输出普通 MIDI 音符就可以使用。MCU／HUI 和 DAW 运输控制由宿主管理。KeyLab Essential mk3 的屏幕、编码器和 Pad 反馈由独立版适配器或专用 Live 脚本提供，见 [控制器适配](CONTROLLERS.md)；实物键盘兼容性待验收。
 
 ## 保存与实现
 

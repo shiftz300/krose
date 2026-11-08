@@ -2,6 +2,22 @@
 // generated host translation unit, never in the VST3 build.
 #include <string_view>
 #include "standalone/MidiDevices.h"
+#include "standalone/AudioSettings.h"
+bool IPlugAPPHost::SetAudioBufferSize(unsigned frames) {
+  if (mNoIO || IsScreenshotMode() || !mDAC || !mDAC->isStreamRunning() ||
+      !krose::standalone::ValidBufferSize(frames)) return false;
+  if (frames == mBufferSize) return true;
+  const auto previous = mState.mBufferSize;
+  mState.mBufferSize = frames;
+  if (TryToChangeAudio()) {
+    mState.mBufferSize = mBufferSize; // Show/persist the driver's accepted size.
+    UpdateINI();
+    return true;
+  }
+  mState.mBufferSize = previous;
+  TryToChangeAudio(); // Restore the working configuration after a rejected size.
+  return false;
+}
 bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char *name) {
   if ((direction == ERoute::kInput && !mMidiIn) || (direction == ERoute::kOutput && !mMidiOut))
     return false;

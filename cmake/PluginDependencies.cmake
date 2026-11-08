@@ -12,6 +12,7 @@ endif()
 include("${IPLUG2_DIR}/iPlug2.cmake")
 find_package(iPlug2 REQUIRED)
 include("${CMAKE_CURRENT_LIST_DIR}/StandaloneHost.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/GraphicsInput.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/VST3Input.cmake")
 
 # Opt into stb_image's allocation API without modifying the pinned dependency.

@@ -62,8 +62,10 @@ enum EParams {
   kExtendedFxDetails,
   // All four positions can host native dynamics/EQ/modulation. Original IDs
   // 0..105 are immutable; the missing detail fields are appended here.
-  kNumParams = kExtendedFxDetails + 2 * (segrand::kFxDetailCount - segrand::kInsertDetailCount) +
-               2 * (segrand::kFxDetailCount - segrand::kSendDetailCount)
+  kEGTarget = kExtendedFxDetails + 2 * (segrand::kFxDetailCount - segrand::kInsertDetailCount) +
+              2 * (segrand::kFxDetailCount - segrand::kSendDetailCount),
+  kFxEditorRequest,
+  kNumParams
 };
 
 // Keep the three original action targets (39..41) stable in saved MIDI maps.

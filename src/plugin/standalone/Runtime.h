@@ -34,14 +34,15 @@ public:
   }
   void PushMidi(double delta, double now, uint8_t status, uint8_t data1, uint8_t data2) noexcept {
     const auto generation = mGeneration.load(std::memory_order_acquire);
-    // RtMidi supplies source-clock intervals. Anchor the first event to the
-    // monotonic clock, then preserve intervals even when callbacks arrive late.
+    // Preserve source-clock intervals for delayed callbacks. RtMidi/CoreMIDI
+    // repeats a packet delta for every message inside that packet, so the
+    // accumulated source time must never run ahead of its actual delivery.
     if (generation != mMidiGeneration || !std::isfinite(delta) || delta < 0 ||
         std::abs(now - (mMidiTime + delta)) > .5) {
       mMidiGeneration = generation;
       mMidiTime = now;
     } else
-      mMidiTime += delta;
+      mMidiTime = std::min(mMidiTime + delta, now);
     const auto write = mWrite.load(std::memory_order_relaxed);
     if (write - mRead.load(std::memory_order_acquire) == kCapacity) {
       mOverflow.store(true, std::memory_order_release);

@@ -1,6 +1,6 @@
 # 原生界面与素材维护
 
-VST3 与独立程序使用 C++、iPlug2 IGraphics 和 NanoVG；macOS 渲染器为 Metal，Windows 配置为 OpenGL 2。逻辑尺寸为 1472×648，右键 FX 可按 60–150% 等比缩放。插件不链接 WebKit。
+VST3 与独立程序使用 C++、iPlug2 IGraphics 和 NanoVG；macOS 渲染器为 Metal，Windows 配置为 OpenGL 2。基准逻辑尺寸为 1472×648；LCD 的 `>CTRL → INPUT → UI SIZE` 可选自动适应屏幕，或 60／75／85／100／125／150% 等比缩放，菜单同时显示对应窗口尺寸。选择保存为全局界面偏好，下次打开沿用；默认自动适应。右键 FX 的快捷入口保留。宿主拒绝调整窗口时保持原尺寸和偏好，并显示原因。插件不链接 WebKit。
 
 ## 控件与显示
 
@@ -30,7 +30,7 @@ FX 收放是独立的显示状态，不改变音频。动画使用基于单调�
 
 ## LCD 效果链
 
-点 LCD 的 FX 标签，进入 IFX 1、IFX 2、MFX 1、MFX 2 四个参数页。上排选择槽位，当前页显示效果类型、Wet/Dry 或 Send，以及当前算法的参数。左侧效果模块单击切换启用／旁通，保留类型和参数；右键移除效果，恢复空槽菱形。LCD 内不再显示 ON／OFF 按钮。右键槽位标签也可移除对应效果。OFF 类型和自动解析为空的槽显示淡红轨道与棕色菱形，点菱形直接选择效果。已有类型的槽在关闭、全局绕过或效果量为零时熄灯并灰显，类型和参数仍保留。切换算法时，图案随算法更新。
+点 LCD 的 FX 标签，进入 IFX 1、IFX 2、MFX 1、MFX 2 四个参数页。上排选择槽位，当前页显示效果类型、Wet/Dry 或 Send，以及当前算法的参数。左侧效果模块单击切换启用／旁通，保留类型和参数；右键打开对应槽位的 LCD 编辑页；中键移除效果，恢复空槽菱形。类型菜单选择 Off 也可清空效果。LCD 内不再显示 ON／OFF 按钮。OFF 类型和自动解析为空的槽显示淡红轨道与棕色菱形，点菱形直接选择效果。已有类型的槽在关闭或全局绕过时熄灯并灰显，类型和参数仍保留。发送量／Wet-Dry 为零时保留开关状态，提示显示 DRY；全局绕过显示 BYPASS。切换算法时，图案随算法更新。
 
 - IFX 串联处理主声。四段 EQ 可调整 Freq、Gain 和 Q；七段 Graphic EQ 保留原厂 12 组频点布局、七段增益与 Trim。压缩、限幅、Drive、Exciter、Phaser、Tremolo 和 Auto Pan 均在当前槽内编辑。新增类型菜单在 LCD 内滚动。
 - MFX 从 IFX 2 后并联取信号，支持 Chorus、Stereo Delay、Hall、Plate，以及 EQ、七段 Graphic EQ、压缩、限幅、Drive、Exciter、Phaser、Tremolo、Auto Pan。参数仍由四个槽位标签管理。

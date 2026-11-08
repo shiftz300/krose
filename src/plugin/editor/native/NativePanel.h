@@ -37,6 +37,7 @@ public:
   void OnMouseOut() override;
   void Refresh(double tempo, bool host, bool loading, bool loadFailed);
   void ReleaseHeld();
+  void OpenFxEditor(unsigned slot);
 
 private:
   using Json = nlohmann::json;
@@ -137,7 +138,7 @@ private:
   std::array<bool, 128> mHeld{}, mLit{}, mHostLit{};
   std::array<uint64_t, 3> mHostExpression{};
   ParameterBinding<kNumParams> mParameters;
-  int mPage = 0, mEG = 0, mOctave = 0, mSlot = 0, mFxBand = 0, mDrag = -1, mDragNote = -1, mEdit = -1,
+  int mPage = 0, mOctave = 0, mSlot = 0, mFxBand = 0, mDrag = -1, mDragNote = -1, mEdit = -1,
       mScroll = 0, mGroup = -1, mCategory = -1, mFocus = -1;
   float mDragY = 0, mMouseX = 0, mMouseY = 0;
   double mDragValue = 0, mTempo = 120, mPitch = 0;
@@ -168,5 +169,7 @@ private:
   uint64_t mStoredMapping = 0;
   std::array<bool, 2> mHeldSwitch{};
   std::string mControllerStatus;
+  std::string mArturiaStatus;
+  unsigned mAudioBuffer = 0;
 };
 } // namespace krose::ui

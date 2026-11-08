@@ -45,6 +45,7 @@ Section "Standalone application" App
   CreateShortcut "$SMPROGRAMS\Krose\Krose.lnk" "$INSTDIR\Krose.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "DisplayName" "Krose"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "Publisher" "maincore"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "DisplayIcon" "$INSTDIR\Krose.exe,0"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "UninstallString" '$\"$INSTDIR\Uninstall.exe$\"'
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Krose" "InstallLocation" "$INSTDIR"
