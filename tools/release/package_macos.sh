@@ -2,6 +2,7 @@
 set -euo pipefail
 build_dir="$1"
 version="$2"
+[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo 'Invalid product version' >&2; exit 1; }
 out="$build_dir/out"
 if [[ ! -d "$out/Krose.app" && -d "$out/Release/Krose.app" ]]; then out="$out/Release"; fi
 app_archs=$(lipo -archs "$out/Krose.app/Contents/MacOS/Krose")

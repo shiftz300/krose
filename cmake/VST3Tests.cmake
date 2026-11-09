@@ -3,6 +3,11 @@
 # for these command-line targets. This file supplies only the source/link setup.
 set(KROSE_VST3_SDK_DIR "${CMAKE_SOURCE_DIR}/build/deps/vst3sdk" CACHE PATH "Pinned VST3 SDK for host checks")
 set(SDK_ROOT "${KROSE_VST3_SDK_DIR}")
+file(REAL_PATH "${KROSE_VST3_SDK_DIR}" _host_sdk)
+file(REAL_PATH "${KROSE_PINNED_IPLUG2_DIR}/Dependencies/IPlug/VST3_SDK" _pinned_sdk)
+if(_host_sdk STREQUAL _pinned_sdk)
+  set(SDK_ROOT "${IPLUG2_DIR}/Dependencies/IPlug/VST3_SDK")
+endif()
 set(_sdk_sources
   base/source/baseiids.cpp base/source/fbuffer.cpp base/source/fdebug.cpp
   base/source/fdynlib.cpp base/source/fobject.cpp base/source/fstreamer.cpp

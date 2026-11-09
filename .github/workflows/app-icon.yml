@@ -8,7 +8,7 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Compile the architecture-independent icon catalog
@@ -17,7 +17,7 @@ jobs:
           python3 tools/native-ui/compile_app_icon.py
           python3 tools/native-ui/compile_app_icon.py --verify
       - name: Preserve precompiled resource
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: krose-macos-icon
           path: src/plugin/resources/macos-icon/

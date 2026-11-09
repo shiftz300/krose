@@ -27,7 +27,7 @@ void ReadSamplePCM(std::istream &input, uint32_t codec, int16_t a1, int16_t a2,
   };
   const unsigned stride = codec == 1 ? 1 : 2;
   for (uint32_t start = 0; start < frames;) {
-    const auto count = std::min<uint32_t>(frames - start, bytes.size() / stride);
+    const auto count = std::min(frames - start, uint32_t(bytes.size() / stride));
     read(bytes.data(), size_t(count) * stride);
     for (uint32_t i = 0; i < count; ++i) {
       auto *destination = output.data() + size_t(start + i) * 3;

@@ -30,16 +30,16 @@ jobs:
             platform: windows-x64
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
-      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Configure Visual Studio x64 environment
         if: runner.os == 'Windows'
-        with:
-          arch: x64
+        shell: pwsh
+        run: ./tools/ci/windows_toolchain.ps1
       - name: Select Windows LLVM tools
         if: runner.os == 'Windows'
         shell: pwsh
@@ -61,10 +61,8 @@ jobs:
               assert os.environ['GITHUB_REF_NAME']=='v'+version, 'Tag and product version must match'
           with open(os.environ['GITHUB_ENV'],'a') as f:f.write('KROSE_VERSION='+version+'\n')
           PY
-      - name: Runtime archive regressions
-        run: |
-          python tests/tools/test_runtime_assets.py
-          python tests/tools/test_standalone_package.py
+      - name: Tooling regressions
+        run: python -B -m unittest discover -s tests/tools
       - name: Read runtime asset lock
         shell: bash
         run: |
@@ -78,7 +76,7 @@ jobs:
               f.write('KROSE_ASSET_TAG='+lock['tag']+'\n')
               f.write('KROSE_ASSET_FILE='+lock['file']+'\n')
           PY
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         id: pcm
         with:
           path: |
@@ -94,12 +92,6 @@ jobs:
           mkdir -p build/downloads
           gh release download "$KROSE_ASSET_TAG" --repo "$GITHUB_REPOSITORY" --pattern "$KROSE_ASSET_FILE" --dir build/downloads
           python tools/release/runtime_assets.py extract "build/downloads/$KROSE_ASSET_FILE"
-      - name: PGO configuration and Universal guards
-        run: |
-          python -B tests/tools/test_pgo_configuration.py
-          python -B tests/tools/test_macos_merge.py
-          python -B tests/tools/test_ableton_controller.py
-          python -B tests/tools/test_ableton_surface.py
       - name: Fetch pinned dependencies
         run: python tools/bootstrap_plugin.py
       - name: Configure native macOS Release with PGO
@@ -125,7 +117,7 @@ jobs:
           lipo build/release/out/Krose.app/Contents/MacOS/Krose -verify_arch "${{ matrix.arch }}"
           lipo build/release/out/Krose.vst3/Contents/MacOS/Krose -verify_arch "${{ matrix.arch }}"
           tar -cf "build/native-${{ matrix.arch }}.tar" -C build/release/out Krose.app Krose.vst3
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: runner.os == 'macOS'
         with:
           name: Krose-native-${{ matrix.arch }}
@@ -152,7 +144,7 @@ jobs:
               Where-Object { $_.Message -like '*Krose.exe*' } | Select-Object -First 1 -ExpandProperty Message
             throw 'Windows standalone smoke test failed'
           }
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: runner.os == 'Windows'
         with:
           name: Krose-windows-x64-standalone
@@ -160,29 +152,15 @@ jobs:
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
-      - name: Package Windows NSIS installer
+      - name: Package Windows Inno installer
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          choco install nsis --no-progress -y
-          $payload = (Resolve-Path build/release/out).Path
-          New-Item -ItemType Directory -Force dist | Out-Null
-          Push-Location dist
-          & "${env:ProgramFiles(x86)}/NSIS/makensis.exe" /NOCD "/DVERSION=$env:KROSE_VERSION" "/DPAYLOAD=$payload" ../packaging/windows.nsi
-          if ($LASTEXITCODE -ne 0) { throw 'NSIS failed' }
-          Pop-Location
-      - name: Smoke test Windows install and uninstall
+        run: ./tools/release/package_windows.ps1 -InputDirectory build/release/out -Version $env:KROSE_VERSION -OutputDirectory dist
+      - name: Smoke test Windows install, migration and uninstall
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          $p = Start-Process "dist/Krose-$env:KROSE_VERSION-windows-x64-setup.exe" -ArgumentList /S -Wait -PassThru
-          if ($p.ExitCode -ne 0) { throw 'Install failed' }
-          if (!(Test-Path "$env:ProgramFiles/Krose/Krose.exe")) { throw 'Missing app' }
-          if (!(Test-Path "$env:CommonProgramFiles/Krose/Samples/$env:KROSE_VERSION/Factory.samples")) { throw 'Missing VST3 samples' }
-          $p = Start-Process "$env:ProgramFiles/Krose/Uninstall.exe" -ArgumentList '/S', '_?=C:\Program Files\Krose' -Wait -PassThru
-          if (Test-Path "$env:ProgramFiles/Krose/Krose.exe") { throw 'Uninstall left app' }
-          if (Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3") { throw 'Uninstall left plugin' }
-      - uses: actions/upload-artifact@v4
+        run: ./tools/ci/test_windows_installer.ps1 -Installer "dist/Krose-$env:KROSE_VERSION-windows-x64-setup.exe" -Version $env:KROSE_VERSION
+      - uses: actions/upload-artifact@v7
         if: runner.os == 'Windows'
         with:
           name: Krose-${{ matrix.platform }}
@@ -195,11 +173,11 @@ jobs:
     needs: build
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: Krose-native-*
           path: build/native
@@ -218,14 +196,14 @@ jobs:
         run: |
           version=$(python -c 'import re,pathlib; print(re.search(r"project\(Krose VERSION ([0-9.]+)", pathlib.Path("CMakeLists.txt").read_text())[1])')
           python tools/release/package_standalone.py --input build/universal/out --version "$version" --platform macos-universal --output dist --smoke
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Krose-macos-universal-standalone
           path: dist/*-app.zip
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Krose-macos-universal
           path: dist/*.pkg
@@ -238,22 +216,22 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Krose-windows-x64
           path: dist
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Krose-macos-universal
           path: dist
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Krose-windows-x64-standalone
           path: dist
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Krose-macos-universal-standalone
           path: dist

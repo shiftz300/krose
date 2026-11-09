@@ -379,15 +379,15 @@ void PianoEngine::Render(float *left, float *right, int frames) noexcept {
     std::array<double, kChunk * 2> equalized, returns;
     concert_effects_equalize(mEffects[0].get(), dry.data(), equalized.data(), count);
     for (int n = 0; n < count; ++n) {
-      auto &left = equalized[n * 2];
-      auto &right = equalized[n * 2 + 1];
+      auto &eqLeft = equalized[n * 2];
+      auto &eqRight = equalized[n * 2 + 1];
       const double eq = mRack.ConcertEqMix();
       if (eq != 1) {
-        left = dry[n * 2] + eq * (left - dry[n * 2]);
-        right = dry[n * 2 + 1] + eq * (right - dry[n * 2 + 1]);
+        eqLeft = dry[n * 2] + eq * (eqLeft - dry[n * 2]);
+        eqRight = dry[n * 2 + 1] + eq * (eqRight - dry[n * 2 + 1]);
       }
       const double input = (dry[n * 2] + dry[n * 2 + 1]) * .5;
-      mRack.Insert(left, right, mControls.fx[0].type == 0 ? &input : nullptr);
+      mRack.Insert(eqLeft, eqRight, mControls.fx[0].type == 0 ? &input : nullptr);
     }
     std::array<std::array<double, 256>, 3> legacyChorus{}, legacyHall{};
     const bool monitoring = mRack.Monitor().Enabled();

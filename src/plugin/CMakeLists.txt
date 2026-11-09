@@ -1,5 +1,23 @@
 include("${CMAKE_SOURCE_DIR}/cmake/NativeEditorResources.cmake")
 if(BUILD_TESTING)
+  set(_sdk "${IPLUG2_DIR}/Dependencies/IPlug/VST3_SDK")
+  krose_test(sdk-boundaries "${CMAKE_SOURCE_DIR}/tests/plugin/test_sdk_boundaries.cpp")
+  target_sources(test-sdk-boundaries PRIVATE
+    "${_sdk}/pluginterfaces/base/funknown.cpp" "${_sdk}/pluginterfaces/base/ustring.cpp"
+    "${_sdk}/pluginterfaces/base/coreiids.cpp" "${_sdk}/base/source/fstring.cpp" "${_sdk}/base/source/fdebug.cpp"
+    "${_sdk}/base/source/baseiids.cpp" "${_sdk}/base/source/fobject.cpp"
+    "${_sdk}/base/source/updatehandler.cpp" "${_sdk}/base/source/fbuffer.cpp" "${_sdk}/base/thread/source/flock.cpp")
+  target_include_directories(test-sdk-boundaries PRIVATE "${_sdk}")
+  target_compile_definitions(test-sdk-boundaries PRIVATE RELEASE=1)
+  if(APPLE)
+    target_link_libraries(test-sdk-boundaries PRIVATE "-framework CoreFoundation")
+    target_compile_options(test-sdk-boundaries PRIVATE -include "${CMAKE_SOURCE_DIR}/tests/plugin/SdkComCompatibility.h")
+  elseif(WIN32)
+    target_link_libraries(test-sdk-boundaries PRIVATE ole32)
+    # This target compiles the SDK alone, without iPlug's CRT compatibility
+    # definitions. Keep the SDK's bounded legacy CRT calls available here too.
+    target_compile_definitions(test-sdk-boundaries PRIVATE _CRT_SECURE_NO_WARNINGS)
+  endif()
   krose_test(user-preset "${CMAKE_SOURCE_DIR}/tests/plugin/test_user_preset.cpp")
   target_include_directories(test-user-preset PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
@@ -37,8 +55,24 @@ add_dependencies(Krose-vst3 segrand-assets krose-factory-assets)
 add_dependencies(Krose-app segrand-assets krose-factory-assets)
 foreach(target Krose-vst3 Krose-app)
   target_include_directories(${target} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
+  # Keep high-risk diagnostics actionable in both our code and SDK sources.
+  target_compile_options(${target} PRIVATE
+    "$<$<OR:$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang>,$<COMPILE_LANG_AND_ID:OBJCXX,Clang,AppleClang>>:-Werror=format;-Werror=vla;-Werror=return-type>")
 endforeach()
 if(APPLE)
+  foreach(_format vst3 app)
+    if(_format STREQUAL "vst3")
+      set(_plist "Krose-VST3-Info.plist")
+    else()
+      set(_plist "Krose-macOS-Info.plist")
+    endif()
+    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/resources/${_plist}" _plist_text)
+    string(REGEX MATCH "<key>CFBundleIdentifier</key>[ \t\r\n]*<string>([^<]+)</string>" _bundle_id "${_plist_text}")
+    if(NOT _bundle_id)
+      message(FATAL_ERROR "Missing CFBundleIdentifier in ${_plist}")
+    endif()
+    set_target_properties(Krose-${_format} PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${CMAKE_MATCH_1}")
+  endforeach()
   target_sources(Krose-app PRIVATE StandaloneStartup.mm)
   include("${CMAKE_SOURCE_DIR}/cmake/MacOSAppIcon.cmake")
   krose_add_macos_icon(Krose-app)

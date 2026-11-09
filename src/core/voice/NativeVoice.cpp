@@ -95,7 +95,7 @@ void NativeVoice::SetOffsets(EnvelopeOffsets offsets) noexcept {
   const auto eg = mOsc + 0x118;
   const int phase = mStage >= 8 ? 3 : mStage / 2;
   int target = (mStage & 1) ? mLow : mLow + mDelta;
-  double duration = std::max<int64_t>(24, mRemaining);
+  double duration = double(std::max<int64_t>(24, mRemaining));
   bool changed = false;
   if (!mReleased && phase >= 2 && phase < 4 && previous.sustain != offsets.sustain) {
     target = std::clamp(int(eg[6]) + offsets.sustain, 0, 99) * 330;

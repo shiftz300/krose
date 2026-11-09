@@ -16,6 +16,24 @@ def run(*args):
     return subprocess.check_output(args, text=True).strip()
 
 
+def archive_members(package, prefix):
+    members = package.getmembers()
+    for item in members:
+        if item.name.rstrip('/') == prefix.rstrip('/') and item.isdir():
+            continue
+        if (not item.name.startswith(prefix) or '..' in Path(item.name).parts or
+                not (item.isfile() or item.isdir())):
+            raise RuntimeError('Unexpected archive member: ' + item.name)
+    return members
+
+
+def extract_archive(package, destination, members):
+    # Python 3.9 lacks extraction filters. The common validation above also
+    # rejects traversal, links and special files before either API is called.
+    options = {'filter': 'data'} if getattr(tarfile, 'data_filter', None) else {}
+    package.extractall(destination, members=members, **options)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-root', type=Path, default=ROOT/'build')
@@ -37,16 +55,11 @@ def main():
     iplug = deps / 'iPlug2'
     # Compare a present tree with the pinned archive rather than overwriting it.
     with tarfile.open(archive) as package:
-        members = package.getmembers()
         prefix = 'iPlug2-' + pin['commit'] + '/'
-        for item in members:
-            if item.name.rstrip('/') == prefix.rstrip('/'):
-                continue
-            if not item.name.startswith(prefix) or '..' in Path(item.name).parts or item.issym() or item.islnk():
-                raise RuntimeError('Unexpected archive member: ' + item.name)
+        members = archive_members(package, prefix)
         if not iplug.exists():
             with tempfile.TemporaryDirectory(dir=deps) as scratch:
-                package.extractall(scratch)
+                extract_archive(package, scratch, members)
                 (Path(scratch) / prefix.rstrip('/')).rename(iplug)
         for item in members:
             if not item.isfile():

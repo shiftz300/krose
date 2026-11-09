@@ -15,9 +15,9 @@ ArpPattern Pattern(int index) noexcept {
 std::array<char,25> ArpPatternName(int index) noexcept {
   std::array<char,25> result{};
   static const char *builtins[]={"UP","DOWN","ALT 1","ALT 2","RANDOM"};
-  if(index>=0&&index<5)std::strncpy(result.data(),builtins[index],24);
+  if(index>=0&&index<5)std::copy_n(builtins[index],std::strlen(builtins[index]),result.begin());
   else if(auto pattern=Pattern(index);pattern.bytes)std::copy_n(pattern.bytes,24,result.begin());
-  else std::strncpy(result.data(),"UNKNOWN",24);
+  else std::copy_n("UNKNOWN",7,result.begin());
   for(int i=23;i>=0&&result[i]==' ';--i)result[i]=0;
   return result;
 }

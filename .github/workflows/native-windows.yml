@@ -14,25 +14,21 @@ jobs:
         os: [windows-2022, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
-      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Configure Visual Studio x64 environment
         if: runner.os == 'Windows'
-        with:
-          arch: x64
+        shell: pwsh
+        run: ./tools/ci/windows_toolchain.ps1
       - name: Select LLVM for PGO configuration checks
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           'C:/Program Files/LLVM/bin' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      - name: PGO configuration and Universal guards
-        run: |
-          python -B tests/tools/test_pgo_configuration.py
-          python -B tests/tools/test_macos_merge.py
-          python -B tests/tools/test_ableton_controller.py
-          python -B tests/tools/test_ableton_surface.py
+      - name: Tooling regressions
+        run: python -B -m unittest discover -s tests/tools
       - name: Read product version
         shell: bash
         run: |
@@ -42,9 +38,6 @@ jobs:
           version=re.search(r'project\(Krose VERSION ([0-9.]+)',Path('CMakeLists.txt').read_text())[1]
           with open(os.environ['GITHUB_ENV'],'a') as f:f.write('KROSE_VERSION='+version+'\n')
           PYCODE
-      # Tiny generated banks; independent of SDK/installer availability.
-      - name: Runtime archive regressions
-        run: python tests/tools/test_runtime_assets.py
       - name: Fetch pinned dependencies
         run: python tools/bootstrap_plugin.py
       - name: Stage compile-only assets
@@ -69,19 +62,12 @@ jobs:
       - name: Check macOS installer structure
         if: runner.os == 'macOS'
         run: bash tools/release/package_macos.sh build/ci "$KROSE_VERSION"
-      - name: Check NSIS install and uninstall
+      - name: Package Windows Inno installer
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          choco install nsis --no-progress -y
-          $payload = (Resolve-Path build/ci/out).Path
-          & "${env:ProgramFiles(x86)}/NSIS/makensis.exe" /NOCD "/DVERSION=$env:KROSE_VERSION" "/DPAYLOAD=$payload" packaging/windows.nsi
-          if ($LASTEXITCODE -ne 0) { throw 'NSIS failed' }
-          $p = Start-Process "./Krose-$env:KROSE_VERSION-windows-x64-setup.exe" -ArgumentList /S -Wait -PassThru
-          if ($p.ExitCode -ne 0) { throw 'Install failed' }
-          if (!(Test-Path "$env:ProgramFiles/Krose/Krose.exe")) { throw 'Missing app' }
-          if (!(Test-Path "$env:CommonProgramFiles/Krose/Samples/$env:KROSE_VERSION/Factory.samples")) { throw 'Missing plugin bank' }
-          Start-Process "$env:ProgramFiles/Krose/Uninstall.exe" -ArgumentList '/S', '_?=C:\Program Files\Krose' -Wait
-          if (Test-Path "$env:ProgramFiles/Krose/Krose.exe") { throw 'Uninstall left app' }
-          if (Test-Path "$env:CommonProgramFiles/VST3/Krose.vst3") { throw 'Uninstall left plugin' }
+        run: ./tools/release/package_windows.ps1 -InputDirectory build/ci/out -Version $env:KROSE_VERSION -OutputDirectory dist
+      - name: Check Inno install, migration and uninstall
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tools/ci/test_windows_installer.ps1 -Installer "dist/Krose-$env:KROSE_VERSION-windows-x64-setup.exe" -Version $env:KROSE_VERSION
       # Placeholder banks are never uploaded or published.

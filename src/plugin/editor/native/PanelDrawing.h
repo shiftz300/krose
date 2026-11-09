@@ -25,7 +25,7 @@ inline std::string Format(double v, int decimals = 0) {
   return b;
 }
 inline std::string Signed(double v) {
-  int n = std::lround(v);
+  const auto n = std::lround(v);
   return std::string(n < 0 ? "−" : "+") + (std::abs(n) < 10 ? "0" : "") +
          std::to_string(std::abs(n));
 }

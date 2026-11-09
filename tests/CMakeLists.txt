@@ -56,3 +56,8 @@ foreach(target test-keyboard-monitor test-standalone test-midi-timing test-param
   target_link_libraries(${target} PRIVATE Threads::Threads)
 endforeach()
 target_include_directories(test-keylab-essential PRIVATE "${CMAKE_SOURCE_DIR}/src/core")
+if(APPLE)
+  krose_test(core-midi-packet plugin/test_core_midi_packet.cpp)
+  target_include_directories(test-core-midi-packet PRIVATE "${CMAKE_SOURCE_DIR}/src/plugin")
+  target_link_libraries(test-core-midi-packet PRIVATE "-framework CoreMIDI")
+endif()
