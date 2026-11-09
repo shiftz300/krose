@@ -1,5 +1,7 @@
 """Exercise bundled adapters and extension boundaries without MIDI hardware/Live."""
 import json
+import os
+import subprocess
 from pathlib import Path
 import tempfile
 import unittest
@@ -99,7 +101,21 @@ class Resources(unittest.TestCase):
                 with self.assertRaises(ValueError): installer.install_parameter_configuration(Path(root))
                 self.assertEqual(path.read_bytes(), before)
 
-    @unittest.skipIf(__import__('os').name == 'nt', 'Symlink creation requires additional Windows permissions')
+    @unittest.skipUnless(os.name == 'nt', 'Windows directory junction regression')
+    def test_windows_junction_cannot_redirect_installation(self):
+        with tempfile.TemporaryDirectory() as root:
+            library, outside = Path(root) / 'library', Path(root) / 'outside'
+            library.mkdir(); outside.mkdir()
+            marker = outside / 'keep.txt'; marker.write_text('preserved')
+            link = library / 'Remote Scripts'
+            subprocess.run(['cmd', '/c', 'mklink', '/J', str(link), str(outside)], check=True, capture_output=True)
+            try:
+                with self.assertRaises(ValueError): installer.install(library)
+                self.assertEqual(list(outside.iterdir()), [marker])
+            finally:
+                os.rmdir(link)  # Remove only the junction itself, never its target.
+
+    @unittest.skipIf(os.name == 'nt', 'Symlink creation requires additional Windows permissions')
     def test_symlink_destinations_cannot_redirect_installation(self):
         with tempfile.TemporaryDirectory() as root:
             library, outside = Path(root) / 'library', Path(root) / 'outside'

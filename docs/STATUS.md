@@ -2,7 +2,7 @@
 
 0.4.2 默认附带控制器适配资源和扩展模板，固定目录为 `controllers/`。独立版通用 JSON 映射、LCD PROFILES 导入／导出、Ableton 输入模板及安全边界校验已接通。用户映射保存在应用支持目录，升级保留；Krose 不执行扩展 Python，Live 脚本仍需信任来源。详细用法见 [控制器设置](CONTROLLERS.md)。
 
-本机 Release／LTO／PGO、32 项原生回归和 65 项工具测试通过；解析器 ASan／UBSan、实际资源清单、PKG 和独立 ZIP 校验通过。GUI 自动点击工具无法定位本地窗口，菜单点击验收未完成；Windows 和设备实物另需对应环境验证。
+本机 Release／LTO／PGO、32 项原生回归和 66 项工具测试通过；解析器 ASan／UBSan、实际资源清单、PKG 和独立 ZIP 校验通过。GUI 自动点击工具无法定位本地窗口，菜单点击验收未完成；Windows 和设备实物另需对应环境验证。
 
 以下保留 0.4.1 及以前的测量和验收记录。
 

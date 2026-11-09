@@ -6,14 +6,24 @@ from pathlib import Path
 import shutil
 import sys
 import time
-import zipfile
 import os
 import tempfile
+import stat
 
 ROOT = Path(__file__).resolve().parents[1]
 SUPPORT = ROOT / "controllers" if (ROOT / "controllers").is_dir() else Path(__file__).resolve().parent
 CONFIG_PATH = Path("Defaults/Plug-In Configurations/VST3s/maincore/Krose/Default.appc")
 LEGACY_CONFIG_PATH = Path("Defaults/Plug-In Configurations/VST3s/Local Instruments/Krose/Default.appc")
+
+
+def redirected_directory(path):
+    if path.is_symlink(): return True
+    try:
+        tag = getattr(path.lstat(), 'st_reparse_tag', 0)
+    except (FileNotFoundError, NotADirectoryError):
+        return False
+    # Junctions are distinct from symlinks on Windows, including Python 3.9.
+    return tag == getattr(stat, 'IO_REPARSE_TAG_MOUNT_POINT', 0xA0000003)
 
 
 def managed_path(library, relative):
@@ -24,8 +34,8 @@ def managed_path(library, relative):
         if part in ("..", "/"):
             raise ValueError("Invalid managed path")
         path = path / part
-        if path.is_symlink():
-            raise ValueError("Managed controller path is a symlink; left unchanged")
+        if redirected_directory(path):
+            raise ValueError("Managed controller path redirects outside its directory; left unchanged")
     return path
 
 
@@ -139,19 +149,5 @@ if __name__ == "__main__":
     default = Path.home() / ("Music" if sys.platform == "darwin" else "Documents") / "Ableton/User Library"
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--user-library", type=Path, default=default)
-    parser.add_argument("--archive", type=Path, help="Build a drag-and-drop ZIP instead of installing")
     args = parser.parse_args()
-    if args.archive:
-        with tempfile.TemporaryDirectory(prefix="krose-controller-package-") as root:
-            target = install(Path(root))
-            args.archive.parent.mkdir(parents=True, exist_ok=True)
-            with zipfile.ZipFile(args.archive, "w", zipfile.ZIP_DEFLATED) as archive:
-                for file in sorted(target.rglob("*")):
-                    if file.is_file():
-                        archive.write(file, str(file.relative_to(target.parent)))
-                archive.write(Path(root) / CONFIG_PATH, str(CONFIG_PATH))
-                archive.write(ROOT / "docs/CONTROLLERS.md" if (ROOT / "docs/CONTROLLERS.md").exists() else SUPPORT / "CONTROLLERS.md", "CONTROLLERS.md")
-                archive.write(ROOT / "LICENSE" if (ROOT / "LICENSE").exists() else SUPPORT / "LICENSE", "LICENSE")
-        print(args.archive)
-    else:
-        print(install(args.user_library))
+    print(install(args.user_library))

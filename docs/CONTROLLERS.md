@@ -6,7 +6,7 @@
 
 源码固定放在 `controllers/`。默认构建把适配器、目录数据、独立版映射和模板一起放进 APP／VST3 的 `Resources/Controllers`；无需另下 ZIP，也无需运行时安装 Python。`-DKROSE_BUNDLE_CONTROLLERS=OFF` 可以关闭附带资源。
 
-打开 **LCD > CTRL > INPUT > PROFILES > OPEN BUILT-IN KIT** 可查看随包资源。Ableton 的 `ableton/Remote Scripts` 和 `ableton/Defaults` 已包含所需音色索引，可直接复制到 User Library；外部 ZIP 保留为可选的便捷分发方式。
+打开 **LCD > CTRL > INPUT > PROFILES > OPEN BUILT-IN KIT** 可查看随包资源。Ableton 的 `ableton/Remote Scripts` 和 `ableton/Defaults` 已包含所需音色索引，可直接复制到 User Library，随本体一并交付。
 
 独立版通用映射模板是 `templates/standalone/generic-keyboard.json`。复制到 **PROFILES > OPEN USER PROFILES** 打开的用户目录，修改名称、CC／音符编号、通道、目标和编码器模式；重新打开 PROFILES 即会列出文件；无效内容标为 INVALID，不会替换现有映射。选择后确认替换，点 STORE 保存到 USER 槽。EXPORT CURRENT MAP 生成可编辑的新 JSON，不覆盖已有文件。用户目录位于每用户应用支持路径下的 `Krose/Controllers/Profiles`，升级不会覆盖。模板只定义输入映射，设备的 MIDI 端口仍通过正常音频／MIDI 设置选择。
 
@@ -17,7 +17,7 @@
 - Krose 对用户扩展只读取 JSON；不加载 Python／动态库，不执行命令，不跟随配置中的路径，也不向任意 MIDI 设备发送配置指定的 SysEx。
 - JSON 导入限 256 KiB、16 层和现有 64 个映射槽；目标按参数名称解析，拒绝未知字段、枚举、越界通道／编号和配置文件符号链接。完整验证后才替换当前映射。这里只在 UI 操作时读取，音频线程保持固定容量原子映射。
 - Ableton Python 脚本具有 Live 进程的用户权限，Krose 无法为其提供沙箱。模板不会自动复制到 Live；第三方脚本需自行检查。Live 脚本目录由用户明确选择，不改写 Live 应用目录。
-- 安装工具拒绝托管路径中的符号链接，限制参数配置大小和条目数，先准备新脚本再替换旧目录；已有脚本和参数布局保留备份。异常配置不会先删掉旧脚本。
+- 安装工具拒绝托管路径中的符号链接及 Windows junction 目录联接，限制参数配置大小和条目数，先准备新脚本再替换旧目录；已有脚本和参数布局保留备份。异常配置不会先删掉旧脚本。
 - KeyLab 目录 JSON 采用有限长度读取并验证索引及字符串结构；错误时退回参数文字显示。短 SysEx 不会越界索引。独立版硬件识别、输出速率和多实例归属沿用现有约束。
 
 ## 独立版
@@ -46,7 +46,7 @@
 python3 tools/install_ableton_controller.py
 ```
 
-也可使用内置资源里的 `ableton` 文件夹或生成的控制脚本 ZIP：将 `Krose_KeyLab_Essential` 文件夹复制到 **User Library / Remote Scripts**，将 `Defaults` 合并到 **User Library / Defaults**。已有自定义参数配置时，推荐用安装脚本保留并补全配置。不需要修改 Live 的应用目录。安装后重启 Live。
+使用内置资源里的 `ableton` 文件夹：将 `Krose_KeyLab_Essential` 文件夹复制到 **User Library / Remote Scripts**，将 `Defaults` 合并到 **User Library / Defaults**。已有自定义参数配置时，推荐用安装脚本保留并补全配置。不需要修改 Live 的应用目录。安装后重启 Live。
 
 在 Live 的 Tempo & MIDI 设置中：
 

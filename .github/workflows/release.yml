@@ -237,23 +237,28 @@ jobs:
         with:
           name: Krose-macos-universal-standalone
           path: dist
-      - name: Package Ableton controller integration
-        run: python3 tools/install_ableton_controller.py --archive "dist/Krose-${GITHUB_REF_NAME#v}-Ableton-KeyLab-Essential.zip"
       - name: Publish installers and checksums
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           cd dist
-          sha256sum *.exe *.pkg *.zip > SHA256SUMS.txt
+          version="${GITHUB_REF_NAME#v}"
+          assets=(
+            "Krose-$version-windows-x64-setup.exe"
+            "Krose-$version-macos-universal.pkg"
+            "Krose-$version-windows-x64-portable.zip"
+            "Krose-$version-macos-universal-app.zip"
+          )
+          sha256sum "${assets[@]}" > SHA256SUMS.txt
           notes='Includes standalone, VST3, a built-in controller support kit and extension templates, plus KeyLab Essential mk3 Ableton integration. Controller profiles: LCD CTRL > INPUT > PROFILES. Manufacturer: maincore. macOS supports Apple Silicon and Intel. Installers are currently unsigned/not notarized.'
           if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber \
-              *.exe *.pkg *.zip SHA256SUMS.txt
+              "${assets[@]}" SHA256SUMS.txt
             gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
               --title "Krose $GITHUB_REF_NAME" --notes "$notes"
           else
             gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag \
               --title "Krose $GITHUB_REF_NAME" --generate-notes --notes "$notes" \
-              *.exe *.pkg *.zip SHA256SUMS.txt
+              "${assets[@]}" SHA256SUMS.txt
           fi
