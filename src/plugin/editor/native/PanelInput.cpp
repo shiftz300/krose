@@ -158,6 +158,9 @@ void NativePanel::Activate(const Hit &h) {
   } else if (h.action == "choice") {
     int v = int(h.value);
     auto target = mPopupTarget;
+    // Device choices carry an index; preserve its label before dismissing the
+    // popup. Numeric choices (buffer sizes, parameter values) keep using v.
+    const std::string selected = v >= 0 && size_t(v) < mChoices.size() ? mChoices[v] : "";
     mChoices.clear();
     if (target.action == "arp-edit") {
       if (v == 0) OpenPopup({LCDRect(R(547,168,364,18)), "field", kArpPattern});
@@ -190,7 +193,7 @@ void NativePanel::Activate(const Hit &h) {
       mCategory = v;
       FilterPrograms();
     } else if (target.action == "midi-menu")
-      ControllerChoice(target.id, v);
+      ControllerChoice(target.id, v, selected);
     else {
       const bool adding = IsFxTypeParameter(target.id) && FxType(target.id - kFxType1) <= 1;
       Set(target.id, v);

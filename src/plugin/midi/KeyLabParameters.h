@@ -7,7 +7,7 @@ struct ParameterControl { int parameter; const char *label; };
 // Software's left 2x3 matrix, followed by its right-side Volume knob.
 // The last two hardware encoders have no matching software knob.
 inline constexpr std::array<ParameterControl, 9> kKnobControls{{
-    {kGlide,"Glide"}, {kParamProgram,"Value"}, {kParamPan,"Pan"},
+    {kGlide,"Glide"}, {kFilterEGIntensity,"Filter EG Int"}, {kParamPan,"Pan"},
     {kParamCutoff,"Cutoff"}, {kParamResonance,"Resonance"}, {kParamVelocity,"Velocity"},
     {kParamOutput,"Volume"}, {-1,"Unassigned"}, {-1,"Unassigned"}}};
 inline constexpr std::array<int, 9> kFaderParameters{{

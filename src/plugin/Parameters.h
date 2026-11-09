@@ -65,6 +65,7 @@ enum EParams {
   kEGTarget = kExtendedFxDetails + 2 * (segrand::kFxDetailCount - segrand::kInsertDetailCount) +
               2 * (segrand::kFxDetailCount - segrand::kSendDetailCount),
   kFxEditorRequest,
+  kFilterEGIntensity, // Existing firmware filter EG depth offset, zero preserves factory depth.
   kNumParams
 };
 

@@ -7,17 +7,18 @@
 
 namespace krose::storage {
 using PresetValues = std::array<double, kNumParams>;
-inline bool SoundParameter(int id) { return id < kEGTarget && (id < kSW1Assign || id >= kFXBypass); }
+inline bool SoundParameter(int id) { return id == kFilterEGIntensity || (id < kEGTarget && (id < kSW1Assign || id >= kFXBypass)); }
 inline PresetValues DecodePreset(const nlohmann::json &data) {
   if (!data.is_object() || data.value("format", "") != "krose-preset" ||
       !data.contains("version") || (data["version"] != 1 && data["version"] != 2 && data["version"] != 3 && data["version"] != 4) || !data.contains("values") ||
-      !data["values"].is_array() || (data["values"].size() != kNumParams && data["values"].size() != kFxEditorRequest && data["values"].size() != kEGTarget && data["values"].size() != kArpSwing && data["values"].size() != kExtendedFxDetails))
+      !data["values"].is_array() || (data["values"].size() != kNumParams && data["values"].size() != kFilterEGIntensity && data["values"].size() != kFxEditorRequest && data["values"].size() != kEGTarget && data["values"].size() != kArpSwing && data["values"].size() != kExtendedFxDetails))
     throw std::runtime_error("Unsupported preset file");
   PresetValues values{};
   for (int slot=0;slot<4;++slot) for(int detail=0;detail<segrand::kFxDetailCount;++detail) {
     const auto &spec=segrand::kFxValues[detail];
     values[FxDetailParameter(slot,detail)]=(spec.initial-spec.min)/(spec.max-spec.min);
   }
+  values[kFilterEGIntensity] = .5; // Missing in older files: retain the factory EG depth.
   values[kArpSwing] = .5; values[kArpVelocity] = 1;
   for (int id = 0; id < int(data["values"].size()); ++id) {
     if (!data["values"][id].is_number())

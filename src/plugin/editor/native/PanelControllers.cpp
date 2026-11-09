@@ -1,6 +1,7 @@
 #include "../../KrosePlugin.h"
 #include "NativePanel.h"
 #include "PanelDrawing.h"
+#include "BuildInfo.h"
 #include "../../standalone/AudioSettings.h"
 #include "../../storage/OpenDirectory.h"
 #include <filesystem>
@@ -53,19 +54,20 @@ void NativePanel::Controllers(IGraphics &g) {
   const auto binding = map.Get(mMapSlot);
   g.FillRect(Paper, R(431, 115, 542, 169));
   // Connected tabs use the same 45-degree, pixel-stepped shoulders as the program pages.
-  ControllerCell(g, "< PROG", R(433, 115, 111, 23), "controller-close");
-  const char *tabs[] = {"CTRL", "MIDI", "INPUT", "HELP"};
-  for (int i = 0; i < 4; ++i) {
-    float x = 548 + i * 106;
+  ControllerCell(g, "< PROG", R(433, 115, 88, 23), "controller-close");
+  const char *tabs[] = {"CTRL", "MIDI", "INPUT", "AUDIO", "UI", "HELP", "INFO"};
+  for (int i = 0; i < 7; ++i) {
+    constexpr float width = 63.f;
+    float x = 527 + i * width;
     bool active = i == mControllerPage;
     for (int row = 0; row < 9; ++row) {
       float inset = (8 - row) * 2.25f;
       g.FillRect(active ? Ink : Paper,
-                 LCDRect(R(x + inset, 117 + row * 2.25f, 106 - 2 * inset, 2.25f)));
+                 LCDRect(R(x + inset, 117 + row * 2.25f, width - 2 * inset, 2.25f)));
     }
-    g.FillRect(Ink, LCDRect(R(x, 136, 106, 2.25f)));
-    Text(g, active ? "light14" : "lcd14", tabs[i], R(x + 15, 119, 76, 17), 1);
-    HitBox(R(x, 115, 106, 23), "controller-page", -1, i);
+    g.FillRect(Ink, LCDRect(R(x, 136, width, 2.25f)));
+    Text(g, active ? "light14" : "lcd14", tabs[i], R(x + 2, 119, width - 4, 17), 1);
+    HitBox(R(x, 115, width, 23), "controller-page", -1, i);
   }
   if (mConfirmProfile != -1) {
     Text(g, "lcd16",
@@ -137,27 +139,44 @@ void NativePanel::Controllers(IGraphics &g) {
 #else
     ControllerCell(g, "PGM: HOST / DAW", R(702, 174, 260, 24), "controller-pgm-info");
 #endif
-    const unsigned buffer = p->AudioBufferSize();
+    ControllerCell(g, "PROFILES", R(438, 204, 166, 24), "midi-menu", 7);
+    ControllerCell(g, "CLEAR MAP", R(615, 204, 157, 24), "map-clear-all");
+    ControllerCell(g, "PANIC", R(783, 204, 179, 24), "panic");
 #if defined(APP_API)
-    const double ms = p->AudioRate() > 0 ? buffer * 1000. / p->AudioRate() : 0;
-    ControllerCell(g, buffer ? "BUFFER: " + std::to_string(buffer)+" / "+Format(ms,2)+"ms" : "BUFFER: AUDIO OFF",
-                   R(438, 204, 253, 24), buffer ? "midi-menu" : "", 6);
-#else
-    ControllerCell(g, "BUFFER: HOST / DAW", R(438, 204, 253, 24), "controller-buffer-info");
+    ControllerCell(g, "IN: " + p->AudioChoice(3), R(438, 234, 253, 24), "midi-menu", 11);
+    ControllerCell(g, "OUT: " + p->AudioChoice(4), R(702, 234, 260, 24), "midi-menu", 12);
 #endif
-    const int scale=int(std::lround(GetUI()->GetDrawScale()*100));
-    ControllerCell(g,"UI SIZE: "+std::string(p->EditorScalePercent() ? "" : "AUTO ")+std::to_string(scale)+"%",
-                   R(702,204,260,24),"ui-scale");
-    ControllerCell(g, "PROFILES", R(438, 234, 166, 24), "midi-menu", 7);
-    ControllerCell(g, "CLEAR MAP", R(615, 234, 157, 24), "map-clear-all");
-    ControllerCell(g, "PANIC", R(783, 234, 179, 24), "panic");
     ControllerCell(g,
          p->MidiSettingsError() ? "SAVE FAILED - check settings file permissions"
          : mControllerStatus.empty()
              ? p->ArturiaStatus()
              : mControllerStatus,
          R(438, 264, 524, 19), "controller-arturia");
-  } else {
+  } else if (mControllerPage == 3) {
+#if defined(APP_API)
+    ControllerCell(g, "DRIVER: " + p->AudioChoice(0), R(438, 147, 253, 27), "midi-menu", 8);
+    ControllerCell(g, p->AudioChoice(2) + " Hz", R(702, 147, 260, 27), "midi-menu", 10);
+    ControllerCell(g, p->AudioChoice(1), R(438, 183, 524, 27), "midi-menu", 9);
+    const unsigned buffer = p->AudioBufferSize();
+    const double ms = p->AudioRate() > 0 ? buffer * 1000. / p->AudioRate() : 0;
+    ControllerCell(g, buffer ? std::to_string(buffer) + " / " + Format(ms, 2) + " ms" : "AUDIO OFF",
+                   R(438, 219, 253, 27), buffer ? "midi-menu" : "", 6);
+    ControllerCell(g, "ASIO PANEL", R(702, 219, 260, 27),
+                   p->AudioChoices(5).empty() ? "" : "midi-menu", 13);
+    Text(g, "lcd13", mControllerStatus.empty() ? "DRIVER / SAMPLE RATE / OUTPUT / BUFFER" : mControllerStatus,
+         R(438, 258, 524, 22));
+#else
+    Text(g, "lcd16", "Audio settings are managed by your host / DAW.", R(438, 155, 524, 32), 1);
+    Text(g, "lcd14", "BUFFER: " + std::to_string(p->AudioBufferSize()) + " / " + Format(p->AudioRate()) + " Hz",
+         R(438, 211, 524, 27), 1);
+#endif
+  } else if (mControllerPage == 4) {
+    const int scale = int(std::lround(GetUI()->GetDrawScale() * 100));
+    ControllerCell(g, "UI SIZE: " + std::string(p->EditorScalePercent() ? "" : "AUTO ") +
+                         std::to_string(scale) + "%", R(438, 147, 524, 27), "ui-scale");
+    Text(g, "lcd13", "AUTO fits the display. Fixed sizes: 60-150%.", R(438, 194, 524, 22));
+    Text(g, "lcd13", "Saved separately from presets and MIDI profiles.", R(438, 223, 524, 22));
+  } else if (mControllerPage == 5) {
     uint32_t rx = map.LastMessage();
     unsigned s = rx & 255, a = (rx >> 8) & 127, b = (rx >> 16) & 127;
     char line[96];
@@ -167,9 +186,16 @@ void NativePanel::Controllers(IGraphics &g) {
                            "Learn captures first message without changing sound.",
                            "Relative modes follow the keyboard's encoder setting.",
                            "Chord / scale / arp notes work as normal MIDI notes.",
-                           "INPUT > UI SIZE changes the window; FX right-click also works."};
+                           "UI > UI SIZE changes the window; AUDIO sets the buffer."};
     for (int i = 0; i < 5; ++i)
       Text(g, "lcd13", lines[i], R(438, 175 + 20 * i, 530, 19));
+  } else if (mControllerPage == 6) {
+    Text(g, "lcd35", "KROSE", R(438, 149, 524, 48), 1);
+    g.FillRect(Ink, LCDRect(R(450, 204, 500, 2.25f)));
+    Text(g, "lcd16", std::string("VERSION: ") + krose::build::kVersion,
+         R(450, 215, 510, 25));
+    Text(g, "lcd14", std::string("BUILD: ") + krose::build::kTimestamp,
+         R(450, 250, 510, 24));
   }
 }
 void NativePanel::ControllerMenu(const Hit &h) {
@@ -207,7 +233,7 @@ void NativePanel::ControllerMenu(const Hit &h) {
     mPopupFocus = b.channel;
   }
   if (h.id == 4) {
-    for (int i = 0; i < 6; ++i)
+    for (int i = 0; i < 7; ++i)
       add(modes[i], i);
     mPopupFocus = int(b.mode);
   }
@@ -235,16 +261,33 @@ void NativePanel::ControllerMenu(const Hit &h) {
       mControllerFiles.push_back(file.valid ? file.path : "");
     }
   }
+  if (h.id >= 8 && h.id <= 13) {
+    const int kind = h.id - 8;
+    const auto current = p->AudioChoice(kind);
+    for (const auto& choice : p->AudioChoices(kind)) {
+      if (choice == current) mPopupFocus = int(mChoices.size());
+      add(choice, int(mChoices.size()));
+    }
+    if (mChoices.empty()) add("NO DEVICE AVAILABLE", -1);
+  }
   const float room = std::max(284 - mPopupTarget.r.B - 2, mPopupTarget.r.T - 140 - 2);
   mPopupRows = std::min(int(mChoices.size()), std::max(1, int(room / 22)));
   mPopupScroll =
       std::clamp(mPopupFocus - mPopupRows / 2, 0, std::max(0, int(mChoices.size()) - mPopupRows));
 }
-void NativePanel::ControllerChoice(int id, int value) {
+void NativePanel::ControllerChoice(int id, int value, const std::string &selected) {
   auto *p = static_cast<KrosePlugin *>(GetDelegate());
   auto &map = p->MidiMappings();
   auto b = map.Get(mMapSlot);
   map.CancelLearn();
+  if (id >= 8 && id <= 13) {
+    if (value >= 0 && !selected.empty()) {
+      ReleaseHeld();
+      const bool changed = p->SelectAudioChoice(id - 8, selected);
+      mControllerStatus = changed ? "Setting applied" : "Unavailable / previous setting retained";
+    }
+    return;
+  }
   if (id == 7) {
     if (value == -1) mConfirmProfile = -2;
     else if (value == -2)

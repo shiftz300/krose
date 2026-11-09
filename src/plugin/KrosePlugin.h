@@ -52,6 +52,9 @@ public:
   bool SetEditorScalePercent(int percentage);
   unsigned AudioBufferSize() const;
   bool SetAudioBufferSize(unsigned frames);
+  std::vector<std::string> AudioChoices(int kind);
+  std::string AudioChoice(int kind);
+  bool SelectAudioChoice(int kind, const std::string &value);
   void StandardMidiMappings();
   void CaptureComparison();
   void ToggleComparison();
@@ -102,7 +105,6 @@ private:
   int mEditorScale = 0; // Auto-fit until the user explicitly chooses a size.
   std::atomic<int> mHardwareParameter{-1};
   std::atomic<bool> mHardwareControlTouched{false};
-  std::atomic<int> mHardwareValuePosition{-1};
 #if defined(APP_API)
   std::shared_ptr<krose::standalone::ArturiaController> mArturia;
   void *mStandaloneHost = nullptr;

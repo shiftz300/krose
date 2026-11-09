@@ -23,8 +23,7 @@ void KrosePlugin::PollArturia() {
   auto *host = static_cast<iplug::IPlugAPPHost *>(mStandaloneHost);
   const bool selected = host && PortScore(host->ActiveMidiInput()) > 0;
   const bool connected = mArturia->Poll(mArturiaEnabled && selected, now);
-  if (mArturiaConnected.exchange(connected, std::memory_order_relaxed) != connected)
-    mHardwareValuePosition.store(-1, std::memory_order_relaxed);
+  mArturiaConnected.store(connected, std::memory_order_relaxed);
   if (!connected) return;
   if (now < mHardwareNextUpdate) return;
   mHardwareNextUpdate = now + .1;

@@ -362,3 +362,9 @@
 #krose-fixed-ui .lcd input[type=checkbox]{appearance:none;border:1px solid var(--ink);border-radius:0}
 #krose-fixed-ui .lcd input[type=checkbox]:checked{background:var(--ink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23d8e2e9' d='M1 4h2v2h2V4h2V2h2v2H7v2H5v2H3V6H1z'/%3E%3C/svg%3E") no-repeat center/contain}
 #krose-fixed-ui #kf-program{appearance:none;border:1px solid #5e6366;border-radius:0;padding-right:24px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='12' viewBox='0 0 9 12'%3E%3Cpath fill='%23e3e3e3' d='M4 0h1v1H4zm-1 1h3v1H3zM2 2h5v1H2zM1 3h7v1H1zm0 5h7v1H1zm1 1h5v1H2zm1 1h3v1H3zm1 1h1v1H4z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
+
+/* Existing firmware filter-envelope intensity, in the former VALUE position. */
+#krose-fixed-ui .upper-controls .intensity-control{left:221px;top:155px;width:64px;height:122px;gap:0}
+#krose-fixed-ui .intensity-control .caption{position:absolute;top:0;width:100%;font-size:11px;letter-spacing:.3px;text-align:center}
+#krose-fixed-ui .intensity-control .knob{position:absolute;left:0;top:13px;width:64px;height:64px;margin:0}
+#krose-fixed-ui .intensity-control .readout{position:absolute;left:-2px;top:100px;width:68px;margin:0}

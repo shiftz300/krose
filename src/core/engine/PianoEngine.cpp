@@ -111,6 +111,7 @@ void PianoEngine::SetControls(const Controls &incoming) {
   c.preset = std::clamp(c.preset, 0, 2);
   c.outputDb = std::clamp(c.outputDb, -60.0, 6.0);
   c.space = std::clamp(c.space, 0.0, 2.0);
+  c.filterEgIntensity = std::clamp(c.filterEgIntensity, -99, 99);
   c.releaseSeconds = std::clamp(c.releaseSeconds, 0.03, 2.0);
   c.velocityCurve = std::clamp(c.velocityCurve, 0.5, 3.0);
   mOutputTarget = std::pow(10, c.outputDb / 20);
@@ -217,7 +218,7 @@ void PianoEngine::NoteOn(int note, int velocity, int channel, int previousPitch)
   it->velocityTrim = std::pow(velocity / 127.0, mControls.velocityCurve - 1);
   for (int osc = 0; osc < 2; ++osc) {
     it->native[osc].SetOffsets(mControls.ampEg);
-    it->filter[osc].SetOffsets(mControls.filterEg, mControls.cutoff, mControls.resonance);
+    it->filter[osc].SetOffsets(mControls.filterEg, mControls.cutoff, mControls.resonance, mControls.filterEgIntensity);
     it->native[osc].Start(note, velocity, osc, layer == 2 ? 127 : 119);
     it->slew[osc].Reset(it->native[osc].InitialGain());
     it->slew[osc].SetTarget(it->native[osc].Gain());
@@ -342,7 +343,7 @@ void PianoEngine::RenderVoice(Voice &voice, double &left, double &right) noexcep
     voice.controlPhase -= 1;
     for (int osc = 0; osc < 2; ++osc) {
       voice.native[osc].SetOffsets(mControls.ampEg);
-      voice.filter[osc].SetOffsets(mControls.filterEg, mControls.cutoff, mControls.resonance);
+      voice.filter[osc].SetOffsets(mControls.filterEg, mControls.cutoff, mControls.resonance, mControls.filterEgIntensity);
       voice.native[osc].Tick();
       voice.slew[osc].SetTarget(voice.native[osc].Gain());
       voice.filter[osc].Tick();

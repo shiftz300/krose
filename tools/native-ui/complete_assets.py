@@ -12,6 +12,7 @@ def capture(name,selector,rect,script='',extra=''):
  setup="(()=>{let s=document.getElementById('native-isolate');if(!s){s=document.createElement('style');s.id='native-isolate';document.head.append(s)}s.textContent="+json.dumps(css)+";"+script+";return null})()"
  jobs.append({'name':name+'.png','script':setup,'rect':rect})
  assets.append({'name':name,'selector':selector,'rect':rect})
+capture('caption-eg-int','[data-control=filterIntensity] .caption',[218,155,70,14])
 capture('knob-shell','[data-control=glide] .knob',[143,168,64,64],extra='#krose-fixed-ui .instrument [data-control=glide] .knob .pointer{visibility:hidden!important}')
 capture('knob-pointer','[data-control=glide] .pointer',[151,176,48,48],"document.querySelector('[data-control=glide] .knob').style.setProperty('--angle','0deg')")
 for e in layout['elements']:

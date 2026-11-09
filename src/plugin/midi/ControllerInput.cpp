@@ -106,13 +106,7 @@ void KrosePlugin::HandleControllerMidi(Message m, const int &position, RenderTo 
       };
       if (control.kind == Kind::Knob) {
         mHardwareControlTouched.store(true, std::memory_order_relaxed);
-        if (control.index == 1) {
-          int steps = ProgramKnobDelta(m.data2, mHardwareValuePosition.exchange(m.data2));
-          int next = program;
-          for (int i = 0; i < std::abs(steps) && unsigned(next) < mNextPrograms.size(); ++i)
-            next = steps > 0 ? mNextPrograms[next] : mPreviousPrograms[next];
-          if (steps) set(kParamProgram, GetParam(kParamProgram)->ToNormalized(next));
-        } else if (kKnobControls[control.index].parameter >= 0)
+        if (kKnobControls[control.index].parameter >= 0)
           set(kKnobControls[control.index].parameter, m.data2 / 127.);
       }
       if (control.kind == Kind::Fader) {
@@ -228,6 +222,7 @@ void KrosePlugin::ConfigureAudio(int offset) {
   controls.velocityCurve = GetParam(kParamVelocity)->Value();
   controls.pan = GetParam(kParamPan)->Int();
   controls.cutoff = GetParam(kParamCutoff)->Int();
+  controls.filterEgIntensity = GetParam(kFilterEGIntensity)->Int();
   controls.resonance = GetParam(kParamResonance)->Int();
   controls.fxBypass = GetParam(kFXBypass)->Bool();
   for (int i = 0; i < int(controls.fx.size()); ++i) {

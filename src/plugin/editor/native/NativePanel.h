@@ -122,7 +122,7 @@ private:
   void Controllers(IGraphics &);
   bool ControllerAction(const Hit &);
   void ControllerMenu(const Hit &);
-  void ControllerChoice(int, int);
+  void ControllerChoice(int, int, const std::string &selected);
   std::vector<std::string> mControllerFiles;
   std::string mPendingControllerFile;
   void BeginLearn(int target);

@@ -51,6 +51,14 @@ iplug_add_plugin(Krose
     "${IPLUG2_DIR}/Examples/IPlugEffect/resources/fonts/Roboto-Regular.ttf"
   FORMATS VST3 APP
   LINK krose::core)
+# Share the actual build timestamp between the standalone and plugin.
+add_custom_target(krose-build-info
+  COMMAND "${CMAKE_COMMAND}" "-DOUTPUT=${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.h"
+    "-DVERSION=${PROJECT_VERSION}" -P "${CMAKE_SOURCE_DIR}/cmake/WriteBuildInfo.cmake"
+  BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.h"
+  VERBATIM)
+add_dependencies(Krose-app krose-build-info)
+add_dependencies(Krose-vst3 krose-build-info)
 include("${CMAKE_SOURCE_DIR}/cmake/ControllerResources.cmake")
 krose_controller_resources()
 # Apply to SDK translation units as well as the plugin: all channels expose CC input.
