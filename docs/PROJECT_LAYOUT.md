@@ -40,8 +40,11 @@ krose/
     bootstrap_plugin.py            固定版本 SDK 准备
     check_project_boundary.py      不含 SDK／tools／research 的隔离构建检查
     package_plugin.py              本地便携交付与签名／校验记录
-  packaging/                       Windows NSIS 脚本及资源归档锁
-  integrations/ableton/             KeyLab Essential mk3 控制表面脚本
+  packaging/                       Windows Inno Setup 脚本及资源归档锁
+  controllers/                      内置控制器适配、通用映射、用户扩展模板和 schema
+    ableton/                        可直接复制到 Live User Library 的控制脚本／参数配置
+    profiles/builtin/               维护的 JSON 映射
+    templates/                      独立版 JSON 与 Ableton Python 模板
   docs/                            当前架构、使用与维护说明
   licenses/                        第三方许可证
   build/                           显式构建时生成，Git 忽略

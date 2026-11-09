@@ -1,0 +1,47 @@
+{
+  "format": "krose-controller-profile",
+  "version": 1,
+  "name": "My keyboard",
+  "bindings": [
+    {
+      "source": "cc",
+      "channel": 0,
+      "number": 74,
+      "target": "Cutoff",
+      "mode": "absolute",
+      "pickup": true,
+      "consume": true,
+      "invert": false
+    },
+    {
+      "source": "cc",
+      "channel": 0,
+      "number": 71,
+      "target": "Resonance",
+      "mode": "absolute",
+      "pickup": true,
+      "consume": true,
+      "invert": false
+    },
+    {
+      "source": "cc",
+      "channel": 0,
+      "number": 7,
+      "target": "Output",
+      "mode": "absolute",
+      "pickup": true,
+      "consume": true,
+      "invert": false
+    },
+    {
+      "source": "cc",
+      "channel": 0,
+      "number": 10,
+      "target": "Pan",
+      "mode": "absolute",
+      "pickup": true,
+      "consume": true,
+      "invert": false
+    }
+  ]
+}

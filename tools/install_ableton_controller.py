@@ -11,25 +11,67 @@ import os
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
+SUPPORT = ROOT / "controllers" if (ROOT / "controllers").is_dir() else Path(__file__).resolve().parent
 CONFIG_PATH = Path("Defaults/Plug-In Configurations/VST3s/maincore/Krose/Default.appc")
 LEGACY_CONFIG_PATH = Path("Defaults/Plug-In Configurations/VST3s/Local Instruments/Krose/Default.appc")
 
 
+def managed_path(library, relative):
+    """Reject redirection inside the explicitly selected User Library."""
+    root = Path(library).resolve()
+    path = root
+    for part in Path(relative).parts:
+        if part in ("..", "/"):
+            raise ValueError("Invalid managed path")
+        path = path / part
+        if path.is_symlink():
+            raise ValueError("Managed controller path is a symlink; left unchanged")
+    return path
+
+
+def read_configuration(path, with_bytes=False):
+    with path.open('rb') as stream:
+        data = stream.read(2 * 1024 * 1024 + 1)
+    if len(data) > 2 * 1024 * 1024:
+        raise ValueError("Ableton configuration exceeds size limit")
+    try:
+        value = json.loads(data)
+        if not isinstance(value, dict): raise ValueError("Configuration must be an object")
+        return (value, data) if with_bytes else value
+    except (ValueError, RecursionError) as error:
+        raise ValueError("Invalid Ableton configuration; left unchanged") from error
+
+
+def copy_script(source, target):
+    for file in source.rglob('*'):
+        if '__pycache__' in file.parts or file.suffix == '.pyc': continue
+        if file.is_symlink(): raise ValueError("Controller source symlinks are not supported")
+        if file.is_file():
+            destination = target / file.relative_to(source)
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(file, destination)
+
+
 def install_parameter_configuration(library):
     """Add only missing Krose parameter IDs, preserving existing customization."""
-    template = json.loads((ROOT / "integrations/ableton" / CONFIG_PATH).read_text())
-    target = library / CONFIG_PATH
+    template = read_configuration(SUPPORT / "ableton" / CONFIG_PATH)
+    target = managed_path(library, CONFIG_PATH)
     # Preserve layouts installed before the public manufacturer name changed.
-    source = target if target.exists() else library / LEGACY_CONFIG_PATH
-    original = source.read_bytes() if source.exists() else None
-    data = json.loads(original) if original is not None else template
+    source = target if target.exists() else managed_path(library, LEGACY_CONFIG_PATH)
+    data, original = read_configuration(source, True) if source.exists() else (template, None)
     if (data.get("id") != template["id"] or data.get("version") != "1.0" or
+            not isinstance(data.get("device-id"), str) or
             data.get("device-id", "").split("?")[0] != template["device-id"].split("?")[0]):
         raise ValueError("Existing Krose parameter configuration has an incompatible identity; left unchanged")
     groups = data.get("groups")
     if not isinstance(groups, list) or not all(isinstance(g, dict) and isinstance(g.get("parameters"), list) for g in groups):
         raise ValueError("Invalid Krose parameter groups; left unchanged")
-    existing = {p["id"] for g in groups for p in g["parameters"]}
+    parameters = [p for g in groups for p in g["parameters"]]
+    if len(parameters) > 128 or any(not isinstance(p, dict) or type(p.get("id")) is not int or
+            not 0 <= p["id"] <= 0x7fffffff or type(p.get("x-slot", 0)) is not int or
+            not 0 <= p.get("x-slot", 0) <= 4096 for p in parameters):
+        raise ValueError("Invalid Krose parameter entries; left unchanged")
+    existing = {p["id"] for p in parameters}
     missing = [p.copy() for p in template["groups"][0]["parameters"] if p["id"] not in existing]
     if len(existing) + len(missing) > 128:
         raise ValueError("Krose configuration would exceed Live's 128-parameter limit; left unchanged")
@@ -46,7 +88,7 @@ def install_parameter_configuration(library):
         return target
     target.parent.mkdir(parents=True, exist_ok=True)
     if original is not None:
-        backup = library / "Krose Controller Backups" / ("configuration-" + str(time.time_ns()) + ".appc")
+        backup = managed_path(library, Path("Krose Controller Backups") / ("configuration-" + str(time.time_ns()) + ".appc"))
         backup.parent.mkdir(parents=True, exist_ok=True)
         backup.write_bytes(original)
     with tempfile.NamedTemporaryFile(dir=target.parent, prefix=".krose-config-", delete=False) as file:
@@ -66,20 +108,30 @@ def install_parameter_configuration(library):
 
 
 def install(library):
-    install_parameter_configuration(library)
-    source = ROOT / "integrations/ableton/Krose_KeyLab_Essential"
-    target = library / "Remote Scripts/Krose_KeyLab_Essential"
-    if target.exists():
-        backup = library / "Krose Controller Backups" / (time.strftime("%Y%m%d-%H%M%S") + "-" + str(time.time_ns()))
-        backup.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(target, backup)
-        shutil.rmtree(target)
+    target = managed_path(library, "Remote Scripts/Krose_KeyLab_Essential")
+    source = SUPPORT / "ableton/Remote Scripts/Krose_KeyLab_Essential"
+    # Build the replacement completely before touching an installed script.
     target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(source, target, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    order = json.loads((ROOT / "assets/program-library/FactoryBrowser.json").read_text())["order"]
-    (target / "program_order.json").write_text(json.dumps(order) + "\n")
-    catalog = json.loads((ROOT / "assets/program-library/FactoryPrograms.json").read_text())
-    (target / "programs.json").write_text(json.dumps([row[:3] for row in catalog]) + "\n")
+    with tempfile.TemporaryDirectory(dir=target.parent, prefix=".krose-stage-") as folder:
+        stage = Path(folder) / target.name
+        stage.mkdir()
+        copy_script(source, stage)
+        if not (stage / "program_order.json").exists():
+            order = json.loads((ROOT / "assets/program-library/FactoryBrowser.json").read_text())["order"]
+            (stage / "program_order.json").write_text(json.dumps(order) + "\n", encoding="utf-8")
+            catalog = json.loads((ROOT / "assets/program-library/FactoryPrograms.json").read_text())
+            (stage / "programs.json").write_text(json.dumps([row[:3] for row in catalog]) + "\n", encoding="utf-8")
+        install_parameter_configuration(library)
+        backup = None
+        if target.exists():
+            backup = managed_path(library, Path("Krose Controller Backups") / ("script-" + str(time.time_ns())))
+            backup.parent.mkdir(parents=True, exist_ok=True)
+            target.rename(backup)
+        try:
+            stage.rename(target)
+        except BaseException:
+            if backup is not None and not target.exists(): backup.rename(target)
+            raise
     return target
 
 
@@ -98,8 +150,8 @@ if __name__ == "__main__":
                     if file.is_file():
                         archive.write(file, str(file.relative_to(target.parent)))
                 archive.write(Path(root) / CONFIG_PATH, str(CONFIG_PATH))
-                archive.write(ROOT / "docs/CONTROLLERS.md", "CONTROLLERS.md")
-                archive.write(ROOT / "LICENSE", "LICENSE")
+                archive.write(ROOT / "docs/CONTROLLERS.md" if (ROOT / "docs/CONTROLLERS.md").exists() else SUPPORT / "CONTROLLERS.md", "CONTROLLERS.md")
+                archive.write(ROOT / "LICENSE" if (ROOT / "LICENSE").exists() else SUPPORT / "LICENSE", "LICENSE")
         print(args.archive)
     else:
         print(install(args.user_library))

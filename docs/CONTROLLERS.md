@@ -2,6 +2,24 @@
 
 适配目标为 **KeyLab Essential 49 mk3**。本机 Live 的已保存设备名为 `KL Essential 49 mk3 (MIDI)`。旧款 Essential、完整 KeyLab mkII／mk3 使用不同协议，本实现不向这些设备发送指令。
 
+## 内置资源和用户扩展
+
+源码固定放在 `controllers/`。默认构建把适配器、目录数据、独立版映射和模板一起放进 APP／VST3 的 `Resources/Controllers`；无需另下 ZIP，也无需运行时安装 Python。`-DKROSE_BUNDLE_CONTROLLERS=OFF` 可以关闭附带资源。
+
+打开 **LCD > CTRL > INPUT > PROFILES > OPEN BUILT-IN KIT** 可查看随包资源。Ableton 的 `ableton/Remote Scripts` 和 `ableton/Defaults` 已包含所需音色索引，可直接复制到 User Library；外部 ZIP 保留为可选的便捷分发方式。
+
+独立版通用映射模板是 `templates/standalone/generic-keyboard.json`。复制到 **PROFILES > OPEN USER PROFILES** 打开的用户目录，修改名称、CC／音符编号、通道、目标和编码器模式；重新打开 PROFILES 即会列出文件；无效内容标为 INVALID，不会替换现有映射。选择后确认替换，点 STORE 保存到 USER 槽。EXPORT CURRENT MAP 生成可编辑的新 JSON，不覆盖已有文件。用户目录位于每用户应用支持路径下的 `Krose/Controllers/Profiles`，升级不会覆盖。模板只定义输入映射，设备的 MIDI 端口仍通过正常音频／MIDI 设置选择。
+
+`templates/ableton/Krose_Generic_Template` 是独立的输入型控制脚本模板，默认不发送 SysEx 或灯光回传，不自动注册端口。它只控制选中的 Krose；修改 `CHANNEL` 和 `CONTROLS` 后由使用者手动安装、选择。设备专用屏幕／灯协议需要单独实现并做实物验证，不能把 Arturia 协议直接套到别的键盘。
+
+### 安全边界
+
+- Krose 对用户扩展只读取 JSON；不加载 Python／动态库，不执行命令，不跟随配置中的路径，也不向任意 MIDI 设备发送配置指定的 SysEx。
+- JSON 导入限 256 KiB、16 层和现有 64 个映射槽；目标按参数名称解析，拒绝未知字段、枚举、越界通道／编号和配置文件符号链接。完整验证后才替换当前映射。这里只在 UI 操作时读取，音频线程保持固定容量原子映射。
+- Ableton Python 脚本具有 Live 进程的用户权限，Krose 无法为其提供沙箱。模板不会自动复制到 Live；第三方脚本需自行检查。Live 脚本目录由用户明确选择，不改写 Live 应用目录。
+- 安装工具拒绝托管路径中的符号链接，限制参数配置大小和条目数，先准备新脚本再替换旧目录；已有脚本和参数布局保留备份。异常配置不会先删掉旧脚本。
+- KeyLab 目录 JSON 采用有限长度读取并验证索引及字符串结构；错误时退回参数文字显示。短 SysEx 不会越界索引。独立版硬件识别、输出速率和多实例归属沿用现有约束。
+
 ## 独立版
 
 1. 键盘通过 USB 连接，在键盘上选择 **DAW** 程序。
@@ -28,7 +46,7 @@
 python3 tools/install_ableton_controller.py
 ```
 
-也可使用生成的控制脚本 ZIP：将 `Krose_KeyLab_Essential` 文件夹复制到 **User Library / Remote Scripts**，将 `Defaults` 合并到 **User Library / Defaults**。已有自定义参数配置时，推荐用安装脚本保留并补全配置。不需要修改 Live 的应用目录。安装后重启 Live。
+也可使用内置资源里的 `ableton` 文件夹或生成的控制脚本 ZIP：将 `Krose_KeyLab_Essential` 文件夹复制到 **User Library / Remote Scripts**，将 `Defaults` 合并到 **User Library / Defaults**。已有自定义参数配置时，推荐用安装脚本保留并补全配置。不需要修改 Live 的应用目录。安装后重启 Live。
 
 在 Live 的 Tempo & MIDI 设置中：
 
@@ -103,3 +121,5 @@ LCD `>CTRL → INPUT → UI SIZE` 控制界面大小，提供自动适应和 60�
 - [Ableton 第三方脚本安装](https://help.ableton.com/hc/en-us/articles/209072009-Installing-third-party-remote-scripts)
 - [Ableton 保存插件参数配置](https://help.ableton.com/hc/en-us/articles/209073089-Saving-plug-in-parameter-configurations)
 - [mk3 SysEx 研究笔记](https://github.com/PrzemekBarski/arturia-keylab-essential-mk3-programming-guide)
+
+第三方脚本的安装目录遵循 [Ableton 官方说明](https://help.ableton.com/hc/en-us/articles/209072009-Installing-third-party-remote-scripts)。

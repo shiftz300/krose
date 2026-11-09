@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Krose controller mapping profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "version",
+    "name",
+    "bindings"
+  ],
+  "properties": {
+    "format": {
+      "const": "krose-controller-profile"
+    },
+    "version": {
+      "const": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 4096
+    },
+    "bindings": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "target"
+        ],
+        "properties": {
+          "source": {
+            "enum": [
+              "off",
+              "cc",
+              "cc14",
+              "nrpn",
+              "rpn",
+              "note",
+              "bend",
+              "pressure",
+              "poly-pressure"
+            ]
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "number": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 16383,
+            "default": 0
+          },
+          "channel": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 16,
+            "default": 0
+          },
+          "mode": {
+            "enum": [
+              "absolute",
+              "relative-twos-complement",
+              "relative-offset",
+              "relative-sign",
+              "toggle",
+              "momentary"
+            ],
+            "default": "absolute"
+          },
+          "pickup": {
+            "type": "boolean",
+            "default": true
+          },
+          "consume": {
+            "type": "boolean",
+            "default": true
+          },
+          "invert": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "source": {
+                  "const": "cc"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "number": {
+                  "maximum": 127
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "source": {
+                  "const": "note"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "number": {
+                  "maximum": 127
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "source": {
+                  "const": "cc14"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "number": {
+                  "maximum": 31
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "source": {
+                  "const": "bend"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "number": {
+                  "maximum": 0
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "source": {
+                  "const": "pressure"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "number": {
+                  "maximum": 0
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "source": {
+                  "const": "poly-pressure"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "number": {
+                  "maximum": 127
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -37,6 +37,11 @@ public:
   unsigned MidiProfile() const noexcept { return mMidiProfile.load(); }
   bool LoadMidiProfile(unsigned profile);
   bool StoreMidiProfile(unsigned profile);
+  struct ControllerProfileFile { std::string name, path; bool builtin, valid = true; };
+  std::vector<ControllerProfileFile> ControllerProfileFiles() const;
+  std::string ControllerSupportFolder(bool builtin) const;
+  bool ImportControllerProfile(const std::string& path);
+  bool ExportControllerProfile();
   bool MidiSettingsError() const noexcept { return mMidiSettingsError; }
   bool ArturiaEnabled() const noexcept { return mArturiaEnabled; }
   bool SetArturiaEnabled(bool enabled);

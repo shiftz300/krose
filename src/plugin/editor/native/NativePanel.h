@@ -123,6 +123,8 @@ private:
   bool ControllerAction(const Hit &);
   void ControllerMenu(const Hit &);
   void ControllerChoice(int, int);
+  std::vector<std::string> mControllerFiles;
+  std::string mPendingControllerFile;
   void BeginLearn(int target);
   void ReleaseSwitches();
   uint64_t ControllerHash();

@@ -58,14 +58,14 @@ class Surface(TestCase):
         package = ModuleType("Krose_KeyLab_Essential")
         package.__path__ = []
         self.modules = mock.patch.dict(sys.modules, {"KeyLab_Essential_mk3": base,
-            "Krose_KeyLab_Essential": package, "Krose_KeyLab_Essential.device": bridge})
+            "Krose_KeyLab_Essential": package, "Krose_KeyLab_Essential.device": bridge, "Krose_KeyLab_Essential.catalog": ModuleType("catalog")})
         self.modules.start()
+        sys.modules["Krose_KeyLab_Essential.catalog"].load_catalog = lambda folder: ([0, 3, 1, 2], [])
         spec = importlib.util.spec_from_file_location("Krose_KeyLab_Essential.surface",
-            ROOT / "integrations/ableton/Krose_KeyLab_Essential/surface.py")
+            ROOT / "controllers/ableton/Remote Scripts/Krose_KeyLab_Essential/surface.py")
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        with mock.patch("pathlib.Path.read_text", side_effect=["[0, 3, 1, 2]", "[]"]):
-            self.surface = module.KroseKeyLabEssential()
+        self.surface = module.KroseKeyLabEssential()
 
     def tearDown(self): self.modules.stop()
 
@@ -88,6 +88,13 @@ class Surface(TestCase):
         self.assertTrue(surface.component_map["Mixer"].is_enabled())
         self.assertFalse(surface.component_map["Device"].is_enabled())
         self.assertTrue(surface.component_map["Transport"].is_enabled())
+
+    def test_truncated_feedback_messages_do_not_index_past_end(self):
+        surface = self.surface
+        surface.song.appointed_device = device()
+        surface.update_display()
+        for message in [(), (240,), bridge.HEADER + (4, 1, 22), bridge.HEADER + (2, 15, 64)]:
+            surface._send_midi(message)
 
     def test_single_feedback_owner_and_reconnect(self):
         surface = self.surface

@@ -8,6 +8,7 @@ python3 -m pip install -r tools/native-ui/requirements.txt
 
 - `bootstrap_plugin.py`：准备并核验固定版本 SDK。
 - `install_ableton_controller.py`：安装或打包 KeyLab Essential mk3 的 Live 脚本及自动参数配置，保留自定义配置并备份已有安装。
+- `build_controller_resources.py`：将 `controllers/` 的内置适配与扩展模板随默认构建带入 APP／VST3；`--verify-output` 检查实际产物的资源清单与哈希。
 - `keylab_virtual_macos.cpp`：临时 CoreMIDI 控制器，验证屏幕／灯光收发；用 stdin 输入十六进制消息，`q` 清理端口。
 - `check_project_boundary.py`：在独立临时目录构建引擎并运行全部已注册测试。
 - `package_plugin.py`：验证测试记录、签名与 VST3 后打包本地交付物。

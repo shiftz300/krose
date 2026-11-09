@@ -1,5 +1,7 @@
 include("${CMAKE_SOURCE_DIR}/cmake/NativeEditorResources.cmake")
 if(BUILD_TESTING)
+  krose_test(controller-profile "${CMAKE_SOURCE_DIR}/tests/plugin/test_controller_profile.cpp" "${CMAKE_SOURCE_DIR}/controllers")
+  target_include_directories(test-controller-profile PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
   set(_sdk "${IPLUG2_DIR}/Dependencies/IPlug/VST3_SDK")
   krose_test(sdk-boundaries "${CMAKE_SOURCE_DIR}/tests/plugin/test_sdk_boundaries.cpp")
   target_sources(test-sdk-boundaries PRIVATE
@@ -42,12 +44,15 @@ iplug_add_plugin(Krose
     KrosePlugin.cpp KrosePlugin.h
     Parameters.cpp Parameters.h storage/UserPreset.cpp standalone/AudioSettings.cpp
     midi/ControllerInput.cpp midi/ControllerState.cpp midi/ArturiaFeedback.cpp
+    midi/ControllerProfiles.cpp
     editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp editor/native/PanelControllers.cpp editor/native/PanelEffects.cpp editor/native/PanelFxVisual.cpp editor/native/PanelMotion.cpp resources/resource.h
   RESOURCES ${KROSE_NATIVE_IMAGES} "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
     ${KROSE_LICENSE_RESOURCES}
     "${IPLUG2_DIR}/Examples/IPlugEffect/resources/fonts/Roboto-Regular.ttf"
   FORMATS VST3 APP
   LINK krose::core)
+include("${CMAKE_SOURCE_DIR}/cmake/ControllerResources.cmake")
+krose_controller_resources()
 # Apply to SDK translation units as well as the plugin: all channels expose CC input.
 target_compile_definitions(Krose-vst3 PRIVATE VST3_NUM_CC_CHANS=16)
 target_include_directories(Krose-vst3 BEFORE PRIVATE "${CMAKE_BINARY_DIR}/generated/iplug-vst3")
@@ -60,6 +65,8 @@ foreach(target Krose-vst3 Krose-app)
     "$<$<OR:$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang>,$<COMPILE_LANG_AND_ID:OBJCXX,Clang,AppleClang>>:-Werror=format;-Werror=vla;-Werror=return-type>")
 endforeach()
 if(APPLE)
+  target_sources(Krose-app PRIVATE storage/OpenDirectory.mm)
+  target_sources(Krose-vst3 PRIVATE storage/OpenDirectory.mm)
   foreach(_format vst3 app)
     if(_format STREQUAL "vst3")
       set(_plist "Krose-VST3-Info.plist")

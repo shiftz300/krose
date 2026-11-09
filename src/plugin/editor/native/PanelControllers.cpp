@@ -2,6 +2,8 @@
 #include "NativePanel.h"
 #include "PanelDrawing.h"
 #include "../../standalone/AudioSettings.h"
+#include "../../storage/OpenDirectory.h"
+#include <filesystem>
 namespace krose::ui {
 using namespace detail;
 using namespace krose::midi;
@@ -146,7 +148,7 @@ void NativePanel::Controllers(IGraphics &g) {
     const int scale=int(std::lround(GetUI()->GetDrawScale()*100));
     ControllerCell(g,"UI SIZE: "+std::string(p->EditorScalePercent() ? "" : "AUTO ")+std::to_string(scale)+"%",
                    R(702,204,260,24),"ui-scale");
-    ControllerCell(g, "STANDARD CC", R(438, 234, 166, 24), "map-standard");
+    ControllerCell(g, "PROFILES", R(438, 234, 166, 24), "midi-menu", 7);
     ControllerCell(g, "CLEAR MAP", R(615, 234, 157, 24), "map-clear-all");
     ControllerCell(g, "PANIC", R(783, 234, 179, 24), "panic");
     ControllerCell(g,
@@ -220,7 +222,20 @@ void NativePanel::ControllerMenu(const Hit &h) {
       add(std::to_string(frames) + " SAMPLES", int(frames));
     }
   }
-  const float room = std::max(284 - h.r.B - 2, h.r.T - 140 - 2);
+  if (h.id == 7) {
+    mPopupTarget.r = LCDRect(R(438, 144, 524, 24));
+    add("STANDARD CC", -1);
+    add("EXPORT CURRENT MAP", -2);
+    add("OPEN USER PROFILES", -3);
+    add("OPEN BUILT-IN KIT", -4);
+    mControllerFiles.clear();
+    for (const auto& file : p->ControllerProfileFiles()) {
+      add(std::string(!file.valid ? "INVALID / " : file.builtin ? "BUILT-IN / " : "USER / ") + file.name,
+          int(mControllerFiles.size()));
+      mControllerFiles.push_back(file.valid ? file.path : "");
+    }
+  }
+  const float room = std::max(284 - mPopupTarget.r.B - 2, mPopupTarget.r.T - 140 - 2);
   mPopupRows = std::min(int(mChoices.size()), std::max(1, int(room / 22)));
   mPopupScroll =
       std::clamp(mPopupFocus - mPopupRows / 2, 0, std::max(0, int(mChoices.size()) - mPopupRows));
@@ -230,6 +245,27 @@ void NativePanel::ControllerChoice(int id, int value) {
   auto &map = p->MidiMappings();
   auto b = map.Get(mMapSlot);
   map.CancelLearn();
+  if (id == 7) {
+    if (value == -1) mConfirmProfile = -2;
+    else if (value == -2)
+      mControllerStatus = p->ExportControllerProfile() ? "Exported / OPEN USER PROFILES" : "Profile export failed";
+    else if (value == -3 || value == -4) {
+      try {
+        const auto folder = std::filesystem::u8path(p->ControllerSupportFolder(value == -4));
+        if (value == -3) std::filesystem::create_directories(folder);
+        if (!std::filesystem::is_directory(folder)) throw std::runtime_error("Controller kit unavailable");
+        mControllerStatus = krose::storage::OpenDirectory(folder) ? "Controller folder opened" : "Cannot open controller folder";
+      } catch (const std::exception&) { mControllerStatus = "Controller folder unavailable"; }
+    } else if (value >= 0 && value < int(mControllerFiles.size())) {
+      if (mControllerFiles[value].empty()) {
+        mControllerStatus = "Invalid profile / check schema.json";
+        return;
+      }
+      mPendingControllerFile = mControllerFiles[value];
+      mConfirmProfile = -4;
+    }
+    return;
+  }
   if (id == 6) {
     ReleaseHeld();
     mControllerStatus = p->SetAudioBufferSize(unsigned(value)) ? "Buffer applied and saved" :
@@ -405,6 +441,11 @@ bool NativePanel::ControllerAction(const Hit &h) {
           mStoredMapping = ControllerHash();
       } else if (action == -2)
         p->StandardMidiMappings();
+      else if (action == -4) {
+        mControllerStatus = p->ImportControllerProfile(mPendingControllerFile)
+            ? "Profile applied / STORE to keep" : "Invalid profile / map unchanged";
+        mPendingControllerFile.clear();
+      }
       else
         map.Clear();
     }

@@ -12,7 +12,7 @@
 
 原生界面使用 IGraphics／NanoVG。采样按当前音色在后台加载，近期缓存与仍在发声的旧音符共享采样；切换期间保留播放。机制、内存实测和效果优化见 [采样加载](docs/SAMPLES.md)。
 
-KeyLab Essential mk3 可在独立版和 Ableton Live 中使用音色／参数屏幕、RGB FX 按钮及硬件映射，详见[控制器设置](docs/CONTROLLERS.md)。发行包另附 Ableton 控制脚本 ZIP。界面尺寸与独立版音频缓冲可在 LCD 的 `CTRL → INPUT` 页调整。
+KeyLab Essential mk3 可在独立版和 Ableton Live 中使用音色／参数屏幕、RGB FX 按钮及硬件映射，详见[控制器设置](docs/CONTROLLERS.md)。默认在 `Resources/Controllers` 附带控制脚本、通用映射和扩展模板，另提供可选 Ableton ZIP；LCD 的 INPUT → PROFILES 可打开目录及导入映射。界面尺寸与独立版音频缓冲可在 LCD 的 `CTRL → INPUT` 页调整。
 
 原始固件和研究代码独立保存于 [krose-source](https://github.com/shiftz300/krose-source)。产品保留冻结运行资源、测试夹具及原生界面资源；普通构建不依赖研究目录。
 

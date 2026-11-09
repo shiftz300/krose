@@ -1,7 +1,7 @@
 name: Native compile and installer checks
 on:
   push:
-    paths: ['src/**', 'cmake/**', 'packaging/**', 'integrations/**', 'tests/**', 'CMakeLists.txt', 'tools/**', '.github/workflows/**']
+    paths: ['src/**', 'cmake/**', 'packaging/**', 'controllers/**', 'tests/**', 'CMakeLists.txt', 'tools/**', '.github/workflows/**']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -60,8 +60,11 @@ jobs:
       - name: Build Release
         run: cmake --build build/ci --config Release --target Krose-vst3 Krose-app --parallel 3
       - name: Check macOS installer structure
+        # The kit is copied before signing and must not contain stale scripts.
         if: runner.os == 'macOS'
         run: bash tools/release/package_macos.sh build/ci "$KROSE_VERSION"
+      - name: Verify built-in controller resources
+        run: python tools/build_controller_resources.py --verify-output build/ci/out
       - name: Package Windows Inno installer
         if: runner.os == 'Windows'
         shell: pwsh

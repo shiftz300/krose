@@ -1,0 +1,47 @@
+{
+  "format": "krose-controller-profile",
+  "version": 1,
+  "name": "Standard CC",
+  "bindings": [
+    {
+      "source": "cc",
+      "number": 10,
+      "target": "Pan"
+    },
+    {
+      "source": "cc",
+      "number": 71,
+      "target": "Resonance"
+    },
+    {
+      "source": "cc",
+      "number": 74,
+      "target": "Cutoff"
+    },
+    {
+      "source": "cc",
+      "number": 73,
+      "target": "Amp Attack"
+    },
+    {
+      "source": "cc",
+      "number": 75,
+      "target": "Amp Decay"
+    },
+    {
+      "source": "cc",
+      "number": 70,
+      "target": "Amp Sustain"
+    },
+    {
+      "source": "cc",
+      "number": 72,
+      "target": "Amp Release"
+    },
+    {
+      "source": "cc",
+      "number": 91,
+      "target": "Space"
+    }
+  ]
+}

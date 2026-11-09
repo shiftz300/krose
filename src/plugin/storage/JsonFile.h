@@ -18,19 +18,20 @@ namespace krose::storage {
 // while bounding accidental/malicious allocation; they are not format limits.
 inline constexpr std::size_t kMaxJsonBytes = 8 * 1024 * 1024;
 inline constexpr int kMaxJsonDepth = 64;
-inline nlohmann::json ReadJson(const std::filesystem::path &path) {
+inline nlohmann::json ReadJson(const std::filesystem::path &path,
+                               std::size_t maxBytes = kMaxJsonBytes, int maxDepth = kMaxJsonDepth) {
   std::ifstream file(path, std::ios::binary | std::ios::ate);
   if (!file)
     throw std::runtime_error("Cannot open settings file");
   const auto size = file.tellg();
-  if (size < 0 || size > std::streamoff(kMaxJsonBytes))
+  if (size < 0 || size > std::streamoff(maxBytes))
     throw std::runtime_error("Settings file exceeds size limit");
   std::string bytes(std::size_t(size), '\0');
   file.seekg(0);
   if (!file.read(bytes.data(), std::streamsize(bytes.size())))
     throw std::runtime_error("Cannot read settings file");
-  return nlohmann::json::parse(bytes, [](int depth, nlohmann::json::parse_event_t, nlohmann::json &) {
-    if (depth > kMaxJsonDepth)
+  return nlohmann::json::parse(bytes, [maxDepth](int depth, nlohmann::json::parse_event_t, nlohmann::json &) {
+    if (depth > maxDepth)
       throw std::runtime_error("Settings nesting exceeds limit");
     return true;
   });

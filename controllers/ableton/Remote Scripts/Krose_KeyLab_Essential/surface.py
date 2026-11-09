@@ -1,10 +1,10 @@
 """Use Live's mk3 transport/navigation; Krose owns only its selected device."""
-import json
 from pathlib import Path
 from functools import partial
 
 from KeyLab_Essential_mk3 import KeyLab_Essential_mk3, Specification
 from .device import DeviceFeedback, is_krose
+from .catalog import load_catalog
 
 
 class KroseKeyLabEssential(KeyLab_Essential_mk3):
@@ -14,8 +14,11 @@ class KroseKeyLabEssential(KeyLab_Essential_mk3):
         self._krose_enabled = {}
         self._krose_sending = False
         super().__init__(*args, specification=Specification, **kwargs)
-        order = json.loads(Path(__file__).with_name("program_order.json").read_text())
-        catalog = json.loads(Path(__file__).with_name("programs.json").read_text())
+        try:
+            order, catalog = load_catalog(Path(__file__).parent)
+        except (OSError, ValueError):
+            order, catalog = [], []
+            self.log_message("Krose: invalid controller catalog; using parameter names")
         self._krose = DeviceFeedback(self._krose_send, order, catalog=catalog)
         with self.component_guard():
             for i, element in enumerate(self.elements.continuous_controls_raw):
@@ -55,9 +58,9 @@ class KroseKeyLabEssential(KeyLab_Essential_mk3):
             header = tuple(message[:9])
             if header == (240, 0, 32, 107, 127, 66, 4, 1, 96):
                 return True
-            if header == (240, 0, 32, 107, 127, 66, 4, 1, 22) and 24 <= message[9] < 36:
+            if len(message) > 9 and header == (240, 0, 32, 107, 127, 66, 4, 1, 22) and 24 <= message[9] < 36:
                 return True
-            if header == (240, 0, 32, 107, 127, 66, 2, 15, 64) and 3 <= message[9] <= 11:
+            if len(message) > 9 and header == (240, 0, 32, 107, 127, 66, 2, 15, 64) and 3 <= message[9] <= 11:
                 return True
         return super()._send_midi(message, *args, **kwargs)
 

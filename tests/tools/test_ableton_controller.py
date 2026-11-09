@@ -15,7 +15,7 @@ def module(name, path):
     return value
 
 
-bridge = module("device", ROOT / "integrations/ableton/Krose_KeyLab_Essential/device.py")
+bridge = module("device", ROOT / "controllers/ableton/Remote Scripts/Krose_KeyLab_Essential/device.py")
 installer = module("installer", ROOT / "tools/install_ableton_controller.py")
 
 

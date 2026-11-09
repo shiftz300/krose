@@ -1,5 +1,11 @@
 # 完成度复查 · 2026-11-09
 
+0.4.2 默认附带控制器适配资源和扩展模板，固定目录为 `controllers/`。独立版通用 JSON 映射、LCD PROFILES 导入／导出、Ableton 输入模板及安全边界校验已接通。用户映射保存在应用支持目录，升级保留；Krose 不执行扩展 Python，Live 脚本仍需信任来源。详细用法见 [控制器设置](CONTROLLERS.md)。
+
+本机 Release／LTO／PGO、32 项原生回归和 65 项工具测试通过；解析器 ASan／UBSan、实际资源清单、PKG 和独立 ZIP 校验通过。GUI 自动点击工具无法定位本地窗口，菜单点击验收未完成；Windows 和设备实物另需对应环境验证。
+
+以下保留 0.4.1 及以前的测量和验收记录。
+
 0.4.1 接入 KeyLab Essential mk3 与 Ableton 控制脚本，修复连续 MIDI／推子跟随，增加 AMP／FILTER 联动、四键 RGB FX 编辑与长按开关，以及可保存的 UI SIZE 和独立版 BUFFER 入口。B094 Chorus 参数转换和 FX 鼠标操作修复一并交付。四键颜色和编辑跳转已由用户实物确认；长按手感与 Windows 设备行为仍需实物复测。
 
 0.4.1 本地 Release／LTO／PGO 构建通过；49 项 Python 测试、29 项 CTest 和 Steinberg 官方验证器的 47 项检查全部通过。原生界面已验证编辑页跳转、AMP／FILTER 选择、缩放坐标与偏好保存；两平台安装包由发布 CI 构建。
