@@ -52,7 +52,7 @@ void NativeLFO::Start(const uint8_t *p, uint32_t clock, uint32_t &random,
     mPhase = start == 37 ? uint16_t(Draw(random))
                          : uint16_t(kPhase[std::min(36, std::abs(start))] * (start < 0 ? -1 : 1));
   mStartPhase = mPhase;
-  mDelay = unsigned(delayOverride < 0 ? p[6] : std::clamp(delayOverride, 0, 99)) << 9;
+  mDelay = uint16_t(unsigned(delayOverride < 0 ? p[6] : std::clamp(delayOverride, 0, 99)) << 9);
   mFadeStep = uint16_t(kFade[std::min<unsigned>(p[7], 99)] >> 1);
   mFade = !mDelay && mFadeStep == 32767 ? 65535 : 0;
   if (kind >= 15 && kind <= 17) {

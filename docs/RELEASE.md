@@ -103,6 +103,8 @@ SDK 的宿主验证工具仍使用 C++17 的 `codecvt` 转码实现；其标准�
 
 一次早期 macOS 任务只有取消状态、没有步骤记录，日志接口返回 404，无法确认其原因；最新同平台任务已成功。六次跳过发生在完整资源尚未就绪阶段，一次后续推送替换了尚在运行的旧安装包任务。
 
-本地补修尚未推送：原生 MSVC／Xcode 中另外发现的整数窄化、变量遮蔽及 Xcode `PRODUCT_BUNDLE_IDENTIFIER` 与 plist 不一致问题；旧插件 ID 保留。两个构建工作流改为单次 `unittest discover` 执行完整工具测试集，避免 PowerShell 只传播最后一条原生命令的退出码；安装与卸载也显式检查退出码。解包兼容 Python 3.9 的旧接口与新版 `data` 过滤接口，两条路径均先拒绝越界路径、链接及特殊文件。Actions 升级及这些更改仍需推送后的 Windows／Xcode CI 验证。
+此次补修包含原生 MSVC／Xcode 中另外发现的整数窄化、变量遮蔽及 Xcode `PRODUCT_BUNDLE_IDENTIFIER` 与 plist 不一致问题；旧插件 ID 保留。两个构建工作流改为单次 `unittest discover` 执行完整工具测试集，避免 PowerShell 只传播最后一条原生命令的退出码；安装与卸载也显式检查退出码。解包兼容 Python 3.9 的旧接口与新版 `data` 过滤接口，两条路径均先拒绝越界路径、链接及特殊文件。Windows／Xcode CI 同时验证 Actions 升级、依赖修补及安装器迁移。
 
 本机复测：Release + PGO／LTO 构建成功，31 项原生回归、56 项工具测试、47 项官方 VST3 验证通过；3 套工作流通过 actionlint。10 个相关编译单元按 Xcode 的 64 位到 32 位窄化诊断检查通过。编译日志仍保留两条宿主验证工具的上游 Unicode 转码弃用提示。
+
+推送 `d7fb937` 后，[原生编译检查](https://github.com/shiftz300/krose/actions/runs/42558598199) 与 [两平台安装包构建](https://github.com/shiftz300/krose/actions/runs/42558598164) 均通过。Windows 的真实 Inno 安装、同版本重装、旧 NSIS 记录迁移、Unicode 安装目录及卸载测试通过；macOS arm64/x86_64 各 31 项、Windows 30 项回归通过，Universal PKG 和两平台独立版 ZIP 已生成。本次只推送 main，未移动 `v0.4.1` 标签或替换已有 Release。原生 MSVC 检查剩余的 LFO 延迟字段窄化警告通过显式保留 16 位计时值修正，原有行为保持一致。
