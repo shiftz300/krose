@@ -329,6 +329,12 @@
           "id": 195,
           "x-slot": 13,
           "y-slot": 0
+        },
+        {
+          "name": "Filter EG Intensity",
+          "id": 196,
+          "x-slot": 14,
+          "y-slot": 0
         }
       ]
     }

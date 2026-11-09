@@ -18,6 +18,12 @@ int main() {
   for (int id = 0; id < kNumParams; ++id) values[id] = double(id) / kNumParams;
   WriteJson(path, EncodePreset(values));
   assert(DecodePreset(ReadJson(path)) == values);
+  assert(SoundParameter(kFilterEGIntensity));
+  auto oldPreset = EncodePreset(values);
+  oldPreset["values"].erase(oldPreset["values"].begin()+kFilterEGIntensity, oldPreset["values"].end());
+  const auto oldValues = DecodePreset(oldPreset);
+  assert(oldValues[kFilterEGIntensity] == .5); // Normalized zero depth offset.
+  for (int id=0; id<kFilterEGIntensity; ++id) assert(oldValues[id] == values[id]);
   auto preBank = EncodePreset(values);
   preBank["values"].erase(preBank["values"].begin()+kEGTarget,preBank["values"].end());
   const auto preBankValues=DecodePreset(preBank);
@@ -56,7 +62,7 @@ int main() {
   assert(normalized[0] == 0 && normalized[1] == 1);
   for (int id = 0; id < kNumParams; ++id) {
     assert(ParameterForMidiTarget(MidiTargetForParameter(id)) == id);
-    assert(SoundParameter(id) == (id < kEGTarget && (id < kSW1Assign || id >= kFXBypass)));
+    assert(SoundParameter(id) == (id == kFilterEGIntensity || (id < kEGTarget && (id < kSW1Assign || id >= kFXBypass))));
   }
   for (unsigned target : {39u, 40u, 41u, unsigned(kNumParams + 3), UINT32_MAX})
     assert(ParameterForMidiTarget(target) == -1);

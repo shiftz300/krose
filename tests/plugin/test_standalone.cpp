@@ -44,6 +44,7 @@ struct Plug {
 struct Name {
   std::string value;
   const char *Get() const { return value.c_str(); }
+  void Set(const char *text) { value=text; }
 };
 struct Device {
   unsigned id;
@@ -86,6 +87,7 @@ struct IPlugAPPHost {
   std::unique_ptr<Driver> mDAC = std::make_unique<Driver>();
   std::unique_ptr<MidiInput> mMidiIn = std::make_unique<MidiInput>();
   std::unique_ptr<MidiInput> mMidiOut;
+  std::atomic<bool> mAudioReady{true};
   krose::standalone::Runtime mRuntime;
   Pointers mInputBufPtrs, mOutputBufPtrs;
   std::atomic<bool> mExiting{false}, mAudioDone{false}, mAudioEnding{false};
@@ -93,13 +95,14 @@ struct IPlugAPPHost {
   bool mMidiInputMissing = false, mMidiListDirty = false;
   std::string mActiveMidiInput;
   std::vector<std::string> mMidiPorts;
+  std::vector<unsigned> mAudioOutputDevIDs;
   void ProbeMidiIO() {}
   void RefreshMidiPreferences() {}
   unsigned mVecWait = 1, mRecoveryOutput = 0, starts = 0;
   unsigned mBufferSize = 64, saves = 0;
   void UpdateINI() { ++saves; }
   double mSampleRate = 48000;
-  struct { Name mAudioInDev{""}, mAudioOutDev{"USB"}, mMidiInDev{"Keyboard"}; unsigned mAudioSR = 48000, mBufferSize = 64; } mState;
+  struct { Name mAudioInDev{""}, mAudioOutDev{"USB"}, mMidiInDev{"Keyboard"}, mMidiOutDev{"off"}; unsigned mAudioSR = 48000, mBufferSize = 64; } mState;
   std::optional<unsigned> mDefaultInputDev, mDefaultOutputDev;
   bool IsScreenshotMode() { return false; }
   int GetMIDIPortNumber(ERoute, const char *name) {
@@ -122,6 +125,8 @@ struct IPlugAPPHost {
   }
   void ProbeAudioIO() {
     mDefaultOutputDev.reset();
+    mAudioOutputDevIDs.clear();
+    for (auto &d : mDAC->devices) mAudioOutputDevIDs.push_back(d.id);
     if (!mDAC->devices.empty()) mDefaultOutputDev = mDAC->devices.front().id;
   }
   bool InitAudio(unsigned, unsigned output, unsigned rate, unsigned frames) {
@@ -133,9 +138,16 @@ struct IPlugAPPHost {
     mRecoveryOutput = output;
     mFallbackOutput = false;
     mAudioDone = mAudioEnding = false;
+    mAudioReady = true;
     mRuntime.Reset();
     return true;
   }
+  std::vector<std::string> AudioChoices(int kind);
+  std::string AudioChoice(int kind);
+  bool SelectAudioChoice(int kind, const std::string& value);
+  bool TryToChangeAudioDriverType() { return true; }
+  void RequestAudioRecovery() { mRuntime.RequestRecovery(); }
+  std::string GetAudioDeviceName(unsigned id) { return mDAC->getDeviceInfo(id).name; }
   void CloseAudio();
   void PollAudio();
   void PollMidi();
@@ -148,6 +160,7 @@ struct IPlugAPPHost {
 };
 std::unique_ptr<IPlugAPPHost> IPlugAPPHost::sInstance;
 #include "standalone/HostCallbacks.inc"
+#include "standalone/AudioPreferences.inc"
 
 int main() {
   IPlugAPPHost buffers;
@@ -223,6 +236,34 @@ int main() {
   automatic.PollMidi();assert(!automatic.mMidiIn->open);
   automatic.mMidiIn->present = true;
   automatic.PollMidi();assert(automatic.mMidiIn->open);
+  IPlugAPPHost switching;
+  switching.mDAC->devices = {{2,"USB"}};
+  switching.mDAC->running = switching.mDAC->open = true;
+  for (unsigned size : {32u,64u,96u,128u,192u,256u,512u,1024u,32u,256u}) {
+    assert(switching.SetAudioBufferSize(size));
+    assert(switching.mBufferSize == size && switching.mState.mBufferSize == size);
+    std::vector<double> audio(size*2);
+    IPlugAPPHost::AudioCallback(audio.data(),nullptr,size,0,0,&switching);
+    assert(switching.mIPlug->largest <= APP_SIGNAL_VECTOR_SIZE);
+  }
+  switching.mAudioReady = false;
+  const auto rendered = switching.mIPlug->rendered;
+  std::array<double,256> startupAudio; startupAudio.fill(999.);
+  IPlugAPPHost::AudioCallback(startupAudio.data(),nullptr,128,0,0,&switching);
+  assert(switching.mIPlug->rendered == rendered);
+  for (auto sample : startupAudio) assert(sample == 0.);
+  switching.mAudioReady = true;
+  switching.mState.mAudioOutDev.value = "USB";
+  assert(switching.AudioChoices(1) == std::vector<std::string>{"USB"});
+  assert(!switching.SelectAudioChoice(2,"not-a-rate"));
+  assert(switching.SelectAudioChoice(2,"44100") && switching.mSampleRate == 44100);
+  assert(switching.SelectAudioChoice(3,"off") && switching.mActiveMidiInput.empty());
+  assert(switching.SelectAudioChoice(3,"Automatic"));
+  switching.mRuntime.Reset();
+  const auto beforeReset = switching.starts;
+  KroseRequestAsioRecovery(&switching);
+  assert(switching.starts == beforeReset); // Driver callback only requests, never closes/reopens.
+  assert(switching.mRuntime.NeedsRecovery(krose::standalone::Runtime::Now(),true));
   // Removal, no devices, retry failure, fallback at a different rate, reconnect.
   host.mDAC->devices.clear(); host.mDAC->running = host.mDAC->open = false;
   host.PollAudio(); assert(host.starts == 1 && !host.mDefaultOutputDev);

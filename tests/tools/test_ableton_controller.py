@@ -116,8 +116,8 @@ class Controller(unittest.TestCase):
         self.feedback.fader(0, 40)
         self.assertEqual(p.value, .95)
 
-    def test_encoder_order_no_echo_and_value_navigation(self):
-        self.assertEqual(bridge.KNOBS[:6], ("Glide","Program","Pan","Cutoff","Resonance","Velocity"))
+    def test_encoder_order_no_echo_and_filter_intensity(self):
+        self.assertEqual(bridge.KNOBS[:6], ("Glide","Filter EG Intensity","Pan","Cutoff","Resonance","Velocity"))
         self.tick()
         self.sent.clear()
         self.feedback.knob(3,64)
@@ -129,28 +129,20 @@ class Controller(unittest.TestCase):
         self.tick(.3)
         self.assertIn(bridge.control_display(3,"Cutoff",str(64 / 127)), self.sent)
         self.assertIn(bridge.pad(0,True), self.sent)
-        self.feedback.knob(1,64)  # Learn position without jumping or recentering.
-        self.assertEqual(self.feedback.params["Program"].value,0)
-        self.feedback.knob(1,65)
-        self.assertEqual(self.feedback.params["Program"].value,3)
-        self.tick(2)
-        self.feedback.knob(1,66)
-        self.assertEqual(self.feedback.params["Program"].value,1)
-        self.feedback.knob(1,64)
-        self.assertEqual(self.feedback.params["Program"].value,0)
-        self.feedback.knob(1,127)  # Acceleration must not discard large deltas.
-        self.assertEqual(self.feedback.params["Program"].value,2)
-        self.feedback.knob(1,0)
-        self.assertEqual(self.feedback.params["Program"].value,0)
+        program = self.feedback.params["Program"].value
+        intensity = self.feedback.params["Filter EG Intensity"]
+        for value in (0, 64, 127, 30):
+            self.feedback.knob(1, value)
+            self.assertAlmostEqual(intensity.value, intensity.min + value / 127 * (intensity.max - intensity.min))
+            self.assertEqual(self.feedback.params["Program"].value, program)
         self.tick(2)
         self.assertFalse(any(m[:9] == bridge.HEADER+(2,15,64) for m in self.sent))
 
     def test_all_knobs_match_software_order_and_labels(self):
-        self.assertEqual(bridge.KNOBS,("Glide","Program","Pan","Cutoff","Resonance","Velocity","Output",None,None))
-        self.assertEqual(bridge.KNOB_LABELS,("Glide","Value","Pan","Cutoff","Resonance","Velocity","Volume","Unassigned","Unassigned"))
+        self.assertEqual(bridge.KNOBS,("Glide","Filter EG Intensity","Pan","Cutoff","Resonance","Velocity","Output",None,None))
+        self.assertEqual(bridge.KNOB_LABELS,("Glide","Filter EG Int","Pan","Cutoff","Resonance","Velocity","Volume","Unassigned","Unassigned"))
         self.assertEqual(bridge.parameter_label("Output"),"Volume")
         for index,name in enumerate(bridge.KNOBS):
-            if index==1: continue
             before={key:p.value for key,p in self.feedback.params.items()}
             self.feedback.knob(index,127)
             if name is not None: self.assertEqual(self.feedback.params[name].value,1)
@@ -369,8 +361,8 @@ class Controller(unittest.TestCase):
             path = installer.install_parameter_configuration(Path(root))
             data = json.loads(path.read_text())
             params = data["groups"][0]["parameters"]
-            self.assertEqual(len(params), 53)
-            self.assertEqual(len({p["id"] for p in params}), 53)
+            self.assertEqual(len(params), 54)
+            self.assertEqual(len({p["id"] for p in params}), 54)
             self.assertEqual(next(p["id"] for p in params if p["name"]=="EG Target"),194)
             self.assertTrue(set(filter(None,bridge.KNOBS + bridge.FADERS + bridge.PADS)).issubset({p["name"] for p in params}))
             self.assertEqual(data["device-id"], "device:vst3:instr:f2aee70d-00de-4f4e-4c6f-634953654731?n=Krose")
@@ -392,7 +384,7 @@ class Controller(unittest.TestCase):
             installer.install_parameter_configuration(library)
             merged = json.loads(path.read_text())
             self.assertEqual(merged["groups"][0]["parameters"][0], original_parameter)
-            self.assertEqual(len(merged["groups"][0]["parameters"]), 53)
+            self.assertEqual(len(merged["groups"][0]["parameters"]), 54)
             self.assertEqual(next((library / "Krose Controller Backups").rglob("*.appc")).read_bytes(), before)
             merged["device-id"] = "device:vst3:instr:wrong-plugin"
             path.write_text(json.dumps(merged))

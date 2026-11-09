@@ -81,7 +81,7 @@ function drawProgramRow(p){
  stamp(symbols.AC.rows,symbols.AC.width,227,2);
  canvas.setAttribute('aria-label',label+' · '+displayTempo().toFixed(2)+' BPM · AC');
 }
-const defaults={output:-6,cutoff:0,resonance:0,velocity:1,pan:0,glide:0,gate:80,swing:0,tempo:120,arpOctaves:1};
+const defaults={filterIntensity:0,output:-6,cutoff:0,resonance:0,velocity:1,pan:0,glide:0,gate:80,swing:0,tempo:120,arpOctaves:1};
 const keyGeometry={whitePitch:34,whiteLength:216,blackWidth:20.4,blackLength:134};
 let state={version:1,values:{...defaults},toggles:{arp:true,latch:false,host:true,sustain:false,sw1:false,sw2:false,sort:true,keySync:true},fx:{insert:true,master:true},fxEdits:{},fxFolded:false,eg:'amp',envelopes:{amp:{attack:0,decay:0,sustain:0,release:0},filter:{attack:0,decay:0,sustain:0,release:0}},voice:'poly',preset:0,page:'main',octave:0,rate:'1/16',pattern:'UP',wheels:{pitch:0,mod:0}};
 let compare=null;
@@ -105,7 +105,7 @@ const key=c.dataset.control,label=c.dataset.label,min=+c.dataset.min,max=+c.data
 const caption=document.createElement('label');caption.className='caption';caption.textContent=label;caption.htmlFor='kf-value-'+key;
 const knob=document.createElement('button');knob.type='button';knob.className='knob cursor-interaction';knob.role='slider';knob.setAttribute('aria-label',label);knob.setAttribute('aria-valuemin',min);knob.setAttribute('aria-valuemax',max);const pointer=document.createElement('span');pointer.className='pointer';knob.append(pointer);
 const input=document.createElement('input');input.id='kf-value-'+key;input.type='text';input.inputMode='decimal';input.className='readout';input.setAttribute('aria-label',label+' value');c.append(caption,knob,input);
-const hostName=c.dataset.label==='VOLUME'?'Output':label[0]+label.slice(1).toLowerCase();
+const hostName=c.dataset.parameter||(c.dataset.label==='VOLUME'?'Output':label[0]+label.slice(1).toLowerCase());
 const set=n=>{state.values[key]=Math.round(clamp(n,min,max)/step)*step;paintKnob(c);native?.set(hostName,state.values[key]);};
 input.addEventListener('change',()=>{const n=parseFloat(input.value.replace('−','-'));if(Number.isFinite(n))set(n);else paintKnob(c);persist();});
 let start=null;knob.addEventListener('pointerdown',e=>{native?.begin(hostName);start={y:e.clientY,value:state.values[key]};knob.setPointerCapture(e.pointerId);e.preventDefault();});
@@ -114,7 +114,7 @@ const end=()=>{if(start){start=null;native?.end(hostName);persist();}};knob.addE
 knob.addEventListener('dblclick',()=>{set(+c.dataset.default);persist();});
 knob.addEventListener('keydown',e=>{if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Home'].includes(e.key))return;e.preventDefault();set(e.key==='Home'?+c.dataset.default:state.values[key]+(['ArrowUp','ArrowRight'].includes(e.key)?step:-step));persist();});
 });
-function paintKnob(c){const key=c.dataset.control,min=+c.dataset.min,max=+c.dataset.max;const v=clamp(Number(state.values[key])||0,min,max);state.values[key]=v;c.querySelector('.knob').style.setProperty('--angle',(-135+270*(v-min)/(max-min))+'deg');c.querySelector('.knob').setAttribute('aria-valuenow',v);let text=key==='output'?v.toFixed(1)+' dB':key==='velocity'?v.toFixed(2)+'×':['cutoff','resonance'].includes(key)?signed(Math.round(v)):key==='pan'?(v===0?'C':(v<0?'L':'R')+Math.abs(Math.round(v))):Math.round(v)+c.dataset.unit;c.querySelector('input').value=text;}
+function paintKnob(c){const key=c.dataset.control,min=+c.dataset.min,max=+c.dataset.max;const v=clamp(Number(state.values[key])||0,min,max);state.values[key]=v;c.querySelector('.knob').style.setProperty('--angle',(-135+270*(v-min)/(max-min))+'deg');c.querySelector('.knob').setAttribute('aria-valuenow',v);let text=key==='output'?v.toFixed(1)+' dB':key==='velocity'?v.toFixed(2)+'×':['cutoff','resonance','filterIntensity'].includes(key)?signed(Math.round(v)):key==='pan'?(v===0?'C':(v<0?'L':'R')+Math.abs(Math.round(v))):Math.round(v)+c.dataset.unit;c.querySelector('input').value=text;}
 // A single dot matrix keeps adjacent shoulders on the same pixels.
 // Enabled slots and initial values from the four factory Program records.
 const programEffects={
@@ -498,7 +498,7 @@ $$('[data-eg]').forEach(b=>b.addEventListener('click',()=>{state.eg=b.dataset.eg
 $$('[data-voice]').forEach(b=>b.addEventListener('click',()=>{state.voice=b.dataset.voice;render();persist();}));
 $$('.lcd-tab[data-page]').forEach(b=>b.addEventListener('click',()=>{state.page=b.dataset.page;render();persist();}));
 $$('[data-open-page]').forEach(b=>b.addEventListener('click',()=>{state.page=b.dataset.openPage;render();persist();}));
-$('#kf-value').addEventListener('click',()=>stepPreset(1));
+
 $('#kf-program').addEventListener('change',e=>selectPreset(+e.target.value));
 $$('[data-bind]').forEach(input=>input.addEventListener('change',()=>{const v=Number(input.value);if(Number.isFinite(v))state.values[input.dataset.bind]=clamp(v,+input.min,+input.max);render();persist();}));
 $$('[data-fx]').forEach(input=>input.addEventListener('change',()=>{state.fx[input.dataset.fx]=input.checked;paintEffectView();persist();}));

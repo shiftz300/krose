@@ -1,4 +1,5 @@
 include("${CMAKE_SOURCE_DIR}/cmake/NativeEditorResources.cmake")
+find_package(Threads REQUIRED)
 if(BUILD_TESTING)
   krose_test(controller-profile "${CMAKE_SOURCE_DIR}/tests/plugin/test_controller_profile.cpp" "${CMAKE_SOURCE_DIR}/controllers")
   target_include_directories(test-controller-profile PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
@@ -19,6 +20,14 @@ if(BUILD_TESTING)
     # This target compiles the SDK alone, without iPlug's CRT compatibility
     # definitions. Keep the SDK's bounded legacy CRT calls available here too.
     target_compile_definitions(test-sdk-boundaries PRIVATE _CRT_SECURE_NO_WARNINGS)
+  endif()
+  krose_test(update-check "${CMAKE_SOURCE_DIR}/tests/plugin/test_update_check.cpp")
+  target_sources(test-update-check PRIVATE storage/UpdateCheck.cpp)
+  target_include_directories(test-update-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
+  target_link_libraries(test-update-check PRIVATE Threads::Threads)
+  if(WIN32)
+    target_link_libraries(test-update-check PRIVATE winhttp)
   endif()
   krose_test(user-preset "${CMAKE_SOURCE_DIR}/tests/plugin/test_user_preset.cpp")
   target_include_directories(test-user-preset PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -42,7 +51,7 @@ set(KROSE_LICENSE_RESOURCES
 iplug_add_plugin(Krose
   SOURCES
     KrosePlugin.cpp KrosePlugin.h
-    Parameters.cpp Parameters.h storage/UserPreset.cpp standalone/AudioSettings.cpp
+    Parameters.cpp Parameters.h storage/UpdateCheck.cpp storage/UserPreset.cpp standalone/AudioSettings.cpp
     midi/ControllerInput.cpp midi/ControllerState.cpp midi/ArturiaFeedback.cpp
     midi/ControllerProfiles.cpp
     editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp editor/native/PanelControllers.cpp editor/native/PanelEffects.cpp editor/native/PanelFxVisual.cpp editor/native/PanelMotion.cpp resources/resource.h
@@ -51,6 +60,14 @@ iplug_add_plugin(Krose
     "${IPLUG2_DIR}/Examples/IPlugEffect/resources/fonts/Roboto-Regular.ttf"
   FORMATS VST3 APP
   LINK krose::core)
+# Share the actual build timestamp between the standalone and plugin.
+add_custom_target(krose-build-info
+  COMMAND "${CMAKE_COMMAND}" "-DOUTPUT=${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.h"
+    "-DVERSION=${PROJECT_VERSION}" -P "${CMAKE_SOURCE_DIR}/cmake/WriteBuildInfo.cmake"
+  BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.h"
+  VERBATIM)
+add_dependencies(Krose-app krose-build-info)
+add_dependencies(Krose-vst3 krose-build-info)
 include("${CMAKE_SOURCE_DIR}/cmake/ControllerResources.cmake")
 krose_controller_resources()
 # Apply to SDK translation units as well as the plugin: all channels expose CC input.
@@ -59,6 +76,10 @@ target_include_directories(Krose-vst3 BEFORE PRIVATE "${CMAKE_BINARY_DIR}/genera
 add_dependencies(Krose-vst3 segrand-assets krose-factory-assets)
 add_dependencies(Krose-app segrand-assets krose-factory-assets)
 foreach(target Krose-vst3 Krose-app)
+  target_link_libraries(${target} PRIVATE Threads::Threads)
+  if(WIN32)
+    target_link_libraries(${target} PRIVATE winhttp)
+  endif()
   target_include_directories(${target} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
   # Keep high-risk diagnostics actionable in both our code and SDK sources.
   target_compile_options(${target} PRIVATE

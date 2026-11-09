@@ -49,6 +49,7 @@ bool IPlugAPPHost::TryToChangeAudio() {
 }
 
 void IPlugAPPHost::CloseAudio() {
+  mAudioReady.store(false, std::memory_order_release);
   mAudioEnding = true;
   if (mDAC && mDAC->isStreamOpen()) {
     if (mDAC->isStreamRunning()) {
@@ -132,6 +133,7 @@ void IPlugAPPHost::PollMidi() {
     }
   } catch (const RtMidiError &) {
     if (!mMidiInputMissing) mRuntime.CancelMidi();
+    mActiveMidiInput.clear();
     mMidiInputMissing = true; // Keep the saved preference and retry next tick.
   }
 }
@@ -145,8 +147,9 @@ int IPlugAPPHost::AudioCallback(void *output, void *input, uint32_t frames, doub
   auto *out = static_cast<double *>(output);
   if (!out || !frames)
     return 0;
-  if (host.mExiting || host.mAudioDone) {
+  if (host.mExiting || host.mAudioDone || !host.mAudioReady.load(std::memory_order_acquire)) {
     std::fill(out, out + size_t(outputs) * frames, 0.);
+    if (host.mAudioEnding) host.mAudioDone = true;
     return 0;
   }
   host.mRuntime.BeginAudio(frames, host.mSampleRate, krose::standalone::Runtime::Now());
@@ -175,10 +178,10 @@ int IPlugAPPHost::AudioCallback(void *output, void *input, uint32_t frames, doub
 
 void IPlugAPPHost::MIDICallback(double delta, std::vector<uint8_t> *message, void *context) {
   auto &host = *static_cast<IPlugAPPHost *>(context);
-  if (message->empty() || host.mExiting)
+  if (!message || message->empty() || host.mExiting)
     return;
   if (message->size() > 3) {
-    if (message->size() <= MAX_SYSEX_SIZE) {
+    if (message->size() < MAX_SYSEX_SIZE) {
       SysExData data{0, int(message->size()), message->data()};
       host.mIPlug->mSysExMsgsFromCallback.Push(data);
     }

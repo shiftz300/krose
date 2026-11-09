@@ -58,5 +58,23 @@ int main() {
   assert(filter.Duration()<filterRelease);
   for(int i=0;i<32;++i)filter.Tick();
   assert(std::abs(filter.Level())<4);
+  // EG intensity changes a held note's filter depth, without changing its envelope timing.
+  auto *branch = program.data() + 0x564 + 0x90;
+  branch[19] = 35; branch[22] = 0; branch[23] = 0; branch[24] = 0;
+  NativeFilter depth;
+  depth.SetOffsets({-99,0,0,0},0,0);
+  depth.StartProgram(program.data(),voice,0,100,48000);
+  for (int i=0;i<32;++i) depth.Tick();
+  const auto duration = depth.Duration();
+  const int level = depth.Level(), original = depth.Word(0,1);
+  assert(level > 0);
+  depth.SetOffsets({-99,0,0,0},0,0,99); depth.Tick();
+  const int positive = depth.Word(0,1);
+  depth.SetOffsets({-99,0,0,0},0,0,-99); depth.Tick();
+  const int negative = depth.Word(0,1);
+  assert(positive > original && original > negative);
+  assert(depth.Level() == level && depth.Duration() == duration);
+  depth.SetOffsets({-99,0,0,0},0,0,0); depth.Tick();
+  assert(depth.Word(0,1) == original);
   std::cout<<"PASS held AMP/filter sustain, in-flight attack/release retiming, continuity and future-phase edits\n";
 }
