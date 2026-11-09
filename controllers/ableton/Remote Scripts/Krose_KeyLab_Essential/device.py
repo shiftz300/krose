@@ -2,9 +2,9 @@
 import time
 
 HEADER = (240, 0, 32, 107, 127, 66)
-KNOBS = ("Glide", "Program", "Pan", "Cutoff", "Resonance", "Velocity",
+KNOBS = ("Glide", "Filter EG Intensity", "Pan", "Cutoff", "Resonance", "Velocity",
          "Output", None, None)
-KNOB_LABELS = ("Glide", "Value", "Pan", "Cutoff", "Resonance", "Velocity",
+KNOB_LABELS = ("Glide", "Filter EG Int", "Pan", "Cutoff", "Resonance", "Velocity",
                "Volume", "Unassigned", "Unassigned")
 FADERS = ("Amp Attack", "Amp Decay", "Amp Sustain", "Amp Release",
           "Filter Attack", "Filter Decay", "Filter Sustain", "Filter Release", "Output")
@@ -107,7 +107,6 @@ class DeviceFeedback:
         self.cache, self.values, self.pickup = {}, {}, {}
         self.focus, self.until, self.next_update = None, 0, 0
         self.held = set()
-        self.value_position = None
         self.program_started = None
         self.control_until, self.restore_screen = 0, False
         self.eg_target = None
@@ -121,7 +120,6 @@ class DeviceFeedback:
         self.pickup.clear()
         self.focus, self.until, self.next_update = None, 0, 0
         self.held.clear()
-        self.value_position = None
         self.program_started = None
         self.control_until, self.restore_screen = 0, False
         self.eg_target = None
@@ -141,11 +139,6 @@ class DeviceFeedback:
 
     def knob(self, index, value):
         self.control_until, self.restore_screen = self.clock() + 1.2, True
-        if index == 1:
-            delta = value - self.value_position if self.value_position is not None else 0
-            self.value_position = value
-            self._step_program(delta)
-            return
         p = self.params.get(KNOBS[index])
         if p:
             self._write(KNOBS[index], p.min + max(0, min(127, value)) / 127 * (p.max - p.min))

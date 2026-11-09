@@ -8,6 +8,8 @@ import shutil
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
+LIVE_SCRIPT = Path('ableton/Remote Scripts/Krose_KeyLab_Essential')
+FL_SCRIPT = Path('fl-studio/Krose_KeyLab_Essential')
 
 
 def verify(destination):
@@ -30,7 +32,9 @@ def verify(destination):
     if any(p.is_symlink() for p in all_files): raise ValueError('Controller kit contains a symlink')
     actual = {p.relative_to(root).as_posix() for p in all_files if p.is_file()}
     if expected != actual: raise ValueError('Stale or missing controller resources')
-    for path in ('ableton/Remote Scripts/Krose_KeyLab_Essential/programs.json',
+    for path in ((LIVE_SCRIPT / 'programs.json').as_posix(),
+                 *((FL_SCRIPT / name).as_posix() for name in
+                   ('device_krose_keylab.py', 'krose_keylab.py', 'krose_catalog.py', 'programs.json', 'program_order.json')),
                  'templates/standalone/generic-keyboard.json', 'templates/ableton/Krose_Generic_Template/surface.py'):
         if path not in expected: raise ValueError('Incomplete controller support kit')
 
@@ -51,12 +55,14 @@ def build(destination, root=ROOT):
                 target = stage / file.relative_to(source)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(file, target)
-        script = stage / 'ableton/Remote Scripts/Krose_KeyLab_Essential'
         catalog = json.loads((root / 'assets/program-library/FactoryPrograms.json').read_text())
         order = json.loads((root / 'assets/program-library/FactoryBrowser.json').read_text())['order']
         if sorted(order) != list(range(len(catalog))): raise ValueError('Invalid controller catalog order')
-        (script / 'program_order.json').write_text(json.dumps(order) + '\n', encoding='utf-8')
-        (script / 'programs.json').write_text(json.dumps([row[:3] for row in catalog]) + '\n', encoding='utf-8')
+        for script in (stage / LIVE_SCRIPT, stage / FL_SCRIPT):
+            (script / 'program_order.json').write_text(json.dumps(order) + '\n', encoding='utf-8')
+            (script / 'programs.json').write_text(json.dumps([row[:3] for row in catalog]) + '\n', encoding='utf-8')
+        shutil.copyfile(stage / LIVE_SCRIPT / 'device.py', stage / FL_SCRIPT / 'krose_keylab.py')
+        shutil.copyfile(stage / LIVE_SCRIPT / 'catalog.py', stage / FL_SCRIPT / 'krose_catalog.py')
         for source, name in [(root / 'tools/install_ableton_controller.py', 'install_ableton_controller.py'),
                              (root / 'docs/CONTROLLERS.md', 'CONTROLLERS.md'), (root / 'LICENSE', 'LICENSE')]:
             shutil.copyfile(source, stage / name)

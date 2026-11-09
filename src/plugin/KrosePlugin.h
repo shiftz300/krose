@@ -2,6 +2,7 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "Parameters.h"
+#include "storage/UpdateCheck.h"
 #include "engine/InstrumentEngine.h"
 #include "midi/ControllerMap.h"
 #include "midi/InputControls.h"
@@ -50,8 +51,13 @@ public:
   int EditorScalePercent() const noexcept { return mEditorScale; }
   float EditorDrawScale(int percentage) const;
   bool SetEditorScalePercent(int percentage);
+  bool UpdateChecksEnabled() const { return krose::updates::AutomaticChecksAllowed(); }
+  bool SetUpdateChecksEnabled(bool enabled);
   unsigned AudioBufferSize() const;
   bool SetAudioBufferSize(unsigned frames);
+  std::vector<std::string> AudioChoices(int kind);
+  std::string AudioChoice(int kind);
+  bool SelectAudioChoice(int kind, const std::string &value);
   void StandardMidiMappings();
   void CaptureComparison();
   void ToggleComparison();
@@ -102,7 +108,6 @@ private:
   int mEditorScale = 0; // Auto-fit until the user explicitly chooses a size.
   std::atomic<int> mHardwareParameter{-1};
   std::atomic<bool> mHardwareControlTouched{false};
-  std::atomic<int> mHardwareValuePosition{-1};
 #if defined(APP_API)
   std::shared_ptr<krose::standalone::ArturiaController> mArturia;
   void *mStandaloneHost = nullptr;

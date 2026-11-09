@@ -78,7 +78,23 @@ void NativePanel::Heart(IGraphics &g, const IRECT &r, int program) {
     g.PathStroke(color, 1.3f);
   HitBox(r, "favorite", -1, program);
 }
-void NativePanel::PresetCategory(int category) {
+void NativePanel::OpenPresetMenu() {
+  LoadFavorites();
+  mPresetOpen = true;
+  mChoices.clear();
+  const auto &categories = mBrowser["categories"];
+  const auto &currentCategory = mPrograms[int(Value(kParamProgram))][2];
+  auto category = std::find(categories.begin(), categories.end(), currentCategory);
+  if (category != categories.end())
+    PresetCategory(int(category - categories.begin()), true);
+  else {
+    mPresetCategory = -2;
+    mPresetRootFocus = 0;
+    mPresetColumn = 0;
+  }
+}
+
+void NativePanel::PresetCategory(int category, bool revealCurrent) {
   mPresetCategory = category;
   mPresetRootFocus = category + 1;
   mPresetItems.clear();
@@ -88,6 +104,14 @@ void NativePanel::PresetCategory(int category) {
       mPresetItems.push_back(i);
   mPresetFocus = 0;
   mPresetScroll = 0;
+  if (revealCurrent) {
+    const int current = int(Value(kParamProgram));
+    const auto selected = std::find(mPresetItems.begin(), mPresetItems.end(), current);
+    if (selected != mPresetItems.end()) {
+      mPresetFocus = int(selected - mPresetItems.begin());
+      mPresetScroll = std::clamp(mPresetFocus - 6, 0, std::max(0, int(mPresetItems.size()) - 12));
+    }
+  }
   mPresetColumn = 1;
   SetDirty(false);
 }

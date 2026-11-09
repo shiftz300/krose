@@ -9,6 +9,7 @@ bundle: copy the desired template to a user directory first.
 
 - `ableton/Remote Scripts/Krose_KeyLab_Essential`: maintained mk3 adapter.
 - `ableton/Defaults`: Krose parameter configuration for Live.
+- `fl-studio/Krose_KeyLab_Essential`: maintained mk3 adapter for FL Studio.
 - `profiles/builtin`: maintained, data-only standalone MIDI profiles.
 - `templates/standalone/generic-keyboard.json`: editable mapping template.
 - `templates/ableton`: a minimal input-only Python control-surface template.
@@ -37,10 +38,15 @@ Restart Live and choose the surface/ports once. See `CONTROLLERS.md` in the buil
 kit for device-specific setup. The repository installer is also available under
 `tools/install_ableton_controller.py`.
 
-Krose does not import or execute bundled/user Python. Live executes installed
-Python scripts with Live's user permissions; they are not sandboxed by Krose.
-Only install code you trust. No templates are auto-installed into Live and no
-plugin instance opens hardware ports. Generic JSON mappings require no Python.
+FL Studio: copy the built `fl-studio/Krose_KeyLab_Essential` folder into the
+FL Studio user data folder under `Settings/Hardware`. Select
+**Krose KeyLab Essential mk3 (user)** for the keyboard's MIDI input and assign
+the same port number to the matching MIDI output. See the FL Studio section of
+`CONTROLLERS.md` in the built kit.
+
+Live and FL Studio execute their selected controller scripts with the host's
+user permissions. Krose reads generic JSON mappings and leaves DAW controller
+scripts and hardware ports to the host.
 
 Disable distribution of the kit with `-DKROSE_BUNDLE_CONTROLLERS=OFF` if desired;
 the existing native MIDI engine and compiled KeyLab adapter remain available.

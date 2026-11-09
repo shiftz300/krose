@@ -14,9 +14,10 @@ int Mod(int intensity, int source) {
 using namespace envelope_math;
 } // namespace
 
-void NativeFilter::SetOffsets(EnvelopeOffsets eg, int cutoff, int resonance) noexcept {
+void NativeFilter::SetOffsets(EnvelopeOffsets eg, int cutoff, int resonance, int egIntensity) noexcept {
   const auto previous = mOffsets;
   mOffsets = eg; mCutoff = cutoff; mResonance = resonance;
+  mEgIntensity = std::clamp(egIntensity, -99, 99);
   if (!mOsc) return;
   const int phase = mStage >= 8 ? 3 : mStage / 2;
   const bool sustain = !mReleased && phase >= 2 && phase < 4 && mStage < 8 && previous.sustain != eg.sustain;
@@ -161,7 +162,7 @@ void NativeFilter::UpdateWords() noexcept {
     }
     const auto p = mOsc + 0x90 + branch * 0x24;
     const int tracking = (source(9) * Signed(p[21])) >> 5;
-    const int egDepth = Signed(p[22]) * 63 + ((mVelocity * Signed(p[23])) >> 1) +
+    const int egDepth = std::clamp(Signed(p[22]) + mEgIntensity, -128, 127) * 63 + ((mVelocity * Signed(p[23])) >> 1) +
                         ((source(mOsc[0x89]) * Signed(p[24])) >> 6);
     int raw = p[19] * 32767 + ((egDepth * mLevel) >> 6) + tracking * 256;
     raw += 8 * Signed(p[9]) * source(p[8]) + 8 * Signed(p[13]) * source(p[12]);

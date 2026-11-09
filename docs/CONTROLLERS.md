@@ -67,11 +67,23 @@ python3 tools/install_ableton_controller.py
 
 VST3 不直接打开键盘端口。Live 脚本统一发送屏幕和灯光反馈，多个 Krose 实例不会争用硬件。Krose 接管期间同时屏蔽官方脚本的旋钮位置回传。
 
+## FL Studio
+
+使用 MIDI 脚本 API 26 或更新版本。先在 FL Studio 的 File settings 查看 **User data folder**，把完整的 `Resources/Controllers/fl-studio/Krose_KeyLab_Essential` 复制到该目录的 `Settings/Hardware`。从源码取用时，先运行 `python3 tools/build_controller_resources.py build/controller-kit/Controllers`，复制生成目录里的同名文件夹。
+
+1. 键盘按 **Prog** 进入 **DAW** 程序。
+2. 打开 **Options → MIDI settings**，为 KeyLab Essential mk3 的 **MIDI** 输入选择 **Krose KeyLab Essential mk3 (user)** 并启用。给同名 **MIDI** 输出分配与输入相同的空闲端口号。
+3. 在 Channel Rack 加载并选中 Krose VST3。脚本按参数名称绑定，无需逐项设置 MultiLink。音符、力度、弯音、调制轮和踏板沿用 FL Studio 的演奏路由。ALV、MCU/HUI 和 DIN THRU 无需用于这套配置。
+
+旋钮、推子、Pads 和四个 FX 键复用下方的映射；屏幕显示音色、分类图标和参数数值。切换 Channel Rack 的选择即可控制另一实例。播放、停止、录音、Tap、循环录音和节拍器由脚本交给 FL Studio。要用 Arturia 原厂脚本的混音器和浏览器页面，可在 Controller type 切回原厂脚本。
+
+目前已验证脚本的宿主接口调用、MIDI 处理和打包。FL Studio 实机和实体键盘组合待验证。端口配对与脚本目录参见 [Arturia 的 FL Studio 设置](https://support.arturia.com/hc/en-us/articles/8905862388508-KeyLab-Essential-mk3-DAW-Integration) 和 [Image-Line MIDI Scripting](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/midi_scripting.htm)。
+
 ## 默认映射
 
 | 硬件 | Krose |
 |---|---|
-| 旋钮 1–6 | Glide、Value（音色切换）、Pan、Cutoff、Resonance、Velocity；按左侧矩阵从左到右、从上到下 |
+| 旋钮 1–6 | Glide、Filter EG Int（滤波包络强度）、Pan、Cutoff、Resonance、Velocity；按左侧矩阵从左到右、从上到下 |
 | 旋钮 7 | Volume（Output），对应软件右侧音量旋钮；显示 Volume 和 dB 数值 |
 | 旋钮 8–9 | 未分配，显示 Unassigned／--；不改动 FX 参数 |
 | 推子 1–4 | 跟随界面 AMP／FILTER 选择的 Attack、Decay、Sustain、Release |
@@ -93,7 +105,7 @@ VST3 不直接打开键盘端口。Live 脚本统一发送屏幕和灯光反馈�
 
 ## 实时演奏与八度
 
-LCD `>CTRL → INPUT → UI SIZE` 控制界面大小，提供自动适应和 60–150% 的固定比例，并保存选择。它与音频缓冲独立，不随音色或 MIDI 配置切换。
+LCD `>CTRL → UI → UI SIZE` 控制界面大小，提供自动适应和 60–150% 的固定比例，并保存选择。它与音频缓冲独立，不随音色或 MIDI 配置切换。
 
 独立版在 LCD `>CTRL → INPUT → BUFFER` 直接选择 32–8192 样本，显示驱动实际接受的大小和每块毫秒数，并保存到独立版设置；设备拒绝时恢复原值。128 可作为低延迟演奏的起点；较重的复音／效果或较慢的声卡可增加到 256。也可按 `⌘ ,` 使用系统音频设置。插件版显示 HOST／DAW 及宿主最大处理块，实际缓冲在宿主设置；它不属于音色或 MIDI 映射。驱动和输出设备还会增加延迟，缓冲块时长不等于端到端延迟。CoreMIDI 同包多个音符的重复间隔不会累加到未来，避免和弦被人为拆开排队。
 
@@ -123,3 +135,15 @@ LCD `>CTRL → INPUT → UI SIZE` 控制界面大小，提供自动适应和 60�
 - [mk3 SysEx 研究笔记](https://github.com/PrzemekBarski/arturia-keylab-essential-mk3-programming-guide)
 
 第三方脚本的安装目录遵循 [Ableton 官方说明](https://help.ableton.com/hc/en-us/articles/209072009-Installing-third-party-remote-scripts)。
+
+设置页按用途分开：INPUT 管理输入通道、时钟和映射配置；AUDIO 显示采样率并设置独立版缓冲（插件由宿主管理）；UI 管理窗口比例。左侧 EG INT 旋钮引出固件原有滤波包络强度，提供 −99 至 +99 的偏移；0 保留音色原值，Arturia 第二个编码器同步控制它。它控制包络作用的深度，右侧四推子控制时间和持续电平；音色仍通过预设列表及前后按钮切换。
+
+### 独立版设备设置
+
+Windows 保留系统标题栏，移除 File / Help 菜单栏。LCD `CTRL > AUDIO` 可选择音频驱动、输出设备、采样率、缓冲，并打开 ASIO 驱动面板；`CTRL > INPUT` 可选择 MIDI 输入和输出，`CTRL > UI` 管理窗口比例。Windows 系统音频使用 WASAPI，原有 ASIO 选择继续保留。显示的毫秒数是单个处理块的时长，不代表声卡的完整往返延迟。
+
+MIDI 输入选 Automatic 时，断开设备会选择可用的演奏输入；没有输入时置空并清理挂音。显式选择的设备缺失时保留偏好，暂用可用输入，设备重连后再恢复。设备恢复和驱动重启在主线程处理，音频流未准备好期间输出静音。
+
+LCD `CTRL > INFO` 显示插件版本和构建时间（UTC）。时间在构建时写入，独立版与 VST3 共用同一份构建信息。
+
+INFO 页的 `CHECK UPDATES` 开关控制自动更新检测，默认开启并保存为本机偏好。检测到更新的正式版本时显示 GitHub 更新入口；关闭后停止自动检测。应用只提示更新，不自动下载安装。

@@ -90,6 +90,16 @@ void KrosePlugin::OnIdle() {
     const int slot=mFxEditorRequest.exchange(-1,std::memory_order_acq_rel);
     if (slot>=0) p->OpenFxEditor(unsigned(slot));
   }
+  if (p) {
+    if (!UpdateChecksEnabled()) p->ShowUpdateNotice("");
+    else {
+      krose::updates::StartAutomaticCheck();
+      if (p->CanShowUpdateNotice()) {
+        const auto version = krose::updates::TakeUpdateNotice(PLUG_VERSION_STR);
+        if (!version.empty()) p->ShowUpdateNotice(version);
+      }
+    }
+  }
   if (p)
     p->Refresh(mDisplayTempo.load(std::memory_order_relaxed),
                mDisplayHost.load(std::memory_order_relaxed),

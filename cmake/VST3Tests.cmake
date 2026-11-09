@@ -52,6 +52,7 @@ target_compile_definitions(test-vst3-host PRIVATE
   KROSE_LIVE_CONFIGURATION="${CMAKE_SOURCE_DIR}/controllers/ableton/Defaults/Plug-In Configurations/VST3s/maincore/Krose/Default.appc")
 add_dependencies(test-vst3-host Krose-vst3)
 add_test(NAME vst3-host COMMAND test-vst3-host "$<TARGET_BUNDLE_DIR:Krose-vst3>")
+set_property(TEST vst3-host APPEND PROPERTY ENVIRONMENT "KROSE_NO_UPDATE_CHECK=1")
 
 add_executable(benchmark-plugin-memory tools/native-ui/benchmark_memory.mm
   "${SDK_ROOT}/public.sdk/source/vst/hosting/plugprovider.cpp")

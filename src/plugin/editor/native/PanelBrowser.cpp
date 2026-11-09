@@ -3,6 +3,26 @@
 #include "PanelDrawing.h"
 namespace krose::ui {
 using namespace detail;
+void NativePanel::OpenBrowser() {
+  ReleaseHeld();
+  mBrowsing = true;
+  LoadFavorites();
+  mEdit = -2;
+  const int current = int(Value(kParamProgram));
+  FilterPrograms();
+  auto selected = std::find(mFiltered.begin(), mFiltered.end(), current);
+  if (selected == mFiltered.end()) {
+    // A search or filter from the previous visit can hide the active Program.
+    mSearch.clear();
+    mGroup = mCategory = -1;
+    FilterPrograms();
+    selected = std::find(mFiltered.begin(), mFiltered.end(), current);
+  }
+  if (selected != mFiltered.end())
+    mScroll = std::clamp(int(selected - mFiltered.begin()) - 3, 0,
+                         std::max(0, int(mFiltered.size()) - 7));
+}
+
 void NativePanel::FilterPrograms() {
   mFiltered.clear();
   for (int i : mBrowser["order"].get<std::vector<int>>()) {
@@ -180,11 +200,12 @@ void NativePanel::Browser(IGraphics &g) {
   // Keep seven complete rows; the last item can scroll fully into view.
   int maxScroll = std::max(0, int(mFiltered.size()) - 7);
   mScroll = std::clamp(mScroll, 0, maxScroll);
+  const int current = int(Value(kParamProgram));
   for (int row = 0; row < 7 && mScroll + row < int(mFiltered.size()); ++row) {
     int i = mFiltered[mScroll + row];
     auto &p = mPrograms[i];
     auto b = R(452, 226 + row * 39, 568, 37);
-    g.FillRoundRect(IColor(255, 55, 59, 61), b, 3);
+    g.FillRoundRect(i == current ? IColor(255, 65, 81, 94) : IColor(255, 55, 59, 61), b, 3);
     g.DrawRoundRect(IColor(255, 69, 73, 75), b, 3);
     std::string s =
         p[0].get<std::string>() + "  " + p[1].get<std::string>() + " · " + p[2].get<std::string>();

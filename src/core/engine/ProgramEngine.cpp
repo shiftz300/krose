@@ -112,6 +112,7 @@ void ProgramEngine::SetControls(const Controls &c) noexcept {
   mControls.glide = std::clamp(c.glide, 0, 127);
   mControls.space = std::clamp(c.space, 0., 2.);
   mControls.velocityCurve = std::clamp(c.velocityCurve, .5, 3.);
+  mControls.filterEgIntensity = std::clamp(c.filterEgIntensity, -99, 99);
   mControls.releaseSeconds = std::clamp(c.releaseSeconds, .03, 2.);
   mTarget = std::pow(10, std::clamp(c.outputDb, -60., 6.) / 20);
   mRack.SetInserts(c.fx, false);
@@ -279,7 +280,7 @@ void ProgramEngine::NoteOn(int note, int velocity, int channel, int previousPitc
       v.slew.Reset(uint16_t(v.amplitude.Level()));
     } else {
       v.amplitude.SetOffsets(mControls.ampEg);
-      v.filter.SetOffsets(mControls.filterEg, mControls.cutoff, mControls.resonance);
+      v.filter.SetOffsets(mControls.filterEg, mControls.cutoff, mControls.resonance, mControls.filterEgIntensity);
       v.amplitude.StartProgram(p.controls.data(), note, velocity, r.oscillator,
                                r.slotLevel * weight / 32768);
       v.modulation.Start(p.controls.data(), r.oscillator, Sources(v), mRandom, &mCC[channel]);
@@ -463,7 +464,7 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
       v.amplitude.SetOffsets(offsets);
       v.amplitude.Tick();
       if (!v.program->drum) {
-        v.filter.SetOffsets(mControls.filterEg, mControls.cutoff, mControls.resonance);
+        v.filter.SetOffsets(mControls.filterEg, mControls.cutoff, mControls.resonance, mControls.filterEgIntensity);
         v.filter.AdvanceModulationEnvelope();
         v.modulation.SetRandomState(mRandom);
         v.modulation.Tick(Sources(v), uint32_t(uint64_t(v.ageSeconds * mTempo * 8)), &mCC[v.channel]);

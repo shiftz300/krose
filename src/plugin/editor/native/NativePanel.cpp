@@ -278,14 +278,19 @@ void NativePanel::Render(IGraphics &g) {
   double folded = FoldProgress();
   mRenderedFold = folded;
   if (folded < 1) {
-    if (folded > 0) {
-      if (g.CheckLayer(mFXLayer))
-        g.ResumeLayer(mFXLayer);
-      else
-        g.StartLayer(this, R(0, 19, 428, 332));
-      IBlend erase(EBlend::DstOut);
-      g.FillRect(COLOR_WHITE, R(0, 19, 428, 332), &erase);
-    }
+    // Keep the rail and FX on the same surface throughout the transition.
+    // Both the clear and inverse mask extend beyond that surface: their
+    // antialiased rectangle edges must never overlap the rail's top edge.
+    constexpr float radius = 550;
+    const auto bounds = R(0, 19, 428, 332);
+    const auto outside = R(bounds.L - radius, bounds.T - radius,
+                           bounds.W() + radius * 2, bounds.H() + radius * 2);
+    if (g.CheckLayer(mFXLayer))
+      g.ResumeLayer(mFXLayer);
+    else
+      g.StartLayer(this, bounds);
+    IBlend erase(EBlend::DstOut);
+    g.FillRect(COLOR_WHITE, outside, &erase);
     Bitmap(g, "fx-region-1", 0, 19);
     int slot = 0;
     for (const auto &module : mData["fxHits"]["1"]) {
@@ -294,26 +299,26 @@ void NativePanel::Render(IGraphics &g) {
       const auto &rect = module["rect"];
       DrawFxFace(g, R(rect[0], rect[1], rect[2], rect[3]), slot++);
     }
-    if (folded > 0) {
-      g.PathClear();
-      g.PathRect(R(0, 19, 428, 332));
-      g.PathSetWinding(false);
-      g.PathCircle(71.5, 84.59375, 550 * (1 - folded));
-      g.PathSetWinding(true);
-      IBlend cut(EBlend::DstOut);
-      g.PathFill(COLOR_WHITE, IFillOptions(false, EFillRule::Preserve), &cut);
-      mFXLayer = g.EndLayer();
-      g.DrawLayer(mFXLayer);
-    }
-    // The exposed material already includes its red rail. Keep the white rail
-    // from native-base everywhere outside the revealed FX region.
+    // At zero the circle fully covers the surface. Still apply the same mask
+    // so settling cannot switch the stencil/blend path for a single frame.
+    g.PathClear();
+    g.PathRect(outside);
+    g.PathSetWinding(false);
+    g.PathCircle(71.5, 84.59375, radius * (1 - folded));
+    g.PathSetWinding(true);
+    IBlend cut(EBlend::DstOut);
+    g.PathFill(COLOR_WHITE, IFillOptions(false, EFillRule::Preserve), &cut);
+    mFXLayer = g.EndLayer();
+    g.DrawLayer(mFXLayer);
+    // Only the exposed material supplies red rail pixels; the base rail to
+    // its right stays white.
   }
   HitBox(R(38.5, 57.59375, 66, 54), "fold");
   struct KnobInfo {
     int id;
     float x, y;
   };
-  const KnobInfo knobs[] = {{kGlide, 151, 176},         {kParamPan, 307, 176},
+  const KnobInfo knobs[] = {{kGlide, 151, 176}, {kFilterEGIntensity, 229, 176}, {kParamPan, 307, 176},
                             {kParamCutoff, 151, 278},   {kParamResonance, 229, 278},
                             {kParamVelocity, 307, 278}, {kParamOutput, 1370, 176}};
   for (auto k : knobs) {
@@ -338,9 +343,12 @@ void NativePanel::Render(IGraphics &g) {
     Text(g, "mono10", "SAFE", R(1336, 258, 68, 16), 1);
     g.FillRect(IColor(180, 155, 67, 62), R(1346, 275, 48 * std::clamp(mOutputReduction, 0.f, 1.f), 2));
   }
-  Bitmap(g, "knob-shell", 221, 168);
-  Bitmap(g, "knob-pointer", 229, 176);
-  HitBox(R(221, 168, 64, 64), "step", -1, 1);
+  // Replace the baked VALUE caption using the same horizontal panel material.
+  // The blank right-side patch preserves the original vertical lighting.
+  g.PathClipRegion(R(220, 153, 66, 15));
+  Bitmap(g, "native-base", -1050, 0);
+  g.PathClipRegion();
+  Bitmap(g, "caption-eg-int", 218, 155);
   Button(g, "arp", Value(kArpEnabled) > 0, "toggle", kArpEnabled);
   Button(g, "latch", Value(kArpLatch) > 0, "toggle", kArpLatch);
   const bool filterEG = Value(kEGTarget) > 0;
@@ -456,8 +464,43 @@ void NativePanel::Render(IGraphics &g) {
   Reveal(g, !mChoices.empty(), 1,
          R(mPopupTarget.r.L - 4, 0, mPopupTarget.r.W() + 8, 648), &NativePanel::Popup);
   Reveal(g, mPresetOpen, 2, R(505, 82, 586, 340), &NativePanel::PresetMenu);
+  const double updateDim = Visual("update-dim", mUpdateVersion.empty() ? 0 : 1, .18);
+  if (updateDim > 0) g.FillRect(IColor(int(95 * updateDim), 0, 0, 0), mRECT);
+  if (!mUpdateVersion.empty()) mHits.clear();
+  Reveal(g, !mUpdateVersion.empty(), 3, R(505, 205, 462, 210), &NativePanel::UpdatePopup);
   if (mKeyboardFocus && mFocus >= 0 && mFocus < int(mHits.size()))
     g.DrawRect(IColor(180, 215, 225, 230), mHits[mFocus].r.GetPadded(2), nullptr, 1);
+}
+void NativePanel::ShowUpdateNotice(const std::string &version) {
+  if (mUpdateVersion == version) return;
+  mUpdateVersion = version;
+  if (!version.empty()) {
+    ReleaseHeld();
+    mChoices.clear(); mBrowsing = mPresetOpen = false;
+    mKeyboardFocus = false;
+  }
+  SetDirty(false);
+}
+bool NativePanel::CanShowUpdateNotice() const {
+  return mUpdateVersion.empty() && !mPointerDown && mDrag < 0 && mChoices.empty() &&
+         !mBrowsing && !mPresetOpen && !mControllers && !mNumericPending && mEdit < 0 && mMapEdit < 0 &&
+         std::none_of(mHeld.begin(), mHeld.end(), [](bool held) { return held; }) &&
+         std::none_of(mHostLit.begin(), mHostLit.end(), [](bool held) { return held; });
+}
+void NativePanel::UpdatePopup(IGraphics &g) {
+  const auto bounds = R(505, 205, 462, 210);
+  g.FillRect(Paper, bounds);
+  LCDFrame(g, bounds);
+  Text(g, "lcd16", "UPDATE AVAILABLE", R(525, 226, 422, 29), 1);
+  Text(g, "lcd14", std::string("Krose ") + PLUG_VERSION_STR + "  >  " + mUpdateVersion,
+       R(525, 268, 422, 24), 1);
+  Text(g, "lcd13", "Get the latest version on GitHub.", R(525, 302, 422, 22), 1);
+  const auto later = R(529, 356, 166, 34), open = R(711, 356, 232, 34);
+  for (const auto& button : {later, open}) { g.FillRect(Ink, button); }
+  Text(g, "light14", "LATER", later, 1);
+  Text(g, "light14", "OPEN GITHUB", open, 1);
+  HitBox(later, "update-later");
+  HitBox(open, "update-open");
 }
 void NativePanel::ProgramRow(IGraphics &g) {
   const auto &p = mPrograms[int(Value(kParamProgram))];

@@ -18,9 +18,13 @@ function(_app_replace variable before after)
   set(${variable} "${_result}" PARENT_SCOPE)
 endfunction()
 
+if(WIN32)
+  target_compile_definitions(iPlug2::APP INTERFACE __WINDOWS_WASAPI__)
+  target_link_libraries(iPlug2::APP INTERFACE ksuser mfplat mfuuid wmcodecdspuuid)
+endif()
 file(READ "${_app_original}/IPlugAPP_host.h" _header)
 _app_replace(_header "#include <cstdlib>" "#include <cstdlib>\n#include \"standalone/Runtime.h\"")
-_app_replace(_header "  bool InitMidi();" "  bool InitMidi();\n  void PollAudio();\n  void PollMidi();\n  void RefreshMidiPreferences();")
+_app_replace(_header "  bool InitMidi();" "  bool InitMidi();\n  void RequestAudioRecovery() { mRuntime.RequestRecovery(); }\n  void PollAudio();\n  void PollMidi();\n  void RefreshMidiPreferences();")
 _app_replace(_header "  bool InitMidi();" "  const std::string& ActiveMidiInput() const { return mActiveMidiInput; }\n  bool InitMidi();")
 _app_replace(_header "  bool InitMidi();" "  unsigned AudioBufferSize() const { return mDAC && mDAC->isStreamRunning() ? mBufferSize : 0; }\n  bool SetAudioBufferSize(unsigned frames);\n  bool InitMidi();")
 _app_replace(_header "  bool SelectMIDIDevice(" "  bool SelectMIDIDeviceImpl(ERoute direction, const char* portName);\n  bool SelectMIDIDevice(")
@@ -28,6 +32,7 @@ foreach(_flag mExiting mAudioEnding mAudioDone)
   _app_replace(_header "bool ${_flag} = false;" "std::atomic<bool> ${_flag}{false};")
 endforeach()
 _app_replace(_header "  bool mNoIO = false;" [=[  bool mNoIO = false;
+  std::atomic<bool> mAudioReady{false};
   krose::standalone::Runtime mRuntime;
   std::unique_ptr<Timer> mRecoveryTimer;
   uint32_t mRecoveryOutput = 0;
@@ -38,9 +43,12 @@ _app_replace(_header "  bool mFallbackOutput = false;" [=[  bool mFallbackOutput
   std::vector<std::string> mMidiPorts;
   HWND mMidiPreferences = nullptr;]=])
 _app_replace(_header ", mMidiInDev(OFF_TEXT)" ", mMidiInDev(\"Automatic\")")
+_app_replace(_header "  bool InitMidi();" "  std::vector<std::string> AudioChoices(int kind);\n  std::string AudioChoice(int kind);\n  bool SelectAudioChoice(int kind, const std::string& value);\n  bool InitMidi();")
 file(CONFIGURE OUTPUT "${_app_overlay}/IPlugAPP_host.h" CONTENT "${_header}" @ONLY)
 
 file(READ "${_app_original}/IPlugAPP_host.cpp" _host)
+# Migrate the old system-driver slot to WASAPI; keep stored ASIO selection intact.
+_app_replace(_host "RtAudio::WINDOWS_DS" "RtAudio::WINDOWS_WASAPI")
 # Preserve F8/Start/Continue/Stop for LCD-selectable external MIDI clock.
 _app_replace(_host "ignoreTypes(false, true, false )" "ignoreTypes(false, false, true)")
 # Device-free launches should not touch the user's audio/MIDI settings.
@@ -71,6 +79,7 @@ if(_start LESS 0)
 endif()
 string(SUBSTRING "${_host}" 0 ${_start} _host)
 string(APPEND _host "#include \"standalone/HostCallbacks.inc\"\n")
+string(APPEND _host "#include \"standalone/AudioPreferences.inc\"\n")
 _app_replace(_host "  mExiting = true;" [=[  mExiting = true;
   if (mRecoveryTimer) mRecoveryTimer->Stop();
   mRecoveryTimer.reset();
@@ -80,6 +89,13 @@ _app_replace(_host "  mExiting = true;" [=[  mExiting = true;
     mMidiIn->closePort();
     mMidiIn.reset();
   }]=])
+_app_replace(_host "  if (mDAC->startStream() != RTAUDIO_NO_ERROR)" "  mAudioReady.store(true, std::memory_order_release);\n  if (mDAC->startStream() != RTAUDIO_NO_ERROR)")
+_app_replace(_host [=[  if (mDAC->startStream() != RTAUDIO_NO_ERROR)
+  {
+    DBGMSG]=] [=[  if (mDAC->startStream() != RTAUDIO_NO_ERROR)
+  {
+    mAudioReady.store(false, std::memory_order_release);
+    DBGMSG]=])
 _app_replace(_host "  mIPlug->OnActivate(true);" [=[  mIPlug->OnActivate(true);
   if (!mNoIO && !IsScreenshotMode())
     mRecoveryTimer.reset(Timer::Create([this](Timer&) { PollMidi(); PollAudio(); }, 250));]=])
@@ -120,6 +136,7 @@ _app_replace(_host "    mMidiInputDevNames.push_back(OFF_TEXT);" "    mMidiInput
 file(CONFIGURE OUTPUT "${_app_overlay}/IPlugAPP_host.cpp" CONTENT "${_host}" @ONLY)
 
 file(READ "${_app_original}/IPlugAPP_dialog.cpp" _dialog)
+_app_replace(_dialog "DirectSound" "WASAPI")
 _app_replace(_dialog "void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)\n{" "void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)\n{\n  ProbeAudioIO();\n  ProbeMidiIO();")
 # Device names can be UTF-8 and must be written inside the string's size.
 _app_replace(_dialog "tempString.reserve(len);" "tempString.resize(len);")

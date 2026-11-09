@@ -9,7 +9,7 @@ namespace segrand {
 // separate, calibratable approximation, not an emulation of TG silicon.
 class NativeFilter {
 public:
-  void SetOffsets(EnvelopeOffsets eg, int cutoff, int resonance) noexcept;
+  void SetOffsets(EnvelopeOffsets eg, int cutoff, int resonance, int egIntensity = 0) noexcept;
   void Start(const NativeVoice &amplitude, int oscillator, int velocity,
              double sampleRate) noexcept;
   void StartProgram(const uint8_t *program, const NativeVoice &amplitude, int oscillator,
@@ -41,7 +41,7 @@ private:
   std::array<uint16_t, 8> mWords{};
   std::array<int, 2> mLFO{}, mFade{};
   EnvelopeOffsets mOffsets;
-  int mCutoff = 0, mResonance = 0;
+  int mCutoff = 0, mResonance = 0, mEgIntensity = 0;
   int mTrigger = 0;
   bool mReleased = false;
   const uint8_t *mOsc = nullptr;

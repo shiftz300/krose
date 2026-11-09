@@ -555,7 +555,8 @@ int main(int argc,char** argv){
       else assert(controller->setParamNormalized(ids.at(name),value)==kResultOk);
     });
     gestures->tracking=false;
-    if (!std::getenv("KROSE_UI_REFERENCE") && !std::getenv("KROSE_UI_BENCH") && !std::getenv("KROSE_UI_MIDI_TEST")) {
+    if (!std::getenv("KROSE_UI_REFERENCE") && !std::getenv("KROSE_UI_BENCH") &&
+        !std::getenv("KROSE_UI_MIDI_TEST") && !std::getenv("KROSE_UI_PRESET_CHECK")) {
       const auto saved=nlohmann::json::parse(std::ifstream(std::getenv("KROSE_MIDI_MAP_FILE")));
       assert(saved.at("ui_scale")==100);
     }

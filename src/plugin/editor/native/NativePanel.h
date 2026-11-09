@@ -35,6 +35,8 @@ public:
   bool OnKeyUp(float, float, const IKeyPress &) override;
   void OnMouseOver(float, float, const IMouseMod &) override;
   void OnMouseOut() override;
+  void ShowUpdateNotice(const std::string &version);
+  bool CanShowUpdateNotice() const;
   void Refresh(double tempo, bool host, bool loading, bool loadFailed);
   void ReleaseHeld();
   void OpenFxEditor(unsigned slot);
@@ -60,8 +62,8 @@ private:
   void Reveal(IGraphics &, bool open, int slot, const IRECT &, void (NativePanel::*)(IGraphics &));
   void KeyImage(IGraphics &, int note, bool black, float x);
   std::map<std::string, UIMotion> mVisuals;
-  std::array<UIMotion, 3> mReveal;
-  std::array<ILayerPtr, 3> mRevealLayers;
+  std::array<UIMotion, 4> mReveal;
+  std::array<ILayerPtr, 4> mRevealLayers;
   UIMotion mCategoryReveal;
   int mDrawnCategory = -2;
   double mFrameTime = 0, mClickTime = -1;
@@ -89,7 +91,7 @@ private:
   void Popup(IGraphics &);
   void OpenPopup(const Hit &);
   void PresetMenu(IGraphics &);
-  void PresetCategory(int category);
+  void PresetCategory(int category, bool revealCurrent = false);
   std::vector<std::string> mArpFamilies;
   int mArpFamily = 0;
   void LoadFavorites();
@@ -111,6 +113,8 @@ private:
   void StepProgram(int);
   void SetProgram(int);
   void FilterPrograms();
+  void OpenBrowser();
+  void OpenPresetMenu();
   void Note(int, bool);
   void FinishEdit();
   void PresetFile(bool save);
@@ -119,10 +123,12 @@ private:
   double mMod = 0, mWheelRemainder = 0;
   std::array<double, 4> mMeterLevels{};
   void ProgramRow(IGraphics &);
+  void UpdatePopup(IGraphics &);
+  std::string mUpdateVersion;
   void Controllers(IGraphics &);
   bool ControllerAction(const Hit &);
   void ControllerMenu(const Hit &);
-  void ControllerChoice(int, int);
+  void ControllerChoice(int, int, const std::string &selected);
   std::vector<std::string> mControllerFiles;
   std::string mPendingControllerFile;
   void BeginLearn(int target);

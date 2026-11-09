@@ -112,7 +112,7 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
     }
     return true;
   };
-  for (int count : {6, 17, 19, 29, kNumMidiParameters, int(kFxOn1), int(kArpSwing), int(kExtendedFxDetails), int(kEGTarget), int(kFxEditorRequest)}) {
+  for (int count : {6, 17, 19, 29, kNumMidiParameters, int(kFxOn1), int(kArpSwing), int(kExtendedFxDetails), int(kEGTarget), int(kFxEditorRequest), int(kFilterEGIntensity)}) {
     const int bytes = count * int(sizeof(double));
     if (available != bytes && available != bytes + int(sizeof(int32_t)))
       continue;
@@ -133,7 +133,7 @@ int KrosePlugin::UnserializeState(const IByteChunk &chunk, int start) {
     return validParameters(kNumParams) ? UnserializeParams(chunk, start) : -1;
   constexpr int mappingBytes = 16 + krose::midi::ControllerMap::kSlots * int(sizeof(uint64_t));
   int storedParams = kNumParams;
-  for (int oldCount : {kNumMidiParameters, int(kFxOn1), int(kArpSwing), int(kExtendedFxDetails), int(kEGTarget), int(kFxEditorRequest)}) {
+  for (int oldCount : {kNumMidiParameters, int(kFxOn1), int(kArpSwing), int(kExtendedFxDetails), int(kEGTarget), int(kFxEditorRequest), int(kFilterEGIntensity)}) {
     const int bytes = oldCount * int(sizeof(double)) + mappingBytes;
     if (available == bytes || available == bytes + 4) {
       storedParams = oldCount;
@@ -183,6 +183,7 @@ void KrosePlugin::RestoreMidiProfile() {
   try {
     auto settings = ReadSettings();
     mArturiaEnabled = settings.value("arturia_feedback", true);
+    krose::updates::AllowAutomaticChecks(settings.value("check_updates", true));
     const auto scale=settings.value("ui_scale",Json(0));
     if (scale.is_number_integer()) {
       const int value=scale.get<int>();
@@ -206,6 +207,16 @@ bool KrosePlugin::SetEditorScalePercent(int percentage) {
     auto data=ReadSettings();
     data["ui_scale"]=percentage;
     krose::storage::WriteJson(SettingsPath(),data);
+    return true;
+  } catch (const std::exception &) { return false; }
+}
+bool KrosePlugin::SetUpdateChecksEnabled(bool enabled) {
+  krose::updates::AllowAutomaticChecks(enabled);
+  std::lock_guard<std::mutex> guard(settingsMutex);
+  try {
+    auto data = ReadSettings();
+    data["check_updates"] = enabled;
+    krose::storage::WriteJson(SettingsPath(), data);
     return true;
   } catch (const std::exception &) { return false; }
 }

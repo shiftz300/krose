@@ -144,6 +144,36 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
     assert(v);
     [window makeFirstResponder:v];
     std::cout << "Native editor ready pass " << pass << std::endl;
+    if (const char *path = std::getenv("KROSE_UI_PRESET_CHECK")) {
+      setParameter("Program", 1.);
+      pump();
+      click(v, 700, 67);
+      key(v, @"\r", 36);
+      assert(program() == 1.); // PRESET opens on the last Program, even offscreen.
+      click(v, 620, 331);
+      key(v, @"\r", 36);
+      assert(program() == 1.); // BROWSE opens with the same Program in view.
+      click(v, 620, 331);
+      click(v, 550, 195);
+      for (char c : std::string("A000"))
+        key(v, [NSString stringWithFormat:@"%c", c]);
+      key(v, @"\r", 36);
+      assert(std::abs(program() - 1. / 1161.) < 1e-8);
+      setParameter("Program", 1.);
+      pump();
+      click(v, 620, 331);
+      key(v, @"\r", 36);
+      assert(program() == 1.); // An old search must not hide the current sound.
+      setParameter("Program", 1. / 1161.);
+      pump();
+      setenv("KROSE_NATIVE_CAPTURE", path, 1);
+      click(v, 71, 85);
+      pump(.6);
+      unsetenv("KROSE_NATIVE_CAPTURE");
+      view->removed();
+      [window orderOut:nil];
+      return;
+    }
     if (const char *directory = std::getenv("KROSE_UI_MIDI_TEST")) {
       setParameter("MIDI Input Channel",0);
       for(int phase=0;phase<5;++phase) {
@@ -455,6 +485,7 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       number(v, 330, 343, @"2");
       assert(std::abs(velocity() - .6) < 1e-6);
       click(v, 700, 67);
+      key(v, @"\uf702", 123);
       key(v, @"\uf729", 115);
       key(v, @"\uf701", 125);
       key(v, @"\r", 36);
@@ -490,10 +521,10 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       assert(std::abs(glide() - 80. / 127.) < 1e-8);
       assert(parameter("Arp") == 1.);
       assert(program() == 1.);
-      click(v,700,67);key(v,@"\r",36);
+      click(v,700,67);key(v,@"\uf702",123);key(v,@"\uf729",115);key(v,@"\r",36);
       key(v,@"\r",36);
       assert(std::abs(program()-1./1161.)<1e-8); // Favorite survived editor destruction.
-      click(v,700,67);key(v,@"\r",36);click(v,1070,97);
+      click(v,700,67);key(v,@"\uf702",123);key(v,@"\uf729",115);key(v,@"\r",36);click(v,1070,97);
       key(v,@"\r",36); // Empty favorites must not select another program.
       assert(std::abs(program()-1./1161.)<1e-8);
       key(v,@"\x1b",53);

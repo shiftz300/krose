@@ -15,6 +15,26 @@ def replace(text, old, new, count=1):
 
 def patch(path, text):
     if path == "Dependencies/IPlug/RTAudio/RtAudio.cpp":
+        # ASIO reset/rate-change callbacks must never launch a second owner
+        # closing the driver's buffers concurrently with a settings restart.
+        text = replace(text, "static void sampleRateChanged( ASIOSampleRate sRate );",
+                       'extern "C" void KroseRequestAsioRecovery(void*);\nstatic void sampleRateChanged( ASIOSampleRate sRate );')
+        old = """    unsigned threadId;
+    asioCallbackInfo->thread = _beginthreadex( NULL, 0, &asioStopStream,
+                                               asioCallbackInfo, 0, &threadId );"""
+        text = replace(text, old, "    KroseRequestAsioRecovery(asioCallbackInfo->userData);", count=2)
+        # The legacy WASAPI worker can wait forever for an endpoint event after
+        # unplug. Keep waiting event-driven, but let stop/recovery join the thread.
+        for event in ("loopbackEnabled ? renderEvent : captureEvent", "renderEvent"):
+            old = "WaitForSingleObject( " + event + ", INFINITE );"
+            new = """const DWORD waitResult = WaitForSingleObject( """ + event + """, 100 );
+        if (stream_.state == STREAM_STOPPING) break;
+        if (waitResult == WAIT_TIMEOUT) continue;
+        if (waitResult != WAIT_OBJECT_0) {
+          errorText = "RtApiWasapi::wasapiThread: endpoint event unavailable.";
+          goto Exit;
+        }"""
+            text = replace(text, old, new)
         text = replace(text, "  unsigned int nDevices = dataSize / sizeof( AudioDeviceID );", """  if (dataSize % sizeof(AudioDeviceID)) {
     errorText_ = "RtApiCore::probeDevices: invalid device list size.";
     error(RTAUDIO_SYSTEM_ERROR);
@@ -36,6 +56,12 @@ def patch(path, text):
         text = replace(text, "  // The sample rate reporting mechanism", "  nRanges = std::min(nRanges, static_cast<UInt32>(dataSize / sizeof(AudioValueRange)));\n\n  // The sample rate reporting mechanism")
     elif path == "Dependencies/IPlug/RTMidi/RtMidi.cpp":
         text = replace(text, '#include "RtMidi.h"', '#include "RtMidi.h"\n#include <algorithm>\n#include <limits>')
+        # WinMM reset synchronously returns queued SysEx buffers via callbacks.
+        # Do not hold the callback mutex during reset, and never throw halfway
+        # through freeing headers: reconnect/destruction may call close again.
+        start = text.index("void MidiInWinMM :: closePort( void )")
+        end = text.index("void MidiInWinMM :: setClientName", start)
+        text = text[:start] + '#include "standalone/WinMidiClose.inc"\n\n' + text[end:]
         text = replace(text, "unsigned int nSrc = MIDIGetNumberOfSources();", "ItemCount nSrc = MIDIGetNumberOfSources();")
         text = replace(text, "unsigned int nDest = MIDIGetNumberOfDestinations();", "ItemCount nDest = MIDIGetNumberOfDestinations();")
         text = replace(text, "return MIDIGetNumberOfSources();", "return static_cast<unsigned int>(std::min<ItemCount>(MIDIGetNumberOfSources(), std::numeric_limits<unsigned int>::max()));")

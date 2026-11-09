@@ -6,6 +6,7 @@
 #include <iostream>
 using namespace krose::midi::essential;
 int main() {
+  static_assert(kFilterEGIntensity == 196, "Append parameter IDs without moving released automation IDs");
   FxButtonPresses presses;
   assert(presses.Input(0,true,1)==FxPressAction::None);
   assert(presses.Tick(1.3)==0);
@@ -20,7 +21,7 @@ int main() {
   assert(presses.Input(1,false,10.61)==FxPressAction::Toggle);
   presses.Input(0,true,11);presses.Reset();
   assert(presses.Tick(12)==0 && presses.Input(0,false,12)==FxPressAction::None);
-  const std::array<int,9> expectedKnobs{{kGlide,kParamProgram,kParamPan,kParamCutoff,kParamResonance,kParamVelocity,kParamOutput,-1,-1}};
+  const std::array<int,9> expectedKnobs{{kGlide,kFilterEGIntensity,kParamPan,kParamCutoff,kParamResonance,kParamVelocity,kParamOutput,-1,-1}};
   for (unsigned i=0; i<9; ++i) assert(kKnobControls[i].parameter==expectedKnobs[i]);
   assert(std::string(kKnobControls[6].label)=="Volume");
   assert(kFaderParameters[0]==kAmpAttack && kFaderParameters[4]==kFilterAttack && kFaderParameters[8]==kParamOutput);
