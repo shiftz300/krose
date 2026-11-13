@@ -1,7 +1,7 @@
 #define PLUG_NAME "Krose"
 #define PLUG_MFR "maincore"
-#define PLUG_VERSION_HEX 0x00000404
-#define PLUG_VERSION_STR "0.4.4"
+#define PLUG_VERSION_HEX 0x00000405
+#define PLUG_VERSION_STR "0.4.5"
 #define PLUG_UNIQUE_ID 'SeG1'
 #define PLUG_MFR_ID 'LocI'
 #define PLUG_URL_STR ""

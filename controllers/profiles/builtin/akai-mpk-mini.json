@@ -1,0 +1,24 @@
+{
+  "format": "krose-controller-profile",
+  "version": 1,
+  "name": "Akai MPK mini mk3 Custom",
+  "description": "Program the Krose CC layout with MPK mini Editor. Use eight absolute knobs and eight pads in CC mode.",
+  "bindings": [
+    {"source": "cc", "channel": 1, "number": 20, "target": "Cutoff"},
+    {"source": "cc", "channel": 1, "number": 21, "target": "Resonance"},
+    {"source": "cc", "channel": 1, "number": 22, "target": "Filter EG Intensity"},
+    {"source": "cc", "channel": 1, "number": 23, "target": "Pan"},
+    {"source": "cc", "channel": 1, "number": 24, "target": "Glide"},
+    {"source": "cc", "channel": 1, "number": 25, "target": "Velocity"},
+    {"source": "cc", "channel": 1, "number": 26, "target": "Output"},
+    {"source": "cc", "channel": 1, "number": 27, "target": "Space"},
+    {"source": "cc", "channel": 1, "number": 102, "target": "Arp", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 103, "target": "Arp Latch", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 104, "target": "PREV PRESET", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 105, "target": "NEXT PRESET", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 106, "target": "IFX 1 On", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 107, "target": "IFX 2 On", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 108, "target": "MFX 1 On", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 109, "target": "MFX 2 On", "mode": "toggle"}
+  ]
+}

@@ -126,6 +126,10 @@ def install(library):
         stage = Path(folder) / target.name
         stage.mkdir()
         copy_script(source, stage)
+        if not (stage / "device.py").is_file():
+            # Source checkout. Bundled installers already have the shared files.
+            from build_controller_resources import KEYLAB_SHARED, LIVE_SCRIPT, stage_keylab_modules
+            stage_keylab_modules(managed_path(SUPPORT, KEYLAB_SHARED), stage, LIVE_SCRIPT)
         if not (stage / "program_order.json").exists():
             order = json.loads((ROOT / "assets/program-library/FactoryBrowser.json").read_text())["order"]
             (stage / "program_order.json").write_text(json.dumps(order) + "\n", encoding="utf-8")

@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import tempfile
 import unittest
 import json
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -15,7 +16,8 @@ def module(name, path):
     return value
 
 
-bridge = module("device", ROOT / "controllers/ableton/Remote Scripts/Krose_KeyLab_Essential/device.py")
+sys.path.insert(0, str(ROOT / "tools"))
+bridge = module("device", ROOT / "controllers/shared/keylab-essential-mk3/device.py")
 installer = module("installer", ROOT / "tools/install_ableton_controller.py")
 
 

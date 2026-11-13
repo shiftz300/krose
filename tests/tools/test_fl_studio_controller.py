@@ -137,3 +137,39 @@ class FLController(unittest.TestCase):
                             for message in self.messages))
         self.name = "KL Essential 49 mk3 (MCU/HUI)"
         self.assertFalse(self.event(0xb0, 97, 0))
+
+
+class FLGenericCC(unittest.TestCase):
+    def test_forwards_only_cc_to_one_selected_krose_channel(self):
+        forwarded = []
+        state = SimpleNamespace(selected=0, other=-1, name="Krose")
+        mocks = {
+            "channels": SimpleNamespace(channelNumber=lambda _, offset=0: state.other if offset else state.selected),
+            "device": SimpleNamespace(forwardMIDICC=lambda *message: forwarded.append(message)),
+            "general": SimpleNamespace(getVersion=lambda: 26),
+            "plugins": SimpleNamespace(isValid=lambda channel, *_: channel == 0,
+                                      getPluginName=lambda *_: state.name),
+        }
+        path = builder.ROOT / "controllers/fl-studio/Krose_Generic_CC/device_krose_generic.py"
+        with patch.dict(sys.modules, mocks):
+            bridge = module("fl_krose_generic", path)
+        bridge.OnInit()
+
+        def event(status=0xb2, cc=20, value=63, handled=False):
+            message = SimpleNamespace(status=status, data1=cc, data2=value, handled=handled)
+            bridge.OnMidiMsg(message)
+            return message.handled
+
+        self.assertTrue(event())
+        expected = 0xb2 | (20 << 8) | (63 << 16) | (10 << 24)
+        for status in (0x90, 0x80, 0xe0, 0xf0):
+            self.assertFalse(event(status=status))
+        self.assertFalse(event(cc=128))
+        self.assertTrue(event(handled=True))
+        state.other = 1
+        self.assertFalse(event())
+        state.other, state.name = -1, "Other"
+        self.assertFalse(event())
+        state.selected = -1
+        self.assertFalse(event())
+        self.assertEqual(forwarded, [(expected, 2)])

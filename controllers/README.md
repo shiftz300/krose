@@ -10,10 +10,13 @@ bundle: copy the desired template to a user directory first.
 - `ableton/Remote Scripts/Krose_KeyLab_Essential`: maintained mk3 adapter.
 - `ableton/Defaults`: Krose parameter configuration for Live.
 - `fl-studio/Krose_KeyLab_Essential`: maintained mk3 adapter for FL Studio.
-- `profiles/builtin`: maintained, data-only standalone MIDI profiles.
+- `shared/keylab-essential-mk3`: source of the protocol and preset catalog modules staged into both host adapters.
+- `reaper`: action to select the MIDI input on one Krose track.
+- `bitwig`: one input-only controller script that passes MIDI to the instrument track.
+- `profiles/builtin`: data-only mappings for standalone and VST3 hosts.
 - `templates/standalone/generic-keyboard.json`: editable mapping template.
 - `templates/ableton`: a minimal input-only Python control-surface template.
-- `schema.json`: editor schema for standalone profiles.
+- `schema.json`: editor schema for profiles.
 
 Krose: **LCD > CTRL > INPUT > PROFILES** lists built-in and user mappings. It also
 exports the current mapping, opens the user profile folder, and opens this kit.
@@ -44,9 +47,10 @@ FL Studio user data folder under `Settings/Hardware`. Select
 the same port number to the matching MIDI output. See the FL Studio section of
 `CONTROLLERS.md` in the built kit.
 
-Live and FL Studio execute their selected controller scripts with the host's
-user permissions. Krose reads generic JSON mappings and leaves DAW controller
-scripts and hardware ports to the host.
+DAWs run the scripts you select or launch with host permissions. REAPER and
+Bitwig use the shared Krose mapping engine via the instrument track's MIDI input.
+Only the dedicated KeyLab adapters send controller feedback. See
+`CONTROLLERS.md` for keyboard modes, CC assignments and host setup.
 
 Disable distribution of the kit with `-DKROSE_BUNDLE_CONTROLLERS=OFF` if desired;
 the existing native MIDI engine and compiled KeyLab adapter remain available.

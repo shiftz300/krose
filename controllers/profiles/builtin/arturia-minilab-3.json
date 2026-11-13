@@ -1,0 +1,28 @@
+{
+  "format": "krose-controller-profile",
+  "version": 1,
+  "name": "Arturia MiniLab 3 User",
+  "description": "Use a User program on channel 1. Use absolute encoders, and pads 1–8 as momentary CC 102–109.",
+  "bindings": [
+    {"source": "cc", "channel": 1, "number": 74, "target": "Cutoff"},
+    {"source": "cc", "channel": 1, "number": 71, "target": "Resonance"},
+    {"source": "cc", "channel": 1, "number": 76, "target": "Filter EG Intensity"},
+    {"source": "cc", "channel": 1, "number": 77, "target": "Pan"},
+    {"source": "cc", "channel": 1, "number": 93, "target": "Glide"},
+    {"source": "cc", "channel": 1, "number": 18, "target": "Velocity"},
+    {"source": "cc", "channel": 1, "number": 19, "target": "Output"},
+    {"source": "cc", "channel": 1, "number": 16, "target": "Space"},
+    {"source": "cc", "channel": 1, "number": 82, "target": "Amp Attack"},
+    {"source": "cc", "channel": 1, "number": 83, "target": "Amp Decay"},
+    {"source": "cc", "channel": 1, "number": 85, "target": "Amp Sustain"},
+    {"source": "cc", "channel": 1, "number": 17, "target": "Amp Release"},
+    {"source": "cc", "channel": 1, "number": 102, "target": "Arp", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 103, "target": "Arp Latch", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 104, "target": "PREV PRESET", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 105, "target": "NEXT PRESET", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 106, "target": "IFX 1 On", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 107, "target": "IFX 2 On", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 108, "target": "MFX 1 On", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 109, "target": "MFX 2 On", "mode": "toggle"}
+  ]
+}

@@ -10,7 +10,7 @@ from unittest.mock import patch
 from test_ableton_controller import ROOT, installer, module
 
 builder = module('controller_resources', ROOT / 'tools/build_controller_resources.py')
-catalog = module('controller_catalog', ROOT / 'controllers/ableton/Remote Scripts/Krose_KeyLab_Essential/catalog.py')
+catalog = module('controller_catalog', ROOT / 'controllers/shared/keylab-essential-mk3/catalog.py')
 
 
 class Resources(unittest.TestCase):

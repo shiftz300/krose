@@ -10,6 +10,19 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 LIVE_SCRIPT = Path('ableton/Remote Scripts/Krose_KeyLab_Essential')
 FL_SCRIPT = Path('fl-studio/Krose_KeyLab_Essential')
+KEYLAB_SHARED = Path('shared/keylab-essential-mk3')
+KEYLAB_MODULES = {
+    LIVE_SCRIPT: ('device.py', 'catalog.py'),
+    FL_SCRIPT: ('krose_keylab.py', 'krose_catalog.py'),
+}
+
+
+def stage_keylab_modules(shared, destination, script):
+    for source, name in zip(('device.py', 'catalog.py'), KEYLAB_MODULES[script]):
+        path = shared / source
+        if path.is_symlink():
+            raise ValueError('Controller source must not contain symlinks')
+        shutil.copyfile(path, destination / name)
 
 
 def verify(destination):
@@ -32,11 +45,19 @@ def verify(destination):
     if any(p.is_symlink() for p in all_files): raise ValueError('Controller kit contains a symlink')
     actual = {p.relative_to(root).as_posix() for p in all_files if p.is_file()}
     if expected != actual: raise ValueError('Stale or missing controller resources')
-    for path in ((LIVE_SCRIPT / 'programs.json').as_posix(),
-                 *((FL_SCRIPT / name).as_posix() for name in
-                   ('device_krose_keylab.py', 'krose_keylab.py', 'krose_catalog.py', 'programs.json', 'program_order.json')),
-                 'templates/standalone/generic-keyboard.json', 'templates/ableton/Krose_Generic_Template/surface.py'):
-        if path not in expected: raise ValueError('Incomplete controller support kit')
+    required = {'templates/standalone/generic-keyboard.json',
+                'templates/ableton/Krose_Generic_Template/surface.py',
+                'fl-studio/Krose_KeyLab_Essential/device_krose_keylab.py',
+                'fl-studio/Krose_Generic_CC/device_krose_generic.py',
+                'reaper/Krose_Set_MIDI_Input.lua', 'bitwig/Krose MIDI.control.js',
+                'profiles/builtin/arturia-minilab-3.json',
+                'profiles/builtin/akai-mpk-mini.json',
+                'profiles/builtin/generic-custom-cc.json'}
+    for script, modules in KEYLAB_MODULES.items():
+        required.update((script / name).as_posix()
+                        for name in (*modules, 'programs.json', 'program_order.json'))
+    if not required <= expected:
+        raise ValueError('Incomplete controller support kit')
 
 
 def build(destination, root=ROOT):
@@ -49,20 +70,23 @@ def build(destination, root=ROOT):
         stage = Path(scratch) / 'Controllers'
         stage.mkdir()
         for file in sorted(source.rglob('*')):
+            relative = file.relative_to(source)
+            if KEYLAB_SHARED in relative.parents:
+                continue
             if '__pycache__' in file.parts or file.suffix == '.pyc' or file.name == '.DS_Store': continue
             if file.is_symlink(): raise ValueError('Controller source must not contain symlinks')
             if file.is_file():
-                target = stage / file.relative_to(source)
+                target = stage / relative
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(file, target)
         catalog = json.loads((root / 'assets/program-library/FactoryPrograms.json').read_text())
         order = json.loads((root / 'assets/program-library/FactoryBrowser.json').read_text())['order']
         if sorted(order) != list(range(len(catalog))): raise ValueError('Invalid controller catalog order')
-        for script in (stage / LIVE_SCRIPT, stage / FL_SCRIPT):
+        for script in KEYLAB_MODULES:
+            stage_keylab_modules(source / KEYLAB_SHARED, stage / script, script)
+            script = stage / script
             (script / 'program_order.json').write_text(json.dumps(order) + '\n', encoding='utf-8')
             (script / 'programs.json').write_text(json.dumps([row[:3] for row in catalog]) + '\n', encoding='utf-8')
-        shutil.copyfile(stage / LIVE_SCRIPT / 'device.py', stage / FL_SCRIPT / 'krose_keylab.py')
-        shutil.copyfile(stage / LIVE_SCRIPT / 'catalog.py', stage / FL_SCRIPT / 'krose_catalog.py')
         for source, name in [(root / 'tools/install_ableton_controller.py', 'install_ableton_controller.py'),
                              (root / 'docs/CONTROLLERS.md', 'CONTROLLERS.md'), (root / 'LICENSE', 'LICENSE')]:
             shutil.copyfile(source, stage / name)

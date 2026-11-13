@@ -12,7 +12,7 @@ An iPlug2 sample instrument reconstructing KROSS 2 sounds, with macOS Universal 
 
 The native editor uses IGraphics/NanoVG. Samples load per selected Program on a background thread, with a shared recent cache and pinned samples for existing voices. Playback continues during loading. See [sample loading and effects optimization](docs/SAMPLES.md) for measured memory use and switching behavior.
 
-KeyLab Essential mk3 integration provides preset and parameter display, RGB FX buttons and mapped controls in standalone Krose, Ableton Live and FL Studio. Default builds include the scripts and extension templates in `Resources/Controllers`. See [controller setup](docs/CONTROLLERS.md) for installation and verification status. Window size and standalone buffer settings are under `CTRL → UI` and `CTRL → AUDIO`.
+KeyLab Essential mk3 integration provides preset and parameter display, RGB FX buttons and mapped controls in standalone Krose, Ableton Live and FL Studio. The controller kit in `Resources/Controllers` also includes MIDI CC profiles, REAPER and Bitwig input helpers, and setup instructions for Cubase and Studio One. See [controller setup](docs/CONTROLLERS.md) for installation and verification status. Window size and standalone buffer settings are under `CTRL → UI` and `CTRL → AUDIO`.
 
 Original firmware and research code live in [krose-source](https://github.com/shiftz300/krose-source). Frozen runtime assets, fixtures and native editor resources remain here; normal builds do not use the research workspace.
 

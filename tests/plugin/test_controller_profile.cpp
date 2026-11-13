@@ -9,7 +9,10 @@ int main(int argc, char** argv) {
   using Json = nlohmann::json;
   assert(argc == 2);
   const std::map<std::string, unsigned> targets{{"Pan", 0}, {"Resonance", 1}, {"Cutoff", 2},
-    {"Amp Attack", 3}, {"Amp Decay", 4}, {"Amp Sustain", 5}, {"Amp Release", 6}, {"Space", 7}, {"Output", 8}};
+    {"Amp Attack", 3}, {"Amp Decay", 4}, {"Amp Sustain", 5}, {"Amp Release", 6}, {"Space", 7}, {"Output", 8},
+    {"Glide", 9}, {"Filter EG Intensity", 10}, {"Velocity", 11}, {"Filter Attack", 12}, {"Filter Decay", 13},
+    {"Filter Sustain", 14}, {"Filter Release", 15}, {"Arp", 16}, {"Arp Latch", 17}, {"PREV PRESET", 18},
+    {"NEXT PRESET", 19}, {"IFX 1 On", 20}, {"IFX 2 On", 21}, {"MFX 1 On", 22}, {"MFX 2 On", 23}};
   auto resolve = [&](const std::string& name) { auto it = targets.find(name); return it == targets.end() ? -1 : int(it->second); };
   auto profile = ReadControllerProfile(std::filesystem::path(argv[1]) / "profiles/builtin/standard-cc.json", 9, resolve);
   ControllerMap map(9);
@@ -21,6 +24,33 @@ int main(int argc, char** argv) {
   assert(values[2] == 1);
   const auto original = map.Get(2).Encode();
   ReadControllerProfile(std::filesystem::path(argv[1]) / "templates/standalone/generic-keyboard.json", 9, resolve);
+  for (const auto* name : {"arturia-minilab-3.json", "akai-mpk-mini.json", "generic-custom-cc.json"}) {
+    const auto path = std::filesystem::path(argv[1]) / "profiles/builtin" / name;
+    const auto keyboard = ReadControllerProfile(path, unsigned(targets.size()), resolve);
+    ControllerMap controls(unsigned(targets.size()));
+    for (unsigned slot = 0; slot < keyboard.bindings.size(); ++slot)
+      controls.Set(slot, keyboard.bindings[slot]);
+    std::array<double, 24> state{};
+    unsigned nextRequests = 0;
+    auto read = [&](unsigned target) { return state[target]; };
+    auto write = [&](unsigned target, double value) {
+      if (target == 19 && value == 1) ++nextRequests;
+      if (target != 19) state[target] = value;
+    };
+    const bool miniLab = std::string_view(name) == "arturia-minilab-3.json";
+    const uint8_t cutoffCC = miniLab ? 74 : 20;
+    assert(!controls.Process({0, 0xb1, cutoffCC, 127}, read, write)); // Other channels pass through.
+    assert(!controls.Process({0, 0x90, 60, 127}, read, write)); // Playing the keyboard passes through.
+    assert(controls.Process({0, 0xb0, cutoffCC, 127}, read, write) && state[2] == 0); // Pickup.
+    controls.Process({0, 0xb0, cutoffCC, 0}, read, write);
+    controls.Process({0, 0xb0, cutoffCC, 127}, read, write);
+    assert(state[2] == 1);
+    controls.Process({0, 0xb0, 105, 127}, read, write);
+    controls.Process({0, 0xb0, 105, 127}, read, write);
+    controls.Process({0, 0xb0, 105, 0}, read, write);
+    controls.Process({0, 0xb0, 105, 127}, read, write);
+    assert(nextRequests == 2);
+  }
   auto valid = Json{{"format", "krose-controller-profile"}, {"version", 1}, {"name", "Test"},
     {"bindings", Json::array({{{"source", "cc"}, {"number", 74}, {"target", "Cutoff"}}})}};
   auto reject = [&](Json data) {

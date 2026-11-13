@@ -1,0 +1,33 @@
+{
+  "format": "krose-controller-profile",
+  "version": 1,
+  "name": "Generic Keyboard Custom CC",
+  "description": "Program the Krose CC layout on any configurable MIDI keyboard. Use the controls available on the model.",
+  "bindings": [
+    {"source": "cc", "channel": 1, "number": 20, "target": "Cutoff"},
+    {"source": "cc", "channel": 1, "number": 21, "target": "Resonance"},
+    {"source": "cc", "channel": 1, "number": 22, "target": "Filter EG Intensity"},
+    {"source": "cc", "channel": 1, "number": 23, "target": "Pan"},
+    {"source": "cc", "channel": 1, "number": 24, "target": "Glide"},
+    {"source": "cc", "channel": 1, "number": 25, "target": "Velocity"},
+    {"source": "cc", "channel": 1, "number": 26, "target": "Output"},
+    {"source": "cc", "channel": 1, "number": 27, "target": "Space"},
+    {"source": "cc", "channel": 1, "number": 46, "target": "Amp Attack"},
+    {"source": "cc", "channel": 1, "number": 47, "target": "Amp Decay"},
+    {"source": "cc", "channel": 1, "number": 48, "target": "Amp Sustain"},
+    {"source": "cc", "channel": 1, "number": 49, "target": "Amp Release"},
+    {"source": "cc", "channel": 1, "number": 50, "target": "Filter Attack"},
+    {"source": "cc", "channel": 1, "number": 51, "target": "Filter Decay"},
+    {"source": "cc", "channel": 1, "number": 52, "target": "Filter Sustain"},
+    {"source": "cc", "channel": 1, "number": 53, "target": "Filter Release"},
+    {"source": "cc", "channel": 1, "number": 54, "target": "Output"},
+    {"source": "cc", "channel": 1, "number": 102, "target": "Arp", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 103, "target": "Arp Latch", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 104, "target": "PREV PRESET", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 105, "target": "NEXT PRESET", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 106, "target": "IFX 1 On", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 107, "target": "IFX 2 On", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 108, "target": "MFX 1 On", "mode": "toggle"},
+    {"source": "cc", "channel": 1, "number": 109, "target": "MFX 2 On", "mode": "toggle"}
+  ]
+}

@@ -1,6 +1,6 @@
-# Arturia KeyLab Essential mk3
+# 键盘映射与宿主接入
 
-适配目标为 **KeyLab Essential 49 mk3**。本机 Live 的已保存设备名为 `KL Essential 49 mk3 (MIDI)`。旧款 Essential、完整 KeyLab mkII／mk3 使用不同协议，本实现不向这些设备发送指令。
+通用映射支持独立版和接收轨道 MIDI CC 的 VST3 宿主。专用屏幕和灯光反馈适配 **KeyLab Essential mk3**，它与旧款 Essential、完整 KeyLab mkII／mk3 使用不同协议。
 
 ## 内置资源和用户扩展
 
@@ -8,7 +8,7 @@
 
 打开 **LCD > CTRL > INPUT > PROFILES > OPEN BUILT-IN KIT** 可查看随包资源。Ableton 的 `ableton/Remote Scripts` 和 `ableton/Defaults` 已包含所需音色索引，可直接复制到 User Library，随本体一并交付。
 
-独立版通用映射模板是 `templates/standalone/generic-keyboard.json`。复制到 **PROFILES > OPEN USER PROFILES** 打开的用户目录，修改名称、CC／音符编号、通道、目标和编码器模式；重新打开 PROFILES 即会列出文件；无效内容标为 INVALID，不会替换现有映射。选择后确认替换，点 STORE 保存到 USER 槽。EXPORT CURRENT MAP 生成可编辑的新 JSON，不覆盖已有文件。用户目录位于每用户应用支持路径下的 `Krose/Controllers/Profiles`，升级不会覆盖。模板只定义输入映射，设备的 MIDI 端口仍通过正常音频／MIDI 设置选择。
+通用映射模板是 `templates/standalone/generic-keyboard.json`。复制到 **PROFILES > OPEN USER PROFILES** 打开的用户目录，修改名称、CC／音符编号、通道、目标和编码器模式；重新打开 PROFILES 即会列出文件；无效内容标为 INVALID，不会替换现有映射。选择后确认替换，点 STORE 保存到 USER 槽。EXPORT CURRENT MAP 生成可编辑的新 JSON，不覆盖已有文件。用户目录位于每用户应用支持路径下的 `Krose/Controllers/Profiles`，升级不会覆盖。模板只定义输入映射，设备的 MIDI 端口仍通过宿主轨道或独立版输入设置选择。
 
 `templates/ableton/Krose_Generic_Template` 是独立的输入型控制脚本模板，默认不发送 SysEx 或灯光回传，不自动注册端口。它只控制选中的 Krose；修改 `CHANNEL` 和 `CONTROLS` 后由使用者手动安装、选择。设备专用屏幕／灯协议需要单独实现并做实物验证，不能把 Arturia 协议直接套到别的键盘。
 
@@ -16,11 +16,46 @@
 
 - Krose 对用户扩展只读取 JSON；不加载 Python／动态库，不执行命令，不跟随配置中的路径，也不向任意 MIDI 设备发送配置指定的 SysEx。
 - JSON 导入限 256 KiB、16 层和现有 64 个映射槽；目标按参数名称解析，拒绝未知字段、枚举、越界通道／编号和配置文件符号链接。完整验证后才替换当前映射。这里只在 UI 操作时读取，音频线程保持固定容量原子映射。
-- Ableton Python 脚本具有 Live 进程的用户权限，Krose 无法为其提供沙箱。模板不会自动复制到 Live；第三方脚本需自行检查。Live 脚本目录由用户明确选择，不改写 Live 应用目录。
+- 宿主脚本由用户复制、注册和启用，按宿主进程权限运行。Krose 不加载这些脚本。REAPER 动作仅为唯一选中的 Krose 乐器轨道设置明确选定的输入端口。Bitwig 脚本只声明一个 MIDI 输入，二者都不发送 MIDI 反馈。
 - 安装工具拒绝托管路径中的符号链接及 Windows junction 目录联接，限制参数配置大小和条目数，先准备新脚本再替换旧目录；已有脚本和参数布局保留备份。异常配置不会先删掉旧脚本。
 - KeyLab 目录 JSON 采用有限长度读取并验证索引及字符串结构；错误时退回参数文字显示。短 SysEx 不会越界索引。独立版硬件识别、输出速率和多实例归属沿用现有约束。
 
-## 独立版
+## 通用键盘映射
+
+键盘选 User／Custom／Preset 模式，让旋钮和推子发绝对 CC，控制用的 Pad 发瞬时 CC（按下 127，松开 0）。以下内置配置使用 MIDI 通道 1。在 Krose 打开 **CTRL → INPUT → PROFILES**，选配置并确认。保持 `INPUT OMNI` 可演奏其他通道的音符。需要保留当前映射时先导出，再用 `STORE` 保存要复用的配置。
+
+| 键盘 | Krose 配置 | 键盘端设置 |
+|---|---|---|
+| Arturia MiniLab 3 | Arturia MiniLab 3 User | User 模式使用原厂旋钮 CC 74、71、76、77、93、18、19、16 和推子 CC 82、83、85、17。在 MIDI Control Center 将 Pad 设为下表的瞬时 CC。[Arturia CC 表](https://support.arturia.com/hc/en-us/articles/6189475866396-MiniLab-3-General-Questions) |
+| Novation Launchkey mk3/mk4、FLkey | Generic Keyboard Custom CC | 在 Components 里按下表配置 Custom Mode。有推子的型号配置推子组。[Novation Custom Mode](https://support.novationmusic.com/hc/en-gb/articles/360014619639-Launchkey-MK3-Components-Guide) |
+| Akai MPK mini mk3 | Akai MPK mini mk3 Custom | 用 MPK mini Editor 设八个旋钮和八个 Pad，加载对应 Program 后打开键盘的 CC 模式。[Akai MPK mini mk3](https://support.akaipro.com/en/support/solutions/articles/69000798861-akai-pro-mpk-mini-mk3-frequently-asked-questions) |
+| M-Audio Oxygen Pro | Generic Keyboard Custom CC | 在 Preset 模式配置下表 CC，按型号配置可用推子。[M-Audio Preset 模式](https://support.m-audio.com/en/support/solutions/articles/69000810614-m-audio-oxygen-pro-series-frequently-asked-questions) |
+| MIDIPLUS、M-WAVE 等其他键盘 | Generic Keyboard Custom CC 或 MIDI Learn | 可改 CC 就套用下表。固定 CC 的型号从旋钮右键进入 Learn，逐一绑定。 |
+
+| 控件 | 通用 CC | 从左到右的功能 |
+|---|---|---|
+| 旋钮 1–8 | 20–27 | Cutoff、Resonance、EG INT、Pan、Glide、Velocity、Volume、Space |
+| 推子 1–4 | 46–49 | AMP Attack、Decay、Sustain、Release |
+| 推子 5–8 | 50–53 | FILTER Attack、Decay、Sustain、Release |
+| 推子 9 | 54 | Volume |
+| Pad 1–8 | 102–109 | ARP、Latch、上一音色、下一音色、IFX1、IFX2、MFX1、MFX2 |
+
+MiniLab 3 使用自己的旋钮和推子编号，Pad 功能顺序相同。通用配置的推子目标固定，拾取由 Krose 处理。普通演奏音符、弯音、调制轮与踏板沿用宿主路由。硬件屏幕和 RGB 反馈由专用适配器提供。
+
+## 其他 VST3 宿主
+
+| 宿主 | 接入 |
+|---|---|
+| REAPER | 在 Preferences → Audio → MIDI Devices 启用键盘输入。通过 Actions → ReaScript → Load 加载 `reaper/Krose_Set_MIDI_Input.lua`，选中一个 Krose 乐器轨道后运行，选 MIDI 端口。手动武装轨道并打开监听。也可直接用轨道 Input: MIDI 选同一端口。[REAPER API](https://www.reaper.fm/sdk/reascript/reascripthelp.html) |
+| Bitwig Studio | 将 `bitwig/Krose MIDI.control.js` 放进 Controller Scripts 目录，在 Settings → Controllers 添加 **maincore → Krose MIDI** 并选择键盘演奏口。将 **Krose MIDI** 选为乐器轨道输入。如果已有官方脚本能将 CC 送入轨道，直接沿用它即可。同一个 MIDI 口只交给一套脚本。[Bitwig 脚本安装](https://www.bitwig.com/support/technical_support/how-do-i-add-a-controller-extension-or-script-17/) |
+| Cubase | 在 Instrument Track 加载 Krose，Inspector 的 Input Routing 选键盘演奏口并打开监听。如果 MIDI Remote 已占用某个 CC，换用另一个 CC 或取消那条宿主映射。[Cubase MIDI 输入](https://www.steinberg.help/r/cubase-pro/15.0/en/cubase_nuendo/topics/recording/recording_setting_the_midi_input_t.html?contentId=rK71IeMu4veTUY7pXx85sw) |
+| Studio One | 在 External Devices 把键盘演奏口加为 New Keyboard，允许控制变化消息。把该设备选为 Krose 乐器轨道输入并打开监听。[Studio One 外部设备](https://support.presonus.com/hc/en-us/articles/360045189351-Basic-Midi-Setup-New-Keyboard-Control-Surface-Instrument-Faderport) |
+
+Ableton 可直接使用 MIDI 轨道的输入。FL Studio 可安装随包的 `fl-studio/Krose_Generic_CC`，将键盘输入的 Controller type 设为 **Krose Generic CC (user)**，将 Krose Wrapper 的 MIDI Input port 设为 **10**，再单独选中 Krose 通道。脚本只向该通道转发 CC，演奏音符继续走 FL Studio 的正常路由。选用通用脚本时无需配置 MIDI 输出。[FL Studio 转发 API](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/midi_scripting.htm) · [Wrapper MIDI 设置](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/wrapper.htm)
+
+转动控件后，可在 Krose 的 **CTRL → HELP** 查看接收的 MIDI 通道和 CC。新增脚本的宿主接口通过模拟测试，以上宿主和新键盘的实机组合待验证。Logic Pro／GarageBand 需要 AU，Pro Tools 需要 AAX。当前产品交付 VST3 和独立版。[Apple AU 格式](https://support.apple.com/en-ie/guide/logicpro/lgcp22a0dab0/10.7/mac/11.0) · [Avid AAX 格式](https://resources.avid.com/SupportFiles/PT/Audio_and_MIDI_Plugins_Guide_2024.10.pdf)
+
+## 独立版 KeyLab Essential mk3
 
 1. 键盘通过 USB 连接，在键盘上选择 **DAW** 程序。
 2. Krose 的 Audio and MIDI Settings 选择 `Automatic` 或键盘的 **MIDI** 输入。

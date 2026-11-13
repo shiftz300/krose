@@ -21,6 +21,12 @@
 - (NSEventSubtype)subtype { return self.backing.subtype; }
 @end
 namespace {
+constexpr float kSettingsTabY = 125;
+constexpr float kInputTabX = 684;
+constexpr float kUiTabX = 810;
+constexpr float kUiSizeX = 700;
+constexpr float kUiSizeY = 160;
+
 class Frame final : public Steinberg::IPlugFrame {
 public:
   NSWindow *window;
@@ -409,7 +415,9 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       key(v,@"\x1b",53);key(v,@"\x1b",53); // Cancel learn, then leave LCD settings.
       // User profiles load settings and mappings without unbalanced host edits.
       setParameter("SW1 Assign",.5);
-      click(v,480,125);click(v,810,125);click(v,670,158);
+      click(v, 480, 125);
+      click(v, kInputTabX, kSettingsTabY);
+      click(v, 670, 158); // STORE
       assert(std::filesystem::exists(std::getenv("KROSE_MIDI_MAP_FILE")));
       click(v,520,158);key(v,@"\uf701",125);key(v,@"\r",36);
       assert(parameter("SW1 Assign")==.1);
@@ -478,9 +486,11 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       assert(parameter("Amp Attack") > .5);
       click(v, 1057, 150, 2);
       assert(parameter("Amp Attack") == .5);
-      click(v, 253, 200);
+      const auto beforeStep = program();
+      click(v, 523, 331);
       const auto firstStep = program();
-      click(v, 253, 200, 2);
+      assert(firstStep != beforeStep);
+      click(v, 523, 331, 2);
       assert(program() != firstStep);
       number(v, 330, 343, @"2");
       assert(std::abs(velocity() - .6) < 1e-6);
@@ -565,11 +575,13 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       mouse(v,71*1.5,85*1.5,NSEventTypeRightMouseDown);mouse(v,71*1.5,85*1.5,NSEventTypeRightMouseUp);
       pump();key(v,@"\uf729",115);for(int i=0;i<4;++i)key(v,@"\uf701",125);key(v,@"\r",36);
       assert(view->getSize(&scaled)==Steinberg::kResultOk && scaled.getWidth()==1472);
-      // The same control is visible in CTRL > INPUT, with an LCD-pixel menu.
-      click(v,480,125);click(v,810,125);click(v,832,216);
+      // The same control is visible on the UI tab, with an LCD-pixel menu.
+      click(v, 480, 125);
+      click(v, kUiTabX, kSettingsTabY);
+      click(v, kUiSizeX, kUiSizeY);
       key(v,@"\uf729",115);key(v,@"\uf701",125);key(v,@"\uf701",125);key(v,@"\r",36);
       assert(view->getSize(&scaled)==Steinberg::kResultOk && scaled.getWidth()==1104 && scaled.getHeight()==486);
-      click(v,832*.75,216*.75);
+      click(v, kUiSizeX * .75, kUiSizeY * .75);
       key(v,@"\uf729",115);for(int i=0;i<4;++i)key(v,@"\uf701",125);key(v,@"\r",36);
       assert(view->getSize(&scaled)==Steinberg::kResultOk && scaled.getWidth()==1472);
       click(v,480,125);
