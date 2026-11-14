@@ -5,7 +5,7 @@ void KrosePlugin::InitializeParameters() {
   GetParam(kFilterEGIntensity)->InitInt("Filter EG Intensity", 0, -99, 99);
   GetParam(kParamTone)
       ->InitEnum("Tone", 0, 3, "", IParam::kFlagsNone, "", "Concert", "Warm", "Wide");
-  GetParam(kParamOutput)->InitDouble("Output", -6, -60, 6, 0.1, "dB");
+  GetParam(kParamOutput)->InitDouble("Output", -4, -60, 6, 0.1, "dB");
   GetParam(kParamSpace)->InitDouble("Space", 100, 0, 200, 1, "%");
   GetParam(kParamRelease)->InitDouble("Release", 288, 30, 2000, 1, "ms");
   GetParam(kParamVelocity)->InitDouble("Velocity", 1., 0.5, 3, 0.01, "");

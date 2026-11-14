@@ -27,12 +27,10 @@ void NativePanel::Note(int note, bool down) {
     return;
   if (down && !mHeld[note]) {
     GetDelegate()->SendMidiMsgFromUI(IMidiMsg(0, 0x90, note, 100));
-    mHeld[note] = mLit[note] = true;
+    mHeld[note] = true;
   } else if (!down && mHeld[note]) {
     GetDelegate()->SendMidiMsgFromUI(IMidiMsg(0, 0x80, note, 0));
     mHeld[note] = false;
-    if (!mSustain)
-      mLit[note] = false;
   }
   SetDirty(false);
 }
@@ -43,7 +41,6 @@ void NativePanel::ReleaseHeld() {
   static_cast<KrosePlugin *>(GetDelegate())->MidiMappings().CancelLearn();
   for (int i = 0; i < 128; ++i)
     Note(i, false);
-  mLit.fill(false);
   mSustain = false;
   GetDelegate()->SendMidiMsgFromUI(IMidiMsg(0, 0xb0, 64, 0));
   GetDelegate()->SendMidiMsgFromUI(IMidiMsg(0, 0xe0, 0, 64));
@@ -206,10 +203,6 @@ void NativePanel::Activate(const Hit &h) {
   } else if (h.action == "sustain") {
     mSustain = !mSustain;
     GetDelegate()->SendMidiMsgFromUI(IMidiMsg(0, 0xb0, 64, mSustain ? 127 : 0));
-    if (!mSustain)
-      for (int i = 0; i < 128; ++i)
-        if (!mHeld[i])
-          mLit[i] = false;
   } else if (h.action == "panic") {
     ReleaseHeld();
     for (int ch = 0; ch < 16; ++ch) {

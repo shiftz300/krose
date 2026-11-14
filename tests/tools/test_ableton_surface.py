@@ -12,11 +12,16 @@ class Element:
     def __init__(self, number):
         self.number, self.listeners = number, []
         self.released = 0
+        self.identifier, self.channel = number, 10
+        self.script_forwarding = "exclusive"
     def original_identifier(self): return self.number
     def add_value_listener(self, callback): self.listeners.append(callback)
     def remove_value_listener(self, callback): self.listeners.remove(callback)
     def release_parameter(self): self.released += 1
     def clear_send_cache(self): pass
+    def set_identifier(self, identifier): self.identifier = identifier
+    def set_channel(self, channel): self.channel = channel
+    def use_default_message(self): self.identifier, self.channel = self.number, 10
     def emit(self, value):
         for callback in self.listeners: callback(value)
 
@@ -32,12 +37,14 @@ class LiveBase:
     def __init__(self, *args, **kwargs):
         self.sent, self.rebuilds = [], 0
         pads = [Element(i) for i in range(36, 44)]
+        drums = [Element(i) for i in range(44, 52)]
         self.elements = SimpleNamespace(
             continuous_controls_raw=[Element(i) for i in list(range(96, 104)) + list(range(105, 113))],
             encoder_9=Element(104), fader_9=Element(113), display_encoder=Element(116),
             context_button_0=Element(44), context_button_1=Element(45), context_button_2=Element(46), context_button_3=Element(47),
-            pad_bank_a=SimpleNamespace(iterbuttons=lambda: ((p, (i % 4, i // 4)) for i, p in enumerate(pads))))
-        self.controls = self.elements.continuous_controls_raw + pads + [self.elements.encoder_9, self.elements.fader_9]
+            pad_bank_a=SimpleNamespace(iterbuttons=lambda: ((p, (i % 4, i // 4)) for i, p in enumerate(pads))),
+            pad_bank_b=SimpleNamespace(iterbuttons=lambda: ((p, (i, 0)) for i, p in enumerate(drums))))
+        self.controls = self.elements.continuous_controls_raw + pads + drums + [self.elements.encoder_9, self.elements.fader_9]
         self.component_map = {name: Component(name != "Device") for name in
                               ("Continuous_Control_Modes", "Mixer", "Session", "Drum_Group", "Device", "View_Control", "Transport")}
         self.song = SimpleNamespace(appointed_device=None, visible_tracks=[], view=SimpleNamespace(selected_track=None))
@@ -57,10 +64,15 @@ class Surface(TestCase):
         base.KeyLab_Essential_mk3, base.Specification = LiveBase, object
         package = ModuleType("Krose_KeyLab_Essential")
         package.__path__ = []
+        input_element = ModuleType("ableton.v2.control_surface.input_control_element")
+        input_element.ScriptForwarding = SimpleNamespace(non_consuming="non_consuming")
         self.modules = mock.patch.dict(sys.modules, {"KeyLab_Essential_mk3": base,
+            input_element.__name__: input_element,
             "Krose_KeyLab_Essential": package, "Krose_KeyLab_Essential.device": bridge, "Krose_KeyLab_Essential.catalog": ModuleType("catalog")})
         self.modules.start()
-        sys.modules["Krose_KeyLab_Essential.catalog"].load_catalog = lambda folder: ([0, 3, 1, 2], [])
+        catalog = [("A000", "Grand", "PIANO"), ("B000", "Pad", "SYNTH PAD"),
+                   ("F033", "Rock Kit", "DRUM/SFX"), ("F034", "Jazz Kit", "DRUM/SFX")]
+        sys.modules["Krose_KeyLab_Essential.catalog"].load_catalog = lambda folder: ([0, 3, 1, 2], catalog)
         spec = importlib.util.spec_from_file_location("Krose_KeyLab_Essential.surface",
             ROOT / "controllers/ableton/Remote Scripts/Krose_KeyLab_Essential/surface.py")
         module = importlib.util.module_from_spec(spec)
@@ -149,16 +161,58 @@ class Surface(TestCase):
         surface._send_midi(official)
         self.assertEqual(len(surface.sent),count)
 
-    def test_physical_pad_one_controls_arp_and_matching_led(self):
+    def test_session_pads_and_leds_stay_with_live(self):
         surface = self.surface
         surface.song.appointed_device = device()
         surface.update_display()
         first = next(p for p in surface.controls if p.original_identifier() == 40)
         first.emit(127)
-        self.assertEqual(surface._krose.params["Arp"].value, 1)
-        surface._krose.next_update = 0
+        self.assertEqual(surface._krose.params["Arp"].value, 0)
+        self.assertTrue(surface.component_map["Session"].is_enabled())
+        self.assertTrue(surface.component_map["Drum_Group"].is_enabled())
+        self.assertNotIn(bridge.pad(0, False), surface.sent)
+        official = bridge.pad(0, True)
+        surface._send_midi(official)
+        self.assertEqual(surface.sent[-1], official)
+        surface.song.appointed_device = None
         surface.update_display()
-        self.assertIn(bridge.pad(0, True), surface.sent)
+        self.assertNotIn(bridge.pad(0, False), surface.sent)
+
+    def test_drum_program_routes_bank_b_and_restores_after_note_off(self):
+        surface = self.surface
+        surface.song.appointed_device = drum_kit = device()
+        program = bridge.parameters(drum_kit)["Program"]
+        program.value = 2
+        surface.update_display()
+        pads = [pad for pad, _ in surface.elements.pad_bank_b.iterbuttons()]
+        self.assertTrue(surface.component_map["Session"].is_enabled())
+        self.assertFalse(surface.component_map["Drum_Group"].is_enabled())
+        self.assertEqual([pad.identifier for pad in pads], [36, 38, 42, 46, 45, 50, 49, 51])
+        self.assertTrue(all(pad.channel == 9 and pad.script_forwarding == "non_consuming" for pad in pads))
+        pads[0].emit(100)
+        program.value = 1
+        surface.update_display()
+        self.assertEqual(pads[0].identifier, 36)
+        pads[0].emit(0)
+        surface.update_display()
+        self.assertTrue(surface.component_map["Drum_Group"].is_enabled())
+        self.assertTrue(all((pad.identifier, pad.channel, pad.script_forwarding) ==
+                            (pad.number, 10, "exclusive") and not pad.listeners for pad in pads))
+
+    def test_drum_pad_route_reconnect_and_disconnect(self):
+        surface = self.surface
+        surface.song.appointed_device = drum_kit = device()
+        bridge.parameters(drum_kit)["Program"].value = 3
+        surface.update_display()
+        pad = surface._drum_pads[0]
+        pad.emit(127)
+        surface.port_settings_changed()
+        self.assertEqual(pad.identifier, pad.number)
+        surface.update_display()
+        self.assertEqual(pad.identifier, 36)
+        surface.disconnect()
+        self.assertEqual(pad.identifier, pad.number)
+        self.assertEqual(pad.listeners, [])
 
 
 if __name__ == "__main__": main()

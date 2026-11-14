@@ -100,9 +100,10 @@ def is_krose(device):
 
 
 class DeviceFeedback:
-    def __init__(self, send, order, clock=time.monotonic, catalog=None):
+    def __init__(self, send, order, clock=time.monotonic, catalog=None, pad_feedback=True):
         self.send, self.order, self.clock = send, order, clock
         self.catalog = catalog or []
+        self.pad_feedback = pad_feedback
         self.device, self.params = None, {}
         self.cache, self.values, self.pickup = {}, {}, {}
         self.focus, self.until, self.next_update = None, 0, 0
@@ -334,12 +335,13 @@ class DeviceFeedback:
         self._emit("header", display_header(title))
 
     def _pads(self):
-        for i, name in enumerate(PADS):
-            p = self.params.get(name)
-            on = bool(p and p.value > p.min)
-            if 2 <= i < 6:
-                on=any(self.fx_state(i-2)[1])
-            self._emit(i, pad(i, on))
+        if self.pad_feedback:
+            for i, name in enumerate(PADS):
+                p = self.params.get(name)
+                on = bool(p and p.value > p.min)
+                if 2 <= i < 6:
+                    on=any(self.fx_state(i-2)[1])
+                self._emit(i, pad(i, on))
         for i in range(4): self._emit(("fx-button",i),fx_button(i,self.fx_state(i)[1]))
 
     def clear(self):
@@ -348,8 +350,9 @@ class DeviceFeedback:
                 p = self.params.get(name)
                 if p and p.is_enabled:
                     self._write(name, p.min)
-            for i in range(8):
-                self.send(pad(i, False))
+            if self.pad_feedback:
+                for i in range(8):
+                    self.send(pad(i, False))
             for i in range(4): self.send(fx_button(i,(0,0,0)))
         except (RuntimeError, ReferenceError):
             pass

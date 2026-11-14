@@ -11,7 +11,8 @@ int main() {
   monitor.Process(0x81, 60, 0); assert(!lit(60));
   monitor.Process(0x90, 72, 100); monitor.Process(0x90, 72, 100);
   monitor.Process(0x80, 72, 0); assert(lit(72));
-  monitor.Process(0xb0, 64, 127); monitor.Process(0x90, 72, 0); assert(lit(72));
+  monitor.Process(0xb0, 64, 127); monitor.Process(0x90, 72, 0); assert(!lit(72));
+  assert((monitor.Expression()[2] & 0xffffu) == 1);
   monitor.Process(0xb1, 64, 127); monitor.Process(0xb0, 64, 0);
   assert(!lit(72)); assert((monitor.Expression()[2] & 0xffffu) == 1);
   monitor.Process(0xb1, 121, 0); monitor.Publish();
@@ -25,8 +26,11 @@ int main() {
   assert(monitor.Expression()[0] != moved[0]);
   monitor.Process(0x90, 60, 100); monitor.Process(0xb0, 123, 0); assert(!lit(60));
   monitor.Process(0xb0, 64, 127); monitor.Process(0x90, 60, 100);
-  monitor.Process(0xb0, 123, 0); assert(lit(60));
+  monitor.Process(0xb0, 123, 0); assert(!lit(60));
+  assert((monitor.Expression()[2] & 0xffffu) == 1);
+  monitor.Process(0x90, 60, 100);
   monitor.Process(0xb0, 120, 0); assert(!lit(60));
+  assert((monitor.Expression()[2] & 0xffffu) == 0);
   monitor.Process(0xe0, 0, 0); monitor.Reset();
   assert((monitor.Expression()[0] & 0xffffu) == 8192);
   assert(!lit(60));

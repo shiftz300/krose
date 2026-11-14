@@ -9,39 +9,34 @@ namespace krose::midi {
 class KeyboardMonitor {
 public:
   void Reset() noexcept {
-    mDown = {}; mLit = {}; mTotal = {}; mPedal = {};
+    mDown = {}; mTotal = {}; mPedal = {};
     Change(0, 8192); Change(1, 0); Change(2, 0); Publish();
   }
   void Process(uint8_t status, uint8_t number, uint8_t value) noexcept {
     const auto channel = status & 15, type = status & 240;
     number &= 127; value &= 127;
     if (type == 0x90 && value) {
-      if (mDown[channel][number] < 65535) ++mDown[channel][number];
-      Light(channel, number, true);
+      auto &down = mDown[channel][number];
+      if (down < 65535 && ++down == 1) ++mTotal[number];
     } else if (type == 0x80 || type == 0x90) {
-      if (mDown[channel][number]) --mDown[channel][number];
-      if (!mDown[channel][number] && !mPedal[channel]) Light(channel, number, false);
+      auto &down = mDown[channel][number];
+      if (down && --down == 0) --mTotal[number];
     } else if (type == 0xe0) {
       Change(0, number + 128u * value);
     } else if (type == 0xb0) {
       if (number == 1) Change(1, value);
       if (number == 121) { Change(0, 8192); Change(1, 0); }
-      if (number == 64 || number == 121) {
+      if (number == 64 || number == 120 || number == 121) {
         mPedal[channel] = number == 64 && value >= 64;
-        if (!mPedal[channel])
-          for (unsigned note = 0; note < 128; ++note)
-            if (!mDown[channel][note]) Light(channel, note, false);
-      } else if (number == 120 || number == 123) {
-        mDown[channel] = {};
-        if (number == 120) mPedal[channel] = false;
-        for (unsigned note = 0; note < 128; ++note)
-          if (!mPedal[channel]) Light(channel, note, false);
+        bool pedal = false;
+        for (bool down : mPedal) pedal |= down;
+        if (pedal != bool(mExpression[2] & 0xffffu)) Change(2, pedal);
       }
-    }
-    if (type == 0xb0 && (number == 64 || number == 120 || number == 121)) {
-      bool pedal = false;
-      for (bool down : mPedal) pedal |= down;
-      if (pedal != bool(mExpression[2] & 0xffffu)) Change(2, pedal);
+      if (number == 120 || number == 123) {
+        for (unsigned note = 0; note < 128; ++note)
+          if (mDown[channel][note]) --mTotal[note];
+        mDown[channel] = {};
+      }
     }
   }
   void Publish() noexcept {
@@ -68,13 +63,7 @@ private:
   void Change(unsigned index, unsigned value) noexcept {
     mExpression[index] = ((mExpression[index] + 0x10000ull) & ~0xffffull) | value;
   }
-  void Light(unsigned channel, unsigned note, bool lit) noexcept {
-    if (mLit[channel][note] == lit) return;
-    mLit[channel][note] = lit;
-    if (lit) ++mTotal[note]; else --mTotal[note];
-  }
   std::array<std::array<uint16_t, 128>, 16> mDown{};
-  std::array<std::array<bool, 128>, 16> mLit{};
   std::array<uint8_t, 128> mTotal{};
   std::array<bool, 16> mPedal{};
   std::array<std::atomic<uint64_t>, 2> mPublished{};

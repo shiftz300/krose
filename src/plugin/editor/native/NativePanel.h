@@ -143,7 +143,7 @@ private:
   std::map<std::string, Font> mFonts;
   std::vector<Hit> mHits;
   std::vector<int> mFiltered;
-  std::array<bool, 128> mHeld{}, mLit{}, mHostLit{};
+  std::array<bool, 128> mHeld{}, mHostLit{};
   std::array<uint64_t, 3> mHostExpression{};
   ParameterBinding<kNumParams> mParameters;
   int mPage = 0, mOctave = 0, mSlot = 0, mFxBand = 0, mDrag = -1, mDragNote = -1, mEdit = -1,

@@ -11,7 +11,7 @@ double NativePanel::Visual(const std::string &key, double target, double seconds
 }
 void NativePanel::KeyImage(IGraphics &g, int note, bool black, float x) {
   const std::string prefix = black ? "black-" : "white-";
-  const bool lit = mLit[note] || mHostLit[note];
+  const bool lit = mHeld[note] || mHostLit[note];
   const double down = Visual("key:" + std::to_string(note), lit ? 1 : 0, .09, lit);
   if (down < 1) Bitmap(g, prefix + "up", x, 393);
   if (down > 0) {
