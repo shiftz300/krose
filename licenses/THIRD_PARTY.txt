@@ -1,4 +1,4 @@
-Krose 0.4.6 third-party notices
+Krose 0.5.0 third-party notices
 
 Scope: these notices describe upstream components, not an Apache-2.0 grant
 from Krose over third-party code or manufacturer resources. Original Krose
@@ -35,6 +35,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 iPlug 2 includes the following 3rd party libraries (see each license info):
 
 * Cockos WDL https://www.cockos.com/wdl (Zlib-like license)
+* zlib https://zlib.net/ (zlib license, inflate sources from Cockos WDL)
 * NanoVG https://github.com/memononen/nanovg (Zlib)
 * NanoSVG https://github.com/memononen/nanosvg (Zlib)
 * MetalNanoVG https://github.com/ollix/MetalNanoVG (MIT)

@@ -8,7 +8,10 @@
 #include <string>
 #include <vector>
 namespace segrand {
+class ExpansionSampleFile;
 using SampleWindow = std::vector<std::shared_ptr<const PCM24>>;
+using ExpansionPaths = std::array<std::string, 5>; // Native bank numbers 1, 2 and 4.
+unsigned ProgramExpansion(const char *id) noexcept;
 struct SharedSample {
   uint32_t id = 0, loopStart = 0, loopEnd = 0, flags = 0;
   int pitch = 0;
@@ -39,12 +42,15 @@ struct InstrumentProgram {
 class ProgramLibrary {
 public:
   // The returned bank is immutable; loading/caching is a non-audio-thread operation.
-  static std::shared_ptr<const ProgramLibrary> Load(const std::string &path, bool preload = true);
+  static std::shared_ptr<const ProgramLibrary> Load(const std::string &path, bool preload = true,
+                                                    const ExpansionPaths &expansions = {});
   bool OnDemand() const noexcept { return !mPreload; }
   // Worker/lifecycle thread only. Cache is shared by plugin instances.
   std::shared_ptr<const SampleWindow> LoadProgram(unsigned program) const;
   SampleWindow LoadSamples(const std::vector<uint32_t> &indices, bool retainRecent = true) const;
   size_t ResidentBytes() const;
+  bool Split() const noexcept { return mSplit; }
+  bool HasExpansion(unsigned number) const noexcept;
   std::vector<SharedSample> samples;
   std::vector<ProgramRegion> regions;
   std::vector<InstrumentProgram> programs;
@@ -55,7 +61,9 @@ public:
   static int SelectionPitch(const InstrumentProgram &program, int oscillator, int note) noexcept;
 
 private:
-  std::string mPath;
+  ExpansionPaths mPaths;
+  std::array<std::shared_ptr<ExpansionSampleFile>, 5> mExpansionFiles;
+  bool mSplit = false;
   bool mPreload = true;
   mutable std::mutex mCacheMutex;
   mutable std::vector<std::weak_ptr<const PCM24>> mSampleCache;

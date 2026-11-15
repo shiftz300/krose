@@ -5,7 +5,11 @@
 namespace segrand {
 InstrumentEngine::InstrumentEngine(std::shared_ptr<const SampleBank> concert,
                                    std::shared_ptr<const ProgramLibrary> factory)
-    : mConcert(concert), mFactory(factory), mProgramCount(unsigned(factory->programs.size()) + 1) {
+    : mConcert(concert), mFactory(factory), mProgramCount(unsigned(factory->programs.size()) + 1),
+      mAvailablePrograms(mProgramCount) {
+  mAvailablePrograms[0] = factory->HasExpansion(1);
+  for (unsigned i = 1; i < mProgramCount; ++i)
+    mAvailablePrograms[i] = factory->HasExpansion(ProgramExpansion(factory->programs[i - 1].id.data()));
   if (factory->OnDemand()) {
     mLoader = std::make_unique<SampleLoader>(concert->path, factory);
     mResidency = mLoader->Wait(0);
@@ -13,6 +17,7 @@ InstrumentEngine::InstrumentEngine(std::shared_ptr<const SampleBank> concert,
       throw std::runtime_error("Cannot load initial Concert samples");
     mConcert.SetSamples(mResidency);
   }
+  mProgramAvailable = mAvailablePrograms[0];
 }
 void InstrumentEngine::Prepare(double rate) {
   mArp.Prepare(rate);
@@ -52,6 +57,7 @@ bool InstrumentEngine::SetControls(const Controls &controls, bool offline) {
     mProgram = program;
     mRetirePending = mLoader && mResidency != ready;
     mResidency = ready;
+    mProgramAvailable = mAvailablePrograms[program];
     if (program) {
       mFactory.SetSamples(ready);
       mFactory.SetProgram(unsigned(program - 1));
@@ -108,6 +114,8 @@ void InstrumentEngine::Process(float *left, float *right, int frames) noexcept {
   mArp.Process(frames, mEvents.Data(), consumed, this, [](void *context, MidiEvent event) {
     auto &self = *static_cast<InstrumentEngine *>(context);
     const bool noteOn = (event.status & 240) == 0x90 && event.data2;
+    if (noteOn && !self.mProgramAvailable)
+      return; // Keep the saved Program ID without substituting a different instrument.
     if (self.mProgram || !noteOn)
       self.mFactory.Queue(event);
     if (!self.mProgram || !noteOn)

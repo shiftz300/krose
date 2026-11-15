@@ -1,0 +1,14 @@
+{
+  "files": [
+    {
+      "file": "Factory.samples",
+      "bytes": 74940234,
+      "sha256": "a83230f69db53e4b1d371df7f3decc0ab2f72d10fa8cb09c1fdcfeceb7f9b183"
+    },
+    {
+      "file": "EXPCM001.pcm",
+      "bytes": 47372124,
+      "sha256": "eb717c461b046e5c15a4a4726de4bb8f2539da5b46b5924862b52f7fd1d3d506"
+    }
+  ]
+}

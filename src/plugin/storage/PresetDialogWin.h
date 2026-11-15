@@ -16,7 +16,8 @@ namespace krose::storage {
 // leaves the process working directory changed. Paths remain UTF-16 until file I/O.
 inline std::filesystem::path PresetDialog(HWND owner, bool save,
                                          const std::filesystem::path &directory = {},
-                                         const std::filesystem::path &suggestedName = {}) {
+                                         const std::filesystem::path &suggestedName = {},
+                                         bool expansion = false) {
   std::vector<wchar_t> name(32768, L'\0');
   const auto initial = suggestedName.empty() ? (save ? std::wstring(L"Untitled.krose") : std::wstring())
                                               : suggestedName.filename().wstring();
@@ -28,8 +29,9 @@ inline std::filesystem::path PresetDialog(HWND owner, bool save,
   dialog.hwndOwner = owner;
   dialog.lpstrFile = name.data();
   dialog.nMaxFile = DWORD(name.size());
-  dialog.lpstrFilter = L"Krose Preset (*.krose)\0*.krose\0\0";
-  dialog.lpstrDefExt = L"krose";
+  dialog.lpstrFilter = expansion ? L"KROSS 2 Expansion (*.kep, *.zip)\0*.kep;*.zip\0\0" :
+                                 L"Krose Preset (*.krose)\0*.krose\0\0";
+  dialog.lpstrDefExt = expansion ? L"kep" : L"krose";
   dialog.lpstrInitialDir = folder.empty() ? nullptr : folder.c_str();
   dialog.Flags = OFN_EXPLORER | OFN_ENABLESIZING | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST |
                  (save ? OFN_OVERWRITEPROMPT : OFN_FILEMUSTEXIST);

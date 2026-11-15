@@ -26,6 +26,9 @@ for bank in Factory.samples SEGrand.samples; do
   /usr/bin/ditto "$stage/Applications/Krose.app/Contents/Resources/$bank" "$samples/$bank"
   rm "$stage/Applications/Krose.app/Contents/Resources/$bank" "$stage/Library/Audio/Plug-Ins/VST3/Krose.vst3/Contents/Resources/$bank"
 done
+expansions="$stage/Library/Application Support/Krose/Expansions"
+mkdir -p "$expansions"
+/usr/bin/install -m 644 "$out/EXPCM001.pcm" "$expansions/EXPCM001.pcm"
 for bundle in "$stage/Applications/Krose.app" "$stage/Library/Audio/Plug-Ins/VST3/Krose.vst3"; do
   codesign --force --sign - "$bundle"
   codesign --verify --deep --strict "$bundle"
@@ -41,7 +44,8 @@ for component in components:
     component['BundleOverwriteAction'] = 'upgrade'
 p.write_bytes(plistlib.dumps(components))
 PYCODE
-pkgbuild --component-plist "$build_dir/installer-components.plist" --root "$stage" --identifier dev.LocalInstruments.Krose.installer \
+script_dir="$(cd -- "$(dirname -- "$0")/../../packaging/macos/scripts" && pwd)"
+pkgbuild --component-plist "$build_dir/installer-components.plist" --root "$stage" --scripts "$script_dir" --identifier dev.LocalInstruments.Krose.installer \
   --version "$version" --install-location / "dist/Krose-$version-$platform.pkg"
 pkgutil --payload-files "dist/Krose-$version-$platform.pkg" > dist/macos-payload.txt
 rm -rf -- "$stage"

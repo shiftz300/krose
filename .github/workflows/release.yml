@@ -118,7 +118,7 @@ jobs:
         run: |
           lipo build/release/out/Krose.app/Contents/MacOS/Krose -verify_arch "${{ matrix.arch }}"
           lipo build/release/out/Krose.vst3/Contents/MacOS/Krose -verify_arch "${{ matrix.arch }}"
-          tar -cf "build/native-${{ matrix.arch }}.tar" -C build/release/out Krose.app Krose.vst3
+          tar -cf "build/native-${{ matrix.arch }}.tar" -C build/release/out Krose.app Krose.vst3 EXPCM001.pcm
       - uses: actions/upload-artifact@v7
         if: runner.os == 'macOS'
         with:
@@ -251,7 +251,7 @@ jobs:
             "Krose-$version-macos-universal-app.zip"
           )
           sha256sum "${assets[@]}" > SHA256SUMS.txt
-          notes='Includes standalone, VST3, a built-in controller support kit and extension templates, plus KeyLab Essential mk3 Ableton integration. Controller profiles: LCD CTRL > INPUT > PROFILES. Manufacturer: maincore. macOS supports Apple Silicon and Intel. Installers are currently unsigned/not notarized.'
+          notes='OASYS Piano installs by default. Use CTRL > EX PCM to install original KEP/ZIP expansions or uninstall their samples. Reload the app or plugin instance to apply changes. Installers are unsigned/not notarized.'
           if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber \
               "${assets[@]}" SHA256SUMS.txt

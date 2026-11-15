@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = 'Stop'
 if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid product version' }
 $payload = (Resolve-Path $InputDirectory).Path
-foreach ($file in 'Krose.exe', 'Resources/Factory.samples', 'Resources/SEGrand.samples', 'Krose.vst3') {
+foreach ($file in 'Krose.exe', 'Resources/Factory.samples', 'Resources/SEGrand.samples', 'EXPCM001.pcm', 'Krose.vst3') {
     if (!(Test-Path (Join-Path $payload $file))) { throw "Missing installer payload: $file" }
 }
 New-Item -ItemType Directory -Force $OutputDirectory | Out-Null

@@ -13,14 +13,19 @@ import tempfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
-BANKS = {'Factory.samples': 'program-library', 'SEGrand.samples': 'concert-se-grand'}
+BANKS = {
+    'Factory.samples': 'program-library/product-banks.json',
+    'EXPCM001.pcm': 'program-library/product-banks.json',
+    'SEGrand.samples': 'concert-se-grand/manifest.json',
+}
+OASYS = 'EXPCM001.pcm'
 
 
-def verify_resources(resources, root=ROOT):
-    for name, folder in BANKS.items():
-        manifest = json.loads((root / 'assets' / folder / 'manifest.json').read_text())
+def verify_resources(resources, oasys, root=ROOT):
+    for name, manifest_path in BANKS.items():
+        manifest = json.loads((root / 'assets' / manifest_path).read_text())
         entry = next(item for item in manifest['files'] if item['file'] == name)
-        bank = resources / name
+        bank = oasys if name == OASYS else resources / name
         digest = hashlib.sha256()
         with bank.open('rb') as stream:
             for block in iter(lambda: stream.read(8 * 1024 * 1024), b''):
@@ -29,6 +34,8 @@ def verify_resources(resources, root=ROOT):
             raise ValueError('Runtime bank mismatch: ' + name)
     if not (resources / 'native-base@2x.png').is_file():
         raise ValueError('Missing native editor resources')
+    if (resources / OASYS).exists():
+        raise ValueError('OASYS must live outside the application resources')
 
 
 def package(source, output, platform, version, root=ROOT):
@@ -37,7 +44,8 @@ def package(source, output, platform, version, root=ROOT):
     windows = platform == 'windows-x64'
     bundle = source / 'Krose.app'
     resources = source / 'Resources' if windows else bundle / 'Contents/Resources'
-    verify_resources(resources, root)
+    oasys = source / OASYS
+    verify_resources(resources, oasys, root)
     if windows:
         binary = source / 'Krose.exe'
         with binary.open('rb') as stream:
@@ -58,8 +66,9 @@ def package(source, output, platform, version, root=ROOT):
     output.mkdir(parents=True, exist_ok=True)
     destination = output / f'Krose-{version}-{platform}-{suffix}.zip'
     readme = ('Krose standalone\n\n'
-              + ('Extract this ZIP completely. Run Krose/Krose.exe. Keep Resources beside the EXE.\n'
-                 if windows else 'Extract this ZIP and open Krose.app. Samples are included in the application.\n')
+              + ('Extract this ZIP completely and run Krose/Krose.exe. Keep Resources beside the EXE.\n'
+                 if windows else 'Extract this ZIP completely and open Krose.app.\n')
+              + 'Keep EXPCM001.pcm beside Krose to use the default OASYS Piano.\n'
               + '\nNo VST3 host or installer is needed. Select audio/MIDI devices in the application settings.\n'
               + 'For a device-free UI check, run the executable with --no-io --screenshot screenshot.png.\n'
               + 'These builds are unsigned/not notarized.\n')
@@ -67,7 +76,7 @@ def package(source, output, platform, version, root=ROOT):
         incoming = Path(scratch) / destination.name
         if windows:
             with zipfile.ZipFile(incoming, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
-                files = [binary, *sorted(resources.rglob('*')), *sorted(source.glob('*.dll'))]
+                files = [binary, oasys, *sorted(resources.rglob('*')), *sorted(source.glob('*.dll'))]
                 for file in files:
                     if file.is_symlink():
                         raise ValueError('Unexpected Windows payload symlink: ' + str(file))
@@ -78,6 +87,7 @@ def package(source, output, platform, version, root=ROOT):
             # ditto preserves executable modes, symlinks and the ad-hoc signature.
             subprocess.run(['ditto', '-c', '-k', '--sequesterRsrc', '--keepParent', str(bundle), str(incoming)], check=True)
             with zipfile.ZipFile(incoming, 'a', zipfile.ZIP_DEFLATED) as archive:
+                archive.write(oasys, OASYS)
                 archive.writestr('README.txt', readme)
         incoming.replace(destination)
     print(destination)
@@ -96,7 +106,11 @@ def smoke(archive, platform, windows_gl_dir=None):
             bundle = root / 'Krose.app'
             subprocess.run(['codesign', '--verify', '--deep', '--strict', str(bundle)], check=True)
             executable = bundle / 'Contents/MacOS/Krose'
+        oasys_directory = executable.parent if platform == 'windows-x64' else root
+        if not (oasys_directory / OASYS).is_file():
+            raise ValueError('Missing removable OASYS payload')
         env = dict(os.environ, KROSE_SAMPLE_DIRECTORY=str(root / 'no-shared-samples'),
+                   KROSE_EXPANSION_DIRECTORY=str(root / 'test-expansions'),
                    KROSE_MIDI_MAP_FILE=str(root / 'midi.json'), KROSE_FAVORITES_FILE=str(root / 'favorites.json'))
         if windows_gl_dir is not None:
             if platform != 'windows-x64' or not (windows_gl_dir / 'opengl32.dll').is_file():

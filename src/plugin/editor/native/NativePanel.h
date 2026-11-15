@@ -118,6 +118,9 @@ private:
   void Note(int, bool);
   void FinishEdit();
   void PresetFile(bool save);
+  void ExpansionFile();
+  void ExpansionPage(IGraphics &);
+  void ReadExpansionStatus();
   std::shared_ptr<int> mLifetime = std::make_shared<int>(0);
   std::string mPresetStatus;
   double mMod = 0, mWheelRemainder = 0;
@@ -177,6 +180,8 @@ private:
   uint64_t mStoredMapping = 0;
   std::array<bool, 2> mHeldSwitch{};
   std::string mControllerStatus;
+  std::string mExpansionStatus;
+  std::array<bool, 5> mInstalledExpansions{};
   std::string mArturiaStatus;
   unsigned mAudioBuffer = 0;
 };

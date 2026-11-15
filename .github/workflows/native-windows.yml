@@ -47,6 +47,7 @@ jobs:
         run: >-
           cmake -S . -B build/ci -G "Visual Studio 17 2022" -A x64
           -DKROSE_ENABLE_IPO=ON -DKROSE_ENABLE_PGO=OFF -DBUILD_TESTING=OFF -DSEGRAND_BUILD_TOOLS=OFF
+          -DKROSE_COMPILE_ONLY_ASSETS=ON
           -DSEGRAND_ASSET_DIR="${{ github.workspace }}/build/compile-assets/concert-se-grand"
           -DKROSE_FACTORY_ASSET_DIR="${{ github.workspace }}/build/compile-assets/program-library"
       - name: Configure macOS universal
@@ -55,6 +56,7 @@ jobs:
           cmake -S . -B build/ci -G Xcode
           -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
           -DKROSE_ENABLE_IPO=ON -DKROSE_ENABLE_PGO=OFF -DBUILD_TESTING=OFF -DSEGRAND_BUILD_TOOLS=OFF
+          -DKROSE_COMPILE_ONLY_ASSETS=ON
           -DSEGRAND_ASSET_DIR="${{ github.workspace }}/build/compile-assets/concert-se-grand"
           -DKROSE_FACTORY_ASSET_DIR="${{ github.workspace }}/build/compile-assets/program-library"
       - name: Build Release

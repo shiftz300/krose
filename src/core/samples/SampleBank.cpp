@@ -13,12 +13,14 @@ uint32_t U32(const unsigned char *p) {
 }
 uint64_t U64(const unsigned char *p) { return uint64_t(U32(p)) | uint64_t(U32(p + 4)) << 32; }
 } // namespace
-std::shared_ptr<const SampleBank> SampleBank::Load(const std::string &path, bool preload) {
+std::shared_ptr<const SampleBank> SampleBank::Load(const std::string &path, bool preload,
+                                                   std::shared_ptr<const ProgramLibrary> factory) {
   // Construction only. Instances share immutable samples; no audio-thread locks.
   static std::mutex mutex;
   static std::map<std::string, std::weak_ptr<const SampleBank>> cache;
   std::lock_guard<std::mutex> lock(mutex);
-  const auto key = path + (preload ? "#full" : "#metadata");
+  const auto key = path + (preload ? "#full" : "#metadata") +
+                   std::to_string(reinterpret_cast<uintptr_t>(factory.get()));
   if (auto existing = cache[key].lock())
     return existing;
   for (auto it = cache.begin(); it != cache.end();)
@@ -50,7 +52,6 @@ std::shared_ptr<const SampleBank> SampleBank::Load(const std::string &path, bool
   if (!file.read(reinterpret_cast<char *>(descriptors.data()), descriptors.size()))
     throw std::runtime_error("Incomplete sample table");
   uint64_t expectedOffset = 32 + descriptors.size();
-  std::shared_ptr<const ProgramLibrary> factory;
   if (view) {
     if (uint64_t(fileSize) != expectedOffset)
       throw std::runtime_error("Invalid Concert reference size");
@@ -58,7 +59,8 @@ std::shared_ptr<const SampleBank> SampleBank::Load(const std::string &path, bool
     auto factoryPath = directory / "Factory.samples";
     if (!std::filesystem::exists(factoryPath))
       factoryPath = directory.parent_path() / "program-library" / "Factory.samples";
-    factory = ProgramLibrary::Load(factoryPath.u8string(), false);
+    if (!factory)
+      factory = ProgramLibrary::Load(factoryPath.u8string(), false);
   }
   unsigned previousLayer = 0, previousTop = 0;
   for (unsigned i = 0; i < 84; ++i) {

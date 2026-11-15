@@ -23,12 +23,17 @@ class StandalonePackage(unittest.TestCase):
         (self.source / 'Krose.vst3').mkdir()
         (self.source / 'Krose.vst3/private-plugin-file').write_bytes(b'not part of standalone')
         (resources / 'native-base@2x.png').write_bytes(b'image')
-        for name, folder in package.BANKS.items():
+        manifests = {}
+        for name, manifest_path in package.BANKS.items():
             data = b'frozen samples: ' + name.encode()
-            (resources / name).write_bytes(data)
-            manifest = self.root / 'assets' / folder / 'manifest.json'
-            manifest.parent.mkdir(parents=True)
-            manifest.write_text(json.dumps({'files': [{'file': name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}]}))
+            directory = self.source if name == package.OASYS else resources
+            (directory / name).write_bytes(data)
+            manifests.setdefault(manifest_path, []).append(
+                {'file': name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+        for manifest_path, entries in manifests.items():
+            manifest = self.root / 'assets' / manifest_path
+            manifest.parent.mkdir(parents=True, exist_ok=True)
+            manifest.write_text(json.dumps({'files': entries}))
 
     def tearDown(self):
         self.temp.cleanup()
@@ -43,10 +48,14 @@ class StandalonePackage(unittest.TestCase):
             self.assertIn('Krose/Krose.exe', names)
             self.assertIn('Krose/Resources/Factory.samples', names)
             self.assertIn('Krose/Resources/SEGrand.samples', names)
+            self.assertIn('Krose/EXPCM001.pcm', names)
+            self.assertNotIn('Krose/Resources/EXPCM001.pcm', names)
             self.assertIn('Krose/README.txt', names)
             self.assertFalse(any('vst3' in name for name in names))
             for name in package.BANKS:
-                self.assertEqual(zipped.read('Krose/Resources/' + name), (self.source / 'Resources' / name).read_bytes())
+                relative = Path(name) if name == package.OASYS else Path('Resources') / name
+                self.assertEqual(zipped.read('Krose/' + relative.as_posix()),
+                                 (self.source / relative).read_bytes())
 
     def test_bad_bank_is_rejected_before_publishing(self):
         (self.source / 'Resources/Factory.samples').write_bytes(b'wrong bank')

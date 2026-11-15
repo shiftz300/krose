@@ -31,20 +31,42 @@ inline std::filesystem::path ResourceDirectory(const char *bundleID) {
 }
 // Portable bundles keep samples beside images. Installed app and VST3 share
 // one versioned sample directory; only construction touches the filesystem.
+inline std::filesystem::path SampleOverride() {
+#if defined(OS_WIN)
+  if (const auto *path = _wgetenv(L"KROSE_SAMPLE_DIRECTORY"))
+    return std::filesystem::path(path);
+#else
+  if (const auto *path = std::getenv("KROSE_SAMPLE_DIRECTORY"))
+    return std::filesystem::u8path(path);
+#endif
+  return {};
+}
+
 inline std::filesystem::path SampleDirectory(const std::filesystem::path& resources) {
   if (std::filesystem::exists(resources / "Factory.samples") &&
       std::filesystem::exists(resources / "SEGrand.samples"))
     return resources;
+  auto overridePath = SampleOverride();
+  if (!overridePath.empty()) return overridePath;
 #if defined(OS_WIN)
-  if (const auto* overridePath = _wgetenv(L"KROSE_SAMPLE_DIRECTORY"))
-    return std::filesystem::path(overridePath);
   const auto* common = _wgetenv(L"CommonProgramFiles");
   if (!common) throw std::runtime_error("CommonProgramFiles is unavailable");
   return std::filesystem::path(common) / "Krose" / "Samples" / PLUG_VERSION_STR;
 #else
-  if (const auto* overridePath = std::getenv("KROSE_SAMPLE_DIRECTORY"))
-    return std::filesystem::u8path(overridePath);
   return std::filesystem::path("/Library/Application Support/Krose/Samples") / PLUG_VERSION_STR;
 #endif
+}
+
+inline std::filesystem::path DefaultOasysPath(const std::filesystem::path &resources,
+                                              const std::filesystem::path &samples) {
+  if (samples != resources) {
+    if (!SampleOverride().empty()) return samples / "EXPCM001.pcm";
+    return samples.parent_path().parent_path() / "Expansions" / "EXPCM001.pcm";
+  }
+  auto directory = resources.parent_path();
+#if !defined(OS_WIN) || defined(VST3_API)
+  directory = directory.parent_path().parent_path();
+#endif
+  return directory / "EXPCM001.pcm";
 }
 } // namespace krose

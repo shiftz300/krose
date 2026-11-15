@@ -9,6 +9,7 @@ $legacy = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Krose'
 $current = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Krose_is1'
 $directory = Join-Path $env:ProgramFiles 'Krose test 音色'
 $samples = Join-Path $env:CommonProgramFiles "Krose/Samples/$Version"
+$oasys = Join-Path $env:CommonProgramFiles 'Krose/Expansions/EXPCM001.pcm'
 $plugin = Join-Path $env:CommonProgramFiles 'VST3/Krose.vst3'
 if ((Test-Path $legacy) -or (Test-Path $current) -or (Test-Path $directory)) {
     throw 'Installer test requires an empty Krose installation'
@@ -32,9 +33,17 @@ for ($pass = 0; $pass -lt 2; ++$pass) {
     $info = Get-ItemProperty $current
     if ($info.Publisher -ne 'maincore' -or $info.DisplayVersion -ne $Version) { throw 'Incorrect installation identity' }
     if ($info.InstallLocation.TrimEnd('\') -ne $directory) { throw 'Legacy Unicode installation directory was not retained' }
-    foreach ($file in @((Join-Path $directory 'Krose.exe'), (Join-Path $samples 'Factory.samples'), (Join-Path $samples 'SEGrand.samples'), $plugin)) {
+    foreach ($file in @((Join-Path $directory 'Krose.exe'), (Join-Path $samples 'Factory.samples'), (Join-Path $samples 'SEGrand.samples'), $oasys, $plugin)) {
         if (!(Test-Path $file)) { throw "Missing installed payload: $file" }
     }
+    $users = [System.Security.Principal.SecurityIdentifier]::new('S-1-5-32-545')
+    $rights = (Get-Acl $oasys).GetAccessRules($true, $false, [System.Security.Principal.SecurityIdentifier])
+    $deleteRule = $rights | Where-Object {
+        $_.IdentityReference -eq $users -and $_.AccessControlType -eq 'Allow' -and
+        ($_.FileSystemRights -band [System.Security.AccessControl.FileSystemRights]::Delete) -and
+        -not ($_.FileSystemRights -band [System.Security.AccessControl.FileSystemRights]::WriteData)
+    }
+    if (!$deleteRule) { throw 'OASYS is not removable for standard users' }
     if ((Test-Path $legacy) -or (Test-Path (Join-Path $directory 'Uninstall.exe'))) { throw 'Legacy uninstall entry was not retired' }
     if (!(Test-Path $sentinel)) { throw 'Update removed an unowned file' }
 }
@@ -43,7 +52,7 @@ $match = [regex]::Match($info.UninstallString, '^"([^"]+)"')
 if (!$match.Success) { throw 'Missing registered Inno uninstaller' }
 $p = Start-Process $match.Groups[1].Value -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
 if ($p.ExitCode -ne 0) { throw 'Uninstall failed' }
-foreach ($file in @((Join-Path $directory 'Krose.exe'), $plugin, (Join-Path $samples 'Factory.samples'), (Join-Path $samples 'SEGrand.samples'), $current)) {
+foreach ($file in @((Join-Path $directory 'Krose.exe'), $plugin, (Join-Path $samples 'Factory.samples'), (Join-Path $samples 'SEGrand.samples'), $oasys, $current)) {
     if (Test-Path $file) { throw "Uninstall left installed payload: $file" }
 }
 if (!(Test-Path $sentinel)) { throw 'Uninstall removed an unowned file' }

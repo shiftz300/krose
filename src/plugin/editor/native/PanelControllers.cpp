@@ -55,10 +55,10 @@ void NativePanel::Controllers(IGraphics &g) {
   g.FillRect(Paper, R(431, 115, 542, 169));
   // Connected tabs use the same 45-degree, pixel-stepped shoulders as the program pages.
   ControllerCell(g, "< PROG", R(433, 115, 88, 23), "controller-close");
-  const char *tabs[] = {"CTRL", "MIDI", "INPUT", "AUDIO", "UI", "HELP", "INFO"};
-  for (int i = 0; i < 7; ++i) {
-    constexpr float width = 63.f;
-    float x = 527 + i * width;
+  const char *tabs[] = {"CTRL", "MIDI", "INPUT", "AUDIO", "UI", "HELP", "INFO", "EX PCM"};
+  float x = 527;
+  for (int i = 0; i < 8; ++i) {
+    const float width = i == 7 ? 72.5f : 52.5f;
     bool active = i == mControllerPage;
     for (int row = 0; row < 9; ++row) {
       float inset = (8 - row) * 2.25f;
@@ -66,8 +66,9 @@ void NativePanel::Controllers(IGraphics &g) {
                  LCDRect(R(x + inset, 117 + row * 2.25f, width - 2 * inset, 2.25f)));
     }
     g.FillRect(Ink, LCDRect(R(x, 136, width, 2.25f)));
-    Text(g, active ? "light14" : "lcd14", tabs[i], R(x + 2, 119, width - 4, 17), 1);
+    Text(g, active ? "light14" : "lcd14", tabs[i], R(x + 2, 121.25f, width - 4, 16), 1);
     HitBox(R(x, 115, width, 23), "controller-page", -1, i);
+    x += width;
   }
   if (mConfirmProfile != -1) {
     Text(g, "lcd16",
@@ -200,6 +201,8 @@ void NativePanel::Controllers(IGraphics &g) {
                    R(450, 254, 310, 24), "update-checks", -1, 0, p->UpdateChecksEnabled());
     if (mControllerStatus == "SAVE FAILED")
       Text(g, "lcd13", mControllerStatus, R(772, 254, 190, 24));
+  } else if (mControllerPage == 7) {
+    ExpansionPage(g);
   }
 }
 void NativePanel::ControllerMenu(const Hit &h) {
@@ -424,6 +427,18 @@ bool NativePanel::ControllerAction(const Hit &h) {
     if (mControllerPage != 1)
       map.CancelLearn();
     mConfirmProfile = -1;
+    if (mControllerPage == 7)
+      ReadExpansionStatus();
+  } else if (h.action == "expansion-import") {
+    ExpansionFile();
+  } else if (h.action == "expansion-remove") {
+    try {
+      p->UninstallExpansion(unsigned(h.id));
+      mExpansionStatus = "REMOVED / REOPEN KROSE TO APPLY";
+      ReadExpansionStatus();
+    } catch (const std::exception &) {
+      mExpansionStatus = "CANNOT CHANGE EXPANSION STORAGE";
+    }
   } else if (h.action == "controller-learn")
     BeginLearn(h.id);
   else if (h.action == "switch") {

@@ -9,10 +9,18 @@ void NativePanel::StepProgram(int delta) {
   if (order.empty())
     return;
   auto it = std::find(order.begin(), order.end(), int(Value(kParamProgram)));
-  int n = int(it - order.begin());
-  SetProgram(order[(n + delta + int(order.size())) % order.size()]);
+  const int count = int(order.size());
+  int index = int(it - order.begin());
+  for (int i = 0; i < count; ++i) {
+    index = (index + delta + count) % count;
+    if (static_cast<KrosePlugin *>(GetDelegate())->ProgramAvailable(order[index])) {
+      SetProgram(order[index]);
+      return;
+    }
+  }
 }
 void NativePanel::SetProgram(int i) {
+  if (!static_cast<KrosePlugin *>(GetDelegate())->ProgramAvailable(i)) return;
   mPresetStatus.clear();
   Set(kParamProgram, i);
   static_cast<KrosePlugin *>(GetDelegate())->CaptureComparison();
@@ -676,6 +684,40 @@ void NativePanel::PresetFile(bool save) {
   GetUI()->ReleaseMouseCapture();
 #else
   GetUI()->PromptForFile(file, path, save ? EFileAction::Save : EFileAction::Open, "krose", complete);
+#endif
+}
+void NativePanel::ExpansionFile() {
+  ReleaseHeld();
+  const std::weak_ptr<int> alive = mLifetime;
+  auto complete = [this, alive](const WDL_String &file, const WDL_String &) {
+    if (alive.expired() || !file.GetLength()) return;
+    try {
+      static_cast<KrosePlugin *>(GetDelegate())->InstallExpansion(file.Get());
+      mExpansionStatus = "INSTALLED / REOPEN KROSE TO APPLY";
+      ReadExpansionStatus();
+    } catch (const std::filesystem::filesystem_error &) {
+      mExpansionStatus = "CANNOT ACCESS EXPANSION STORAGE";
+    } catch (const std::runtime_error &error) {
+      mExpansionStatus = error.what();
+    } catch (const std::exception &) {
+      mExpansionStatus = "CANNOT INSTALL EXPANSION";
+    }
+    SetDirty(false);
+  };
+  WDL_String file, path;
+#ifdef _WIN32
+  try {
+    const auto chosen = krose::storage::PresetDialog(static_cast<HWND>(GetUI()->GetWindow()),
+                                                    false, {}, {}, true);
+    file.Set(chosen.u8string().c_str());
+    complete(file, path);
+  } catch (const std::exception &) {
+    mExpansionStatus = "CANNOT OPEN FILE PICKER";
+    SetDirty(false);
+  }
+  GetUI()->ReleaseMouseCapture();
+#else
+  GetUI()->PromptForFile(file, path, EFileAction::Open, "kep zip", complete);
 #endif
 }
 } // namespace krose::ui

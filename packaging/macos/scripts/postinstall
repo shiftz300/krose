@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+volume=${3%/}
+oasys="$volume/Library/Application Support/Krose/Expansions/EXPCM001.pcm"
+[ -f "$oasys" ] && [ ! -L "$oasys" ] || exit 1
+# Users can uninstall the PCM without replacing files in the system directory.
+/bin/chmod -a "everyone allow delete" "$oasys" 2>/dev/null || :
+/bin/chmod +a "everyone allow delete" "$oasys"

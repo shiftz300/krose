@@ -25,7 +25,9 @@ void NativePanel::OpenBrowser() {
 
 void NativePanel::FilterPrograms() {
   mFiltered.clear();
-  for (int i : mBrowser["order"].get<std::vector<int>>()) {
+  auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
+  for (int i : mProgramOrder) {
+    if (!plugin->ProgramAvailable(i)) continue;
     auto &p = mPrograms[i];
     if (mCategory == -2 && !mFavorites.count(p[0].get<std::string>()))
       continue;

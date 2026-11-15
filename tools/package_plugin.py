@@ -53,6 +53,8 @@ def main():
         binary = destination / 'Contents/MacOS/Krose'
         bundles.append({'file': name, 'binary_sha256': digest(binary),
                         'architecture': subprocess.check_output(['lipo', '-archs', str(binary)], text=True).strip()})
+    oasys = output / 'EXPCM001.pcm'
+    shutil.copyfile(build / 'out' / oasys.name, oasys)
     with (build / 'official-validator.log').open('w') as stream:
         subprocess.run([str(build / 'sdk-validator/validator'), str(output / 'Krose.vst3')],
                        stdout=stream, stderr=subprocess.STDOUT, check=True)
@@ -60,9 +62,10 @@ def main():
     assert result and int(result[1]) > 0 and int(result[2]) == 0
     sources = [ROOT / 'CMakeLists.txt', ROOT / 'CMakePresets.json', *sorted((ROOT / 'src').rglob('*')),
                *sorted((ROOT / 'cmake').rglob('*'))]
-    manifest = {'name': 'Krose', 'version': '0.4.2', 'platform': platform.platform(),
+    version = plistlib.loads((output / 'Krose.app/Contents/Info.plist').read_bytes())['CFBundleShortVersionString']
+    manifest = {'name': 'Krose', 'version': version, 'platform': platform.platform(),
                 'bundles': bundles, 'assets': json.loads((build / 'generated/assets.json').read_text()),
-                'program_library':json.loads((ROOT/'assets/program-library/manifest.json').read_text()),
+                'program_library':json.loads((ROOT/'assets/program-library/product-banks.json').read_text()),
                 'test_logs':{name:digest(build/name) for name in [*(name for name,_ in checks), 'native-ui-test.log']},
                 'tests_run_by_packager':not args.skip_tests,
                 'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),

@@ -73,8 +73,10 @@ private:
   ProgramEngine mFactory;
   EventQueue<PianoEngine::kEvents> mEvents;
   unsigned mProgramCount = 0;
+  std::vector<bool> mAvailablePrograms;
   int mProgram = 0;
   bool mOfflineLoadFailed = false;
+  bool mProgramAvailable = true;
   bool mRetirePending = false;
   double mPan = 0, mPanTarget = 0, mPanSmooth = 1;
 };

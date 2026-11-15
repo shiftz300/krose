@@ -2,13 +2,58 @@
 #include "samples/NativeSampleCodec.h"
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <map>
 #include <mutex>
 #include <stdexcept>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#include <fcntl.h>
+#include <io.h>
+#endif
 namespace segrand {
+// Keep the session snapshot usable after the loader removes the directory
+// entry. The worker serializes reads through ProgramLibrary's existing mutex.
+class ExpansionSampleFile final : private std::streambuf {
+public:
+  explicit ExpansionSampleFile(const std::filesystem::path &path) : input(this) {
+#ifdef _WIN32
+    auto handle = CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE,
+                              nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (handle != INVALID_HANDLE_VALUE) {
+      int descriptor = _open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_RDONLY | _O_BINARY);
+      if (descriptor < 0)
+        CloseHandle(handle);
+      else {
+        file = _fdopen(descriptor, "rb");
+        if (!file) _close(descriptor);
+      }
+    }
+#else
+    file = std::fopen(path.c_str(), "rb");
+#endif
+  }
+  ~ExpansionSampleFile() override { if (file) std::fclose(file); }
+  bool Valid() const noexcept { return file != nullptr; }
+  std::istream &At(uint64_t offset) {
+    if (std::fseek(file, static_cast<long>(offset), SEEK_SET) != 0)
+      throw std::runtime_error("Cannot seek expansion waveform");
+    input.clear();
+    return input;
+  }
+private:
+  std::streamsize xsgetn(char *destination, std::streamsize bytes) override {
+    return static_cast<std::streamsize>(std::fread(destination, 1, size_t(bytes), file));
+  }
+  std::FILE *file = nullptr;
+  std::istream input;
+};
 namespace {
 class Reader {
 public:
@@ -56,13 +101,27 @@ void Require(bool value) {
     throw std::runtime_error("Invalid factory library");
 }
 } // namespace
-std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &path, bool preload) {
+unsigned ProgramExpansion(const char *id) noexcept {
+  if (std::strncmp(id, "EXPCM00", 7) == 0 && (id[7] == '1' || id[7] == '2' || id[7] == '4'))
+    return unsigned(id[7] - '0');
+  return 0;
+}
+bool ProgramLibrary::HasExpansion(unsigned number) const noexcept {
+  return number == 0 || ((number == 1 || number == 2 || number == 4) &&
+                         (!mSplit || bool(mExpansionFiles[number])));
+}
+std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &path, bool preload,
+                                                          const ExpansionPaths &expansions) {
   static std::mutex mutex;
   static std::map<std::string, std::weak_ptr<const ProgramLibrary>> cache;
   const std::string key =
       std::filesystem::absolute(std::filesystem::u8path(path)).lexically_normal().u8string();
   std::lock_guard<std::mutex> lock(mutex); // Loading only, never called by audio processing.
-  const auto cacheKey = key + (preload ? "#full" : "#metadata");
+  auto cacheKey = key + (preload ? "#full" : "#metadata");
+  for (const auto &source : expansions) {
+    cacheKey += '\0';
+    cacheKey += source;
+  }
   if (auto existing = cache[cacheKey].lock())
     return existing;
   for (auto it = cache.begin(); it != cache.end();)
@@ -75,18 +134,24 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
   in.Bytes(magic, 8);
   const auto version = in.U32();
   Require((!std::memcmp(magic, "KRPRG002", 8) && version == 2) ||
-          (!std::memcmp(magic, "KRPRG003", 8) && version == 3));
+          (!std::memcmp(magic, "KRPRG003", 8) && version == 3) ||
+          (!std::memcmp(magic, "KRPRG004", 8) && version == 4));
   const auto sampleCount = in.U32(), regionCount = in.U32(), programCount = in.U32();
   Require(sampleCount > 0 && sampleCount <= 8192 && regionCount > 0 && regionCount <= 262144 &&
           programCount > 0 && programCount <= 2048);
   const auto fileSize = std::filesystem::file_size(std::filesystem::u8path(key));
   Require(fileSize <= 512ull * 1024 * 1024);
-  uint64_t expected = 24 + 224 * 4 + 256 * 2 + 129 * 2 + (version == 3 ? 512 : 0) +
-                      uint64_t(sampleCount) * (version == 3 ? 40 : 32) +
-                      uint64_t(regionCount) * 96 + uint64_t(programCount) * 2232;
-  Require(expected <= fileSize); // Reject impossible tables before allocating metadata.
+  const bool native = version >= 3;
+  const uint64_t tableSize = 24 + 224 * 4 + 256 * 2 + 129 * 2 + (native ? 512 : 0) +
+                             uint64_t(sampleCount) * (native ? 40 : 32) +
+                             uint64_t(regionCount) * 96 + uint64_t(programCount) * 2232;
+  Require(tableSize <= fileSize); // Reject impossible tables before allocating metadata.
+  std::array<uint64_t, 5> expected{tableSize};
   auto bank = std::make_shared<ProgramLibrary>();
-  bank->mPath = key;
+  bank->mSplit = version == 4;
+  if (bank->mSplit)
+    bank->mPaths = expansions;
+  bank->mPaths[0] = key;
   bank->mPreload = preload;
   bank->mSampleCache.resize(sampleCount);
   for (auto &v : bank->mPhaseBase)
@@ -101,7 +166,7 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
     in.Bytes(p, 2);
     v = uint16_t(p[0]) | (uint16_t(p[1]) << 8);
   }
-  if (version == 3)
+  if (native)
     for (auto &v : bank->mSampleLut)
       v = in.I16();
   bank->samples.resize(sampleCount);
@@ -113,21 +178,33 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
     sample.flags = in.U32();
     sample.pitch = in.I32();
     const auto offset = in.U64();
+    const unsigned group = bank->mSplit ? sample.id / 10000 : 0;
+    Require(group == 0 || group == 1 || group == 2 || group == 4);
     Require(sample.id < 65536 && sample.pitch >= -32768 && sample.pitch <= 32767 && frames > 0 &&
             frames <= 48000 * 60 && sample.loopStart < frames && sample.loopEnd < frames &&
-            sample.loopStart <= sample.loopEnd && offset == expected);
+            sample.loopStart <= sample.loopEnd && offset == expected[group]);
     sample.frames = frames;
     sample.offset = offset;
-    if (version == 3) {
+    if (native) {
       sample.a1 = in.I16();
       sample.a2 = in.I16();
       sample.codec = in.U32();
       Require(sample.codec <= 2);
     }
-    expected += uint64_t(frames) * (sample.codec == 1 ? 1 : sample.codec == 2 ? 2 : 3);
-    Require(expected <= fileSize);
+    Require(group == 0 || sample.codec == 1);
+    expected[group] += uint64_t(frames) * (sample.codec == 1 ? 1 : sample.codec == 2 ? 2 : 3);
+    Require(expected[group] <= 512ull * 1024 * 1024);
   }
-  Require(expected == fileSize);
+  Require(expected[0] == fileSize);
+  for (unsigned group : {1u, 2u, 4u})
+    if (bank->mSplit && !bank->mPaths[group].empty()) {
+      std::error_code error;
+      auto size = std::filesystem::file_size(std::filesystem::u8path(bank->mPaths[group]), error);
+      if (!error && size == expected[group]) {
+        auto file = std::make_shared<ExpansionSampleFile>(std::filesystem::u8path(bank->mPaths[group]));
+        if (file->Valid()) bank->mExpansionFiles[group] = std::move(file);
+      }
+    }
   bank->regions.resize(regionCount);
   for (auto &r : bank->regions) {
     r.sample[0] = in.U32();
@@ -195,18 +272,28 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
     for (uint32_t i = p.firstRegion; i < p.firstRegion + p.regionCount; ++i) {
       const auto &r = bank->regions[i];
       Require(p.drum == bool(r.flags & 8));
+      if (bank->mSplit)
+        for (auto index : r.sample)
+          if (index != UINT32_MAX) {
+            const unsigned group = bank->samples[index].id / 10000;
+            Require(!group || group == ProgramExpansion(p.id.data()));
+          }
       for (int n = r.noteLow; n <= r.noteHigh; ++n) {
         Require(p.lookup[r.oscillator][n][r.slot] == -1);
         p.lookup[r.oscillator][n][r.slot] = int32_t(i);
       }
     }
   }
-  if (preload)
+  if (preload) {
     for (auto &sample : bank->samples) {
-      Require(uint64_t(in.file.tellg()) == sample.offset);
-      ReadSamplePCM(in.file, sample.codec, sample.a1, sample.a2, bank->mSampleLut, sample.frames,
+      const auto group = bank->mSplit ? sample.id / 10000 : 0;
+      if (!bank->HasExpansion(group)) continue;
+      if (!group) Require(uint64_t(in.file.tellg()) == sample.offset);
+      auto &stream = group ? bank->mExpansionFiles[group]->At(sample.offset) : in.file;
+      ReadSamplePCM(stream, sample.codec, sample.a1, sample.a2, bank->mSampleLut, sample.frames,
                     sample.pcm);
     }
+  }
   cache[cacheKey] = bank;
   return bank;
 }
@@ -234,9 +321,7 @@ SampleWindow ProgramLibrary::LoadSamples(const std::vector<uint32_t> &indices, b
 SampleWindow ProgramLibrary::LoadSamplesLocked(const std::vector<uint32_t> &indices,
                                                 bool retainRecent) const {
   SampleWindow result(samples.size());
-  std::ifstream file(std::filesystem::u8path(mPath), std::ios::binary);
-  if (!file)
-    throw std::runtime_error("Factory samples unavailable");
+  std::ifstream factory;
   for (auto index : indices) {
     if (index >= samples.size())
       throw std::out_of_range("Sample index");
@@ -245,9 +330,19 @@ SampleWindow ProgramLibrary::LoadSamplesLocked(const std::vector<uint32_t> &indi
     auto pcm = mSampleCache[index].lock();
     if (!pcm) {
       const auto &sample = samples[index];
+      auto group = mSplit ? sample.id / 10000 : 0;
+      if (!HasExpansion(group))
+        throw std::runtime_error("Expansion is not installed");
+      if (!group) {
+        if (!factory.is_open())
+          factory.open(std::filesystem::u8path(mPaths[0]), std::ios::binary);
+        if (!factory)
+          throw std::runtime_error("Factory samples unavailable");
+        factory.seekg(std::streamoff(sample.offset));
+      }
+      auto &stream = group ? mExpansionFiles[group]->At(sample.offset) : factory;
       auto loaded = std::make_shared<PCM24>();
-      file.seekg(std::streamoff(sample.offset));
-      ReadSamplePCM(file, sample.codec, sample.a1, sample.a2, mSampleLut, sample.frames, *loaded);
+      ReadSamplePCM(stream, sample.codec, sample.a1, sample.a2, mSampleLut, sample.frames, *loaded);
       pcm = std::move(loaded);
       mSampleCache[index] = pcm;
     }

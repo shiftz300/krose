@@ -46,6 +46,10 @@ def main():
     pairs = [(args.arm64/name, args.x86_64/name) for name in ('Krose.app', 'Krose.vst3')]
     for arm, intel in pairs:
         validate_pair(arm, intel)
+    oasys = 'EXPCM001.pcm'
+    if hashlib.sha256((args.arm64 / oasys).read_bytes()).digest() != hashlib.sha256(
+            (args.x86_64 / oasys).read_bytes()).digest():
+        raise ValueError('Native builds carry different OASYS PCM')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='krose-universal-', dir=args.output.parent) as temporary:
         for arm, intel in pairs:
@@ -60,6 +64,7 @@ def main():
             subprocess.run(['codesign', '--force', '--sign', '-', str(destination)], check=True)
             subprocess.run(['codesign', '--verify', '--deep', '--strict', str(destination)], check=True)
         args.output.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(args.arm64 / oasys, args.output / oasys)
         for arm, _ in pairs:
             destination = args.output/arm.name
             if destination.exists():

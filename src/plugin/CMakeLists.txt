@@ -1,6 +1,55 @@
 include("${CMAKE_SOURCE_DIR}/cmake/NativeEditorResources.cmake")
 find_package(Threads REQUIRED)
+set(_bank_dir "${SEGRAND_GENERATED}/product-banks")
+set(_product_banks "${_bank_dir}/Factory.samples" "${_bank_dir}/EXPCM001.pcm")
+option(KROSE_COMPILE_ONLY_ASSETS "Use incomplete banks for installer structure checks" OFF)
+if(KROSE_COMPILE_ONLY_ASSETS)
+  if(BUILD_TESTING)
+    message(FATAL_ERROR "Compile-only banks cannot run audio tests")
+  endif()
+  set(_split_args --compile-only)
+endif()
+if(APPLE AND BUILD_TESTING)
+  set(_test_expansions "${SEGRAND_GENERATED}/vst3-test-expansions")
+  set(_test_pcm "${_test_expansions}/EXPCM002.pcm" "${_test_expansions}/EXPCM004.pcm")
+  set(_split_args --test-expansions "${_test_expansions}")
+endif()
+add_custom_command(OUTPUT ${_product_banks} ${_test_pcm}
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/tools/resources/split_factory_bank.py"
+    "${KROSE_FACTORY_ASSET_DIR}/Factory.samples" "${_bank_dir}" ${_split_args}
+  DEPENDS "${KROSE_FACTORY_ASSET_DIR}/Factory.samples"
+    "${CMAKE_SOURCE_DIR}/tools/resources/split_factory_bank.py"
+  VERBATIM)
+add_custom_target(krose-product-banks DEPENDS ${_product_banks} ${_test_pcm})
+# One removable sidecar serves both native targets and all packaging formats.
+set(_oasys_dir "${CMAKE_BINARY_DIR}/out")
+if(CMAKE_GENERATOR STREQUAL "Xcode")
+  string(APPEND _oasys_dir "/$<CONFIG>")
+endif()
+set(_default_oasys "${_oasys_dir}/EXPCM001.pcm")
+add_custom_command(OUTPUT "${_default_oasys}"
+  COMMAND ${CMAKE_COMMAND} -E make_directory "${_oasys_dir}"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_bank_dir}/EXPCM001.pcm" "${_default_oasys}"
+  DEPENDS "${_bank_dir}/EXPCM001.pcm"
+  VERBATIM)
+add_custom_target(krose-default-oasys DEPENDS "${_default_oasys}")
+set(_zlib "${IPLUG2_DIR}/WDL/zlib")
+add_library(krose-expansion-loader STATIC storage/ExpansionLoader.cpp
+  "${_zlib}/inflate.c" "${_zlib}/inffast.c" "${_zlib}/inftrees.c"
+  "${_zlib}/adler32.c" "${_zlib}/crc32.c" "${_zlib}/zutil.c")
+set_target_properties(krose-expansion-loader PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_include_directories(krose-expansion-loader PRIVATE "${_zlib}")
+target_compile_definitions(krose-expansion-loader PRIVATE Z_PREFIX)
+target_link_libraries(krose-expansion-loader PUBLIC krose::core)
+if(WIN32)
+  target_link_libraries(krose-expansion-loader PRIVATE bcrypt)
+endif()
 if(BUILD_TESTING)
+  krose_test(expansion-loader "${CMAKE_SOURCE_DIR}/tests/plugin/test_expansion_loader.cpp"
+    "${_bank_dir}" "${KROSE_FACTORY_ASSET_DIR}/Factory.samples" "${SEGRAND_ASSET_DIR}/SEGrand.samples")
+  add_dependencies(test-expansion-loader krose-product-banks)
+  target_include_directories(test-expansion-loader PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+  target_link_libraries(test-expansion-loader PRIVATE krose-expansion-loader)
   krose_test(controller-profile "${CMAKE_SOURCE_DIR}/tests/plugin/test_controller_profile.cpp" "${CMAKE_SOURCE_DIR}/controllers")
   target_include_directories(test-controller-profile PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
   set(_sdk "${IPLUG2_DIR}/Dependencies/IPlug/VST3_SDK")
@@ -54,12 +103,12 @@ iplug_add_plugin(Krose
     Parameters.cpp Parameters.h storage/UpdateCheck.cpp storage/UserPreset.cpp standalone/AudioSettings.cpp
     midi/ControllerInput.cpp midi/ControllerState.cpp midi/ArturiaFeedback.cpp
     midi/ControllerProfiles.cpp
-    editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp editor/native/PanelControllers.cpp editor/native/PanelEffects.cpp editor/native/PanelFxVisual.cpp editor/native/PanelMotion.cpp resources/resource.h
-  RESOURCES ${KROSE_NATIVE_IMAGES} "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
+    editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp editor/native/PanelControllers.cpp editor/native/PanelEffects.cpp editor/native/PanelExpansions.cpp editor/native/PanelFxVisual.cpp editor/native/PanelMotion.cpp resources/resource.h
+  RESOURCES ${KROSE_NATIVE_IMAGES} "${SEGRAND_GENERATED}/SEGrand.samples" "${_bank_dir}/Factory.samples"
     ${KROSE_LICENSE_RESOURCES}
     "${IPLUG2_DIR}/Examples/IPlugEffect/resources/fonts/Roboto-Regular.ttf"
   FORMATS VST3 APP
-  LINK krose::core)
+  LINK krose::core krose-expansion-loader)
 # Share the actual build timestamp between the standalone and plugin.
 add_custom_target(krose-build-info
   COMMAND "${CMAKE_COMMAND}" "-DOUTPUT=${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.h"
@@ -73,8 +122,8 @@ krose_controller_resources()
 # Apply to SDK translation units as well as the plugin: all channels expose CC input.
 target_compile_definitions(Krose-vst3 PRIVATE VST3_NUM_CC_CHANS=16)
 target_include_directories(Krose-vst3 BEFORE PRIVATE "${CMAKE_BINARY_DIR}/generated/iplug-vst3")
-add_dependencies(Krose-vst3 segrand-assets krose-factory-assets)
-add_dependencies(Krose-app segrand-assets krose-factory-assets)
+add_dependencies(Krose-vst3 segrand-assets krose-factory-assets krose-product-banks krose-default-oasys)
+add_dependencies(Krose-app segrand-assets krose-factory-assets krose-product-banks krose-default-oasys)
 foreach(target Krose-vst3 Krose-app)
   target_link_libraries(${target} PRIVATE Threads::Threads)
   if(WIN32)
@@ -111,6 +160,7 @@ if(APPLE)
     target_include_directories(${target} PRIVATE "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
     add_custom_command(TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E rm -f "$<TARGET_BUNDLE_DIR:${target}>/Contents/Resources/editor.html"
+        "$<TARGET_BUNDLE_DIR:${target}>/Contents/Resources/EXPCM001.pcm"
       COMMAND codesign --force --sign - "$<TARGET_BUNDLE_DIR:${target}>"
       VERBATIM)
   endforeach()
@@ -125,8 +175,9 @@ if(WIN32)
     endif()
     add_custom_command(TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E make_directory "${_destination}"
+      COMMAND ${CMAKE_COMMAND} -E rm -f "${_destination}/EXPCM001.pcm"
       COMMAND ${CMAKE_COMMAND} -E copy_if_different ${KROSE_NATIVE_IMAGES}
-        "${SEGRAND_GENERATED}/SEGrand.samples" "${SEGRAND_GENERATED}/Factory.samples"
+        "${SEGRAND_GENERATED}/SEGrand.samples" "${_bank_dir}/Factory.samples"
         ${KROSE_LICENSE_RESOURCES} "${_destination}"
       VERBATIM)
     target_compile_options(${target} PRIVATE /utf-8)

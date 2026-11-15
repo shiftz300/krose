@@ -418,11 +418,15 @@ void NativePanel::Render(IGraphics &g) {
   auto &p = mPrograms[program];
   g.FillRect(IColor(255, 34, 34, 34), R(507, 52, 482, 30));
   g.DrawRect(IColor(255, 94, 99, 102), R(507, 52, 482, 30), nullptr, 1);
-  auto presetText = R(515.015625, 52, mLoading ? 340 : 444, 30);
+  const bool missingExpansion =
+      !static_cast<KrosePlugin *>(GetDelegate())->ProgramAvailable(int(Value(kParamProgram)));
+  auto presetText = R(515.015625, 52, mLoading || missingExpansion ? 340 : 444, 30);
   g.PathClipRegion(R(presetText.L - 4, presetText.T, presetText.W() + 4, presetText.H()));
   Text(g, "arial14", p[0].get<std::string>() + " " + p[1].get<std::string>(), presetText);
   g.PathClipRegion();
-  if (mLoading)
+  if (missingExpansion)
+    Text(g, "arial13", "NEEDS EX PCM", R(844, 52, 115, 30), 2);
+  else if (mLoading)
     Text(g, "arial13", mLoadFailed ? "LOAD FAILED" : "LOADING", R(862, 52, 97, 30), 2);
   Chevron(g, R(507, 52, 482, 30), IColor(255, 227, 227, 227));
   HitBox(R(507, 52, 482, 30), "presets");

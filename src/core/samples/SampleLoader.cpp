@@ -91,10 +91,13 @@ void SampleLoader::Run() {
               auto data = std::make_unique<SampleResidency>();
               data->slot = i;
               data->program = requested;
-              if (requested == 0)
-                data->concert = SampleBank::Load(mConcertPath);
-              else
+              if (requested == 0) {
+                if (mLibrary->HasExpansion(1))
+                  data->concert = SampleBank::Load(mConcertPath, true, mLibrary);
+              } else if (mLibrary->HasExpansion(
+                             ProgramExpansion(mLibrary->programs[requested - 1].id.data()))) {
                 data->factory = mLibrary->LoadProgram(unsigned(requested - 1));
+              }
               if (mRequested.load(std::memory_order_acquire) == requested) {
                 slot.data = std::move(data);
                 slot.state.store(Ready, std::memory_order_release);

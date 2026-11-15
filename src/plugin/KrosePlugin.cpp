@@ -2,6 +2,7 @@
 #include "FactoryPrograms.h"
 #include "IPlug_include_in_plug_src.h"
 #include "ResourcePath.h"
+#include "storage/ExpansionLoader.h"
 #include <cstdlib>
 #include <cstring>
 
@@ -11,15 +12,31 @@ KrosePlugin::KrosePlugin(const InstanceInfo &info)
   mStandaloneHost = info.pAppHost;
 #endif
   InitializeParameters();
-  InitializeMidiMappings();
-  RestoreMidiProfile();
-  mNotifiedMapRevision.store(mMidiMap.Revision());
   mHardwarePrograms.fill(-1);
   try {
-    const auto resources = krose::SampleDirectory(krose::ResourceDirectory(GetBundleID()));
-    auto concert = segrand::SampleBank::Load((resources / "SEGrand.samples").u8string(), false);
-    auto programs =
-        segrand::ProgramLibrary::Load((resources / "Factory.samples").u8string(), false);
+    const auto resources = krose::ResourceDirectory(GetBundleID());
+    const auto samples = krose::SampleDirectory(resources);
+    mDefaultOasys = krose::DefaultOasysPath(resources, samples);
+    WDL_String support;
+    iplug::AppSupportPath(support);
+    if (support.GetLength())
+      mExpansionDirectory = std::filesystem::u8path(support.Get()) / "Krose" / "Expansions";
+#ifdef _WIN32
+    if (const auto *directory = _wgetenv(L"KROSE_EXPANSION_DIRECTORY"))
+      mExpansionDirectory = std::filesystem::path(directory);
+#else
+    if (const auto *directory = std::getenv("KROSE_EXPANSION_DIRECTORY"))
+      mExpansionDirectory = std::filesystem::u8path(directory);
+#endif
+    segrand::ExpansionPaths expansions;
+    if (!mExpansionDirectory.empty())
+      expansions = krose::storage::ExpansionLoader(mExpansionDirectory, mDefaultOasys).Sources();
+    else
+      expansions[1] = mDefaultOasys.u8string();
+    auto programs = segrand::ProgramLibrary::Load((samples / "Factory.samples").u8string(),
+                                                  false, expansions);
+    auto concert = segrand::SampleBank::Load((samples / "SEGrand.samples").u8string(),
+                                            false, programs);
     for (unsigned i = 0; i < programs->programs.size(); ++i) {
       const char *id = programs->programs[i].id.data();
       int bank = -1, number = -1;
@@ -42,10 +59,16 @@ KrosePlugin::KrosePlugin(const InstanceInfo &info)
       if (bank >= 0 && number >= 0 && number < 128)
         mHardwarePrograms[bank * 128 + number] = int(i) + 1;
     }
-    mEngine = std::make_unique<segrand::InstrumentEngine>(std::move(concert), std::move(programs));
+    mEngine = std::make_unique<segrand::InstrumentEngine>(std::move(concert), programs);
+    mProgramLibrary = std::move(programs);
+    if (!ProgramAvailable(0))
+      GetParam(kParamProgram)->SetDefault(1); // A000 Kross Grand Piano 1.
   } catch (const std::exception &error) {
     mError = error.what();
   }
+  InitializeMidiMappings();
+  RestoreMidiProfile();
+  mNotifiedMapRevision.store(mMidiMap.Revision());
 #if IPLUG_EDITOR
   // iPlug2 defines its platform graphics factory in this translation unit.
   mMakeGraphicsFunc = [this]() {
@@ -54,6 +77,36 @@ KrosePlugin::KrosePlugin(const InstanceInfo &info)
   };
   ConfigureEditor();
 #endif
+}
+bool KrosePlugin::ProgramAvailable(int program) const noexcept {
+  if (!mProgramLibrary) return true; // Preserve metadata when reporting a broken core library.
+  if (program == 0) return mProgramLibrary->HasExpansion(1);
+  if (program < 0 || size_t(program) > mProgramLibrary->programs.size()) return false;
+  return mProgramLibrary->HasExpansion(
+      segrand::ProgramExpansion(mProgramLibrary->programs[program - 1].id.data()));
+}
+bool KrosePlugin::CanManageExpansions() const noexcept {
+  return mProgramLibrary && mProgramLibrary->Split() && !mExpansionDirectory.empty();
+}
+bool KrosePlugin::ExpansionAvailable(unsigned number) const noexcept {
+  return mProgramLibrary && mProgramLibrary->HasExpansion(number);
+}
+bool KrosePlugin::ExpansionInstalled(unsigned number) const {
+  auto loader = krose::storage::ExpansionLoader(mExpansionDirectory, mDefaultOasys);
+  for (const auto &pack : krose::storage::kExpansions)
+    if (pack.number == number) return loader.Installed(pack);
+  return false;
+}
+unsigned KrosePlugin::InstallExpansion(const char *path) {
+  if (!CanManageExpansions()) throw std::runtime_error("EXPANSION LOADER UNAVAILABLE");
+  return krose::storage::ExpansionLoader(mExpansionDirectory, mDefaultOasys)
+      .Install(std::filesystem::u8path(path), *mProgramLibrary);
+}
+void KrosePlugin::UninstallExpansion(unsigned number) {
+  if (!CanManageExpansions()) throw std::runtime_error("EXPANSION LOADER UNAVAILABLE");
+  auto loader = krose::storage::ExpansionLoader(mExpansionDirectory, mDefaultOasys);
+  for (const auto &pack : krose::storage::kExpansions)
+    if (pack.number == number) loader.Uninstall(pack);
 }
 float KrosePlugin::EditorDrawScale(int percentage) const {
 #if IPLUG_EDITOR

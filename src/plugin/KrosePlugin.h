@@ -10,6 +10,7 @@
 #include "midi/KeyLabControls.h"
 #include <array>
 #include <atomic>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -41,6 +42,12 @@ public:
   struct ControllerProfileFile { std::string name, path; bool builtin, valid = true; };
   std::vector<ControllerProfileFile> ControllerProfileFiles() const;
   std::string ControllerSupportFolder(bool builtin) const;
+  bool ProgramAvailable(int program) const noexcept;
+  bool CanManageExpansions() const noexcept;
+  bool ExpansionAvailable(unsigned number) const noexcept;
+  bool ExpansionInstalled(unsigned number) const;
+  unsigned InstallExpansion(const char *path);
+  void UninstallExpansion(unsigned number);
   bool ImportControllerProfile(const std::string& path);
   bool ExportControllerProfile();
   bool MidiSettingsError() const noexcept { return mMidiSettingsError; }
@@ -174,6 +181,8 @@ private:
   std::atomic<unsigned> mNotifiedMapRevision{0};
   std::vector<int> mNextPrograms, mPreviousPrograms;
   std::string mError;
+  std::shared_ptr<const segrand::ProgramLibrary> mProgramLibrary;
+  std::filesystem::path mExpansionDirectory, mDefaultOasys;
   bool mPrepared = true;
   std::atomic<double> mDisplayTempo{120.};
   std::atomic<bool> mDisplayHost{false};

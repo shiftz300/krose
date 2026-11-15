@@ -46,8 +46,16 @@ void KrosePlugin::InitializeMidiMappings() {
   mNextPrograms.resize(order.size());
   mPreviousPrograms.resize(order.size());
   for (unsigned i = 0; i < order.size(); ++i) {
-    mNextPrograms[order[i]] = order[(i + 1) % order.size()];
-    mPreviousPrograms[order[i]] = order[(i + order.size() - 1) % order.size()];
+    auto step = [&](int delta) {
+      const int count = int(order.size());
+      int position = int(i);
+      do {
+        position = (position + delta + count) % count;
+      } while (position != int(i) && !ProgramAvailable(order[position]));
+      return order[position];
+    };
+    mNextPrograms[order[i]] = step(1);
+    mPreviousPrograms[order[i]] = step(-1);
   }
   StandardMidiMappings();
 }

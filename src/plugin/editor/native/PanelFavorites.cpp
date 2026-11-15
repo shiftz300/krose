@@ -1,3 +1,4 @@
+#include "../../KrosePlugin.h"
 #include "IPlugPaths.h"
 #include "NativePanel.h"
 #include "PanelDrawing.h"
@@ -98,9 +99,11 @@ void NativePanel::PresetCategory(int category, bool revealCurrent) {
   mPresetCategory = category;
   mPresetRootFocus = category + 1;
   mPresetItems.clear();
-  for (int i : mBrowser["order"].get<std::vector<int>>())
-    if (category == -1 ? mFavorites.count(mPrograms[i][0].get<std::string>()) != 0
-                       : mPrograms[i][2] == mBrowser["categories"][category])
+  auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
+  for (int i : mProgramOrder)
+    if (plugin->ProgramAvailable(i) &&
+        (category == -1 ? mFavorites.count(mPrograms[i][0].get<std::string>()) != 0
+                        : mPrograms[i][2] == mBrowser["categories"][category]))
       mPresetItems.push_back(i);
   mPresetFocus = 0;
   mPresetScroll = 0;

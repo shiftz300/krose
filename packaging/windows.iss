@@ -40,10 +40,11 @@ Name: "vst3"; Description: "VST3 plugin"; Types: full custom
 [Files]
 Source: "{#Payload}\Krose.exe"; DestDir: "{app}"; Flags: ignoreversion; Components: app
 Source: "{#Payload}\*.dll"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist; Components: app
-Source: "{#Payload}\Resources\*"; DestDir: "{app}\Resources"; Excludes: "*.samples"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: app
+Source: "{#Payload}\Resources\*"; DestDir: "{app}\Resources"; Excludes: "*.samples,EXPCM001.pcm"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: app
 Source: "{#Payload}\Resources\Factory.samples"; DestDir: "{commoncf64}\Krose\Samples\{#AppVersion}"; Flags: ignoreversion
 Source: "{#Payload}\Resources\SEGrand.samples"; DestDir: "{commoncf64}\Krose\Samples\{#AppVersion}"; Flags: ignoreversion
-Source: "{#Payload}\Krose.vst3\*"; DestDir: "{commoncf64}\VST3\Krose.vst3"; Excludes: "*.samples"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: vst3
+Source: "{#Payload}\EXPCM001.pcm"; DestDir: "{commoncf64}\Krose\Expansions"; Flags: ignoreversion
+Source: "{#Payload}\Krose.vst3\*"; DestDir: "{commoncf64}\VST3\Krose.vst3"; Excludes: "*.samples,EXPCM001.pcm"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: vst3
 
 [Icons]
 Name: "{group}\Krose"; Filename: "{app}\Krose.exe"; Components: app
@@ -75,8 +76,17 @@ end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  OldUninstaller: String;
+  OldUninstaller, Oasys: String;
+  ExitCode: Integer;
 begin
+  if CurStep = ssPostInstall then begin
+    { Grant deletion of this PCM file only. The parent folder and the
+      application remain administrator-writable. The SID is locale independent. }
+    Oasys := ExpandConstant('{commoncf64}\Krose\Expansions\EXPCM001.pcm');
+    if not Exec(ExpandConstant('{sys}\icacls.exe'), '"' + Oasys + '" /grant *S-1-5-32-545:(DE)',
+                '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then
+      RaiseException('Cannot enable removal of the OASYS sample library.');
+  end;
   { Only retire the old NSIS record after successfully replacing the same app.
     Never invoke its uninstaller, which would remove the newly installed files. }
   if (CurStep = ssDone) and (LegacyDirectory <> '') and
