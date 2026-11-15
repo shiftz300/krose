@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <random>
 
 namespace fs = std::filesystem;
@@ -33,14 +34,15 @@ std::array<float, 8192> Render(const fs::path &reference,
                                const std::shared_ptr<const segrand::ProgramLibrary> &library,
                                int program) {
   auto concert = segrand::SampleBank::Load(reference.u8string(), false, library);
-  segrand::InstrumentEngine engine(concert, library);
-  engine.Prepare(48000);
+  // Match the plugin lifetime and keep the voice/FX storage off the Windows test stack.
+  auto engine = std::make_unique<segrand::InstrumentEngine>(concert, library);
+  engine->Prepare(48000);
   segrand::Controls controls;
   controls.program = program;
-  assert(engine.SetControls(controls, true));
-  engine.Queue({0, 0x90, 60, 100});
+  assert(engine->SetControls(controls, true));
+  engine->Queue({0, 0x90, 60, 100});
   std::array<float, 8192> left{}, right{};
-  engine.Process(left.data(), right.data(), int(left.size()));
+  engine->Process(left.data(), right.data(), int(left.size()));
   return left;
 }
 
