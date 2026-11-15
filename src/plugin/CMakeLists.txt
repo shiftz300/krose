@@ -33,6 +33,7 @@ add_custom_command(OUTPUT "${_default_oasys}"
   DEPENDS "${_bank_dir}/EXPCM001.pcm"
   VERBATIM)
 add_custom_target(krose-default-oasys DEPENDS "${_default_oasys}")
+add_dependencies(krose-default-oasys krose-product-banks)
 set(_zlib "${IPLUG2_DIR}/WDL/zlib")
 add_library(krose-expansion-loader STATIC storage/ExpansionLoader.cpp
   "${_zlib}/inflate.c" "${_zlib}/inffast.c" "${_zlib}/inftrees.c"
