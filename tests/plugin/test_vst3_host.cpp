@@ -102,6 +102,22 @@ int main(int argc,char** argv){
     controller->setParamNormalized(bank,0.);
   }
   {
+    // Updating the controller cache after a state recall must preserve PCG selection.
+    const auto pcg = ids.at("PCG Program");
+    MemoryStream factory, missing, savedAgain;
+    assert(component->getState(&factory) == kResultOk);
+    assert(controller->setParamNormalized(pcg, 1.) == kResultOk);
+    assert(component->getState(&missing) == kResultOk);
+    assert(controller->setParamNormalized(pcg, 0.) == kResultOk);
+    missing.seek(0, IBStream::kIBSeekSet, nullptr);
+    assert(component->setState(&missing) == kResultOk && controller->getParamNormalized(pcg) == 1.);
+    assert(component->getState(&savedAgain) == kResultOk && savedAgain.getSize() == missing.getSize());
+    assert(controller->setParamNormalized(ids.at("Program"), 1. / 1161.) == kResultOk);
+    assert(controller->getParamNormalized(pcg) == 0.);
+    factory.seek(0, IBStream::kIBSeekSet, nullptr);
+    assert(component->setState(&factory) == kResultOk);
+  }
+  {
     std::ifstream input(KROSE_LIVE_CONFIGURATION);
     assert(input.good());
     const auto config = nlohmann::json::parse(input);
@@ -556,7 +572,8 @@ int main(int argc,char** argv){
     });
     gestures->tracking=false;
     if (!std::getenv("KROSE_UI_REFERENCE") && !std::getenv("KROSE_UI_BENCH") &&
-        !std::getenv("KROSE_UI_MIDI_TEST") && !std::getenv("KROSE_UI_PRESET_CHECK")) {
+        !std::getenv("KROSE_UI_MIDI_TEST") && !std::getenv("KROSE_UI_PRESET_CHECK") &&
+        !std::getenv("KROSE_UI_PCG_TEST")) {
       const auto saved=nlohmann::json::parse(std::ifstream(std::getenv("KROSE_MIDI_MAP_FILE")));
       assert(saved.at("ui_scale")==100);
     }

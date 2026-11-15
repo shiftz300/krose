@@ -27,10 +27,11 @@ const PanelResources &Resources() {
 } // namespace
 NativePanel::NativePanel()
     : IControl(R(0, 0, 1472, 648)), mData(Resources().data), mPrograms(Resources().programs),
-      mBrowser(Resources().browser), mLCD(Resources().lcd), mProgramOrder(Resources().order) {
+      mLCD(Resources().lcd), mBrowser(Resources().browser), mProgramOrder(Resources().order) {
   // Buttons and keys must receive every press, including OS double-clicks.
   mDblAsSingleClick = true;
   for (auto &motion : mReveal) motion.Snap(0);
+  mControllerWipe.Snap(0);
 }
 NativePanel::~NativePanel() {
   if (const char *path = std::getenv("KROSE_UI_PROFILE")) {
@@ -75,14 +76,39 @@ void NativePanel::OnInit() {
   Image("fx-faces");
   GetUI()->LoadFont("meter", "Roboto-Regular.ttf");
   Image("fx-region-0");
+  auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
+  const auto factoryCount = int(mPrograms.size());
+  auto &groups = mBrowser["groups"];
+  const auto &categories = mBrowser["categories"];
+  for (unsigned i = 0; i < segrand::kPcgProgramCount; ++i) {
+    const int program = factoryCount + int(i);
+    const auto *pcg = plugin->PcgProgram(program);
+    if (!pcg) continue;
+    const auto group = plugin->PcgBankName(program);
+    if (std::find(groups.begin(), groups.end(), group) == groups.end()) groups.push_back(group);
+    const unsigned category = pcg->controls[0x512] & 15;
+    mPcgPrograms.emplace(program, Json::array({pcg->id.data(), pcg->name.data(),
+        category < categories.size() ? categories[category] : Json("USER"),
+        i % segrand::kPcgBankSize, group, pcg->missingPcm ? "MISSING PCM" : ""}));
+    mProgramOrder.push_back(program);
+  }
   FilterPrograms();
   mStoredMapping = ControllerHash();
-  auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
   plugin->EnableVisuals(true);
   if (!plugin->ComparisonReady())
     plugin->CaptureComparison();
 }
-double NativePanel::Value(int id) { return GetDelegate()->GetParam(id)->Value(); }
+const NativePanel::Json &NativePanel::Program(int id) const {
+  if (id >= 0 && size_t(id) < mPrograms.size()) return mPrograms[id];
+  const auto found = mPcgPrograms.find(id);
+  if (found != mPcgPrograms.end()) return found->second;
+  static const auto missing = Json::array({"PCG", "Missing PCG", "USER", 0, "", "PCG REQUIRED"});
+  return missing;
+}
+double NativePanel::Value(int id) {
+  if (id == kParamProgram) return static_cast<KrosePlugin *>(GetDelegate())->SelectedProgram();
+  return GetDelegate()->GetParam(id)->Value();
+}
 void NativePanel::Set(int id, double v, bool gesture) {
   if (mParameters.Set(*GetDelegate(), id, v, gesture)) {
     mPresetStatus.clear();
@@ -108,7 +134,8 @@ void NativePanel::Refresh(double tempo, bool host, bool loading, bool loadFailed
   mTempo = tempo;
   mHost = host;
   changed = mParameters.Changed(*GetDelegate()) || changed;
-  if (mControllers && mControllerPage == 2) {
+  if (mControllers && (mControllerPage == ControllerPage::Input ||
+                       mControllerPage == ControllerPage::Audio)) {
     const auto buffer = static_cast<KrosePlugin *>(GetDelegate())->AudioBufferSize();
     changed = changed || buffer != mAudioBuffer;
     mAudioBuffer = buffer;
@@ -118,7 +145,8 @@ void NativePanel::Refresh(double tempo, bool host, bool loading, bool loadFailed
   }
   auto &map = static_cast<KrosePlugin *>(GetDelegate())->MidiMappings();
   if (mControllers && (mMapRevision != map.Revision() ||
-                       (mControllerPage == 3 && mLastMidi != map.LastMessage()))) {
+                       (mControllerPage == ControllerPage::System && mSystemHelp &&
+                        mLastMidi != map.LastMessage()))) {
     if (map.Learning() < 0 && mMapRevision != map.Revision())
       mControllerStatus = "Map updated / INPUT > STORE";
     changed = true;
@@ -415,7 +443,7 @@ void NativePanel::Render(IGraphics &g) {
        R(79, 592, 57, 32), 1);
   HitBox(R(39, 592, 40, 32), "octave", -1, -1);
   HitBox(R(136, 592, 40, 32), "octave", -1, 1);
-  auto &p = mPrograms[program];
+  const auto &p = Program(program);
   g.FillRect(IColor(255, 34, 34, 34), R(507, 52, 482, 30));
   g.DrawRect(IColor(255, 94, 99, 102), R(507, 52, 482, 30), nullptr, 1);
   const bool missingExpansion =
@@ -425,7 +453,8 @@ void NativePanel::Render(IGraphics &g) {
   Text(g, "arial14", p[0].get<std::string>() + " " + p[1].get<std::string>(), presetText);
   g.PathClipRegion();
   if (missingExpansion)
-    Text(g, "arial13", "NEEDS EX PCM", R(844, 52, 115, 30), 2);
+    Text(g, "arial13", program >= int(mPrograms.size()) ? "NEEDS PCG" : "NEEDS EX PCM",
+         R(844, 52, 115, 30), 2);
   else if (mLoading)
     Text(g, "arial13", mLoadFailed ? "LOAD FAILED" : "LOADING", R(862, 52, 97, 30), 2);
   Chevron(g, R(507, 52, 482, 30), IColor(255, 227, 227, 227));
@@ -486,7 +515,8 @@ void NativePanel::ShowUpdateNotice(const std::string &version) {
   SetDirty(false);
 }
 bool NativePanel::CanShowUpdateNotice() const {
-  return mUpdateVersion.empty() && !mPointerDown && mDrag < 0 && mChoices.empty() &&
+  return mUpdateVersion.empty() && !mFileDialogOpen && mPendingFileRequest == FileRequest::None &&
+         !mPointerDown && mDrag < 0 && mChoices.empty() &&
          !mBrowsing && !mPresetOpen && !mControllers && !mNumericPending && mEdit < 0 && mMapEdit < 0 &&
          std::none_of(mHeld.begin(), mHeld.end(), [](bool held) { return held; }) &&
          std::none_of(mHostLit.begin(), mHostLit.end(), [](bool held) { return held; });
@@ -507,7 +537,7 @@ void NativePanel::UpdatePopup(IGraphics &g) {
   HitBox(open, "update-open");
 }
 void NativePanel::ProgramRow(IGraphics &g) {
-  const auto &p = mPrograms[int(Value(kParamProgram))];
+  const auto &p = Program(int(Value(kParamProgram)));
   std::string code = p[0], cat = p[2];
   std::string symbol = cat.rfind("SYNTH ", 0) == 0 ? "SYNTH" : cat;
   constexpr float sx = 542.f / 240.f, sy = 27.09375f / 12.f;
@@ -539,6 +569,7 @@ void NativePanel::ProgramRow(IGraphics &g) {
   }
   if (code.rfind("EXPCM00", 0) == 0)
     code = "E" + code.substr(7, 1) + "-" + code.substr(9);
+  if (code.size() > 3 && code.rfind("PCG", 0) == 0) code.erase(1, 2);
   if (cat.rfind("SYNTH ", 0) == 0)
     cat = cat.substr(6);
   char index[16];
@@ -628,17 +659,17 @@ void NativePanel::Field(IGraphics &g, const std::string &label, const IRECT &bou
   }
 }
 void NativePanel::LCD(IGraphics &g) {
+  LCDTabs(g);
   if (mControllers) {
+    BindControllerTabs();
     Controllers(g);
     return;
   }
   HitBox(R(432, 115, 220, 23), "controller-open");
-  Bitmap(g, std::string("tabs-") + Pages[mPage], 432, 115);
-  Text(g, "light14", ">CTRL", R(557, 118, 93, 19), 2);
   for (int i = 0; i < 4; ++i)
     HitBox(R(667 + i * 76, 116, 76, 20), "page", -1, i);
   int program = int(Value(kParamProgram));
-  auto &p = mPrograms[program];
+  const auto &p = Program(program);
   std::string name = p[1], code = p[0], category = p[2];
   if (mPage == 0) {
     ProgramRow(g);

@@ -330,9 +330,10 @@ void FxRack::RenderSend(SendSlot &slot, const double *input, double *wet, int co
     const auto read = [&](double delay, size_t channel) {
       const auto frames = size_t(delay);
       const double frac = delay - frames;
-      const auto pos = (slot.cursor + size - frames) % size;
+      // The delay buffer has two extra frames beyond the maximum delay.
+      const auto pos = slot.cursor >= frames ? slot.cursor - frames : slot.cursor + size - frames;
       const double a = slot.valid >= frames ? slot.delay[pos][channel] : 0;
-      const double b = slot.valid > frames ? slot.delay[(pos + size - 1) % size][channel] : 0;
+      const double b = slot.valid > frames ? slot.delay[pos ? pos - 1 : size - 1][channel] : 0;
       return a + (b - a) * frac;
     };
     for (int n = 0; n < count; ++n) {
@@ -344,7 +345,7 @@ void FxRack::RenderSend(SendSlot &slot, const double *input, double *wet, int co
                                  float(input[n * 2 + 1] + slot.feedback * l)};
       wet[n * 2] += l * slot.amount;
       wet[n * 2 + 1] += r * slot.amount;
-      slot.cursor = (slot.cursor + 1) % size;
+      if (++slot.cursor == size) slot.cursor = 0;
       if (slot.valid < size)
         ++slot.valid;
     }

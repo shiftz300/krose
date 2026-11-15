@@ -1,6 +1,7 @@
 #pragma once
 #include "effects/FxRack.h"
 #include "midi/ArpPatterns.h"
+#include "samples/KrossPcg.h"
 
 // Serialized parameter IDs. Append new IDs; never reorder existing entries.
 enum EParams {
@@ -66,8 +67,10 @@ enum EParams {
               2 * (segrand::kFxDetailCount - segrand::kSendDetailCount),
   kFxEditorRequest,
   kFilterEGIntensity, // Existing firmware filter EG depth offset, zero preserves factory depth.
+  kPcgProgram,
   kNumParams
 };
+inline constexpr int kMissingPcgSelection = int(segrand::kPcgProgramCount) + 1;
 
 // Keep the three original action targets (39..41) stable in saved MIDI maps.
 inline constexpr int kNumMidiParameters = kFXBypass + 1;

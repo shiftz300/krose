@@ -51,6 +51,10 @@ if(BUILD_TESTING)
   add_dependencies(test-expansion-loader krose-product-banks)
   target_include_directories(test-expansion-loader PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
   target_link_libraries(test-expansion-loader PRIVATE krose-expansion-loader)
+  krose_test(pcg-loader "${CMAKE_SOURCE_DIR}/tests/plugin/test_pcg_loader.cpp"
+    "${KROSE_FACTORY_ASSET_DIR}/Factory.samples" "${SEGRAND_ASSET_DIR}/SEGrand.samples")
+  target_include_directories(test-pcg-loader PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+  target_link_libraries(test-pcg-loader PRIVATE krose-expansion-loader)
   krose_test(controller-profile "${CMAKE_SOURCE_DIR}/tests/plugin/test_controller_profile.cpp" "${CMAKE_SOURCE_DIR}/controllers")
   target_include_directories(test-controller-profile PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
   set(_sdk "${IPLUG2_DIR}/Dependencies/IPlug/VST3_SDK")
@@ -101,10 +105,12 @@ set(KROSE_LICENSE_RESOURCES
 iplug_add_plugin(Krose
   SOURCES
     KrosePlugin.cpp KrosePlugin.h
-    Parameters.cpp Parameters.h storage/UpdateCheck.cpp storage/UserPreset.cpp standalone/AudioSettings.cpp
-    midi/ControllerInput.cpp midi/ControllerState.cpp midi/ArturiaFeedback.cpp
-    midi/ControllerProfiles.cpp
-    editor/NativeEditor.cpp editor/native/NativePanel.cpp editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelFavorites.cpp editor/native/PanelControllers.cpp editor/native/PanelEffects.cpp editor/native/PanelExpansions.cpp editor/native/PanelFxVisual.cpp editor/native/PanelMotion.cpp resources/resource.h
+    Parameters.cpp Parameters.h storage/UpdateCheck.cpp storage/SoundState.cpp standalone/AudioSettings.cpp
+    midi/ControllerInput.cpp midi/ControllerProfiles.cpp midi/ArturiaFeedback.cpp
+    editor/NativeEditor.cpp editor/native/NativePanel.cpp
+    editor/native/PanelBrowser.cpp editor/native/PanelInput.cpp editor/native/PanelControllers.cpp
+    editor/native/PanelEffects.cpp editor/native/PanelFxVisual.cpp editor/native/PanelMotion.cpp
+    editor/native/PanelFiles.cpp resources/resource.h
   RESOURCES ${KROSE_NATIVE_IMAGES} "${SEGRAND_GENERATED}/SEGrand.samples" "${_bank_dir}/Factory.samples"
     ${KROSE_LICENSE_RESOURCES}
     "${IPLUG2_DIR}/Examples/IPlugEffect/resources/fonts/Roboto-Regular.ttf"
@@ -116,16 +122,14 @@ add_custom_target(krose-build-info
     "-DVERSION=${PROJECT_VERSION}" -P "${CMAKE_SOURCE_DIR}/cmake/WriteBuildInfo.cmake"
   BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.h"
   VERBATIM)
-add_dependencies(Krose-app krose-build-info)
-add_dependencies(Krose-vst3 krose-build-info)
 include("${CMAKE_SOURCE_DIR}/cmake/ControllerResources.cmake")
 krose_controller_resources()
 # Apply to SDK translation units as well as the plugin: all channels expose CC input.
 target_compile_definitions(Krose-vst3 PRIVATE VST3_NUM_CC_CHANS=16)
 target_include_directories(Krose-vst3 BEFORE PRIVATE "${CMAKE_BINARY_DIR}/generated/iplug-vst3")
-add_dependencies(Krose-vst3 segrand-assets krose-factory-assets krose-product-banks krose-default-oasys)
-add_dependencies(Krose-app segrand-assets krose-factory-assets krose-product-banks krose-default-oasys)
 foreach(target Krose-vst3 Krose-app)
+  add_dependencies(${target} krose-build-info segrand-assets krose-factory-assets
+    krose-product-banks krose-default-oasys)
   target_link_libraries(${target} PRIVATE Threads::Threads)
   if(WIN32)
     target_link_libraries(${target} PRIVATE winhttp)
@@ -136,8 +140,6 @@ foreach(target Krose-vst3 Krose-app)
     "$<$<OR:$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang>,$<COMPILE_LANG_AND_ID:OBJCXX,Clang,AppleClang>>:-Werror=format;-Werror=vla;-Werror=return-type>")
 endforeach()
 if(APPLE)
-  target_sources(Krose-app PRIVATE storage/OpenDirectory.mm)
-  target_sources(Krose-vst3 PRIVATE storage/OpenDirectory.mm)
   foreach(_format vst3 app)
     if(_format STREQUAL "vst3")
       set(_plist "Krose-VST3-Info.plist")
@@ -158,7 +160,7 @@ if(APPLE)
   set_property(TARGET Krose-app APPEND PROPERTY LINK_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/resources/Krose.icns")
   foreach(target Krose-vst3 Krose-app)
-    target_include_directories(${target} PRIVATE "${IPLUG2_DIR}/Dependencies/Extras/nlohmann")
+    target_sources(${target} PRIVATE storage/OpenDirectory.mm)
     add_custom_command(TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E rm -f "$<TARGET_BUNDLE_DIR:${target}>/Contents/Resources/editor.html"
         "$<TARGET_BUNDLE_DIR:${target}>/Contents/Resources/EXPCM001.pcm"

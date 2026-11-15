@@ -22,8 +22,8 @@
 @end
 namespace {
 constexpr float kSettingsTabY = 125;
-constexpr float kInputTabX = 684;
-constexpr float kUiTabX = 810;
+constexpr float kInputTabX = 710;
+constexpr float kSystemTabX = 930;
 constexpr float kUiSizeX = 700;
 constexpr float kUiSizeY = 160;
 
@@ -150,6 +150,25 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
     assert(v);
     [window makeFirstResponder:v];
     std::cout << "Native editor ready pass " << pass << std::endl;
+    if (std::getenv("KROSE_UI_PCG_TEST")) {
+      // Local test with the original BONUS1.PCG installed in slot 1.
+      click(v, 620, 331);
+      click(v, 550, 195);
+      for (char c : std::string("PCG01-U000"))
+        key(v, [NSString stringWithFormat:@"%c", c]);
+      key(v, @"\r", 36);
+      assert(std::abs(parameter("PCG Program") - 1. / 2049.) < 1e-8);
+      click(v, 700, 67);
+      key(v, @"\r", 36); // PRESET opens on the imported sound too.
+      assert(std::abs(parameter("PCG Program") - 1. / 2049.) < 1e-8);
+      click(v, 523, 331);
+      assert(std::abs(parameter("PCG Program") - 2. / 2049.) < 1e-8);
+      setParameter("Program", 1. / 1161.);
+      assert(parameter("PCG Program") == 0.);
+      view->removed();
+      [window orderOut:nil];
+      return;
+    }
     if (const char *path = std::getenv("KROSE_UI_PRESET_CHECK")) {
       setParameter("Program", 1.);
       pump();
@@ -205,6 +224,13 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
         pump(.6); // Include the final settled frame of a reversed FX transition.
         unsetenv("KROSE_NATIVE_CAPTURE");
       };
+      const std::string wipeFrame = std::string(directory) + "/native-controller-wipe.pam";
+      setenv("KROSE_NATIVE_CAPTURE", wipeFrame.c_str(), 1);
+      mouse(v, 480, 125, NSEventTypeLeftMouseDown);
+      mouse(v, 480, 125, NSEventTypeLeftMouseUp);
+      pump(.09);
+      unsetenv("KROSE_NATIVE_CAPTURE");
+      click(v, 480, 125);
       capture("main", 700, 125);
       capture("tone", 780, 125);
       capture("fx", 850, 125);
@@ -254,13 +280,16 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       number(v, 930, 199, @"120.00");
       capture("lcd-dropdown", 635, 177);
       key(v, @"\x1b", 53);
-      click(v,480,125);click(v,810,125);click(v,520,234);click(v,830,249); // Standard CC template.
-      capture("controller-switches", 590, 125);
-      capture("controller-midi", 700, 125);
+      click(v,480,125);click(v,kInputTabX,125);click(v,520,211); // PROFILES
+      key(v, @"\uf729", 115); key(v, @"\r", 36); click(v,830,240); // Standard CC template.
+      capture("controller-switches", 565, 125);
+      capture("controller-midi", 637, 125);
       capture("controller-map-menu", 700, 155);
       key(v, @"\x1b", 53);
-      capture("controller-input", 815, 125);
-      capture("controller-help", 920, 125);
+      capture("controller-input", kInputTabX, 125);
+      capture("controller-expansions", 855, 125);
+      capture("controller-system", kSystemTabX, 125);
+      capture("controller-help", 850, 184);
       click(v,480,125);
       capture("folded", 71, 85);
       capture("preset-dropdown", 700, 67);
@@ -575,9 +604,9 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       mouse(v,71*1.5,85*1.5,NSEventTypeRightMouseDown);mouse(v,71*1.5,85*1.5,NSEventTypeRightMouseUp);
       pump();key(v,@"\uf729",115);for(int i=0;i<4;++i)key(v,@"\uf701",125);key(v,@"\r",36);
       assert(view->getSize(&scaled)==Steinberg::kResultOk && scaled.getWidth()==1472);
-      // The same control is visible on the UI tab, with an LCD-pixel menu.
+      // The same control is visible on the SYSTEM tab, with an LCD-pixel menu.
       click(v, 480, 125);
-      click(v, kUiTabX, kSettingsTabY);
+      click(v, kSystemTabX, kSettingsTabY);
       click(v, kUiSizeX, kUiSizeY);
       key(v,@"\uf729",115);key(v,@"\uf701",125);key(v,@"\uf701",125);key(v,@"\r",36);
       assert(view->getSize(&scaled)==Steinberg::kResultOk && scaled.getWidth()==1104 && scaled.getHeight()==486);

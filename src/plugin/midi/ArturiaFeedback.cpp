@@ -45,18 +45,22 @@ void KrosePlugin::PollArturia() {
     if (*p->GetLabel()) text += " " + std::string(p->GetLabel());
     mArturia->feedback.Control(i, knob ? kKnobControls[index].label : ParameterLabel(p->GetName()), text);
   }
-  const int program = GetParam(kParamProgram)->Int();
+  const int program = SelectedProgram();
   const int focus = mHardwareParameter.exchange(-1, std::memory_order_relaxed);
   if (program != mHardwareProgram) {
     WDL_String name;
-    GetParam(kParamProgram)->GetDisplay(name);
+    const auto *pcg = PcgProgram(program);
+    if (pcg) name.Set(pcg->name.data());
+    else if (GetParam(kPcgProgram)->Int()) name.Set("MISSING PCG");
+    else GetParam(kParamProgram)->GetDisplay(name);
     std::string context = "PROG";
     if (program >= 0 && program < int(kProgramContext.size()))
       context = std::string(kProgramContext[program].id) + " " + std::string(kProgramContext[program].category);
+    if (pcg) context = pcg->id.data();
     mArturia->feedback.Program(name.Get(), context, program >= 0 && program < int(kProgramContext.size()) ?
         CategoryIcon(kProgramContext[program].category) : 0x18);
     mHardwareProgram = program;
-  } else if (!touched && focus >= 0 && focus < kNumParams && focus != kParamProgram) {
+  } else if (!touched && focus >= 0 && focus < kNumParams && focus != kParamProgram && focus != kPcgProgram) {
     WDL_String value;
     auto *parameter = GetParam(focus);
     parameter->GetDisplay(value);

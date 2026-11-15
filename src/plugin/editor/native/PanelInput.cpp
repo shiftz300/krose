@@ -1,35 +1,9 @@
 #include "../../KrosePlugin.h"
-#include "../../storage/PresetDialogWin.h"
 #include "NativePanel.h"
 #include "PanelDrawing.h"
+#include <string_view>
 namespace krose::ui {
 using namespace detail;
-void NativePanel::StepProgram(int delta) {
-  const auto &order = mProgramOrder;
-  if (order.empty())
-    return;
-  auto it = std::find(order.begin(), order.end(), int(Value(kParamProgram)));
-  const int count = int(order.size());
-  int index = int(it - order.begin());
-  for (int i = 0; i < count; ++i) {
-    index = (index + delta + count) % count;
-    if (static_cast<KrosePlugin *>(GetDelegate())->ProgramAvailable(order[index])) {
-      SetProgram(order[index]);
-      return;
-    }
-  }
-}
-void NativePanel::SetProgram(int i) {
-  if (!static_cast<KrosePlugin *>(GetDelegate())->ProgramAvailable(i)) return;
-  mPresetStatus.clear();
-  Set(kParamProgram, i);
-  static_cast<KrosePlugin *>(GetDelegate())->CaptureComparison();
-  mPage = 0;
-  mSlot = 0;
-  mBrowsing = false;
-  mPresetOpen = false;
-  mEdit = -1;
-}
 void NativePanel::Note(int note, bool down) {
   if (note < 0 || note > 127)
     return;
@@ -83,6 +57,27 @@ void NativePanel::FinishEdit() {
   mSelectAll = false;
   SetDirty(false);
 }
+void NativePanel::EditNumber(const IKeyPress &key, bool midiNumber) {
+  if (key.C && (key.VK == 65 || key.VK == 97)) {
+    mSelectAll = true;
+    return;
+  }
+  if (key.VK == kVK_BACK) {
+    if (mSelectAll) mEditText.clear();
+    else if (!mEditText.empty()) mEditText.pop_back();
+    mSelectAll = false;
+  } else if (key.utf8[0]) {
+    if (mSelectAll) mEditText.clear();
+    mSelectAll = false;
+    for (const char c : std::string_view(key.utf8)) {
+      const bool digit = c >= '0' && c <= '9';
+      if (midiNumber ? digit && mEditText.size() < 5
+                     : digit || c == '.' || c == '-' || c == '+')
+        mEditText += c;
+    }
+  }
+  SetDirty(false);
+}
 void NativePanel::Activate(const Hit &h) {
   if (h.action == "update-open" || h.action == "update-later") {
     if (h.action == "update-open") GetUI()->OpenURL(krose::updates::kReleasePage);
@@ -90,7 +85,7 @@ void NativePanel::Activate(const Hit &h) {
     return;
   }
   if (h.action == "save" || h.action == "load") {
-    PresetFile(h.action == "save");
+    QueueFileDialog(h.action == "save" ? FileRequest::SavePreset : FileRequest::LoadPreset);
   } else if (h.action == "compare") {
     static_cast<KrosePlugin *>(GetDelegate())->ToggleComparison();
   } else if (h.action == "scale" || h.action == "ui-scale") {
@@ -161,7 +156,7 @@ void NativePanel::Activate(const Hit &h) {
     auto target = mPopupTarget;
     // Device choices carry an index; preserve its label before dismissing the
     // popup. Numeric choices (buffer sizes, parameter values) keep using v.
-    const std::string selected = v >= 0 && size_t(v) < mChoices.size() ? mChoices[v] : "";
+    const std::string selected = v >= 0 && size_t(v) < mChoices.size() ? mChoices[v].label : "";
     mChoices.clear();
     if (target.action == "arp-edit") {
       if (v == 0) OpenPopup({LCDRect(R(547,168,364,18)), "field", kArpPattern});
@@ -274,7 +269,7 @@ void NativePanel::OnMouseDown(float x, float y, const IMouseMod &mod) {
     }
     if (mod.R && h.action == "switch") {
       mControllers = true;
-      mControllerPage = 0;
+      mControllerPage = ControllerPage::Switches;
       SetDirty(false);
       return;
     }
@@ -456,6 +451,8 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
     else if (map.Learning() >= 0) {
       map.CancelLearn();
       mControllerStatus = "Learning cancelled";
+    } else if (mControllers && mControllerPage == ControllerPage::System && mSystemHelp) {
+      mSystemHelp = false;
     } else
       mControllers = false;
     mEdit = -1;
@@ -464,25 +461,20 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
     return true;
   }
   if (!mChoices.empty()) {
-    if (key.VK == kVK_HOME || key.VK == kVK_END) {
-      mPopupFocus = key.VK == kVK_HOME ? 0 : int(mChoices.size()) - 1;
-      mPopupScroll = std::clamp(mPopupFocus - mPopupRows / 2, 0,
-                                std::max(0, int(mChoices.size()) - mPopupRows));
-      SetDirty(false);
-      return true;
-    }
     if (key.VK == kVK_RETURN || key.VK == kVK_SPACE) {
-      Activate({{}, "choice", -1, double(mChoiceValues[mPopupFocus])});
+      Activate({{}, "choice", -1, double(mChoices[mPopupFocus].value)});
       return true;
     }
-    if (key.VK == kVK_UP || key.VK == kVK_DOWN) {
-      mPopupFocus =
-          std::clamp(mPopupFocus + (key.VK == kVK_UP ? -1 : 1), 0, int(mChoices.size()) - 1);
-      mPopupScroll = std::clamp(mPopupFocus - mPopupRows / 2, 0,
-                                std::max(0, int(mChoices.size()) - mPopupRows));
-      SetDirty(false);
-      return true;
+    const int count = int(mChoices.size());
+    switch (key.VK) {
+    case kVK_HOME: mPopupFocus = 0; break;
+    case kVK_END: mPopupFocus = count - 1; break;
+    case kVK_UP: mPopupFocus = std::max(0, mPopupFocus - 1); break;
+    case kVK_DOWN: mPopupFocus = std::min(count - 1, mPopupFocus + 1); break;
+    default: return true;
     }
+    CenterPopup();
+    SetDirty(false);
     return true;
   }
   if (mMapEdit >= 0) {
@@ -490,25 +482,7 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
       FinishEdit();
       return true;
     }
-    if (key.C && (key.VK == 65 || key.VK == 97)) {
-      mSelectAll = true;
-      return true;
-    }
-    if (key.VK == kVK_BACK) {
-      if (mSelectAll)
-        mEditText.clear();
-      else if (!mEditText.empty())
-        mEditText.pop_back();
-      mSelectAll = false;
-    } else if (key.utf8[0]) {
-      if (mSelectAll)
-        mEditText.clear();
-      mSelectAll = false;
-      for (char c : std::string(key.utf8))
-        if (c >= '0' && c <= '9' && mEditText.size() < 5)
-          mEditText += c;
-    }
-    SetDirty(false);
+    EditNumber(key, true);
     return true;
   }
   if (mEdit == -2 && mBrowsing) {
@@ -546,29 +520,11 @@ bool NativePanel::OnKeyDown(float, float, const IKeyPress &key) {
       mSelectAll = true;
       return true;
     }
-    if (key.C && (key.VK == 65 || key.VK == 97)) {
-      mSelectAll = true;
-      return true;
-    }
     if (key.VK == kVK_RETURN) {
       FinishEdit();
       return true;
     }
-    if (key.VK == kVK_BACK) {
-      if (mSelectAll)
-        mEditText.clear();
-      else if (!mEditText.empty())
-        mEditText.pop_back();
-      mSelectAll = false;
-    } else if (key.utf8[0]) {
-      if (mSelectAll)
-        mEditText.clear();
-      mSelectAll = false;
-      for (char c : std::string(key.utf8))
-        if ((c >= '0' && c <= '9') || c == '.' || c == '-' || c == '+')
-          mEditText += c;
-    }
-    SetDirty(false);
+    EditNumber(key, false);
     return true;
   }
   if (key.VK == kVK_TAB && mControllers) {
@@ -650,74 +606,5 @@ void NativePanel::OnMouseOver(float x, float y, const IMouseMod &) {
 void NativePanel::OnMouseOut() {
   mMouseX = mMouseY = -1;
   SetDirty(false);
-}
-} // namespace krose::ui
-
-namespace krose::ui {
-void NativePanel::PresetFile(bool save) {
-  ReleaseHeld();
-  const std::weak_ptr<int> alive = mLifetime;
-  auto complete = [this, alive, save](const WDL_String &file, const WDL_String &) {
-    if (alive.expired() || !file.GetLength())
-      return;
-    auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
-    const bool ok = save ? plugin->SaveUserPreset(file.Get()) : plugin->LoadUserPreset(file.Get());
-    mPresetStatus = ok ? (save ? "PRESET SAVED" : "PRESET LOADED") : "PRESET FILE ERROR";
-    if (!save) {
-      mBrowsing = false;
-      mControllers = false;
-      mEdit = -1;
-      mPage = 0;
-    }
-    SetDirty(false);
-  };
-  WDL_String file(save ? "Untitled.krose" : ""), path;
-#ifdef _WIN32
-  try {
-    const auto chosen = krose::storage::PresetDialog(static_cast<HWND>(GetUI()->GetWindow()), save);
-    file.Set(chosen.u8string().c_str());
-    complete(file, path);
-  } catch (const std::exception &) {
-    mPresetStatus = "PRESET FILE ERROR";
-    SetDirty(false);
-  }
-  GetUI()->ReleaseMouseCapture();
-#else
-  GetUI()->PromptForFile(file, path, save ? EFileAction::Save : EFileAction::Open, "krose", complete);
-#endif
-}
-void NativePanel::ExpansionFile() {
-  ReleaseHeld();
-  const std::weak_ptr<int> alive = mLifetime;
-  auto complete = [this, alive](const WDL_String &file, const WDL_String &) {
-    if (alive.expired() || !file.GetLength()) return;
-    try {
-      static_cast<KrosePlugin *>(GetDelegate())->InstallExpansion(file.Get());
-      mExpansionStatus = "INSTALLED / REOPEN KROSE TO APPLY";
-      ReadExpansionStatus();
-    } catch (const std::filesystem::filesystem_error &) {
-      mExpansionStatus = "CANNOT ACCESS EXPANSION STORAGE";
-    } catch (const std::runtime_error &error) {
-      mExpansionStatus = error.what();
-    } catch (const std::exception &) {
-      mExpansionStatus = "CANNOT INSTALL EXPANSION";
-    }
-    SetDirty(false);
-  };
-  WDL_String file, path;
-#ifdef _WIN32
-  try {
-    const auto chosen = krose::storage::PresetDialog(static_cast<HWND>(GetUI()->GetWindow()),
-                                                    false, {}, {}, true);
-    file.Set(chosen.u8string().c_str());
-    complete(file, path);
-  } catch (const std::exception &) {
-    mExpansionStatus = "CANNOT OPEN FILE PICKER";
-    SetDirty(false);
-  }
-  GetUI()->ReleaseMouseCapture();
-#else
-  GetUI()->PromptForFile(file, path, EFileAction::Open, "kep zip", complete);
-#endif
 }
 } // namespace krose::ui

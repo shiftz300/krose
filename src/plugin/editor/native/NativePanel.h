@@ -38,6 +38,7 @@ public:
   void ShowUpdateNotice(const std::string &version);
   bool CanShowUpdateNotice() const;
   void Refresh(double tempo, bool host, bool loading, bool loadFailed);
+  void ShowPendingFileDialog();
   void ReleaseHeld();
   void OpenFxEditor(unsigned slot);
 
@@ -73,6 +74,11 @@ private:
   bool mPointerDown = false;
   double FoldProgress() const;
   void LCD(IGraphics &);
+  void LCDTabs(IGraphics &);
+  void DrawControllerTabs(IGraphics &);
+  void BindControllerTabs();
+  UIMotion mControllerWipe;
+  ILayerPtr mControllerTabLayer;
   int FxType(int slot);
   bool FxEnabled(int slot);
   std::string FxName(int slot);
@@ -90,6 +96,10 @@ private:
   void Browser(IGraphics &);
   void Popup(IGraphics &);
   void OpenPopup(const Hit &);
+  void BeginPopup(const Hit &);
+  void AddChoice(std::string label, int value);
+  void FocusChoice(int value);
+  void CenterPopup();
   void PresetMenu(IGraphics &);
   void PresetCategory(int category, bool revealCurrent = false);
   std::vector<std::string> mArpFamilies;
@@ -112,13 +122,19 @@ private:
   double Value(int);
   void StepProgram(int);
   void SetProgram(int);
+  void CollectPrograms(std::vector<int> &, int category, int group = -1,
+                       const std::string &search = {});
   void FilterPrograms();
   void OpenBrowser();
   void OpenPresetMenu();
   void Note(int, bool);
   void FinishEdit();
-  void PresetFile(bool save);
-  void ExpansionFile();
+  void EditNumber(const IKeyPress &, bool midiNumber);
+  enum class FileRequest { None, SavePreset, LoadPreset, ImportExpansion, ImportPcg };
+  void QueueFileDialog(FileRequest);
+  void CompleteFileDialog(FileRequest, const char *path, bool error);
+  FileRequest mPendingFileRequest = FileRequest::None;
+  bool mFileDialogOpen = false;
   void ExpansionPage(IGraphics &);
   void ReadExpansionStatus();
   std::shared_ptr<int> mLifetime = std::make_shared<int>(0);
@@ -139,8 +155,11 @@ private:
   uint64_t ControllerHash();
   void ControllerCell(IGraphics &, const std::string &, IRECT, const std::string &, int = -1,
                       double = 0, bool = false);
-  const Json &mData, &mPrograms, &mBrowser, &mLCD;
-  const std::vector<int> &mProgramOrder;
+  const Json &mData, &mPrograms, &mLCD;
+  Json mBrowser;
+  std::vector<int> mProgramOrder;
+  std::map<int, Json> mPcgPrograms;
+  const Json &Program(int id) const;
   std::map<std::string, IBitmap> mImages;
   std::string mResourceRoot;
   std::map<std::string, Font> mFonts;
@@ -156,8 +175,8 @@ private:
   bool mLoading = false, mLoadFailed = false;
   bool mHost = false, mFold = false, mSustain = false, mBrowsing = false, mSelectAll = false;
   std::string mEditText, mSearch, mHover;
-  std::vector<std::string> mChoices;
-  std::vector<int> mChoiceValues;
+  struct MenuChoice { std::string label; int value; };
+  std::vector<MenuChoice> mChoices;
   Hit mPopupTarget, mNumericPress;
   bool mNumericPending = false, mNumericDragging = false;
   int mPopupScroll = 0, mPopupFocus = 0, mPopupRows = 12;
@@ -174,7 +193,11 @@ private:
   std::chrono::steady_clock::time_point mPreviousFrame{};
   bool mPreviousAnimating = false;
   bool mControllers = false;
-  int mControllerPage = 0, mMapSlot = 0, mMapEdit = -1, mConfirmProfile = -1;
+  enum class ControllerPage { Switches, Midi, Input, Audio, Expansions, System };
+  ControllerPage mControllerPage = ControllerPage::Switches;
+  ControllerPage mPaintedControllerTab = ControllerPage::Switches;
+  bool mSystemHelp = false;
+  int mMapSlot = 0, mMapEdit = -1, mConfirmProfile = -1;
   unsigned mMapRevision = 0;
   uint32_t mLastMidi = 0;
   uint64_t mStoredMapping = 0;

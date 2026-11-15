@@ -58,7 +58,7 @@ INPUT CH 对演奏和映射共同生效，改通道时清理旧声部。VST3 向
 
 4 个 USER 配置位于应用支持目录 `Krose/midi-mappings.json`。STORE 显式写入，采用临时文件替换；写入失败显示提示。切换配置、恢复 STANDARD CC 或清空全部映射会保护未保存修改。工程保存与 USER 文件相互独立，载入工程不会覆盖 USER 文件。
 
-`src/plugin/midi/ControllerMap.h` 使用固定容量和整条原子记录；音频线程不解析 JSON、不访问磁盘、不为映射分配内存。`ControllerInput.cpp` 在事件采样位置应用输入，宿主通知延后到主线程；`ControllerState.cpp` 负责工程兼容与 USER 文件。原生交互、状态往返、跨通道、映射并发及零分配均有自动测试；实物键盘、Windows GUI 和 DAW 长时间演奏仍需目标环境验收。
+`src/plugin/midi/ControllerMap.h` 使用固定容量和整条原子记录；音频线程不解析 JSON、不访问磁盘、不为映射分配内存。`ControllerInput.cpp` 在事件采样位置应用输入，宿主通知延后到主线程；`ControllerProfiles.cpp` 管理 USER 文件和控制器模板，`SoundState.cpp` 负责宿主工程状态与旧版兼容。原生交互、状态往返、跨通道、映射并发及零分配均有自动测试；实物键盘、Windows GUI 和 DAW 长时间演奏仍需目标环境验收。
 
 ## 设备与显示同步
 

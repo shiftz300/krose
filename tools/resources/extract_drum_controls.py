@@ -2,14 +2,19 @@
 """Export original drum-layer EG offsets and key Note Off permissions."""
 import argparse,hashlib
 from pathlib import Path
+from kross_pcg_factory import FUTURE_SYNTH_HASH, read_verified
 SHA='71bf82f1183e36422f31fb253be8a3010435f46d6fb7f3bd35d432116adb557b'
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('preload',type=Path);p.add_argument('output',type=Path);a=p.parse_args()
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('preload',type=Path);p.add_argument('output',type=Path)
+ p.add_argument('--future-synth',type=Path,required=True,help='Verified decoded EXPCM004 bank');a=p.parse_args()
  data=a.preload.read_bytes()
  if hashlib.sha256(data).hexdigest()!=SHA:raise ValueError('Unexpected preload')
+ kits=[data[0x48be20+8728*kit:0x48be20+8728*(kit+1)] for kit in range(58)]
+ future=read_verified(a.future_synth,FUTURE_SYNTH_HASH)
+ kits.extend(future[8468520+8728*kit:8468520+8728*(kit+1)] for kit in range(4))
  unique=[];indices=[]
- for kit in range(58):
-  k=data[0x48be20+8728*kit:0x48be20+8728*(kit+1)];row=[]
+ for k in kits:
+  row=[]
   for note in range(128):
    key=next((n for n in range(note,128) if k[24+68*n+65]&1),None)
    b=k[24+68*key:24+68*(key+1)] if key is not None else bytes(68)
@@ -24,7 +29,12 @@ def main():
   vals=[x if x<128 else x-256 for x in item[:8]]
   lines.append('    {{{'+','.join(map(str,vals))+'}}, '+str(item[8]).lower()+'},')
  lines+=['}};','inline constexpr uint16_t kKeyIndex[58][128] = {']
- lines+=['  {'+','.join(map(str,row))+'},' for row in indices]
- lines+=['};','} // namespace segrand::drum_data','']
- a.output.write_text('\n'.join(lines));print('58 kits,',len(unique),'unique layer controls')
+ lines+=['  {'+','.join(map(str,row))+'},' for row in indices[:58]]
+ lines+=['};']
+ lines+=[f'// EXPCM004 decoded SHA256: {FUTURE_SYNTH_HASH}',
+         'inline constexpr uint16_t kFutureSynthKeyIndex[4][128] = {']
+  lines+=['  {'+','.join(map(str,row))+'},' for row in indices[58:]]
+  lines+=['};']
+ lines+=['} // namespace segrand::drum_data','']
+ a.output.write_text('\n'.join(lines));print(len(kits),'kits,',len(unique),'unique layer controls')
 if __name__=='__main__':main()

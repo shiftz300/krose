@@ -1,5 +1,5 @@
 """Package frozen runtime banks, preserving native encoding on disk and in CI."""
-import argparse, base64, hashlib, io, json, lzma, mmap, struct, tarfile, shutil, tempfile
+import argparse, base64, hashlib, io, json, lzma, mmap, re, struct, tarfile, shutil, tempfile
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 FACTORY = 'assets/program-library/Factory.samples'
@@ -22,7 +22,10 @@ p.add_argument('action', choices=['pack', 'extract'])
 p.add_argument('archive', type=Path)
 p.add_argument('--root', type=Path, default=ROOT)
 p.add_argument('--lock', type=Path, default=ROOT/'packaging/runtime-assets.json')
+p.add_argument('--tag', help='Release tag for the generated archive')
 a = p.parse_args(); root = a.root
+if a.tag and (a.action != 'pack' or not re.fullmatch(r'runtime-assets-v[1-9][0-9]*', a.tag)):
+    p.error('--tag must be a runtime-assets-vN release tag and requires pack')
 if a.action == 'pack':
     for name in [FACTORY, CONCERT]: verify(root, name)
     with (root/FACTORY).open('rb') as stream:
@@ -36,7 +39,7 @@ if a.action == 'pack':
                     info = tarfile.TarInfo(name); info.size = (root/name).stat().st_size
                     with (root/name).open('rb') as stream: tar.addfile(info, stream)
         incoming.replace(a.archive)
-        a.lock.write_text(json.dumps(dict(tag='runtime-assets-v2', file=a.archive.name, sha256=digest(a.archive)), indent=2)+'\n')
+        a.lock.write_text(json.dumps(dict(tag=a.tag or 'runtime-assets-v2', file=a.archive.name, sha256=digest(a.archive)), indent=2)+'\n')
         print('Verified native runtime archive:', a.archive)
         raise SystemExit(0)
     with (root / FACTORY).open('rb') as f, (root / CONCERT).open('rb') as c:
@@ -65,7 +68,7 @@ if a.action == 'pack':
             info = tarfile.TarInfo(FACTORY); info.size = (root/FACTORY).stat().st_size
             with (root/FACTORY).open('rb') as stream: tar.addfile(info, stream)
             info = tarfile.TarInfo(REFS); info.size = len(refs); tar.addfile(info, io.BytesIO(refs))
-    lock = dict(tag='runtime-assets-v1', file=a.archive.name, sha256=digest(a.archive))
+    lock = dict(tag=a.tag or 'runtime-assets-v1', file=a.archive.name, sha256=digest(a.archive))
     a.lock.write_text(json.dumps(lock, indent=2)+'\n')
 else:
     lock = json.loads(a.lock.read_text())

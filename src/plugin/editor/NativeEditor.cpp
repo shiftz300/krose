@@ -51,9 +51,21 @@ void KrosePlugin::OnParamChangeUI(int id, EParamSource source) {
   if (id == kFxEditorRequest) HandleFxEditorParameter(source);
   if (source == kUI) mHardwareParameter.store(id, std::memory_order_relaxed);
   // VST3 controller/state changes can arrive while processing is suspended.
-  if (id == kParamProgram) SelectProgramDefaults();
-  if (id == kParamProgram && source != kUI)
-    mComparisonNeedsCapture.store(true, std::memory_order_relaxed);
+  if (id == kParamProgram || id == kPcgProgram) {
+    if (source == kHost || source == kUI) {
+#if defined(VST3_API)
+      const bool hadPcgSelection = id == kParamProgram && GetParam(kPcgProgram)->Int();
+#endif
+      OnParamChange(id, source, 0);
+#if defined(VST3_API)
+      if (hadPcgSelection && !GetParam(kPcgProgram)->Int())
+        SetVST3ParamNormalized(kPcgProgram, 0.);
+#endif
+    } else {
+      SelectProgramDefaults();
+    }
+    if (source != kUI) mComparisonNeedsCapture.store(true, std::memory_order_relaxed);
+  }
   if (GetUI())
     GetUI()->SetAllControlsDirty();
 }
@@ -100,11 +112,14 @@ void KrosePlugin::OnIdle() {
       }
     }
   }
-  if (p)
+  if (p) {
+    const int program = EngineProgram(SelectedProgram());
     p->Refresh(mDisplayTempo.load(std::memory_order_relaxed),
                mDisplayHost.load(std::memory_order_relaxed),
-               mEngine && !mEngine->SamplesReady(GetParam(kParamProgram)->Int()),
-               mEngine && GetParam(kParamProgram)->Int() == mEngine->FailedProgram());
+               mEngine && !mEngine->SamplesReady(program),
+               mEngine && program == mEngine->FailedProgram());
+    p->ShowPendingFileDialog();
+  }
 }
 #if defined(OS_WIN) && defined(APP_API)
 void KrosePlugin::OnUIOpen() {

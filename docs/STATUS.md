@@ -51,7 +51,7 @@
 | 还原范围 | 原厂 FX 配置与算法 | 已读取逐 Program 配置，13 类主机 DSP、四槽路由可编辑；原机完整算法、全部插入链与 MFX 交叉发送仍有差异。未实现的类型保留原名提示。见 [效果链](NATIVE_UI.md#lcd-效果链)。 |
 | 还原范围 | 用户琶音与原 Program ARP 设置 | 五种内置与 1,280 条用户 Pattern 已接入并随音色恢复；双 ARP A/B、独立键区／力度区等仍有差异。见 [琶音器](ARPEGGIATOR.md)。 |
 | 还原范围 | 演奏与调制细节 | OSC 独立滑音、Fingered、Offset Legato、Unison、公共 LFO、部分 Tone Adjust／Part 屏蔽位仍有缺口；滤波 Hz/Q 和 TG 响应采用主机实现。见 [演奏模式](PERFORMANCE.md)、[调制链路](MODULATION.md)。 |
-| 资源缺口 | Electric Beats Kit 部分层 | EXPCM004:043 的 MIDI 45 第二层、83 第一层、96 两层缺逻辑 bank 6；其他已有层继续播放。原厂鼓 start-offset 也仍有未接入部分。见 [架构](ARCHITECTURE.md)。 |
+| 鼓采样 | Electric Beats Kit 四层已接回相应原厂 KG4 波形 | 原厂鼓 start-offset 仍有未接入部分。见 [架构](ARCHITECTURE.md)。 |
 
 Pad／鼓轨界面已按设计范围移除，不列为待补功能。鼓组 Program 的采样完整度仍需单独跟进。
 

@@ -4,19 +4,33 @@
 
 ## 磁盘格式
 
-`Factory.samples` 保存 4,920 段单声道波形、42,980 个区域及 1,161 项 Program：4,276 段使用原厂预测编码，644 段使用 PCM16。文件为 139,453,251 字节。`SEGrand.samples` 是 2,720 字节的引用表，其 168 个单声道引用共用 Factory 波形。
+`Factory.samples` 保存 5,137 段单声道波形、42,984 个区域及 1,161 项 Program。4,404 段使用原厂预测编码，733 段使用 PCM16。文件为 141,195,544 字节。包含 4,068 段板载波形和 EXPCM001／002／004 的全部 PCM。`SEGrand.samples` 是 2,720 字节的引用表，其 168 个单声道引用共用 Factory 波形。
 
 `KRPRG003` 在相位／交叉淡化表后保存 256 项有符号 16 位解码 LUT。采样描述符为 40 字节，末尾包含两个有符号 Q14 系数和编码编号：0 为 PCM24，1 为原厂预测编码，2 为 PCM16LE。区域和 Program 参数保留原数据布局。
 
-发布版由冻结库生成 `KRPRG004`。它保留原 Program 编号和全部描述符，波形按板载与扩展分别存放，以各自文件为偏移基准。板载库约 71.5 MiB，默认 OASYS 波形约 45.2 MiB。Concert SE Grand 的 168 个单声道引用全属于 EXPCM001。
+发布版由冻结库生成 `KRPRG004`。它保留原 Program 编号和全部描述符，波形按板载与扩展分别存放，以各自文件为偏移基准。板载库约 72.9 MiB，默认 OASYS 波形约 45.2 MiB。Concert SE Grand 的 168 个单声道引用全属于 EXPCM001。
 
 ## 扩展音色
 
-在 LCD 打开 `CTRL → EX PCM`，用 `LOAD KEP / ZIP` 选择 EXPCM001 OASYS Piano、EXPCM002 E.P. Collection 或 EXPCM004 Future Synth Collection 的原厂文件。该版本按已验证文件的 SHA-256 识别包。导入只写采样库，全部音色参数沿用核验过的 Program 记录。
+在 LCD 打开 `CTRL → EX`，用 `LOAD KEP / ZIP` 选择 EXPCM001 OASYS Piano、EXPCM002 E.P. Collection 或 EXPCM004 Future Synth Collection 的原厂 ZIP，也可以直接选原琴 SD 卡 `KORG/KROSS2/DATA` 里的 `.KEP`。Krose 按已验证文件的 SHA-256 识别包。导入只写采样库，全部音色参数沿用核验过的 Program 记录。
 
 板载和 GM 始终可用。安装器默认安装一份共享的 OASYS 波形，便携版的 OASYS 波形放在程序旁边。`UNINSTALL` 会删除对应波形，包括默认安装的那份 OASYS。再次安装时，从原厂 ZIP 或 `.KEP` 导入。通过 LCD 导入的扩展保存在当前用户的目录，独立版和 VST3 共用。
 
 安装或卸载后，重启独立版或重新加载插件实例。当前实例保留原来的采样文件视图。工程中的音色编号不变，缺包时预设栏会显示 `NEEDS EX PCM`，该音色静音；装回后恢复播放。
+
+旧版已安装的 Future Synth 波形仍可用。通过 LCD 重新导入原厂 EXPCM004 ZIP 或 KEP，会补齐 Electric Beats Kit 的四层采样。
+
+### 旧版 KROSS PCG
+
+`CTRL → EX → LOAD PCG` 读取第一代 KROSS 的 Program Bank U。解压原厂 ZIP 后，直接选 `.PCG`，重开独立版或插件实例，再从 BROWSE 按原文件名筛选。每个文件的 U000–U127 独立显示，多个音色库可以同时安装。
+
+文件原样保存在 Krose 用户数据目录的 `PCG/<槽位>/KORG/KROSS/DATA/<原文件名>.PCG`，同一文件重复导入只保留一份。工程和 `.krose` 预设按 Program 内容找回音色。文件缺失时显示 `NEEDS PCG` 并静音，重新导入原文件即可恢复。
+
+导入单振荡器和双振荡器音色，保留力度层、调制、包络和可用的 FX／ARP 参数。Krose 复现 KROSS 2 v1.2.4 固件的 410 条 Program 多重采样映射，包括立体声转单声道。播放使用 KROSS 2 ROM 的键区、根音、微调和原始波形。整机设置、Combination、鼓组和自定义琶音留在原文件中。
+
+`tools/resources/kross_pcg_factory.py <KROSSAPP.bin> <TG-ROM.img> <Factory.samples> <输出目录> --future-synth <EXPCM004.dec.bin>` 用锁定指纹的原件再生成映射头文件与冻结波形库。新增波形接在已有波形之后，保留全部 Program 和 Concert 引用索引。
+
+### 编码
 
 预测反馈保留 Q31 精度，负数除法向零截断，饱和范围为 ±2147483647，取高 24 位用于播放。解码使用 4 KiB 栈缓冲。`SEGRAND1` 版本 2 的 84 项描述符在末尾保存 Factory 左／右声道索引。加载器兼容旧 PCM 格式。
 

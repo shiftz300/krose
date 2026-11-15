@@ -4,7 +4,6 @@
 #include "ResourcePath.h"
 #include "storage/ExpansionLoader.h"
 #include <cstdlib>
-#include <cstring>
 
 KrosePlugin::KrosePlugin(const InstanceInfo &info)
     : Plugin(info, MakeConfig(kNumParams, segrand::kInstrumentProgramCount + 2)) {
@@ -33,8 +32,10 @@ KrosePlugin::KrosePlugin(const InstanceInfo &info)
       expansions = krose::storage::ExpansionLoader(mExpansionDirectory, mDefaultOasys).Sources();
     else
       expansions[1] = mDefaultOasys.u8string();
+    if (!mExpansionDirectory.empty())
+      mPcgSources = krose::storage::InstalledPcgs(mExpansionDirectory.parent_path() / "PCG");
     auto programs = segrand::ProgramLibrary::Load((samples / "Factory.samples").u8string(),
-                                                  false, expansions);
+                                                  false, expansions, &mPcgSources);
     auto concert = segrand::SampleBank::Load((samples / "SEGrand.samples").u8string(),
                                             false, programs);
     for (unsigned i = 0; i < programs->programs.size(); ++i) {
@@ -46,14 +47,8 @@ KrosePlugin::KrosePlugin(const InstanceInfo &info)
       } else if (id[0] == 'G' && id[1] >= '0' && id[1] <= '9') {
         bank = 6;
         number = std::atoi(id + 1) - 1;
-      } else if (std::strncmp(id, "EXPCM001:", 9) == 0) {
-        bank = 7;
-        number = std::atoi(id + 9);
-      } else if (std::strncmp(id, "EXPCM002:", 9) == 0) {
-        bank = 8;
-        number = std::atoi(id + 9);
-      } else if (std::strncmp(id, "EXPCM004:", 9) == 0) {
-        bank = 9;
+      } else if (const auto expansion = segrand::ProgramExpansion(id); expansion && id[8] == ':') {
+        bank = expansion == 4 ? 9 : 6 + int(expansion);
         number = std::atoi(id + 9);
       }
       if (bank >= 0 && number >= 0 && number < 128)
@@ -61,6 +56,9 @@ KrosePlugin::KrosePlugin(const InstanceInfo &info)
     }
     mEngine = std::make_unique<segrand::InstrumentEngine>(std::move(concert), programs);
     mProgramLibrary = std::move(programs);
+    for (unsigned i = 0; i < segrand::kPcgProgramCount; ++i)
+      if (const auto *pcg = PcgProgram(segrand::kInstrumentProgramCount + int(i)))
+        GetParam(kPcgProgram)->SetDisplayText(int(i) + 1, pcg->name.data());
     if (!ProgramAvailable(0))
       GetParam(kParamProgram)->SetDefault(1); // A000 Kross Grand Piano 1.
   } catch (const std::exception &error) {
@@ -81,9 +79,60 @@ KrosePlugin::KrosePlugin(const InstanceInfo &info)
 bool KrosePlugin::ProgramAvailable(int program) const noexcept {
   if (!mProgramLibrary) return true; // Preserve metadata when reporting a broken core library.
   if (program == 0) return mProgramLibrary->HasExpansion(1);
+  if (program >= segrand::kInstrumentProgramCount) return PcgProgram(program) != nullptr;
   if (program < 0 || size_t(program) > mProgramLibrary->programs.size()) return false;
   return mProgramLibrary->HasExpansion(
       segrand::ProgramExpansion(mProgramLibrary->programs[program - 1].id.data()));
+}
+int KrosePlugin::SelectedProgram() const noexcept {
+  const int pcg = GetParam(kPcgProgram)->Int();
+  return pcg ? segrand::kInstrumentProgramCount + pcg - 1 : GetParam(kParamProgram)->Int();
+}
+std::pair<int, int> KrosePlugin::ProgramParameter(int program) const noexcept {
+  if (program >= segrand::kInstrumentProgramCount)
+    return {kPcgProgram, program - segrand::kInstrumentProgramCount + 1};
+  if (program == GetParam(kParamProgram)->Int())
+    return {kPcgProgram, 0};
+  return {kParamProgram, program};
+}
+int KrosePlugin::EngineProgram(int program) const noexcept {
+  return program >= segrand::kInstrumentProgramCount && mProgramLibrary ?
+      mProgramLibrary->PcgEngineProgram(unsigned(program - segrand::kInstrumentProgramCount)) : program;
+}
+const segrand::InstrumentProgram *KrosePlugin::PcgProgram(int program) const noexcept {
+  if (!mProgramLibrary || program < segrand::kInstrumentProgramCount) return nullptr;
+  const unsigned selection = unsigned(program - segrand::kInstrumentProgramCount);
+  if (!mProgramLibrary->HasPcgProgram(selection)) return nullptr;
+  return &mProgramLibrary->programs[mProgramLibrary->PcgEngineProgram(selection) - 1];
+}
+std::string KrosePlugin::PcgBankName(int program) const {
+  if (!PcgProgram(program)) return {};
+  const unsigned bank = unsigned(program - segrand::kInstrumentProgramCount) / segrand::kPcgBankSize;
+  return std::filesystem::u8path(mPcgSources[bank]).filename().u8string();
+}
+bool KrosePlugin::CanImportPcg() const noexcept {
+  return mProgramLibrary && !mExpansionDirectory.empty();
+}
+segrand::pcg::InstallReport KrosePlugin::ImportPcg(const char *path) {
+  if (!CanImportPcg()) throw std::runtime_error("PCG LOADER UNAVAILABLE");
+  return krose::storage::InstallPcg(mExpansionDirectory.parent_path() / "PCG",
+                                   std::filesystem::u8path(path), *mProgramLibrary);
+}
+uint64_t KrosePlugin::PcgSelectionFingerprint(int selection) const noexcept {
+  if (!selection) return 0;
+  if (selection == kMissingPcgSelection) return mMissingPcgFingerprint.load(std::memory_order_relaxed);
+  const auto *program = PcgProgram(segrand::kInstrumentProgramCount + selection - 1);
+  return program ? program->pcgFingerprint : 0;
+}
+int KrosePlugin::ResolvePcgSelection(uint64_t fingerprint, int preferred) noexcept {
+  if (fingerprint && preferred > 0 && preferred < kMissingPcgSelection &&
+      PcgSelectionFingerprint(preferred) == fingerprint)
+    return preferred;
+  if (fingerprint)
+    for (int selection = 1; selection < kMissingPcgSelection; ++selection)
+      if (PcgSelectionFingerprint(selection) == fingerprint) return selection;
+  mMissingPcgFingerprint.store(fingerprint, std::memory_order_relaxed);
+  return preferred || fingerprint ? kMissingPcgSelection : 0;
 }
 bool KrosePlugin::CanManageExpansions() const noexcept {
   return mProgramLibrary && mProgramLibrary->Split() && !mExpansionDirectory.empty();
@@ -92,10 +141,8 @@ bool KrosePlugin::ExpansionAvailable(unsigned number) const noexcept {
   return mProgramLibrary && mProgramLibrary->HasExpansion(number);
 }
 bool KrosePlugin::ExpansionInstalled(unsigned number) const {
-  auto loader = krose::storage::ExpansionLoader(mExpansionDirectory, mDefaultOasys);
-  for (const auto &pack : krose::storage::kExpansions)
-    if (pack.number == number) return loader.Installed(pack);
-  return false;
+  const auto *pack = krose::storage::FindExpansion(number);
+  return pack && krose::storage::ExpansionLoader(mExpansionDirectory, mDefaultOasys).Installed(*pack);
 }
 unsigned KrosePlugin::InstallExpansion(const char *path) {
   if (!CanManageExpansions()) throw std::runtime_error("EXPANSION LOADER UNAVAILABLE");
@@ -104,9 +151,8 @@ unsigned KrosePlugin::InstallExpansion(const char *path) {
 }
 void KrosePlugin::UninstallExpansion(unsigned number) {
   if (!CanManageExpansions()) throw std::runtime_error("EXPANSION LOADER UNAVAILABLE");
-  auto loader = krose::storage::ExpansionLoader(mExpansionDirectory, mDefaultOasys);
-  for (const auto &pack : krose::storage::kExpansions)
-    if (pack.number == number) loader.Uninstall(pack);
+  if (const auto *pack = krose::storage::FindExpansion(number))
+    krose::storage::ExpansionLoader(mExpansionDirectory, mDefaultOasys).Uninstall(*pack);
 }
 float KrosePlugin::EditorDrawScale(int percentage) const {
 #if IPLUG_EDITOR
@@ -118,7 +164,10 @@ float KrosePlugin::EditorDrawScale(int percentage) const {
 
 void KrosePlugin::OnParamChange(int paramIdx, EParamSource source, int) {
   if (paramIdx == kFxEditorRequest) HandleFxEditorParameter(source);
-  if (paramIdx == kParamProgram) SelectProgramDefaults();
+  if (paramIdx == kParamProgram && source != kReset && source != kPresetRecall &&
+      !uint32_t(mSoundGeneration.load(std::memory_order_acquire)) && GetParam(kPcgProgram)->Int())
+    SetMidiParameter(MidiTargetForParameter(kPcgProgram), 0.);
+  if (paramIdx == kParamProgram || paramIdx == kPcgProgram) SelectProgramDefaults();
 }
 void KrosePlugin::RequestFxEditor(unsigned slot) noexcept {
   if (slot >= 4) return;
@@ -137,14 +186,14 @@ void KrosePlugin::HandleFxEditorParameter(EParamSource source) {
 }
 void KrosePlugin::SelectProgramDefaults() {
   if (!mEngine) return;
-  const int program = GetParam(kParamProgram)->Int();
-  mEngine->RequestProgram(program);
+  const int program = SelectedProgram();
+  mEngine->RequestProgram(EngineProgram(program));
   if (uint32_t(mSoundGeneration.load(std::memory_order_acquire))) {
     mDefaultsProgram.store(program, std::memory_order_release);
     return; // A saved sound owns its FX, ARP and Tone Adjust values.
   }
   if (mDefaultsProgram.exchange(program, std::memory_order_acq_rel) != program)
-    LoadFactoryEffects(program);
+    LoadFactoryEffects(EngineProgram(program));
 }
 
 #if IPLUG_DSP

@@ -62,7 +62,8 @@ int main() {
   assert(normalized[0] == 0 && normalized[1] == 1);
   for (int id = 0; id < kNumParams; ++id) {
     assert(ParameterForMidiTarget(MidiTargetForParameter(id)) == id);
-    assert(SoundParameter(id) == (id == kFilterEGIntensity || (id < kEGTarget && (id < kSW1Assign || id >= kFXBypass))));
+    assert(SoundParameter(id) == (id == kFilterEGIntensity || id == kPcgProgram ||
+                                 (id < kEGTarget && (id < kSW1Assign || id >= kFXBypass))));
   }
   for (unsigned target : {39u, 40u, 41u, unsigned(kNumParams + 3), UINT32_MAX})
     assert(ParameterForMidiTarget(target) == -1);

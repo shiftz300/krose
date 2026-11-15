@@ -1,10 +1,201 @@
 #include "../../KrosePlugin.h"
+#include "../../storage/JsonFile.h"
+#include "IPlugPaths.h"
 #include "NativePanel.h"
 #include "PanelDrawing.h"
+#include <algorithm>
+#include <cstdlib>
+#include <mutex>
+
 namespace krose::ui {
 using namespace detail;
+namespace {
+std::mutex favoriteMutex;
+std::filesystem::path FavoritePath() {
+  if (const char *file = std::getenv("KROSE_FAVORITES_FILE"))
+    return std::filesystem::u8path(file);
+  WDL_String path;
+  iplug::AppSupportPath(path);
+  return std::filesystem::u8path(path.Get()) / "Krose" / "favorites.json";
+}
+std::set<std::string> ReadFavorites(const std::filesystem::path &path) {
+  if (!std::filesystem::exists(path))
+    return {};
+  const auto data = storage::ReadJson(path);
+  if (data.is_discarded() || !data.is_object() || !data.contains("programs") ||
+      !data["programs"].is_array())
+    return {};
+  std::set<std::string> result;
+  for (const auto &id : data["programs"])
+    if (id.is_string())
+      result.insert(id.get<std::string>());
+  return result;
+}
+} // namespace
+void NativePanel::LoadFavorites() {
+  std::lock_guard<std::mutex> lock(favoriteMutex);
+  try {
+    mFavorites = ReadFavorites(FavoritePath());
+  } catch (const std::exception &) {
+    mFavorites.clear();
+  }
+}
+void NativePanel::ToggleFavorite(int program) {
+  std::lock_guard<std::mutex> lock(favoriteMutex);
+  try {
+    const auto path = FavoritePath();
+    auto favorites = ReadFavorites(path);
+    const std::string id = Program(program)[0];
+    if (!favorites.erase(id))
+      favorites.insert(id);
+    storage::WriteJson(path, Json{{"version", 1}, {"programs", favorites}});
+    mFavorites = std::move(favorites);
+    mFavoriteSaveFailed = false;
+  } catch (const std::exception &) {
+    mFavoriteSaveFailed = true;
+  }
+  if (mPresetCategory == -1)
+    PresetCategory(-1);
+  if (mBrowsing && mCategory == -2)
+    FilterPrograms();
+  SetDirty(false);
+}
+void NativePanel::Heart(IGraphics &g, const IRECT &r, int program) {
+  const bool on = mFavorites.count(Program(program)[0].get<std::string>()) != 0;
+  const auto color = on ? IColor(255, 196, 108, 121) : IColor(255, 173, 179, 183);
+  float x = r.MW(), y = r.MH();
+  g.PathClear();
+  g.PathMoveTo(x, y + 6);
+  g.PathCubicBezierTo(x - 15, y - 3, x - 5, y - 11, x, y - 5);
+  g.PathCubicBezierTo(x + 5, y - 11, x + 15, y - 3, x, y + 6);
+  g.PathClose();
+  if (on)
+    g.PathFill(color);
+  else
+    g.PathStroke(color, 1.3f);
+  HitBox(r, "favorite", -1, program);
+}
+void NativePanel::OpenPresetMenu() {
+  LoadFavorites();
+  mPresetOpen = true;
+  mChoices.clear();
+  const auto &categories = mBrowser["categories"];
+  const auto &currentCategory = Program(int(Value(kParamProgram)))[2];
+  auto category = std::find(categories.begin(), categories.end(), currentCategory);
+  if (category != categories.end())
+    PresetCategory(int(category - categories.begin()), true);
+  else {
+    mPresetCategory = -2;
+    mPresetRootFocus = 0;
+    mPresetColumn = 0;
+  }
+}
+
+void NativePanel::PresetCategory(int category, bool revealCurrent) {
+  mPresetCategory = category;
+  mPresetRootFocus = category + 1;
+  CollectPrograms(mPresetItems, category == -1 ? -2 : category);
+  mPresetFocus = 0;
+  mPresetScroll = 0;
+  if (revealCurrent) {
+    const int current = int(Value(kParamProgram));
+    const auto selected = std::find(mPresetItems.begin(), mPresetItems.end(), current);
+    if (selected != mPresetItems.end()) {
+      mPresetFocus = int(selected - mPresetItems.begin());
+      mPresetScroll = std::clamp(mPresetFocus - 6, 0, std::max(0, int(mPresetItems.size()) - 12));
+    }
+  }
+  mPresetColumn = 1;
+  SetDirty(false);
+}
+void NativePanel::PresetMenu(IGraphics &g) {
+  const auto root = R(507, 84, 168, 312), child = R(675, 84, 414, 312);
+  HitBox(mRECT, "dismiss");
+  const auto bg = IColor(255, 35, 38, 40), border = IColor(255, 118, 122, 125),
+             selected = IColor(255, 65, 81, 94);
+  g.FillRect(bg, root);
+  g.DrawRect(border, root);
+  for (int n = 0; n < 12; ++n) {
+    auto row = R(root.L + 1, root.T + n * 26, root.W() - 2, 26);
+    if (n == mPresetRootFocus)
+      g.FillRect(selected, row);
+    Text(g, "arial15", n == 0 ? "FAVORITES" : mBrowser["categories"][n - 1].get<std::string>(),
+         R(row.L + 8, row.T, row.W() - 26, 26));
+    g.FillTriangle(border, row.R - 12, row.MH() - 4, row.R - 12, row.MH() + 4, row.R - 8, row.MH());
+    HitBox(row, "preset-category", -1, n - 1);
+  }
+  if (mPresetCategory < -1) {
+    mDrawnCategory = -2;
+    return;
+  }
+  if (mDrawnCategory != mPresetCategory) {
+    mCategoryReveal.Snap(.35);
+    mCategoryReveal.Target(1, mFrameTime, .10);
+    mDrawnCategory = mPresetCategory;
+  }
+  g.FillRect(bg, child);
+  g.DrawRect(border, child);
+  mPresetScroll = std::clamp(mPresetScroll, 0, std::max(0, int(mPresetItems.size()) - 12));
+  if (mPresetItems.empty())
+    Text(g, "arial15", "NO FAVORITES", child.GetPadded(-10));
+  for (int n = 0; n < 12 && n + mPresetScroll < int(mPresetItems.size()); ++n) {
+    int index = mPresetScroll + n, program = mPresetItems[index];
+    const auto &p = Program(program);
+    auto row = R(child.L + 1, child.T + n * 26, child.W() - 2, 26);
+    if (index == mPresetFocus)
+      g.FillRect(selected, row);
+    auto text = R(row.L + 8, row.T, row.W() - 42, 26);
+    g.PathClipRegion(text);
+    Text(g, "arial15", p[0].get<std::string>() + "  " + p[1].get<std::string>(), text);
+    g.PathClipRegion();
+    HitBox(row, "program", -1, program);
+    Heart(g, R(row.R - 32, row.T, 30, 26), program);
+  }
+  if (mPresetItems.size() > 12) {
+    float h = child.H() * 12 / mPresetItems.size();
+    g.FillRect(border,
+               R(child.R - 3,
+                 child.T + (child.H() - h) * mPresetScroll / (mPresetItems.size() - 12), 2, h));
+  }
+  const double alpha = mCategoryReveal.At(mFrameTime);
+  mVisualAnimating |= mCategoryReveal.Active(mFrameTime);
+  if (alpha < 1) g.FillRect(IColor(int(255 * (1 - alpha)), bg.R, bg.G, bg.B), child.GetPadded(-1));
+  if (mFavoriteSaveFailed)
+    Text(g, "arial13", "FAVORITES NOT SAVED", R(child.L, child.B, child.W(), 24));
+}
+
+void NativePanel::StepProgram(int delta) {
+  const auto &order = mProgramOrder;
+  if (order.empty())
+    return;
+  auto it = std::find(order.begin(), order.end(), int(Value(kParamProgram)));
+  const int count = int(order.size());
+  int index = it == order.end() ? (delta > 0 ? count - 1 : 0) : int(it - order.begin());
+  for (int i = 0; i < count; ++i) {
+    index = (index + delta + count) % count;
+    if (static_cast<KrosePlugin *>(GetDelegate())->ProgramAvailable(order[index])) {
+      SetProgram(order[index]);
+      return;
+    }
+  }
+}
+void NativePanel::SetProgram(int i) {
+  auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
+  if (!plugin->ProgramAvailable(i)) return;
+  mPresetStatus.clear();
+  const auto [id, value] = plugin->ProgramParameter(i);
+  Set(id, value);
+  plugin->CaptureComparison();
+  mPage = 0;
+  mSlot = 0;
+  mBrowsing = false;
+  mPresetOpen = false;
+  mEdit = -1;
+}
 void NativePanel::OpenBrowser() {
   ReleaseHeld();
+  if (mPresetStatus == "PRESET FILE ERROR")
+    mPresetStatus.clear();
   mBrowsing = true;
   LoadFavorites();
   mEdit = -2;
@@ -23,66 +214,78 @@ void NativePanel::OpenBrowser() {
                          std::max(0, int(mFiltered.size()) - 7));
 }
 
-void NativePanel::FilterPrograms() {
-  mFiltered.clear();
+void NativePanel::CollectPrograms(std::vector<int> &result, int category, int group,
+                                  const std::string &search) {
+  result.clear();
   auto *plugin = static_cast<KrosePlugin *>(GetDelegate());
+  const auto query = Lower(search);
   for (int i : mProgramOrder) {
     if (!plugin->ProgramAvailable(i)) continue;
-    auto &p = mPrograms[i];
-    if (mCategory == -2 && !mFavorites.count(p[0].get<std::string>()))
+    const auto &p = Program(i);
+    if (category == -2 && !mFavorites.count(p[0].get<std::string>()))
       continue;
-    if (mCategory >= 0 && p[2] != mBrowser["categories"][mCategory])
+    if (category >= 0 && p[2] != mBrowser["categories"][category])
       continue;
-    if (mGroup >= 0 && p[4] != mBrowser["groups"][mGroup])
+    if (group >= 0 && p[4] != mBrowser["groups"][group])
       continue;
-    if (!mSearch.empty() &&
-        Lower(p[0].get<std::string>() + " " + p[1].get<std::string>()).find(Lower(mSearch)) ==
+    if (!query.empty() &&
+        Lower(p[0].get<std::string>() + " " + p[1].get<std::string>()).find(query) ==
             std::string::npos)
       continue;
-    mFiltered.push_back(i);
+    result.push_back(i);
   }
+}
+
+void NativePanel::FilterPrograms() {
+  CollectPrograms(mFiltered, mCategory, mGroup, mSearch);
   mScroll = 0;
 }
-void NativePanel::OpenPopup(const Hit &h) {
+void NativePanel::BeginPopup(const Hit &h) {
   mPopupTarget = h;
   mChoices.clear();
-  mChoiceValues.clear();
-  mPopupScroll = 0;
   mPopupFocus = 0;
-  auto add = [&](std::string s, int v) {
-    mChoices.push_back(std::move(s));
-    mChoiceValues.push_back(v);
-  };
+}
+void NativePanel::AddChoice(std::string label, int value) {
+  mChoices.push_back({std::move(label), value});
+}
+void NativePanel::FocusChoice(int value) {
+  const auto choice = std::find_if(mChoices.begin(), mChoices.end(),
+                                   [value](const auto &item) { return item.value == value; });
+  mPopupFocus = choice == mChoices.end() ? 0 : int(choice - mChoices.begin());
+}
+void NativePanel::CenterPopup() {
+  mPopupScroll = std::clamp(mPopupFocus - mPopupRows / 2, 0,
+                           std::max(0, int(mChoices.size()) - mPopupRows));
+}
+void NativePanel::OpenPopup(const Hit &h) {
+  BeginPopup(h);
   if (h.action == "arp-edit") {
-    add("Choose pattern", 0);
-    add("Reset Program ARP", 1);
-    add(Value(kArpKeyboard) ? "Keyboard thru: ON" : "Keyboard thru: OFF", 2);
+    AddChoice("Choose pattern", 0);
+    AddChoice("Reset Program ARP", 1);
+    AddChoice(Value(kArpKeyboard) ? "Keyboard thru: ON" : "Keyboard thru: OFF", 2);
   } else if (h.id == kArpPattern && h.action != "arp-pattern-items") {
     mPopupTarget.action = "arp-families";
-    for (int i = 0; i < int(mArpFamilies.size()); ++i) add(mArpFamilies[i], i);
+    for (int i = 0; i < int(mArpFamilies.size()); ++i) AddChoice(mArpFamilies[i], i);
   } else if (h.action == "arp-pattern-items") {
-    add("< Categories", -1);
+    AddChoice("< Categories", -1);
     for (int i = 0; i <= 1029; ++i) {
       const std::string name = segrand::ArpPatternName(i).data();
       const auto family = i < 5 ? "Built-in" : name.substr(0, name.find('-'));
-      if (family == mArpFamilies[mArpFamily]) add(name, i);
+      if (family == mArpFamilies[mArpFamily]) AddChoice(name, i);
     }
-    auto selected = std::find(mChoiceValues.begin(), mChoiceValues.end(), int(Value(kArpPattern)));
-    mPopupFocus = selected == mChoiceValues.end() ? 0 : int(selected-mChoiceValues.begin());
+    FocusChoice(int(Value(kArpPattern)));
   } else if (h.action == "scale" || h.action == "ui-scale") {
-    add("AUTO / FIT SCREEN",0);
+    AddChoice("AUTO / FIT SCREEN",0);
     for (int scale : {60, 75, 85, 100, 125, 150})
-      add(std::to_string(scale) + "% / "+std::to_string(PLUG_WIDTH*scale/100)+"x"+std::to_string(PLUG_HEIGHT*scale/100), scale);
-    const auto selected=static_cast<KrosePlugin *>(GetDelegate())->EditorScalePercent();
-    auto it=std::find(mChoiceValues.begin(),mChoiceValues.end(),selected);
-    mPopupFocus=it==mChoiceValues.end() ? 0 : int(it-mChoiceValues.begin());
+      AddChoice(std::to_string(scale) + "% / "+std::to_string(PLUG_WIDTH*scale/100)+"x"+std::to_string(PLUG_HEIGHT*scale/100), scale);
+    FocusChoice(static_cast<KrosePlugin *>(GetDelegate())->EditorScalePercent());
   } else if (h.action == "group" || h.action == "category") {
-    add(h.action == "group" ? "全部音色库" : "全部类型", -1);
+    AddChoice(h.action == "group" ? "全部音色库" : "全部类型", -1);
     if (h.action == "category")
-      add("FAVORITES", -2);
+      AddChoice("FAVORITES", -2);
     auto &list = mBrowser[h.action == "group" ? "groups" : "categories"];
     for (int i = 0; i < int(list.size()); ++i)
-      add(list[i], i);
+      AddChoice(list[i], i);
     mPopupFocus = h.action == "group" ? mGroup + 1
                   : mCategory == -2   ? 1
                   : mCategory < 0     ? 0
@@ -96,7 +299,7 @@ void NativePanel::OpenPopup(const Hit &h) {
 #endif
     for (int i = int(p->GetMin()); i <= maximum; ++i) {
       const char *text = p->GetDisplayText(i);
-      add(text ? text : Format(i), i);
+      AddChoice(text ? text : Format(i), i);
     }
     mPopupFocus = std::min(maximum, int(Value(h.id)));
   }
@@ -109,8 +312,7 @@ void NativePanel::OpenPopup(const Hit &h) {
     float room = std::max(284 - h.r.B - 2, h.r.T - (mControllers ? 140 : 164) - 2);
     mPopupRows = std::min(mPopupRows, std::max(1, int(room / 22)));
   }
-  mPopupScroll =
-      std::clamp(mPopupFocus - mPopupRows / 2, 0, std::max(0, int(mChoices.size()) - mPopupRows));
+  CenterPopup();
   SetDirty(false);
 }
 void NativePanel::Popup(IGraphics &g) {
@@ -149,10 +351,10 @@ void NativePanel::Popup(IGraphics &g) {
     if (selected)
       g.FillRect(lcd ? Ink : IColor(255, 65, 81, 94), row);
     g.PathClipRegion(row.GetPadded(-1));
-    Text(g, lcd ? (selected ? "light14" : "lcd14") : "arial15", mChoices[i],
+    Text(g, lcd ? (selected ? "light14" : "lcd14") : "arial15", mChoices[i].label,
          R((lcd ? r.L : row.L) + 7, row.T, row.W() - 14, row.H()));
     g.PathClipRegion();
-    HitBox(row, "choice", -1, mChoiceValues[i]);
+    HitBox(row, "choice", -1, mChoices[i].value);
   }
   if (int(mChoices.size()) > count) {
     float h = r.H() * count / mChoices.size();
@@ -172,8 +374,10 @@ void NativePanel::Browser(IGraphics &g) {
   g.DrawLine(closeInk, 1002, 157.5f, 1013, 168.5f, nullptr, 1.75f);
   g.DrawLine(closeInk, 1013, 157.5f, 1002, 168.5f, nullptr, 1.75f);
   HitBox(R(995, 150, 25, 26), "close");
-  Text(g, "arial13", "LOAD FILE", R(885, 150, 95, 26), 1);
-  HitBox(R(885, 150, 95, 26), "load");
+  if (mPresetStatus == "PRESET FILE ERROR")
+    Text(g, "arial13", mPresetStatus, R(704, 150, 166, 26), 2);
+  Text(g, "arial13", "LOAD PRESET", R(875, 150, 115, 26), 1);
+  HitBox(R(875, 150, 115, 26), "load");
   g.FillRoundRect(IColor(255, 35, 38, 40), R(452, 183, 227, 31), 2);
   g.DrawRect(IColor(255, 118, 122, 125), R(452, 183, 227, 31));
   g.DrawCircle(IColor(255, 173, 179, 183), 466, 197, 5, nullptr, 1.5f);
@@ -205,7 +409,7 @@ void NativePanel::Browser(IGraphics &g) {
   const int current = int(Value(kParamProgram));
   for (int row = 0; row < 7 && mScroll + row < int(mFiltered.size()); ++row) {
     int i = mFiltered[mScroll + row];
-    auto &p = mPrograms[i];
+    const auto &p = Program(i);
     auto b = R(452, 226 + row * 39, 568, 37);
     g.FillRoundRect(i == current ? IColor(255, 65, 81, 94) : IColor(255, 55, 59, 61), b, 3);
     g.DrawRoundRect(IColor(255, 69, 73, 75), b, 3);

@@ -161,13 +161,16 @@ ConcertEffects *concert_effects_create(double rate, const double coefficients[40
 
 void concert_effects_equalize(ConcertEffects *e, const float *input, double *output,
                               size_t frames) {
-  for (size_t n = 0; n < frames; ++n)
-    for (int ch = 0; ch < 2; ++ch) {
-      double x = input[n * 2 + ch] * e->c.trim;
-      for (unsigned band = 0; band < e->c.eq_count; ++band)
-        x = biquad(x, e->c.eq[band], e->s.eq_z[band][ch]);
-      output[n * 2 + ch] = x;
+  for (size_t n = 0; n < frames; ++n) {
+    double left = input[n * 2] * e->c.trim, right = input[n * 2 + 1] * e->c.trim;
+    for (unsigned band = 0; band < e->c.eq_count; ++band) {
+      const double *coefficients = e->c.eq[band];
+      left = biquad(left, coefficients, e->s.eq_z[band][0]);
+      right = biquad(right, coefficients, e->s.eq_z[band][1]);
     }
+    output[n * 2] = left;
+    output[n * 2 + 1] = right;
+  }
 }
 void concert_effects_process_equalized(ConcertEffects *e, const double *equalized, float *stereo,
                                        size_t frames) {

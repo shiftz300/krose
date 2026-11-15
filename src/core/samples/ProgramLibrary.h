@@ -1,4 +1,5 @@
 #pragma once
+#include "samples/KrossPcg.h"
 #include "samples/PCM24.h"
 #include <array>
 #include <cstdint>
@@ -11,6 +12,7 @@ namespace segrand {
 class ExpansionSampleFile;
 using SampleWindow = std::vector<std::shared_ptr<const PCM24>>;
 using ExpansionPaths = std::array<std::string, 5>; // Native bank numbers 1, 2 and 4.
+inline constexpr uint64_t kLegacyFutureSynthPcmBytes = 8132859;
 unsigned ProgramExpansion(const char *id) noexcept;
 struct SharedSample {
   uint32_t id = 0, loopStart = 0, loopEnd = 0, flags = 0;
@@ -35,6 +37,8 @@ struct InstrumentProgram {
   std::array<char, 64> name{};
   bool drum = false;
   uint32_t firstRegion = 0, regionCount = 0;
+  uint64_t pcgFingerprint = 0;
+  bool missingPcm = false;
   std::array<uint8_t, 2140> controls{};
   // Precompiled OSC/key/slot selection: four bounded slots, no allocation.
   std::array<std::array<std::array<int32_t, 4>, 128>, 2> lookup{};
@@ -43,7 +47,10 @@ class ProgramLibrary {
 public:
   // The returned bank is immutable; loading/caching is a non-audio-thread operation.
   static std::shared_ptr<const ProgramLibrary> Load(const std::string &path, bool preload = true,
-                                                    const ExpansionPaths &expansions = {});
+                                                    const ExpansionPaths &expansions = {},
+                                                    const PcgSources *pcgs = nullptr);
+  int PcgEngineProgram(unsigned selection) const noexcept;
+  bool HasPcgProgram(unsigned selection) const noexcept;
   bool OnDemand() const noexcept { return !mPreload; }
   // Worker/lifecycle thread only. Cache is shared by plugin instances.
   std::shared_ptr<const SampleWindow> LoadProgram(unsigned program) const;
@@ -61,6 +68,10 @@ public:
   static int SelectionPitch(const InstrumentProgram &program, int oscillator, int note) noexcept;
 
 private:
+  void ImportPcgPrograms(const PcgSources &);
+  bool MissingFromExpansionTail(uint32_t sampleIndex) const noexcept;
+  std::array<int, kPcgProgramCount> mPcgPrograms{};
+  int mMissingPcgProgram = 0;
   ExpansionPaths mPaths;
   std::array<std::shared_ptr<ExpansionSampleFile>, 5> mExpansionFiles;
   bool mSplit = false;

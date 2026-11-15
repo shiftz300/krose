@@ -9,6 +9,8 @@ namespace krose::ui {
 using namespace detail;
 using namespace krose::midi;
 namespace {
+constexpr const char *kControllerTabs[] = {"CTRL", "MIDI", "INPUT", "AUDIO", "EX", "SYSTEM"};
+constexpr float kTabStart = 527, kTabWidth = 440.f / 6;
 const char *sources[] = {"OFF",  "CC",   "CC 14 BIT", "NRPN",      "RPN",
                          "NOTE", "BEND", "PRESSURE",  "POLY PRESS"};
 const char *modes[] = {"ABSOLUTE",     "REL 2'S COMP", "REL OFFSET 64",
@@ -48,222 +50,213 @@ void NativePanel::ControllerCell(IGraphics &g, const std::string &text, IRECT r,
   g.PathClipRegion(R(424, 108, 556, 176));
   HitBox(r, action, id, value);
 }
+void NativePanel::DrawControllerTabs(IGraphics &g) {
+  g.FillRect(Paper, R(431, 115, 542, 24));
+  // Connected tabs use the same 45-degree, pixel-stepped shoulders as the program pages.
+  LCDFrame(g, LCDRect(R(433, 115, 88, 23)));
+  Text(g, "lcd14", "< PROG", R(440, 117.25f, 74, 20.75f), 1);
+  for (int i = 0; i < 6; ++i) {
+    const float x = kTabStart + i * kTabWidth;
+    const bool active = i == int(mControllerPage);
+    for (int row = 0; row < 9; ++row) {
+      float inset = (8 - row) * 2.25f;
+      g.FillRect(active ? Ink : Paper,
+                 LCDRect(R(x + inset, 117 + row * 2.25f, kTabWidth - 2 * inset, 2.25f)));
+    }
+    g.FillRect(Ink, LCDRect(R(x, 136, kTabWidth, 2.25f)));
+    Text(g, active ? "light14" : "lcd14", kControllerTabs[i],
+         R(x + 2, 121.25f, kTabWidth - 4, 16), 1);
+  }
+}
+void NativePanel::BindControllerTabs() {
+  HitBox(LCDRect(R(433, 115, 88, 23)), "controller-close");
+  for (int i = 0; i < 6; ++i)
+    HitBox(R(kTabStart + i * kTabWidth, 115, kTabWidth, 23), "controller-page", -1, i);
+}
 void NativePanel::Controllers(IGraphics &g) {
   auto *p = static_cast<KrosePlugin *>(GetDelegate());
   auto &map = p->MidiMappings();
   const auto binding = map.Get(mMapSlot);
-  g.FillRect(Paper, R(431, 115, 542, 169));
-  // Connected tabs use the same 45-degree, pixel-stepped shoulders as the program pages.
-  ControllerCell(g, "< PROG", R(433, 115, 88, 23), "controller-close");
-  const char *tabs[] = {"CTRL", "MIDI", "INPUT", "AUDIO", "UI", "HELP", "INFO", "EX PCM"};
-  float x = 527;
-  for (int i = 0; i < 8; ++i) {
-    const float width = i == 7 ? 72.5f : 52.5f;
-    bool active = i == mControllerPage;
-    for (int row = 0; row < 9; ++row) {
-      float inset = (8 - row) * 2.25f;
-      g.FillRect(active ? Ink : Paper,
-                 LCDRect(R(x + inset, 117 + row * 2.25f, width - 2 * inset, 2.25f)));
-    }
-    g.FillRect(Ink, LCDRect(R(x, 136, width, 2.25f)));
-    Text(g, active ? "light14" : "lcd14", tabs[i], R(x + 2, 121.25f, width - 4, 16), 1);
-    HitBox(R(x, 115, width, 23), "controller-page", -1, i);
-    x += width;
-  }
+  g.FillRect(Paper, R(431, 139, 542, 145));
   if (mConfirmProfile != -1) {
     Text(g, "lcd16",
          mConfirmProfile >= 0 ? "Discard unsaved map changes?" : "Replace all MIDI mappings?",
          R(441, 159, 520, 27), 1);
     Text(g, "lcd14", "Project state remains available in your DAW.", R(441, 191, 520, 24), 1);
-    ControllerCell(g, "CANCEL", R(470, 235, 180, 28), "controller-confirm", -1, 0);
-    ControllerCell(g, "CONTINUE", R(748, 235, 180, 28), "controller-confirm", -1, 1);
+    ControllerCell(g, "CANCEL", LCDControlRow(3, 470, 180), "controller-confirm", -1, 0);
+    ControllerCell(g, "CONTINUE", LCDControlRow(3, 748, 180), "controller-confirm", -1, 1);
     return;
   }
-  if (mControllerPage == 0) {
+  if (mControllerPage == ControllerPage::Switches) {
     for (int sw = 0; sw < 2; ++sw) {
       int id = kSW1Assign + sw * 3;
-      float y = 146 + sw * 39;
-      Text(g, "lcd14", sw ? "SW2" : "SW1", R(438, y + 3, 39, 24));
+      Text(g, "lcd14", sw ? "SW2" : "SW1", LCDControlRow(sw, 438, 39));
       const auto *a = p->GetParam(id), *b = p->GetParam(id + 1);
-      ControllerCell(g, a->GetDisplayText(a->Int()), R(482, y, 237, 28), "field", id);
-      ControllerCell(g, b->GetDisplayText(b->Int()), R(729, y, 144, 28), "field", id + 1);
-      ControllerCell(g, Value(id + 2) ? "ON" : "TEST", R(882, y, 81, 28), "switch", sw, 0,
+      ControllerCell(g, a->GetDisplayText(a->Int()), LCDControlRow(sw, 482, 237), "field", id);
+      ControllerCell(g, b->GetDisplayText(b->Int()), LCDControlRow(sw, 729, 144), "field", id + 1);
+      ControllerCell(g, Value(id + 2) ? "ON" : "TEST", LCDControlRow(sw, 882, 81), "switch", sw, 0,
                      Value(id + 2) > 0);
     }
-    ControllerCell(g, Value(kFXBypass) ? "FX BYPASS: ON" : "FX BYPASS: OFF", R(438, 226, 248, 27),
+    ControllerCell(g, Value(kFXBypass) ? "FX BYPASS: ON" : "FX BYPASS: OFF", LCDControlRow(2, 438, 248),
                    "toggle", kFXBypass);
-    ControllerCell(g, "MAP SW1", R(698, 226, 126, 27), "controller-learn", kSW1State);
-    ControllerCell(g, "MAP SW2", R(836, 226, 126, 27), "controller-learn", kSW2State);
+    ControllerCell(g, "MAP SW1", LCDControlRow(2, 698, 126), "controller-learn", kSW1State);
+    ControllerCell(g, "MAP SW2", LCDControlRow(2, 836, 126), "controller-learn", kSW2State);
     Text(g, "lcd13", "Mod CC: SW1=80 / SW2=81. Right-click a control to learn.",
-         R(438, 262, 531, 19));
-  } else if (mControllerPage == 1) {
-    ControllerCell(g, "#" + std::to_string(mMapSlot + 1), R(438, 144, 61, 26), "midi-menu", 0);
-    ControllerCell(g, Target(p, binding.target), R(509, 144, 453, 26), "midi-menu", 1);
-    ControllerCell(g, sources[unsigned(binding.source)], R(438, 178, 149, 26), "midi-menu", 2);
+         LCDControlRow(4));
+  } else if (mControllerPage == ControllerPage::Midi) {
+    ControllerCell(g, "#" + std::to_string(mMapSlot + 1), LCDControlRow(0, 438, 61), "midi-menu", 0);
+    ControllerCell(g, Target(p, binding.target), LCDControlRow(0, 509, 453), "midi-menu", 1);
+    ControllerCell(g, sources[unsigned(binding.source)], LCDControlRow(1, 438, 149), "midi-menu", 2);
     ControllerCell(
         g, mMapEdit >= 0 ? mEditText : "NO. " + std::to_string(binding.number),
-        R(597, 178, 156, 26),
+        LCDControlRow(1, 597, 156),
         (binding.source == Source::Bend || binding.source == Source::Pressure) ? "" : "map-number");
     ControllerCell(g, binding.channel ? "CH " + std::to_string(binding.channel) : "OMNI",
-                   R(763, 178, 199, 26), "midi-menu", 3);
-    ControllerCell(g, modes[unsigned(binding.mode)], R(438, 212, 228, 26), "midi-menu", 4);
-    ControllerCell(g, "PICKUP", R(676, 212, 95, 26),
+                   LCDControlRow(1, 763, 199), "midi-menu", 3);
+    ControllerCell(g, modes[unsigned(binding.mode)], LCDControlRow(2, 438, 228), "midi-menu", 4);
+    ControllerCell(g, "PICKUP", LCDControlRow(2, 676, 95),
                    binding.mode == Mode::Absolute ? "map-flag" : "", 0, 0,
                    binding.pickup && binding.mode == Mode::Absolute);
-    ControllerCell(g, "THRU", R(781, 212, 83, 26), "map-flag", 1, 0, !binding.consume);
-    ControllerCell(g, "INVERT", R(874, 212, 88, 26), "map-flag", 2, 0, binding.invert);
-    ControllerCell(g, map.Learning() >= 0 ? "CANCEL" : "LEARN", R(438, 246, 137, 26), "map-learn",
+    ControllerCell(g, "THRU", LCDControlRow(2, 781, 83), "map-flag", 1, 0, !binding.consume);
+    ControllerCell(g, "INVERT", LCDControlRow(2, 874, 88), "map-flag", 2, 0, binding.invert);
+    ControllerCell(g, map.Learning() >= 0 ? "CANCEL" : "LEARN", LCDControlRow(3, 438, 137), "map-learn",
                    -1, 0, map.Learning() >= 0);
-    ControllerCell(g, "CLEAR", R(585, 246, 115, 26), "map-clear");
+    ControllerCell(g, "CLEAR", LCDControlRow(3, 585, 115), "map-clear");
     std::string status = map.Learning() >= 0 ? "Move ONE controller..." : mControllerStatus;
     if (status.empty())
       status = binding.source == Source::Off ? "Empty slot" : "Ready / right-click to learn";
-    Text(g, "lcd13", status, R(711, 249, 257, 22));
-  } else if (mControllerPage == 2) {
+    Text(g, "lcd13", status, LCDControlRow(4));
+  } else if (mControllerPage == ControllerPage::Input) {
     ControllerCell(g,
                    "USER " + std::to_string(p->MidiProfile() + 1) +
                        (ControllerHash() != mStoredMapping ? " *" : ""),
-                   R(438, 144, 173, 24), "midi-menu", 5);
-    ControllerCell(g, "STORE", R(622, 144, 101, 24), "map-store");
+                   LCDControlRow(0, 438, 173), "midi-menu", 5);
+    ControllerCell(g, "STORE", LCDControlRow(0, 622, 101), "map-store");
     ControllerCell(g,
                    Value(kInputChannel) ? "INPUT CH " + Format(Value(kInputChannel)) : "INPUT OMNI",
-                   R(734, 144, 228, 24), "field", kInputChannel);
+                   LCDControlRow(0, 734, 228), "field", kInputChannel);
     auto enumText = [&](int id) {
       auto *v = p->GetParam(id);
       return std::string(v->GetDisplayText(v->Int()));
     };
-    ControllerCell(g, "CLOCK: " + enumText(kClockSource), R(438, 174, 253, 24), "field",
+    ControllerCell(g, "CLOCK: " + enumText(kClockSource), LCDControlRow(1, 438, 253), "field",
                    kClockSource);
 #if defined(APP_API)
-    ControllerCell(g, "PGM: " + enumText(kProgramChange), R(702, 174, 260, 24), "field",
+    ControllerCell(g, "PGM: " + enumText(kProgramChange), LCDControlRow(1, 702, 260), "field",
                    kProgramChange);
 #else
-    ControllerCell(g, "PGM: HOST / DAW", R(702, 174, 260, 24), "controller-pgm-info");
+    ControllerCell(g, "PGM: HOST / DAW", LCDControlRow(1, 702, 260), "controller-pgm-info");
 #endif
-    ControllerCell(g, "PROFILES", R(438, 204, 166, 24), "midi-menu", 7);
-    ControllerCell(g, "CLEAR MAP", R(615, 204, 157, 24), "map-clear-all");
-    ControllerCell(g, "PANIC", R(783, 204, 179, 24), "panic");
+    ControllerCell(g, "PROFILES", LCDControlRow(2, 438, 166), "midi-menu", 7);
+    ControllerCell(g, "CLEAR MAP", LCDControlRow(2, 615, 157), "map-clear-all");
+    ControllerCell(g, "PANIC", LCDControlRow(2, 783, 179), "panic");
 #if defined(APP_API)
-    ControllerCell(g, "IN: " + p->AudioChoice(3), R(438, 234, 253, 24), "midi-menu", 11);
-    ControllerCell(g, "OUT: " + p->AudioChoice(4), R(702, 234, 260, 24), "midi-menu", 12);
+    ControllerCell(g, "IN: " + p->AudioChoice(3), LCDControlRow(3, 438, 253), "midi-menu", 11);
+    ControllerCell(g, "OUT: " + p->AudioChoice(4), LCDControlRow(3, 702, 260), "midi-menu", 12);
 #endif
     ControllerCell(g,
          p->MidiSettingsError() ? "SAVE FAILED - check settings file permissions"
          : mControllerStatus.empty()
              ? p->ArturiaStatus()
              : mControllerStatus,
-         R(438, 264, 524, 19), "controller-arturia");
-  } else if (mControllerPage == 3) {
+         LCDControlRow(4), "controller-arturia");
+  } else if (mControllerPage == ControllerPage::Audio) {
 #if defined(APP_API)
-    ControllerCell(g, "DRIVER: " + p->AudioChoice(0), R(438, 147, 253, 27), "midi-menu", 8);
-    ControllerCell(g, p->AudioChoice(2) + " Hz", R(702, 147, 260, 27), "midi-menu", 10);
-    ControllerCell(g, p->AudioChoice(1), R(438, 183, 524, 27), "midi-menu", 9);
+    ControllerCell(g, "DRIVER: " + p->AudioChoice(0), LCDControlRow(0, 438, 253), "midi-menu", 8);
+    ControllerCell(g, p->AudioChoice(2) + " Hz", LCDControlRow(0, 702, 260), "midi-menu", 10);
+    ControllerCell(g, p->AudioChoice(1), LCDControlRow(1), "midi-menu", 9);
     const unsigned buffer = p->AudioBufferSize();
     const double ms = p->AudioRate() > 0 ? buffer * 1000. / p->AudioRate() : 0;
     ControllerCell(g, buffer ? std::to_string(buffer) + " / " + Format(ms, 2) + " ms" : "AUDIO OFF",
-                   R(438, 219, 253, 27), buffer ? "midi-menu" : "", 6);
-    ControllerCell(g, "ASIO PANEL", R(702, 219, 260, 27),
+                   LCDControlRow(2, 438, 253), buffer ? "midi-menu" : "", 6);
+    ControllerCell(g, "ASIO PANEL", LCDControlRow(2, 702, 260),
                    p->AudioChoices(5).empty() ? "" : "midi-menu", 13);
     Text(g, "lcd13", mControllerStatus.empty() ? "DRIVER / SAMPLE RATE / OUTPUT / BUFFER" : mControllerStatus,
-         R(438, 258, 524, 22));
+         LCDControlRow(4));
 #else
-    Text(g, "lcd16", "Audio settings are managed by your host / DAW.", R(438, 155, 524, 32), 1);
+    Text(g, "lcd16", "Audio settings are managed by your host / DAW.", LCDControlRow(0), 1);
     Text(g, "lcd14", "BUFFER: " + std::to_string(p->AudioBufferSize()) + " / " + Format(p->AudioRate()) + " Hz",
-         R(438, 211, 524, 27), 1);
+         LCDControlRow(4), 1);
 #endif
-  } else if (mControllerPage == 4) {
+  } else if (mControllerPage == ControllerPage::Expansions) {
+    ExpansionPage(g);
+  } else if (!mSystemHelp) {
     const int scale = int(std::lround(GetUI()->GetDrawScale() * 100));
     ControllerCell(g, "UI SIZE: " + std::string(p->EditorScalePercent() ? "" : "AUTO ") +
-                         std::to_string(scale) + "%", R(438, 147, 524, 27), "ui-scale");
-    Text(g, "lcd13", "AUTO fits the display. Fixed sizes: 60-150%.", R(438, 194, 524, 22));
-    Text(g, "lcd13", "Saved separately from presets and MIDI profiles.", R(438, 223, 524, 22));
-  } else if (mControllerPage == 5) {
+                         std::to_string(scale) + "%", LCDControlRow(0), "ui-scale");
+    ControllerCell(g, p->UpdateChecksEnabled() ? "CHECK UPDATES: ON" : "CHECK UPDATES: OFF",
+                   LCDControlRow(1, 438, 289), "update-checks", -1, 0, p->UpdateChecksEnabled());
+    ControllerCell(g, "MIDI HELP", LCDControlRow(1, 739, 223), "system-help");
+    Text(g, "lcd16", std::string("KROSE ") + krose::build::kVersion, LCDControlRow(2));
+    Text(g, "lcd13", mControllerStatus.empty() ? std::string("BUILD: ") + krose::build::kTimestamp
+                                               : mControllerStatus, LCDControlRow(4));
+  } else {
     uint32_t rx = map.LastMessage();
     unsigned s = rx & 255, a = (rx >> 8) & 127, b = (rx >> 16) & 127;
     char line[96];
     std::snprintf(line, sizeof(line), "RX %02X  %03u  %03u / CH %u", s, a, b, (s & 15) + 1);
-    Text(g, "lcd14", rx ? line : "RX: waiting for MIDI input", R(438, 147, 530, 23));
-    const char *lines[] = {"Right-click a knob, fader or switch to learn.",
-                           "Learn captures first message without changing sound.",
-                           "Relative modes follow the keyboard's encoder setting.",
-                           "Chord / scale / arp notes work as normal MIDI notes.",
-                           "UI > UI SIZE changes the window; AUDIO sets the buffer."};
-    for (int i = 0; i < 5; ++i)
-      Text(g, "lcd13", lines[i], R(438, 175 + 20 * i, 530, 19));
-  } else if (mControllerPage == 6) {
-    Text(g, "lcd35", "KROSE", R(438, 145, 524, 39), 1);
-    g.FillRect(Ink, LCDRect(R(450, 190, 500, 2.25f)));
-    Text(g, "lcd16", std::string("VERSION: ") + krose::build::kVersion,
-         R(450, 198, 510, 23));
-    Text(g, "lcd14", std::string("BUILD: ") + krose::build::kTimestamp,
-         R(450, 226, 510, 22));
-    ControllerCell(g, p->UpdateChecksEnabled() ? "CHECK UPDATES: ON" : "CHECK UPDATES: OFF",
-                   R(450, 254, 310, 24), "update-checks", -1, 0, p->UpdateChecksEnabled());
-    if (mControllerStatus == "SAVE FAILED")
-      Text(g, "lcd13", mControllerStatus, R(772, 254, 190, 24));
-  } else if (mControllerPage == 7) {
-    ExpansionPage(g);
+    Text(g, "lcd14", rx ? line : "RX: waiting for MIDI input", LCDControlRow(0, 438, 354));
+    ControllerCell(g, "< SYSTEM", LCDControlRow(0, 812, 150), "system-help");
+    const char *lines[] = {"Right-click a control to learn a mapping.",
+                           "Learn listens without changing the current sound.",
+                           "Match relative mode to your keyboard encoder.",
+                           "SYSTEM sets UI size. AUDIO sets the audio buffer."};
+    for (int i = 0; i < 4; ++i)
+      Text(g, "lcd13", lines[i], LCDControlRow(i + 1));
   }
 }
 void NativePanel::ControllerMenu(const Hit &h) {
   auto *p = static_cast<KrosePlugin *>(GetDelegate());
   auto b = p->MidiMappings().Get(mMapSlot);
-  mPopupTarget = h;
-  mChoices.clear();
-  mChoiceValues.clear();
-  mPopupFocus = 0;
-  auto add = [&](std::string s, int v) {
-    mChoices.push_back(std::move(s));
-    mChoiceValues.push_back(v);
-  };
+  BeginPopup(h);
   if (h.id == 0) {
     for (unsigned i = 0; i < ControllerMap::kSlots; ++i) {
       auto n = p->MidiMappings().Get(i);
-      add(std::to_string(i + 1) + (n.source == Source::Off ? " -" : " *"), i);
+      AddChoice(std::to_string(i + 1) + (n.source == Source::Off ? " -" : " *"), i);
     }
     mPopupFocus = mMapSlot;
   }
   if (h.id == 1) {
     for (unsigned i = 0; i < KrosePlugin::kMapTargets; ++i)
-      add(Target(p, i), i);
+      AddChoice(Target(p, i), i);
     mPopupFocus = b.target;
   }
   if (h.id == 2) {
     for (int i = 0; i < 9; ++i)
-      add(sources[i], i);
+      AddChoice(sources[i], i);
     mPopupFocus = int(b.source);
   }
   if (h.id == 3) {
-    add("OMNI", 0);
+    AddChoice("OMNI", 0);
     for (int i = 1; i <= 16; ++i)
-      add("CH " + std::to_string(i), i);
+      AddChoice("CH " + std::to_string(i), i);
     mPopupFocus = b.channel;
   }
   if (h.id == 4) {
     for (int i = 0; i < 7; ++i)
-      add(modes[i], i);
+      AddChoice(modes[i], i);
     mPopupFocus = int(b.mode);
   }
   if (h.id == 5) {
     for (int i = 0; i < 4; ++i)
-      add("USER " + std::to_string(i + 1), i);
+      AddChoice("USER " + std::to_string(i + 1), i);
     mPopupFocus = p->MidiProfile();
   }
   if (h.id == 6) {
     for (unsigned frames : krose::standalone::kBufferSizes) {
       if (frames == p->AudioBufferSize()) mPopupFocus = int(mChoices.size());
-      add(std::to_string(frames) + " SAMPLES", int(frames));
+      AddChoice(std::to_string(frames) + " SAMPLES", int(frames));
     }
   }
   if (h.id == 7) {
     mPopupTarget.r = LCDRect(R(438, 144, 524, 24));
-    add("STANDARD CC", -1);
-    add("EXPORT CURRENT MAP", -2);
-    add("OPEN USER PROFILES", -3);
-    add("OPEN BUILT-IN KIT", -4);
+    AddChoice("STANDARD CC", -1);
+    AddChoice("EXPORT CURRENT MAP", -2);
+    AddChoice("OPEN USER PROFILES", -3);
+    AddChoice("OPEN BUILT-IN KIT", -4);
     mControllerFiles.clear();
     for (const auto& file : p->ControllerProfileFiles()) {
-      add(std::string(!file.valid ? "INVALID / " : file.builtin ? "BUILT-IN / " : "USER / ") + file.name,
+      AddChoice(std::string(!file.valid ? "INVALID / " : file.builtin ? "BUILT-IN / " : "USER / ") + file.name,
           int(mControllerFiles.size()));
       mControllerFiles.push_back(file.valid ? file.path : "");
     }
@@ -273,14 +266,13 @@ void NativePanel::ControllerMenu(const Hit &h) {
     const auto current = p->AudioChoice(kind);
     for (const auto& choice : p->AudioChoices(kind)) {
       if (choice == current) mPopupFocus = int(mChoices.size());
-      add(choice, int(mChoices.size()));
+      AddChoice(choice, int(mChoices.size()));
     }
-    if (mChoices.empty()) add("NO DEVICE AVAILABLE", -1);
+    if (mChoices.empty()) AddChoice("NO DEVICE AVAILABLE", -1);
   }
   const float room = std::max(284 - mPopupTarget.r.B - 2, mPopupTarget.r.T - 140 - 2);
   mPopupRows = std::min(int(mChoices.size()), std::max(1, int(room / 22)));
-  mPopupScroll =
-      std::clamp(mPopupFocus - mPopupRows / 2, 0, std::max(0, int(mChoices.size()) - mPopupRows));
+  CenterPopup();
 }
 void NativePanel::ControllerChoice(int id, int value, const std::string &selected) {
   auto *p = static_cast<KrosePlugin *>(GetDelegate());
@@ -374,7 +366,7 @@ void NativePanel::BeginLearn(int parameter) {
   if (slot < 0)
     slot = empty;
   mControllers = true;
-  mControllerPage = 1;
+  mControllerPage = ControllerPage::Midi;
   mChoices.clear();
   mBrowsing = mPresetOpen = false;
   if (!mStoredMapping)
@@ -411,7 +403,7 @@ bool NativePanel::ControllerAction(const Hit &h) {
   auto b = map.Get(mMapSlot);
   if (h.action == "controller-open") {
     mControllers = true;
-    mControllerPage = 0;
+    mControllerPage = ControllerPage::Switches;
     mControllerStatus.clear();
   } else if (h.action == "controller-close") {
     mControllers = false;
@@ -423,14 +415,21 @@ bool NativePanel::ControllerAction(const Hit &h) {
     mControllerStatus = p->SetUpdateChecksEnabled(enabled) ? "" : "SAVE FAILED";
     if (!enabled) ShowUpdateNotice("");
   } else if (h.action == "controller-page") {
-    mControllerPage = int(h.value);
-    if (mControllerPage != 1)
+    mControllerPage = static_cast<ControllerPage>(int(h.value));
+    if (mControllerPage != ControllerPage::Midi)
       map.CancelLearn();
     mConfirmProfile = -1;
-    if (mControllerPage == 7)
+    mSystemHelp = false;
+    if (mControllerPage == ControllerPage::System)
+      mControllerStatus.clear();
+    if (mControllerPage == ControllerPage::Expansions)
       ReadExpansionStatus();
+  } else if (h.action == "system-help") {
+    mSystemHelp = !mSystemHelp;
   } else if (h.action == "expansion-import") {
-    ExpansionFile();
+    QueueFileDialog(FileRequest::ImportExpansion);
+  } else if (h.action == "pcg-import") {
+    QueueFileDialog(FileRequest::ImportPcg);
   } else if (h.action == "expansion-remove") {
     try {
       p->UninstallExpansion(unsigned(h.id));

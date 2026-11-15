@@ -22,7 +22,7 @@ namespace segrand {
 // entry. The worker serializes reads through ProgramLibrary's existing mutex.
 class ExpansionSampleFile final : private std::streambuf {
 public:
-  explicit ExpansionSampleFile(const std::filesystem::path &path) : input(this) {
+  ExpansionSampleFile(const std::filesystem::path &path, uint64_t size) : bytes(size), input(this) {
 #ifdef _WIN32
     auto handle = CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE,
                               nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
@@ -41,6 +41,9 @@ public:
   }
   ~ExpansionSampleFile() override { if (file) std::fclose(file); }
   bool Valid() const noexcept { return file != nullptr; }
+  bool Contains(const SharedSample &sample) const noexcept {
+    return sample.offset + sample.frames <= bytes; // Expansion payloads use one byte per frame.
+  }
   std::istream &At(uint64_t offset) {
     if (std::fseek(file, static_cast<long>(offset), SEEK_SET) != 0)
       throw std::runtime_error("Cannot seek expansion waveform");
@@ -52,6 +55,7 @@ private:
     return static_cast<std::streamsize>(std::fread(destination, 1, size_t(bytes), file));
   }
   std::FILE *file = nullptr;
+  uint64_t bytes;
   std::istream input;
 };
 namespace {
@@ -111,7 +115,8 @@ bool ProgramLibrary::HasExpansion(unsigned number) const noexcept {
                          (!mSplit || bool(mExpansionFiles[number])));
 }
 std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &path, bool preload,
-                                                          const ExpansionPaths &expansions) {
+                                                          const ExpansionPaths &expansions,
+                                                          const PcgSources *pcgs) {
   static std::mutex mutex;
   static std::map<std::string, std::weak_ptr<const ProgramLibrary>> cache;
   const std::string key =
@@ -121,6 +126,24 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
   for (const auto &source : expansions) {
     cacheKey += '\0';
     cacheKey += source;
+    if (!source.empty()) {
+      std::error_code error;
+      const auto size = std::filesystem::file_size(std::filesystem::u8path(source), error);
+      cacheKey += '\0';
+      if (!error) cacheKey += std::to_string(size);
+    }
+  }
+  if (pcgs) {
+    for (const auto &source : *pcgs) {
+      cacheKey += '\0';
+      cacheKey += source;
+      if (!source.empty()) {
+        std::error_code error;
+        const auto changed = std::filesystem::last_write_time(std::filesystem::u8path(source), error);
+        cacheKey += '\0';
+        if (!error) cacheKey += std::to_string(static_cast<long long>(changed.time_since_epoch().count()));
+      }
+    }
   }
   if (auto existing = cache[cacheKey].lock())
     return existing;
@@ -196,12 +219,15 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
     Require(expected[group] <= 512ull * 1024 * 1024);
   }
   Require(expected[0] == fileSize);
+  // Older Future Synth payloads contain the original prefix only.
   for (unsigned group : {1u, 2u, 4u})
     if (bank->mSplit && !bank->mPaths[group].empty()) {
       std::error_code error;
-      auto size = std::filesystem::file_size(std::filesystem::u8path(bank->mPaths[group]), error);
-      if (!error && size == expected[group]) {
-        auto file = std::make_shared<ExpansionSampleFile>(std::filesystem::u8path(bank->mPaths[group]));
+      const auto path = std::filesystem::u8path(bank->mPaths[group]);
+      const auto size = std::filesystem::file_size(path, error);
+      if (!error && (size == expected[group] ||
+                     (group == 4 && size == kLegacyFutureSynthPcmBytes && size < expected[group]))) {
+        auto file = std::make_shared<ExpansionSampleFile>(path, size);
         if (file->Valid()) bank->mExpansionFiles[group] = std::move(file);
       }
     }
@@ -278,6 +304,10 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
             const unsigned group = bank->samples[index].id / 10000;
             Require(!group || group == ProgramExpansion(p.id.data()));
           }
+      if (std::any_of(r.sample.begin(), r.sample.end(), [&](auto index) {
+            return bank->MissingFromExpansionTail(index);
+          }))
+        continue;
       for (int n = r.noteLow; n <= r.noteHigh; ++n) {
         Require(p.lookup[r.oscillator][n][r.slot] == -1);
         p.lookup[r.oscillator][n][r.slot] = int32_t(i);
@@ -287,15 +317,23 @@ std::shared_ptr<const ProgramLibrary> ProgramLibrary::Load(const std::string &pa
   if (preload) {
     for (auto &sample : bank->samples) {
       const auto group = bank->mSplit ? sample.id / 10000 : 0;
-      if (!bank->HasExpansion(group)) continue;
+      if (group && (!bank->HasExpansion(group) || !bank->mExpansionFiles[group]->Contains(sample)))
+        continue;
       if (!group) Require(uint64_t(in.file.tellg()) == sample.offset);
       auto &stream = group ? bank->mExpansionFiles[group]->At(sample.offset) : in.file;
       ReadSamplePCM(stream, sample.codec, sample.a1, sample.a2, bank->mSampleLut, sample.frames,
                     sample.pcm);
     }
   }
+  if (pcgs) bank->ImportPcgPrograms(*pcgs);
   cache[cacheKey] = bank;
   return bank;
+}
+bool ProgramLibrary::MissingFromExpansionTail(uint32_t index) const noexcept {
+  if (!mSplit || index == UINT32_MAX) return false;
+  const auto &sample = samples[index];
+  const auto &file = mExpansionFiles[sample.id / 10000];
+  return file && !file->Contains(sample);
 }
 std::shared_ptr<const SampleWindow> ProgramLibrary::LoadProgram(unsigned program) const {
   if (program >= programs.size())
@@ -306,10 +344,15 @@ std::shared_ptr<const SampleWindow> ProgramLibrary::LoadProgram(unsigned program
     return window;
   std::vector<uint32_t> indices;
   const auto &p = programs[program];
-  for (uint32_t r = p.firstRegion; r < p.firstRegion + p.regionCount; ++r)
-    for (auto index : regions[r].sample)
+  for (uint32_t r = p.firstRegion; r < p.firstRegion + p.regionCount; ++r) {
+    const auto &channels = regions[r].sample;
+    if (std::any_of(channels.begin(), channels.end(), [&](auto index) {
+          return MissingFromExpansionTail(index);
+        })) continue;
+    for (auto index : channels)
       if (index != UINT32_MAX)
         indices.push_back(index);
+  }
   auto window = std::make_shared<const SampleWindow>(LoadSamplesLocked(indices, true));
   cached = window;
   return window;
@@ -333,6 +376,8 @@ SampleWindow ProgramLibrary::LoadSamplesLocked(const std::vector<uint32_t> &indi
       auto group = mSplit ? sample.id / 10000 : 0;
       if (!HasExpansion(group))
         throw std::runtime_error("Expansion is not installed");
+      if (group && !mExpansionFiles[group]->Contains(sample))
+        throw std::runtime_error("Expansion waveform is unavailable");
       if (!group) {
         if (!factory.is_open())
           factory.open(std::filesystem::u8path(mPaths[0]), std::ios::binary);

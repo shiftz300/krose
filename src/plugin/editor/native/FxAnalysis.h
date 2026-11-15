@@ -36,18 +36,31 @@ public:
     std::move(history.begin() + 1, history.end(), history.begin());
     history.back() = float(std::sqrt(energy / (2 * kWindow)));
     const double release = std::exp(-seconds / .16);
-    for (unsigned band = 0; band < kBands; ++band) {
-      const double frequency = 30 * std::pow(std::min(11000., rate * .45) / 30, double(band) / (kBands - 1));
-      const double coefficient = 2 * std::cos(6.283185307179586 * frequency / rate);
-      double a = 0, b = 0, ia = 0, ib = 0;
-      for (unsigned i = 0; energy + inputEnergy > 1e-20 && i < kWindow; ++i) {
-        const auto &s = mSamples[(mPosition + i) % kWindow];
-        const double window = mWindow[i];
-        const double v = (s.left + s.right) * .5 * window + coefficient * a - b;
-        b = a; a = v;
-        const double iv = s.input * window + coefficient * ia - ib;
-        ib = ia; ia = iv;
+    if (rate != mCoefficientRate) {
+      mCoefficientRate = rate;
+      for (unsigned band = 0; band < kBands; ++band) {
+        const double frequency = 30 * std::pow(std::min(11000., rate * .45) / 30, double(band) / (kBands - 1));
+        mCoefficients[band] = 2 * std::cos(6.283185307179586 * frequency / rate);
       }
+    }
+    const bool active = energy + inputEnergy > 1e-20;
+    std::array<double, kWindow> windowed, windowedInput;
+    if (active)
+      for (unsigned i = 0; i < kWindow; ++i) {
+        const auto &s = mSamples[(mPosition + i) % kWindow];
+        windowed[i] = (s.left + s.right) * .5 * mWindow[i];
+        windowedInput[i] = s.input * mWindow[i];
+      }
+    for (unsigned band = 0; band < kBands; ++band) {
+      const double coefficient = mCoefficients[band];
+      double a = 0, b = 0, ia = 0, ib = 0;
+      if (active)
+        for (unsigned i = 0; i < kWindow; ++i) {
+          const double v = windowed[i] + coefficient * a - b;
+          b = a; a = v;
+          const double iv = windowedInput[i] + coefficient * ia - ib;
+          ib = ia; ia = iv;
+        }
       const float magnitude = float(std::sqrt(std::max(0., a*a + b*b - coefficient*a*b)) * 4 / kWindow);
       const float inMagnitude = float(std::sqrt(std::max(0., ia*ia + ib*ib - coefficient*ia*ib)) * 4 / kWindow);
       bands[band] = std::max(magnitude, float(bands[band] * release));
@@ -65,6 +78,8 @@ public:
 private:
   std::array<segrand::FxVisualSample, kWindow> mSamples{};
   std::array<double, kWindow> mWindow{};
+  std::array<double, kBands> mCoefficients{};
+  double mCoefficientRate = -1;
   unsigned mPosition = 0;
 };
 }

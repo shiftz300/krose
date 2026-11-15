@@ -1,6 +1,6 @@
 # 原生界面与素材维护
 
-VST3 与独立程序使用 C++、iPlug2 IGraphics 和 NanoVG；macOS 渲染器为 Metal，Windows 配置为 OpenGL 2。基准逻辑尺寸为 1472×648；LCD 的 `>CTRL → INPUT → UI SIZE` 可选自动适应屏幕，或 60／75／85／100／125／150% 等比缩放，菜单同时显示对应窗口尺寸。选择保存为全局界面偏好，下次打开沿用；默认自动适应。右键 FX 的快捷入口保留。宿主拒绝调整窗口时保持原尺寸和偏好，并显示原因。插件不链接 WebKit。
+VST3 与独立程序使用 C++、iPlug2 IGraphics 和 NanoVG；macOS 渲染器为 Metal，Windows 配置为 OpenGL 2。基准逻辑尺寸为 1472×648；LCD 的 `>CTRL → SYSTEM → UI SIZE` 可选自动适应屏幕，或 60／75／85／100／125／150% 等比缩放，菜单同时显示对应窗口尺寸。选择保存为全局界面偏好，下次打开沿用；默认自动适应。右键 FX 的快捷入口保留。宿主拒绝调整窗口时保持原尺寸和偏好，并显示原因。插件不链接 WebKit。
 
 ## 控件与显示
 
@@ -8,7 +8,7 @@ VST3 与独立程序使用 C++、iPlug2 IGraphics 和 NanoVG；macOS 渲染器�
 
 LCD 的菜单、边框、填充及箭头遵循屏幕像素网格，菜单宽度与输入框一致。列表超出屏幕时滚动；方向键、Home／End、回车与 Esc 支持键盘操作。旋钮和推子双击复位、滚轮调整，Shift 细调；普通按钮逐次处理连点。浏览器关闭入口只有叉号，搜索框使用深色底。
 
-SAVE／BROWSE → LOAD FILE 使用系统文件对话框；Compare 基准在打开编辑器、选音色、载入或保存时建立。`.krose` 文件只应用声音参数，SW、输入通道和 MIDI 映射保留。
+SAVE／BROWSE → LOAD PRESET 使用系统文件对话框；Compare 基准在打开编辑器、选音色、载入或保存时建立。`.krose` 保存单个插件音色的声音参数，SW、输入通道和 MIDI 映射保留。旧版 KROSS 的 `.PCG` 从 [CTRL → EX → LOAD PCG](SAMPLES.md#旧版-kross-pcg) 导入。
 
 四个模块读取各槽的实际音频。EQ 显示频谱与响应曲线，AUTO Concert EQ 使用实测输入／输出比；压缩器和 Limiter 保留灰／黄 VU 表，显示输出电平及增益衰减；Drive／Exciter 显示输入输出频谱和传输点；Chorus 显示立体声相位轨迹，Delay 显示返回能量历史，Hall／Plate 用返回频谱和能量驱动深度切片。深度切片是声音数据的视觉表达，不代表实测房间几何。
 
@@ -49,7 +49,7 @@ FX 收放是独立的显示状态，不改变音频。动画使用基于单调�
 
 - `src/plugin/editor/NativeEditor.cpp`：控件装配与输入路由。
 - `src/plugin/editor/native/NativePanel.cpp`：整机与 LCD 绘制。
-- `PanelInput.cpp`、`PanelBrowser.cpp`、`PanelFavorites.cpp`、`PanelControllers.cpp`：参数输入、菜单、收藏与 LCD 控制设置。
+- `PanelInput.cpp` 处理输入，`PanelBrowser.cpp` 管理预设选择与收藏，`PanelControllers.cpp` 管理 LCD 控制设置，`PanelFiles.cpp` 管理文件选择与扩展页。
 - `src/plugin/editor/native/assets/`：实际运行的 PNG 材质、点阵字形和几何数据。
 - `tools/native-ui/reference/`：定稿的可编辑 HTML／CSS 参考源，仅用于素材生成和设计核对。
 

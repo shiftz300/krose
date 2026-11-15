@@ -9,7 +9,8 @@ InstrumentEngine::InstrumentEngine(std::shared_ptr<const SampleBank> concert,
       mAvailablePrograms(mProgramCount) {
   mAvailablePrograms[0] = factory->HasExpansion(1);
   for (unsigned i = 1; i < mProgramCount; ++i)
-    mAvailablePrograms[i] = factory->HasExpansion(ProgramExpansion(factory->programs[i - 1].id.data()));
+    mAvailablePrograms[i] = factory->programs[i - 1].regionCount != 0 &&
+        factory->HasExpansion(ProgramExpansion(factory->programs[i - 1].id.data()));
   if (factory->OnDemand()) {
     mLoader = std::make_unique<SampleLoader>(concert->path, factory);
     mResidency = mLoader->Wait(0);
@@ -58,6 +59,7 @@ bool InstrumentEngine::SetControls(const Controls &controls, bool offline) {
     mRetirePending = mLoader && mResidency != ready;
     mResidency = ready;
     mProgramAvailable = mAvailablePrograms[program];
+
     if (program) {
       mFactory.SetSamples(ready);
       mFactory.SetProgram(unsigned(program - 1));

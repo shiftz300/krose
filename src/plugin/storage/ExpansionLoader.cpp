@@ -138,21 +138,22 @@ std::string TemporarySuffix() {
   std::random_device random;
   return std::to_string(random()) + "-" + std::to_string(random());
 }
-void WriteAtomically(const fs::path &path, const Bytes &data) {
-  auto directory = path.parent_path();
-  fs::create_directories(directory);
-  directory /= ".install-" + TemporarySuffix();
-  if (!fs::create_directory(directory)) throw std::runtime_error("EXPANSION STORAGE BUSY");
-  struct Cleanup {
-    fs::path folder;
-    ~Cleanup() { std::error_code error; fs::remove_all(folder, error); }
-  } cleanup{directory};
-  auto temporary = directory / "payload";
-  std::ofstream file(temporary, std::ios::binary);
+struct StagingDirectory {
+  const fs::path path;
+  StagingDirectory(const fs::path &parent, const char *busy)
+      : path(parent / (".install-" + TemporarySuffix())) {
+    fs::create_directories(parent);
+    if (!fs::create_directory(path)) throw std::runtime_error(busy);
+  }
+  StagingDirectory(const StagingDirectory &) = delete;
+  ~StagingDirectory() { std::error_code error; fs::remove_all(path, error); }
+};
+
+void WritePayload(const fs::path &path, const Bytes &data, const char *error) {
+  std::ofstream file(path, std::ios::binary);
   if (!data.empty()) file.write(reinterpret_cast<const char *>(data.data()), data.size());
   file.close();
-  if (!file) throw std::runtime_error("CANNOT WRITE EXPANSION");
-  fs::rename(temporary, path);
+  if (!file) throw std::runtime_error(error);
 }
 
 void RemoveInstalledPayload(const fs::path &file) {
@@ -175,12 +176,19 @@ void RemoveInstalledPayload(const fs::path &file) {
 }
 } // namespace
 
+const ExpansionInfo *FindExpansion(unsigned number) noexcept {
+  for (const auto &pack : kExpansions)
+    if (pack.number == number) return &pack;
+  return nullptr;
+}
+
 ExpansionLoader::ExpansionLoader(fs::path userDirectory, fs::path defaultOasys)
     : mUserDirectory(std::move(userDirectory)), mDefaultOasys(std::move(defaultOasys)) {}
 
 fs::path ExpansionLoader::Source(const ExpansionInfo &pack) const {
   const auto installed = mUserDirectory / pack.file;
-  if (HasSize(installed, pack.pcmSize))
+  if (HasSize(installed, pack.pcmSize) ||
+      (pack.legacyPcmSize && HasSize(installed, pack.legacyPcmSize)))
     return installed;
   if (pack.number == 1 && HasSize(mDefaultOasys, pack.pcmSize))
     return mDefaultOasys;
@@ -213,11 +221,11 @@ unsigned ExpansionLoader::Install(const fs::path &file, const segrand::ProgramLi
   if (pack == kExpansions.end()) throw std::runtime_error("UNSUPPORTED .KEP FILE");
   if (SHA256(original) != pack->kepHash)
     throw std::runtime_error("UNRECOGNIZED OR DAMAGED .KEP");
-  if (Installed(*pack)) return pack->number;
+  if (HasSize(Source(*pack), pack->pcmSize)) return pack->number;
 
   Decode(original);
-  // The three allowlisted inputs have identical EXP1 layout. Keep only the
-  // waveform bytes referenced by this build, in native descriptor order.
+  // The three allowlisted inputs have identical EXP1 layout.
+  // Write the waveform bytes in the runtime bank's descriptor order.
   constexpr size_t prmStart = 208;
   const size_t sampleCount = ReadLE(original.data() + 0x9c);
   const size_t prmSize = ReadLE(original.data() + 200);
@@ -245,7 +253,9 @@ unsigned ExpansionLoader::Install(const fs::path &file, const segrand::ProgramLi
   }
   if (written != native.size()) throw std::runtime_error("EXPANSION DOES NOT MATCH THIS BUILD");
 
-  WriteAtomically(mUserDirectory / pack->file, native);
+  const StagingDirectory staging(mUserDirectory, "EXPANSION STORAGE BUSY");
+  WritePayload(staging.path / pack->file, native, "CANNOT WRITE EXPANSION");
+  fs::rename(staging.path / pack->file, mUserDirectory / pack->file);
   return pack->number;
 }
 
@@ -255,5 +265,64 @@ void ExpansionLoader::Uninstall(const ExpansionInfo &pack) {
   if (pack.number == 1 && !mDefaultOasys.empty())
     fs::remove(mDefaultOasys);
   RemoveInstalledPayload(mUserDirectory / pack.file);
+}
+
+namespace {
+const auto kPcgDataDirectory = fs::path("KORG") / "KROSS" / "DATA";
+bool IsPcg(const fs::path &file) {
+  auto extension = file.extension().u8string();
+  for (auto &c : extension)
+    if (c >= 'A' && c <= 'Z') c += 'a' - 'A';
+  return extension == ".pcg";
+}
+} // namespace
+
+segrand::PcgSources InstalledPcgs(const fs::path &directory) {
+  segrand::PcgSources sources;
+  if (directory.empty()) return sources;
+  for (unsigned i = 0; i < sources.size(); ++i) {
+    const auto data = directory / std::to_string(i + 1) / kPcgDataDirectory;
+    std::error_code error;
+    for (fs::directory_iterator it(data, error), end; !error && it != end; it.increment(error)) {
+      if (IsPcg(it->path()) && fs::is_regular_file(it->symlink_status(error))) {
+        sources[i] = it->path().u8string();
+        break;
+      }
+    }
+  }
+  return sources;
+}
+
+segrand::pcg::InstallReport InstallPcg(const fs::path &directory, const fs::path &file,
+                                      const segrand::ProgramLibrary &library) {
+  if (directory.empty() || !IsPcg(file)) throw std::runtime_error("SELECT A KROSS 1 .PCG");
+  const auto original = segrand::pcg::Read(file);
+  const auto report = segrand::pcg::Check(library, original);
+  if (!report.playable) throw std::runtime_error("NO PLAYABLE BANK U PROGRAMS");
+
+  static std::mutex mutex;
+  std::lock_guard<std::mutex> lock(mutex);
+  const auto sources = InstalledPcgs(directory);
+  for (const auto &source : sources) {
+    if (source.empty()) continue;
+    try {
+      if (segrand::pcg::Read(fs::u8path(source)) == original) return report;
+    } catch (const std::runtime_error &) {
+      // A stale or damaged file does not prevent installing a new bank.
+    }
+  }
+  const StagingDirectory staging(directory, "PCG STORAGE BUSY");
+  const auto data = staging.path / kPcgDataDirectory;
+  fs::create_directories(data);
+  WritePayload(data / file.filename(), original, "CANNOT WRITE PCG");
+  for (unsigned i = 0; i < sources.size(); ++i) {
+    const auto slot = directory / std::to_string(i + 1);
+    if (fs::exists(slot)) continue;
+    std::error_code error;
+    fs::rename(staging.path, slot, error);
+    if (!error) return report;
+    if (!fs::exists(slot)) throw fs::filesystem_error("Cannot install PCG", slot, error);
+  }
+  throw std::runtime_error("PCG LIBRARY IS FULL");
 }
 } // namespace krose::storage

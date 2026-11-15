@@ -36,6 +36,22 @@ public:
       ++count;
     return count;
   }
+  // MIDI at offset N takes effect before rendering sample N.
+  template <class Render, class Apply>
+  void RenderBlock(int frames, Render render, Apply apply) noexcept {
+    unsigned consumed = 0;
+    int position = 0;
+    while (consumed < mSize && mEvents[consumed].offset < frames) {
+      const int target = mEvents[consumed].offset;
+      if (target > position)
+        render(position, target - position);
+      position = target;
+      apply(mEvents[consumed++]);
+    }
+    if (position < frames)
+      render(position, frames - position);
+    Advance(consumed, frames);
+  }
   void Advance(unsigned consumed, int frames) noexcept {
     for (unsigned i = consumed; i < mSize; ++i) {
       mEvents[i - consumed] = mEvents[i];

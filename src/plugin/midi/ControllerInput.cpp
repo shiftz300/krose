@@ -17,13 +17,11 @@ void KrosePlugin::SetMidiParameter(unsigned id, double normalized) {
   if (parameter < 0) {
     if (normalized < .5)
       return;
-    const unsigned program = unsigned(GetParam(kParamProgram)->Int());
+    const unsigned program = unsigned(SelectedProgram());
     if (id == kTargetNext && program < mNextPrograms.size())
-      SetMidiParameter(kParamProgram,
-                       GetParam(kParamProgram)->ToNormalized(mNextPrograms[program]));
+      SelectMidiProgram(mNextPrograms[program]);
     if (id == kTargetPrevious && program < mPreviousPrograms.size())
-      SetMidiParameter(kParamProgram,
-                       GetParam(kParamProgram)->ToNormalized(mPreviousPrograms[program]));
+      SelectMidiProgram(mPreviousPrograms[program]);
     if (id == kTargetPanic && mEngine) {
       mEngine->Panic();
       mKeyboard.Reset();
@@ -39,10 +37,17 @@ void KrosePlugin::SetMidiParameter(unsigned id, double normalized) {
   if (p->GetNormalized() == before)
     return;
   mHardwareParameter.store(int(id), std::memory_order_relaxed);
-  if (id == kParamProgram)
+  if (id == kParamProgram || id == kPcgProgram)
     mComparisonNeedsCapture.store(true, std::memory_order_relaxed);
   OnParamChange(id, kDelegate, 0);
   mMidiChangedParams[id / 64].fetch_or(uint64_t(1) << (id % 64), std::memory_order_release);
+}
+void KrosePlugin::SetMidiParameterValue(int id, double value) {
+  SetMidiParameter(MidiTargetForParameter(id), GetParam(id)->ToNormalized(value));
+}
+void KrosePlugin::SelectMidiProgram(int program) {
+  const auto [id, value] = ProgramParameter(program);
+  SetMidiParameterValue(id, value);
 }
 void KrosePlugin::ApplySwitches() {
   auto setAction = [&](SwitchAssignment a, bool state) {
@@ -53,7 +58,7 @@ void KrosePlugin::ApplySwitches() {
     if (id >= 0)
       SetMidiParameter(id, state ? 1 : 0);
     if (a == SwitchAssignment::MonoLegato)
-      SetMidiParameter(kVoiceMode, GetParam(kVoiceMode)->ToNormalized(state ? 2 : 1));
+      SetMidiParameterValue(kVoiceMode, state ? 2 : 1);
   };
   for (unsigned sw = 0; sw < 2; ++sw) {
     const int first = kSW1Assign + int(sw) * 3, assignment = GetParam(first)->Int();
@@ -95,7 +100,7 @@ void KrosePlugin::HandleControllerMidi(Message m, const int &position, RenderTo 
     using namespace krose::midi::essential;
     const auto control = Decode(m.status, m.data1);
     if (control.kind != Kind::None) {
-      const int program = GetParam(kParamProgram)->Int();
+      const int program = SelectedProgram();
       const bool filterEG = GetParam(kEGTarget)->Bool();
       if (program != mPickupProgram) { mArturiaPickup.Reset(); mPickupProgram = program; }
       if (int(filterEG) != mPickupEG) { mArturiaPickup.Reset(0,8); mPickupEG = int(filterEG); }
@@ -119,8 +124,9 @@ void KrosePlugin::HandleControllerMidi(Message m, const int &position, RenderTo 
         }
       }
       if (control.kind == Kind::Program && Relative(m.data2)) {
-        if (unsigned(program) < mNextPrograms.size())
-          set(kParamProgram, GetParam(kParamProgram)->ToNormalized(Relative(m.data2) > 0 ? mNextPrograms[program] : mPreviousPrograms[program]));
+        renderTo(m.offset);
+        SetMidiParameter(Relative(m.data2) > 0 ? kTargetNext : kTargetPrevious, 1.);
+        ConfigureAudio(position);
       }
       if (control.kind == Kind::FxEdit) {
         if (mFxButtonProgram!=program) { mArturiaFxButtons.Reset(); mFxButtonProgram=program; }
@@ -176,8 +182,11 @@ void KrosePlugin::HandleControllerMidi(Message m, const int &position, RenderTo 
       program = ((mProgramBank[ch][0] * 128 + mProgramBank[ch][1]) * 128) + (m.data1 & 127);
     else if (!mProgramBank[ch][1] && mProgramBank[ch][0] < 12)
       program = mHardwarePrograms[mProgramBank[ch][0] * 128 + (m.data1 & 127)];
-    if (program >= 0 && program <= GetParam(kParamProgram)->GetMax())
-      write(kParamProgram, GetParam(kParamProgram)->ToNormalized(program));
+    if (program >= 0 && program <= GetParam(kParamProgram)->GetMax()) {
+      renderTo(m.offset);
+      SelectMidiProgram(program);
+      reconfigure = true;
+    }
   } else if (type < 0xf0) {
     if (type == 0xb0 && (m.data1 == 0 || m.data1 == 32))
       mProgramBank[ch][m.data1 == 0 ? 0 : 1] = m.data2 & 127;
@@ -214,7 +223,8 @@ void KrosePlugin::ConfigureAudio(int offset) {
   segrand::Controls controls;
   controls.voiceMode = GetParam(kVoiceMode)->Int();
   controls.glide = GetParam(kGlide)->Int();
-  controls.program = GetParam(kParamProgram)->Int();
+  controls.program = EngineProgram(SelectedProgram());
+
   controls.preset = GetParam(kParamTone)->Int();
   controls.outputDb = GetParam(kParamOutput)->Value();
   controls.space = GetParam(kParamSpace)->Value() / 100;
@@ -397,7 +407,7 @@ void KrosePlugin::ProcessBlock(sample **, sample **outputs, int nFrames) {
   applyThrough(0);
 #endif
 #if defined(APP_API)
-  const int fxProgram=GetParam(kParamProgram)->Int();
+  const int fxProgram=SelectedProgram();
   if (!mArturiaConnected.load(std::memory_order_relaxed) || mFxButtonProgram!=fxProgram) {
     mArturiaFxButtons.Reset();mFxButtonProgram=fxProgram;
   }

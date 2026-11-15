@@ -53,6 +53,11 @@ int main() {
   const unsigned band=unsigned(maximum-analysis.inputBands.begin());
   const double frequency=30*std::pow(11000./30,band/31.);
   assert(frequency>1200 && frequency<1800);
+  // The same samples represent twice the frequency after a host rate change.
+  analysis.Analyze(96000, 1.);
+  maximum = std::max_element(analysis.inputBands.begin(), analysis.inputBands.end());
+  const double shifted = 30 * std::pow(11000. / 30, (maximum - analysis.inputBands.begin()) / 31.);
+  assert(shifted > 2400 && shifted < 3600);
   // Fill and overflow the visual ring without a consumer. It must stay bounded.
   for(unsigned i=0;i<20000;++i) monitor->Push(1,.1,.2,.3);
   monitor->Publish();

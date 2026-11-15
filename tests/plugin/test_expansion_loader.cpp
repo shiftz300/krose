@@ -32,7 +32,7 @@ void ExpectRejected(ExpansionLoader &loader, const fs::path &file,
 
 std::array<float, 8192> Render(const fs::path &reference,
                                const std::shared_ptr<const segrand::ProgramLibrary> &library,
-                               int program) {
+                               int program, uint8_t note = 60, uint8_t velocity = 100) {
   auto concert = segrand::SampleBank::Load(reference.u8string(), false, library);
   // Match the plugin lifetime and keep the voice/FX storage off the Windows test stack.
   auto engine = std::make_unique<segrand::InstrumentEngine>(concert, library);
@@ -40,7 +40,7 @@ std::array<float, 8192> Render(const fs::path &reference,
   segrand::Controls controls;
   controls.program = program;
   assert(engine->SetControls(controls, true));
-  engine->Queue({0, 0x90, 60, 100});
+  engine->Queue({0, 0x90, note, velocity});
   std::array<float, 8192> left{}, right{};
   engine->Process(left.data(), right.data(), int(left.size()));
   return left;
@@ -59,6 +59,22 @@ void ComparePayload(const fs::path &actual, const fs::path &original, unsigned b
   }
   assert(installed.peek() == std::char_traits<char>::eof());
 }
+
+void CopyLegacyFutureSynth(const fs::path &destination, const fs::path &original,
+                           const segrand::ProgramLibrary &library) {
+  std::ifstream source(original, std::ios::binary);
+  std::ofstream output(destination, std::ios::binary);
+  uint64_t bytes = 0;
+  for (const auto &sample : library.samples) {
+    if (sample.id / 10000 != 4 || bytes == segrand::kLegacyFutureSynthPcmBytes) continue;
+    source.seekg(static_cast<std::streamoff>(sample.offset));
+    std::vector<char> raw(sample.frames);
+    assert(source.read(raw.data(), raw.size()));
+    assert(output.write(raw.data(), raw.size()));
+    bytes += raw.size();
+  }
+  assert(bytes == segrand::kLegacyFutureSynthPcmBytes);
+}
 } // namespace
 
 int main(int argc, char **argv) {
@@ -72,6 +88,25 @@ int main(int argc, char **argv) {
   ExpansionLoader loader(scratch.path, defaultOasys);
   const auto factory = (bundled / "Factory.samples").u8string();
   auto complete = segrand::ProgramLibrary::Load(original.u8string(), false);
+  const auto electric = std::find_if(complete->programs.begin(), complete->programs.end(),
+      [](const auto &p) { return std::string_view(p.id.data()) == "EXPCM004:043"; });
+  assert(electric != complete->programs.end());
+  const int electricProgram = int(electric - complete->programs.begin()) + 1;
+  // KORG KG4 drum catalog entries 7 / 34 / 17 / 16 and their decoded PCM IDs.
+  constexpr unsigned zones[][5] = {
+      {45, 1, 40181, 1, 127}, {83, 0, 40194, 1, 127},
+      {96, 0, 40191, 85, 127}, {96, 1, 40190, 1, 84},
+  };
+  for (const auto &zone : zones) {
+    const auto region = electric->lookup[0][zone[0]][zone[1]];
+    assert(region >= 0);
+    const auto &layer = complete->regions[region];
+    assert(complete->samples[layer.sample[0]].id == zone[2]);
+    assert(layer.velocityLow == int(zone[3]) && layer.velocityHigh == int(zone[4]));
+    const auto audio = Render(concert, complete, electricProgram, uint8_t(zone[0]),
+                              uint8_t((zone[3] + zone[4]) / 2));
+    assert(std::any_of(audio.begin(), audio.end(), [](float x) { return x != 0; }));
+  }
   auto defaults = segrand::ProgramLibrary::Load(factory, false, loader.Sources());
   assert(defaults->Split());
   assert(defaults->HasExpansion(0) && defaults->HasExpansion(1));
@@ -133,6 +168,19 @@ int main(int argc, char **argv) {
     const uint32_t index = uint32_t(sample - snapshot->samples.begin());
     assert(snapshot->LoadSamples({index})[index]);
     loader.Uninstall(pack);
+    if (number == 4) {
+      CopyLegacyFutureSynth(installedPath, original, *complete);
+      auto legacy = segrand::ProgramLibrary::Load(factory, false, loader.Sources());
+      assert(legacy->HasExpansion(number));
+      assert(legacy->programs[electricProgram - 1].lookup[0][96][1] < 0);
+      assert((Render(concert, legacy, electricProgram, 96, 60) == std::array<float, 8192>{}));
+      assert(loader.Install(fs::u8path(argv[i]), *onboard) == number);
+      auto upgraded = segrand::ProgramLibrary::Load(factory, false, loader.Sources());
+      assert(upgraded != legacy && upgraded->programs[electricProgram - 1].lookup[0][96][1] >= 0);
+      assert(Render(concert, upgraded, electricProgram, 96, 60) ==
+             Render(concert, complete, electricProgram, 96, 60));
+      loader.Uninstall(pack);
+    }
     std::cout << "EXPCM00" << number << " bit-exact ZIP/KEP import and uninstall\n";
   }
 }

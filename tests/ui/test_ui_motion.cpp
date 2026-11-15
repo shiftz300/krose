@@ -31,5 +31,12 @@ int main() {
   assert(a.At(20) == .75 && !a.Active(20));
   a.Target(-1, 21); assert(a.At(22) == -1); // Bipolar pitch wheel.
   a.Target(1, 30, .09); assert(a.At(31) == 1); // Background/sleep catch-up.
+  a.Snap(0);
+  a.Target(1, 40, .20, UIMotion::Curve::Linear);
+  assert(std::abs(a.At(40.05) - .25) < 1e-10);
+  const auto edge = a.At(40.10);
+  a.Target(0, 40.10, .20, UIMotion::Curve::Linear);
+  assert(a.At(40.10) == edge && std::abs(a.At(40.15) - .375) < 1e-10);
+  assert(a.At(40.31) == 0);
   std::cout << "PASS UI motion continuity, bounds, idle settling and refresh independence\n";
 }

@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace iplug;
@@ -43,6 +44,12 @@ public:
   std::vector<ControllerProfileFile> ControllerProfileFiles() const;
   std::string ControllerSupportFolder(bool builtin) const;
   bool ProgramAvailable(int program) const noexcept;
+  int SelectedProgram() const noexcept;
+  std::pair<int, int> ProgramParameter(int program) const noexcept;
+  const segrand::InstrumentProgram *PcgProgram(int program) const noexcept;
+  std::string PcgBankName(int program) const;
+  bool CanImportPcg() const noexcept;
+  segrand::pcg::InstallReport ImportPcg(const char *path);
   bool CanManageExpansions() const noexcept;
   bool ExpansionAvailable(unsigned number) const noexcept;
   bool ExpansionInstalled(unsigned number) const;
@@ -75,7 +82,7 @@ public:
   std::array<uint64_t, 2> KeyboardKeys() const noexcept { return mKeyboard.Read(); }
   std::array<uint64_t, 3> MidiExpression() const noexcept { return mKeyboard.Expression(); }
   segrand::ProgramEffects FactoryEffects() const noexcept {
-    return mEngine ? mEngine->FactoryEffects(GetParam(kParamProgram)->Int()) : segrand::ProgramEffects{};
+    return mEngine ? mEngine->FactoryEffects(EngineProgram(SelectedProgram())) : segrand::ProgramEffects{};
   }
   void RestoreFactoryArp();
   void EnableVisuals(bool enabled) noexcept { mVisualsEnabled.store(enabled, std::memory_order_relaxed); }
@@ -146,6 +153,8 @@ private:
   template <class RenderTo>
   void HandleControllerMidi(krose::midi::Message message, const int &position, RenderTo renderTo);
   void SetMidiParameter(unsigned id, double normalized);
+  void SetMidiParameterValue(int id, double value);
+  void SendUiParameter(int id, double normalized);
   void ApplySwitches();
   void RestoreMidiProfile();
 #if IPLUG_EDITOR
@@ -183,6 +192,12 @@ private:
   std::string mError;
   std::shared_ptr<const segrand::ProgramLibrary> mProgramLibrary;
   std::filesystem::path mExpansionDirectory, mDefaultOasys;
+  segrand::PcgSources mPcgSources;
+  std::atomic<uint64_t> mMissingPcgFingerprint{0};
+  int EngineProgram(int program) const noexcept;
+  void SelectMidiProgram(int program);
+  uint64_t PcgSelectionFingerprint(int selection) const noexcept;
+  int ResolvePcgSelection(uint64_t fingerprint, int preferred) noexcept;
   bool mPrepared = true;
   std::atomic<double> mDisplayTempo{120.};
   std::atomic<bool> mDisplayHost{false};

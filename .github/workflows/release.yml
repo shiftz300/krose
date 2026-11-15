@@ -251,7 +251,7 @@ jobs:
             "Krose-$version-macos-universal-app.zip"
           )
           sha256sum "${assets[@]}" > SHA256SUMS.txt
-          notes='OASYS Piano installs by default. Use CTRL > EX PCM to install original KEP/ZIP expansions or uninstall their samples. Reload the app or plugin instance to apply changes. Installers are unsigned/not notarized.'
+          notes='Use CTRL > EX to import KROSS 1 PCG banks or KEP/ZIP expansions. OASYS Piano is installed by default. Installers are unsigned/not notarized.'
           if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber \
               "${assets[@]}" SHA256SUMS.txt
@@ -259,6 +259,6 @@ jobs:
               --title "Krose $GITHUB_REF_NAME" --notes "$notes"
           else
             gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag \
-              --title "Krose $GITHUB_REF_NAME" --generate-notes --notes "$notes" \
+              --title "Krose $GITHUB_REF_NAME" --notes "$notes" \
               "${assets[@]}" SHA256SUMS.txt
           fi

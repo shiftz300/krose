@@ -8,9 +8,11 @@
 namespace segrand {
 namespace {
 double Read(const PCM24 &pcm, double position) {
+  // RenderVoice has already bounded position to the sample.
   const auto last = pcm.size() - 1;
-  const auto i = std::min(last, size_t(std::max(0.0, position)));
-  return pcm[i] + (pcm[std::min(last, i + 1)] - pcm[i]) * (position - std::floor(position));
+  const auto i = size_t(position);
+  const float a = pcm[i];
+  return a + (pcm[std::min(last, i + 1)] - a) * (position - double(i));
 }
 } // namespace
 ProgramEngine::ProgramEngine(std::shared_ptr<const ProgramLibrary> library)
@@ -36,6 +38,10 @@ void ProgramEngine::Prepare(double rate) {
   mRack.SetReturns(mControls.fx, mControls.space);
   mRoom = std::move(room);
   mRate = rate;
+  mAgeStep = 1 / rate;
+  mAudioStep = kNativeAudioHz / rate;
+  mControlStep = kNativeControlHz / rate;
+  mFadeFrames = rate * .002;
   mGain.Prepare(rate);
   mBendSmooth = 1-std::exp(-1/(rate*.002));
   mSmooth = 1 - std::exp(-1 / (rate * .02));
@@ -50,9 +56,7 @@ void ProgramEngine::Panic() noexcept {
   mRandom = 1;
   mMono.Reset();
   mVoices = {};
-  mTails = {};
-  mOverflowTail = {};
-  mOverflowPosition = 0;
+  mTails.Reset();
   mEvents.Clear();
   mSustain.fill(false);
   mPortamento.fill(-1);
@@ -128,18 +132,9 @@ unsigned ProgramEngine::ActiveVoices() const noexcept {
   return n;
 }
 void ProgramEngine::Tail(Voice &voice) noexcept {
-  auto it = std::find_if(mTails.begin(), mTails.end(), [](const Voice &v) { return !v.region; });
-  if (it == mTails.end()) {
-    it = std::min_element(mTails.begin(), mTails.end(),
-        [](const Voice &a, const Voice &b) { return a.forced < b.forced; });
-    for (unsigned frame = 0; frame < 96 && it->region; ++frame) {
-      auto &audio = mOverflowTail[(mOverflowPosition + frame) % 96];
-      RenderVoice(*it, audio[0], audio[1]);
-    }
-  }
-  *it = voice;
-  it->forced = 96;
-  voice = {};
+  mTails.Add(voice, [this](Voice &tail, double &left, double &right) {
+    RenderVoice(tail, left, right);
+  });
 }
 void ProgramEngine::Release(Voice &voice) noexcept {
   voice.down = false;
@@ -186,8 +181,7 @@ void ProgramEngine::NoteOn(int note, int velocity, int channel, int previousPitc
   mPreviousPitch[channel] = note * 65536;
   const auto &p = mLibrary->programs[mProgram];
   std::array<int32_t, 8> indices;
-  indices.fill(-1);
-  unsigned selected = 0;
+  unsigned needed = 0;
   for (int osc = 0; osc < 2; ++osc)
     for (int slot = 0; slot < 4; ++slot) {
       const auto *b = p.controls.data() + 0x564 + 380 * osc;
@@ -198,12 +192,8 @@ void ProgramEngine::NoteOn(int note, int velocity, int channel, int previousPitc
                                 : note;
       const auto index = p.lookup[osc][selection][slot];
       if (index >= 0 && mLibrary->LayerWeight(mLibrary->regions[unsigned(index)], velocity) > 0)
-        indices[selected++] = index;
+        indices[needed++] = index;
     }
-  unsigned needed = 0;
-  for (auto i : indices)
-    if (i >= 0)
-      ++needed;
   if (!needed)
     return;
   if (p.drum) {
@@ -227,9 +217,8 @@ void ProgramEngine::NoteOn(int note, int velocity, int channel, int previousPitc
         Tail(v);
   }
   const uint64_t age = ++mAge;
-  for (auto index : indices) {
-    if (index < 0)
-      continue;
+  for (unsigned i = 0; i < needed; ++i) {
+    const auto index = indices[i];
     const auto &r = mLibrary->regions[unsigned(index)];
     auto it =
         std::find_if(mVoices.begin(), mVoices.end(), [](const Voice &v) { return !v.region; });
@@ -261,13 +250,19 @@ void ProgramEngine::NoteOn(int note, int velocity, int channel, int previousPitc
     for (int ch = 0; ch < 2; ++ch)
       if (r.sample[ch] != UINT32_MAX) {
         v.step[ch] = mLibrary->Step(p, r, ch, note, mRate);
+        const auto sampleIndex = r.sample[ch];
+        const auto &sample = mLibrary->samples[sampleIndex];
+        v.waveforms[ch] = v.residency ? (*v.residency->factory)[sampleIndex].get() : &sample.pcm;
         if (r.flags & 1)
-          v.position[ch] = mLibrary->samples[r.sample[ch]].frames - 1;
+          v.position[ch] = sample.frames - 1;
       }
     if (p.drum) {
       const unsigned kit = (p.controls[0x566] | (unsigned(p.controls[0x567]) << 8)) & 4095;
       if (kit < 58) {
-        const auto &key = drum_data::kKeys[drum_data::kKeyIndex[kit][note]];
+        const unsigned index = kit >= 42 && kit <= 45 && ProgramExpansion(p.id.data()) == 4
+                                   ? drum_data::kFutureSynthKeyIndex[kit - 42][note]
+                                   : drum_data::kKeyIndex[kit][note];
+        const auto &key = drum_data::kKeys[index];
         v.drumAttack = key.offsets[2 * r.slot];
         v.drumDecay = key.offsets[2 * r.slot + 1];
         v.drumNoteOff = !(p.controls[0x508] & 64) || note < p.controls[0x50d] ||
@@ -403,7 +398,7 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
     if (r.sample[ch] == UINT32_MAX)
       continue;
     const auto &sample = mLibrary->samples[r.sample[ch]];
-    const PCM24 &pcm = v.residency ? *(*v.residency->factory)[r.sample[ch]] : sample.pcm;
+    const PCM24 &pcm = *v.waveforms[ch];
     const bool reverse = r.flags & 1;
     const bool loop = !reverse && (sample.flags & 16) &&
                       sample.loopEnd - sample.loopStart >= 8;
@@ -420,8 +415,12 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
       // Non-looped/reverse samples can end at a nonzero value. A 2 ms tail
       // removes the hard cut without changing the drum's attack or timing.
       const double remaining = reverse ? pos : pcm.size() - 1 - pos;
-      const double frames = remaining / std::max(1e-9, v.step[ch] * v.bend * v.glideRatio);
-      audio[ch] *= std::clamp(frames / (mRate * .002), 0., 1.);
+      const double step = std::max(1e-9, v.step[ch] * v.bend * v.glideRatio);
+      // Leave a margin around the fade so the skipped calculation clamps to one.
+      if (remaining <= step * (2 * mFadeFrames)) {
+        const double frames = remaining / step;
+        audio[ch] *= std::clamp(frames / mFadeFrames, 0., 1.);
+      }
     }
     if (loop) {
       const double seam = std::min(32., period / 8);
@@ -440,23 +439,23 @@ void ProgramEngine::RenderVoice(Voice &v, double &left, double &right) noexcept 
     v.filter.Process(l, rr);
   level *= r.gain * v.velocityTrim * mGain.Current(v.channel);
   level *= std::min(1., v.ageSeconds / .002);
-  v.ageSeconds += 1 / mRate;
+  v.ageSeconds += mAgeStep;
   if (!v.program->drum)
     level *= .4;
-  if (v.forced) {
-    level *= v.forced / 96.;
-    if (!--v.forced)
+  if (v.forcedRemaining) {
+    level *= double(v.forcedRemaining) / kVoiceTailFrames;
+    if (!--v.forcedRemaining)
       v.region = nullptr;
   }
   left += l * level * v.panL;
   right += rr * level * v.panR;
   {
-    v.audioPhase += kNativeAudioHz / mRate;
+    v.audioPhase += mAudioStep;
     while (v.audioPhase >= 1) {
       v.slew.Advance();
       v.audioPhase -= 1;
     }
-    v.phase += kNativeControlHz / mRate;
+    v.phase += mControlStep;
     if (v.phase >= 1) {
       v.phase -= 1;
       auto offsets = mControls.ampEg;
@@ -500,10 +499,7 @@ void ProgramEngine::Render(float *left, float *right, int frames) noexcept {
         active[voices++] = &v;
     for (int i = 0; i < count; ++i) {
       mGain.Advance();
-      auto &overflow = mOverflowTail[mOverflowPosition];
-      double l = overflow[0], r = overflow[1];
-      overflow = {};
-      mOverflowPosition = (mOverflowPosition + 1) % 96;
+      auto [l, r] = mTails.PopOverflowSample();
       for (unsigned v = 0; v < voices; ++v)
         RenderVoice(*active[v], l, r);
       if (blend) {
@@ -554,17 +550,8 @@ void ProgramEngine::Process(float *left, float *right, int frames) noexcept {
     return;
   if (mEvents.Overflowed())
     Panic();
-  unsigned consumed = 0;
-  int position = 0;
-  while (consumed < mEvents.Size() && mEvents[consumed].offset < frames) {
-    const int target = mEvents[consumed].offset;
-    if (target > position)
-      Render(left + position, right + position, target - position);
-    position = target;
-    Midi(mEvents[consumed++]);
-  }
-  if (position < frames)
-    Render(left + position, right + position, frames - position);
-  mEvents.Advance(consumed, frames);
+  mEvents.RenderBlock(frames,
+      [&](int position, int count) { Render(left + position, right + position, count); },
+      [this](const MidiEvent &event) { Midi(event); });
 }
 } // namespace segrand

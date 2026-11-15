@@ -4,6 +4,7 @@
 #include "midi/ChannelGain.h"
 #include "midi/EventQueue.h"
 #include "midi/Performance.h"
+#include "voice/VoiceTails.h"
 #include "samples/SampleBank.h"
 #include "voice/NativeFilter.h"
 #include "voice/NativeVoice.h"
@@ -55,9 +56,7 @@ private:
   const SampleBank *mPlaybackBank = nullptr;
   const SampleResidency *mResidency = nullptr;
   std::array<Voice, kVoices> mVoices{};
-  std::array<Voice, kTails> mTails{};
-  std::array<std::array<double, 2>, 96> mOverflowTail{};
-  unsigned mOverflowPosition = 0;
+  VoiceTails<Voice, kTails, &Voice::sample> mTails;
   EventQueue<kEvents> mEvents;
   std::array<std::unique_ptr<ConcertEffects, EffectDeleter>, 3> mEffects;
   std::array<bool, 16> mSustain{};

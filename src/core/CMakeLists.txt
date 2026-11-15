@@ -3,6 +3,7 @@ set(KROSE_CORE_SOURCES
   samples/NativeSampleCodec.cpp
   samples/SampleLoader.cpp
   samples/ProgramLibrary.cpp
+  samples/KrossPcg.cpp
   samples/SampleBank.cpp
   engine/ProgramEngine.cpp
   engine/InstrumentEngine.cpp

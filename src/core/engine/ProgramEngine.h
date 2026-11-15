@@ -6,6 +6,7 @@
 #include "midi/ChannelGain.h"
 #include "midi/EventQueue.h"
 #include "midi/Performance.h"
+#include "voice/VoiceTails.h"
 #include "samples/ProgramLibrary.h"
 #include "voice/NativeFilter.h"
 #include "voice/NativeModulation.h"
@@ -47,6 +48,8 @@ private:
     const ProgramRegion *region = nullptr;
     const InstrumentProgram *program = nullptr;
     std::array<double, 2> position{}, step{};
+    // The voice keeps its residency pinned, including while it plays as a tail.
+    std::array<const PCM24 *, 2> waveforms{};
     double bend = 1, bendTarget = 1;
     NativeVoice amplitude;
     NativeSlew slew;
@@ -54,7 +57,7 @@ private:
     NativeModulation modulation;
     double phase = 0, audioPhase = 0, velocityTrim = 1, panL = 1, panR = 1, ageSeconds = 0;
     uint64_t age = 0;
-    int note = 0, channel = 0, forced = 0;
+    int note = 0, channel = 0, forcedRemaining = 0;
     int drumAttack = 0, drumDecay = 0;
     bool drumNoteOff = false;
     bool down = false, released = false;
@@ -66,9 +69,7 @@ private:
   const SampleResidency *mResidency = nullptr;
   std::unique_ptr<ConcertEffects, DeleteEffect> mRoom;
   std::array<Voice, kVoices> mVoices{};
-  std::array<Voice, kTails> mTails{};
-  std::array<std::array<double, 2>, 96> mOverflowTail{};
-  unsigned mOverflowPosition = 0;
+  VoiceTails<Voice, kTails, &Voice::region> mTails;
   EventQueue<kEvents> mEvents;
   std::array<bool, 16> mSustain{};
   std::array<int, 16> mPortamento{}, mPreviousPitch{};
@@ -88,6 +89,7 @@ private:
   Controls mControls;
   MonoPerformance mMono;
   double mRate = 48000, mOutput = 0.5, mTarget = 0.5, mSmooth = 0, mBendSmooth = 0;
+  double mAgeStep = 0, mAudioStep = 0, mControlStep = 0, mFadeFrames = 0;
   double mProgramLevel = 1, mProgramLevelTarget = 1;
   unsigned mProgram = 0;
   uint64_t mAge = 0;

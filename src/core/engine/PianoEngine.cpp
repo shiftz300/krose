@@ -82,9 +82,7 @@ void PianoEngine::Prepare(double rate) {
 void PianoEngine::Panic() noexcept {
   mMono.Reset();
   mVoices = {};
-  mTails = {};
-  mOverflowTail = {};
-  mOverflowPosition = 0;
+  mTails.Reset();
   mSustain.fill(false);
   mPortamento.fill(-1);
   mPreviousPitch.fill(-1);
@@ -143,18 +141,9 @@ void PianoEngine::Release(Voice &voice) noexcept {
     filter.Release();
 }
 void PianoEngine::Tail(Voice &voice) noexcept {
-  auto tail = std::find_if(mTails.begin(), mTails.end(), [](const Voice &v) { return !v.sample; });
-  if (tail == mTails.end()) {
-    tail = std::min_element(mTails.begin(), mTails.end(),
-        [](const Voice &a, const Voice &b) { return a.forcedRemaining < b.forcedRemaining; });
-    for (unsigned frame = 0; frame < 96 && tail->sample; ++frame) {
-      auto &audio = mOverflowTail[(mOverflowPosition + frame) % 96];
-      RenderVoice(*tail, audio[0], audio[1]);
-    }
-  }
-  *tail = voice;
-  tail->forcedRemaining = 96;
-  voice = {};
+  mTails.Add(voice, [this](Voice &tail, double &left, double &right) {
+    RenderVoice(tail, left, right);
+  });
 }
 void PianoEngine::SelectMono(int note, int velocity, int channel, bool connected) noexcept {
   int previous = -1;
@@ -322,7 +311,7 @@ void PianoEngine::RenderVoice(Voice &voice, double &left, double &right) noexcep
   }
   double level = 0.4 * voice.velocityTrim * mGain.Current(voice.channel);
   if (voice.forcedRemaining) {
-    level *= voice.forcedRemaining / 96.0;
+    level *= double(voice.forcedRemaining) / kVoiceTailFrames;
     if (!--voice.forcedRemaining)
       voice.sample = nullptr;
   }
@@ -368,10 +357,7 @@ void PianoEngine::Render(float *left, float *right, int frames) noexcept {
         active[voices++] = &v;
     for (int n = 0; n < count; ++n) {
       mGain.Advance();
-      auto &overflow = mOverflowTail[mOverflowPosition];
-      double l = overflow[0], r = overflow[1];
-      overflow = {};
-      mOverflowPosition = (mOverflowPosition + 1) % 96;
+      auto [l, r] = mTails.PopOverflowSample();
       for (unsigned v = 0; v < voices; ++v)
         RenderVoice(*active[v], l, r);
       dry[n * 2] = float(l);
@@ -431,20 +417,10 @@ void PianoEngine::Process(float *left, float *right, int frames) noexcept {
   mRack.ClearMeters();
   if (frames <= 0 || !left || !right)
     return;
-  if (mEvents.Overflowed()) {
+  if (mEvents.Overflowed())
     Panic();
-  }
-  unsigned consumed = 0;
-  int position = 0;
-  while (consumed < mEvents.Size() && mEvents[consumed].offset < frames) {
-    const int target = mEvents[consumed].offset;
-    if (target > position)
-      Render(left + position, right + position, target - position);
-    position = target;
-    Midi(mEvents[consumed++]);
-  }
-  if (position < frames)
-    Render(left + position, right + position, frames - position);
-  mEvents.Advance(consumed, frames);
+  mEvents.RenderBlock(frames,
+      [&](int position, int count) { Render(left + position, right + position, count); },
+      [this](const MidiEvent &event) { Midi(event); });
 }
 } // namespace segrand

@@ -3,6 +3,9 @@
 
 void KrosePlugin::InitializeParameters() {
   GetParam(kFilterEGIntensity)->InitInt("Filter EG Intensity", 0, -99, 99);
+  GetParam(kPcgProgram)->InitEnum("PCG Program", 0, kMissingPcgSelection + 1);
+  GetParam(kPcgProgram)->SetDisplayText(0, "Off");
+  GetParam(kPcgProgram)->SetDisplayText(kMissingPcgSelection, "Missing PCG");
   GetParam(kParamTone)
       ->InitEnum("Tone", 0, 3, "", IParam::kFlagsNone, "", "Concert", "Warm", "Wide");
   GetParam(kParamOutput)->InitDouble("Output", -4, -60, 6, 0.1, "dB");
