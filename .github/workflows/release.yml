@@ -262,3 +262,58 @@ jobs:
               --title "Krose $GITHUB_REF_NAME" --notes "$notes" \
               "${assets[@]}" SHA256SUMS.txt
           fi
+
+          
+      - name: Mirror release to Lumina
+        shell: bash
+        env:
+          LUMINA_URL: ${{ secrets.LUMINA_URL }}
+          LUMINA_USER: ${{ secrets.LUMINA_USER }}
+          LUMINA_PASSWORD: ${{ secrets.LUMINA_PASSWORD }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          : "${LUMINA_URL:?Missing LUMINA_URL}"
+          : "${LUMINA_USER:?Missing LUMINA_USER}"
+          : "${LUMINA_PASSWORD:?Missing LUMINA_PASSWORD}"
+
+          BASE="${LUMINA_URL%/}/repository/github-krose"
+          TAG="$GITHUB_REF_NAME"
+          VERSION="${TAG#v}"
+
+          # Upload versioned release assets
+          for file in dist/*; do
+            [ -f "$file" ] || continue
+            name="${file##*/}"
+
+            echo "Uploading $TAG/$name"
+            curl -fsS --retry 3 --retry-delay 5 \
+              --connect-timeout 30 --max-time 1800 \
+              -u "$LUMINA_USER:$LUMINA_PASSWORD" \
+              -T "$file" "$BASE/$TAG/$name"
+          done
+
+          # Update latest aliases for newest release
+          LATEST=$(gh api \
+            "repos/$GITHUB_REPOSITORY/releases/latest" \
+            --jq '.tag_name')
+
+          if [ "$TAG" = "$LATEST" ]; then
+            for spec in \
+              "windows-x64-setup.exe:windows-setup.exe" \
+              "windows-x64-portable.zip:windows-portable.zip" \
+              "macos-universal.pkg:macos-universal.pkg" \
+              "macos-universal-app.zip:macos-universal-app.zip"
+            do
+              source="${spec%%:*}"
+              target="${spec#*:}"
+
+              curl -fsS --retry 3 --retry-delay 5 \
+                --connect-timeout 30 --max-time 1800 \
+                -u "$LUMINA_USER:$LUMINA_PASSWORD" \
+                -T "dist/Krose-$VERSION-$source" \
+                "$BASE/latest/$target"
+            done
+          fi
+
