@@ -13,6 +13,11 @@ fi
 
 upload_root=${LUMINA_URL%/}
 download_root=https://registry.amaicat.work/repository/github-krose
+if [[ $upload_root == https://registry.amaicat.work ]]; then
+  echo "Upload endpoint is the public mirror domain."
+else
+  echo "Upload endpoint differs from the public mirror domain."
+fi
 version=${tag#v}
 assets=(
   "Krose-$version-windows-x64-setup.exe"
@@ -41,21 +46,25 @@ public_matches() {
 }
 
 upload() {
-  local source=$1 dir=$2 name=$3 method response code
-  local options=(--silent --show-error --proto '=https' --http1.1 -H 'Expect:'
-    --connect-timeout 20 --max-time 180 --user "$LUMINA_USER:$LUMINA_PASSWORD"
-    --output /dev/null --write-out '%{http_code} (%{size_upload} bytes, %{time_total}s)')
-  for method in POST PUT PUT; do
-    if [[ $method == POST ]]; then
+  local source=$1 dir=$2 name=$3 method response code bytes
+  bytes=$(wc -c < "$source")
+  local options=(--silent --show-error --proto '=https' --retry 0
+    --connect-timeout 30 --max-time 180 --user "$LUMINA_USER:$LUMINA_PASSWORD"
+    --output /dev/null --write-out '%{http_code} (%{size_upload} bytes, %{time_total}s, %{speed_upload} B/s, HTTP/%{http_version})')
+  local put_url="$upload_root/repository/github-krose/$dir/$name"
+  for method in PUT POST PUT-HTTP1; do
+    if [[ $method == PUT ]]; then
+      response=$(curl -q "${options[@]}" --upload-file "$source" "$put_url") || true
+    elif [[ $method == POST ]]; then
       response=$(curl -q "${options[@]}" --form-string "raw.directory=/$dir" \
         --form "raw.asset1=@$source" --form-string "raw.asset1.filename=$name" \
         "$upload_root/service/rest/v1/components?repository=github-krose") || true
     else
-      response=$(curl -q "${options[@]}" --upload-file "$source" \
-        "$upload_root/repository/github-krose/$dir/$name") || true
+      response=$(curl -q "${options[@]}" --http1.1 -H 'Expect:' \
+        --upload-file "$source" "$put_url") || true
     fi
     code=${response%% *}
-    echo "$method $dir/$name: ${response:-network error}"
+    echo "$method $dir/$name: ${response:-network error} (file: $((bytes)) bytes)"
     case $code in
       2??) return 0 ;;
       401|403|413) return 1 ;;
