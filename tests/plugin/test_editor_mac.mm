@@ -306,6 +306,56 @@ void verifyEditor(Steinberg::IPlugView *view, const std::function<double()> &vel
       return;
     }
     if (pass == 0) {
+      // Real double-clicks must reset LCD values, including the arrow hit areas,
+      // and dismiss the text editor or selector opened by the first click.
+      const auto resetCell = [&](const char *name, float x, float y, double initial) {
+        const double saved = parameter(name);
+        setParameter(name, .91);
+        pump();
+        click(v, x, y);
+        click(v, x, y, 2);
+        if (std::abs(parameter(name) - initial) >= 1e-8)
+          std::cerr << name << " reset to " << parameter(name) << ", expected " << initial << '\n';
+        assert(std::abs(parameter(name) - initial) < 1e-8);
+        key(v, @"1");
+        key(v, @"\t", 48);
+        assert(std::abs(parameter(name) - initial) < 1e-8);
+        setParameter(name, saved);
+      };
+      click(v, 850, 125);
+      const char *types[] = {"IFX 1 Type", "IFX 2 Type", "MFX 1 Type", "MFX 2 Type"};
+      const double savedTypes[] = {parameter(types[0]), parameter(types[1]),
+                                   parameter(types[2]), parameter(types[3])};
+      setParameter(types[0], .3); // Compressor, all four visible cells.
+      click(v, 487, 176);
+      resetCell("IFX 1 Threshold", 640, 226, (40 - 21.4) / 40.);
+      resetCell("IFX 1 Ratio", 910, 226, 3. / 39);
+      resetCell("IFX 1 Attack", 640, 250, 1. / 250);
+      resetCell("IFX 1 Release", 910, 250, 74. / 4999);
+      setParameter(types[1], .2);
+      click(v, 620, 176);
+      resetCell("IFX 2 B1 Freq", 910, 226, 60. / 19980);
+      resetCell("IFX 2 B1 Gain", 640, 250, 24. / 42);
+      resetCell("IFX 2 B1 Q", 910, 250, 0.);
+      setParameter(types[2], 3. / 14);
+      click(v, 753, 176);
+      resetCell("MFX 1 L Delay", 640, 226, 243. / 1999);
+      resetCell("MFX 1 R Delay", 910, 226, 325. / 1999);
+      resetCell("MFX 1 Feedback", 640, 250, 28. / 95);
+      setParameter(types[3], 4. / 14);
+      click(v, 886, 176);
+      resetCell("MFX 2 Send", 887, 198, .5);
+      resetCell("MFX 2 Decay", 640, 226, 1.5 / 19.7);
+      resetCell("MFX 2 Hi Damp", 910, 226, .62);
+      resetCell("MFX 2 Decay", 683, 221, 1.5 / 19.7);
+      resetCell("MFX 2 Hi Damp", 957, 232, .62);
+      resetCell(types[3], 570, 198, 0.);
+      setParameter(types[2], 11. / 14); // Layout is an enum with increment arrows.
+      click(v, 753, 176);
+      resetCell("MFX 1 Layout", 640, 250, 0.);
+      for (int slot = 0; slot < 4; ++slot)
+        setParameter(types[slot], savedTypes[slot]);
+      click(v, 700, 125);
       // The bank selection and the visible four faders share host parameters.
       const double savedAmp=parameter("Amp Attack"), savedFilter=parameter("Filter Attack");
       const double savedIfx=parameter("IFX 1 Type");

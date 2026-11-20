@@ -6,6 +6,7 @@
 
 namespace krose::updates {
 inline constexpr char kReleasePage[] = "https://github.com/shiftz300/krose/releases/latest";
+inline constexpr char kMirrorPage[] = "https://registry.amaicat.work/service/rest/repository/browse/github-krose/";
 inline constexpr size_t kMaxResponse = 32768;
 inline std::optional<std::array<unsigned, 3>> Version(std::string_view text) {
   if (!text.empty() && text.front() == 'v') text.remove_prefix(1);

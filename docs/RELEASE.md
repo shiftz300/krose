@@ -1,5 +1,10 @@
 # CI 与安装包发行
 
+## 0.5.3
+
+- FX 页支持双击恢复单个参数的默认值。
+- 更新提示可打开下载镜像。
+
 ## 0.5.2
 
 - EX 支持从原厂 KROSS 1 PCG 导入 Bank U。
@@ -73,7 +78,7 @@ Actions 另提供 `Krose-windows-x64-standalone` 与 `Krose-macos-universal-stan
 
 CI 在临时目录完整解压 ZIP，以 `--no-io --screenshot screenshot.png` 启动，检查原生界面截图，避免打开 CI 的音频／MIDI 设备；macOS 同时核对签名和 Universal 架构。便携版优先使用包内采样，不依赖已安装的共享资源。
 
-本地打包：`python3 tools/release/package_standalone.py --input build/plugin/out --output dist --version 0.5.2 --platform macos-arm64 --smoke`。Windows 指定 `--platform windows-x64`；合并后的 macOS 产物指定 `macos-universal`。
+本地打包：`python3 tools/release/package_standalone.py --input build/plugin/out --output dist --version 0.5.3 --platform macos-arm64 --smoke`。Windows 指定 `--platform windows-x64`；合并后的 macOS 产物指定 `macos-universal`。
 
 ## 首次接入完整资源
 
@@ -99,8 +104,8 @@ CI 从锁文件读取标签、文件名及 SHA-256。归档工具仍支持旧 PC
 先在普通分支确认完整安装包构建成功，再推送与代码版本一致的标签：
 
 ```sh
-git tag -a v0.5.2 -m 'Krose 0.5.2'
-git push origin v0.5.2
+git tag -a v0.5.3 -m 'Krose 0.5.3'
+git push origin v0.5.3
 ```
 
 Windows Inno Setup 默认深色安装界面，默认安装独立程序到 `Program Files\Krose`、VST3 到 `Common Files\VST3\Krose.vst3`，支持组件选择、开始菜单、系统卸载及 `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART` 静默安装；采样共用 `Common Files\Krose\Samples\版本号`，卸载保留用户收藏。macOS PKG 安装到 `/Applications/Krose.app` 和 `/Library/Audio/Plug-Ins/VST3/Krose.vst3`，关闭 bundle 重定位，采样共用 `/Library/Application Support/Krose/Samples/版本号`。安装器另在共用的 `Krose/Expansions` 目录装入一份可删除的 OASYS。便携 bundle 优先使用内置板载采样，安装版也可用 `KROSE_SAMPLE_DIRECTORY` 指定自定义位置。
@@ -119,7 +124,7 @@ macOS 各架构独立训练，直接配置 `arm64;x86_64` 时启用 PGO 会报�
 
 复测：`cmake --preset plugin && cmake --build --preset plugin && ctest --preset plugin`。安装器保持系统原生布局和默认图案，不嵌入界面截图。Windows 编译器由 `packaging/inno-setup.json` 固定版本及 SHA256，`tools/release/package_windows.ps1` 构建；旧 NSIS 安装在同目录成功覆盖后才移除旧卸载记录，不运行会删除新文件的旧卸载器。macOS 使用标准 PKG 界面，外观跟随系统。
 
-本机构建 PKG：`bash tools/release/package_macos.sh build/plugin 0.5.2`。
+本机构建 PKG：`bash tools/release/package_macos.sh build/plugin 0.5.3`。
 
 ## 依赖警告与边界
 

@@ -79,8 +79,9 @@ void NativePanel::EditNumber(const IKeyPress &key, bool midiNumber) {
   SetDirty(false);
 }
 void NativePanel::Activate(const Hit &h) {
-  if (h.action == "update-open" || h.action == "update-later") {
+  if (h.action == "update-open" || h.action == "update-mirror" || h.action == "update-later") {
     if (h.action == "update-open") GetUI()->OpenURL(krose::updates::kReleasePage);
+    if (h.action == "update-mirror") GetUI()->OpenURL(krose::updates::kMirrorPage);
     ShowUpdateNotice("");
     return;
   }
@@ -355,18 +356,33 @@ void NativePanel::OnMouseUp(float, float, const IMouseMod &) {
   SetDirty(false);
 }
 bool NativePanel::IsParameterHit(float x, float y) const {
-  for (auto it = mHits.rbegin(); it != mHits.rend(); ++it)
-    if (it->r.Contains(x, y))
-      return it->action == "knob" || it->action == "fader";
-  return false;
+  return ParameterHit(x, y) != nullptr;
 }
-void NativePanel::OnMouseDblClick(float x, float y, const IMouseMod &) {
+const NativePanel::Hit *NativePanel::ParameterHit(float x, float y) const {
+  const bool fxPage = mPage == 2 && !mControllers;
+  // The effect type selector can cover its own field after the first click.
+  if (fxPage && !mChoices.empty() && mPopupTarget.action == "field" &&
+      IsFxTypeParameter(mPopupTarget.id) && mPopupTarget.r.Contains(x, y))
+    return &mPopupTarget;
   for (auto it = mHits.rbegin(); it != mHits.rend(); ++it)
     if (it->r.Contains(x, y)) {
-      if (it->action == "knob" || it->action == "fader")
-        Set(it->id, GetDelegate()->GetParam(it->id)->GetDefault());
-      return;
+      const bool resettable = it->action == "knob" || it->action == "fader" ||
+          (fxPage && (it->action == "field" || it->action == "increment"));
+      return resettable ? &*it : nullptr;
     }
+  return nullptr;
+}
+void NativePanel::OnMouseDblClick(float x, float y, const IMouseMod &) {
+  const auto *hit = ParameterHit(x, y);
+  if (!hit) return;
+  const int id = hit->id;
+  mParameters.End(*GetDelegate());
+  mNumericPending = mNumericDragging = false;
+  mDrag = mEdit = -1;
+  mSelectAll = false;
+  mChoices.clear();
+  Set(id, GetDelegate()->GetParam(id)->GetDefault());
+  SetDirty(false);
 }
 void NativePanel::OnMouseWheel(float x, float y, const IMouseMod &mod, float d) {
   if (!std::isfinite(d))

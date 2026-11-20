@@ -50,6 +50,7 @@ private:
     int id = -1;
     double value = 0;
   };
+  const Hit *ParameterHit(float x, float y) const;
   struct Font {
     IBitmap image;
     std::vector<std::string> chars;

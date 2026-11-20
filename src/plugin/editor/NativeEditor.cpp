@@ -7,9 +7,8 @@
 #if IPLUG_EDITOR
 namespace {
 // The composite panel treats double-clicks as ordinary presses, retaining
-// iPlug's mouse capture for keys and wheels. Only knobs/faders use reset-on-double-
-// click. A non-drawing input control routes those hits through iPlug's existing
-// double-click handling; modal menus take priority in the panel's hit list.
+// iPlug's mouse capture for keys and wheels. This transparent input control
+// routes knobs, faders and FX parameter cells to iPlug's double-click handler.
 class ParameterInput final : public IControl {
 public:
   explicit ParameterInput(krose::ui::NativePanel &panel)

@@ -528,13 +528,15 @@ void NativePanel::UpdatePopup(IGraphics &g) {
   Text(g, "lcd16", "UPDATE AVAILABLE", R(525, 226, 422, 29), 1);
   Text(g, "lcd14", std::string("Krose ") + PLUG_VERSION_STR + "  >  " + mUpdateVersion,
        R(525, 268, 422, 24), 1);
-  Text(g, "lcd13", "Get the latest version on GitHub.", R(525, 302, 422, 22), 1);
-  const auto later = R(529, 356, 166, 34), open = R(711, 356, 232, 34);
-  for (const auto& button : {later, open}) { g.FillRect(Ink, button); }
-  Text(g, "light14", "LATER", later, 1);
-  Text(g, "light14", "OPEN GITHUB", open, 1);
-  HitBox(later, "update-later");
-  HitBox(open, "update-open");
+  Text(g, "lcd13", "Choose a download source.", R(525, 302, 422, 22), 1);
+  const auto button = [&](const char *label, const IRECT &rect, const char *action) {
+    g.FillRect(Ink, rect);
+    Text(g, "light14", label, rect, 1);
+    HitBox(rect, action);
+  };
+  button("LATER", R(529, 356, 106, 34), "update-later");
+  button("OPEN MIRROR", R(647, 356, 142, 34), "update-mirror");
+  button("OPEN GITHUB", R(801, 356, 142, 34), "update-open");
 }
 void NativePanel::ProgramRow(IGraphics &g) {
   const auto &p = Program(int(Value(kParamProgram)));
