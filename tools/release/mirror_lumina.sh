@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+tag=${1:-}
+if [[ ! $tag =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "Expected a release tag such as v0.5.3." >&2
+  exit 2
+fi
+
+: "${LUMINA_URL:?Missing LUMINA_URL}"
+: "${LUMINA_USER:?Missing LUMINA_USER}"
+: "${LUMINA_PASSWORD:?Missing LUMINA_PASSWORD}"
+
+upload_root=${LUMINA_URL%/}
+download_root=https://registry.amaicat.work/repository/github-krose
+version=${tag#v}
+assets=(
+  "Krose-$version-windows-x64-setup.exe"
+  "Krose-$version-macos-universal.pkg"
+  "Krose-$version-windows-x64-portable.zip"
+  "Krose-$version-macos-universal-app.zip"
+)
+aliases=(windows-setup.exe macos-universal.pkg windows-portable.zip macos-universal-app.zip)
+
+release_files=$(mktemp -d)
+trap 'rm -rf -- "$release_files"' EXIT
+cd "$release_files"
+patterns=(--pattern SHA256SUMS.txt)
+for name in "${assets[@]}"; do
+  patterns+=(--pattern "$name")
+done
+gh release download "$tag" --repo "$GITHUB_REPOSITORY" "${patterns[@]}"
+sha256sum "${assets[@]}" | cmp - SHA256SUMS.txt
+
+public_matches() {
+  local target=$1 expected=$2 checksum
+  checksum=$(curl -qfsSL --proto '=https' --proto-redir '=https' \
+    -H 'Cache-Control: no-cache' --connect-timeout 15 --max-time 120 \
+    "$download_root/$target" 2>/dev/null | sha256sum) &&
+    [[ ${checksum%% *} == "$expected" ]]
+}
+
+upload() {
+  local source=$1 dir=$2 name=$3 method response code
+  local options=(--silent --show-error --proto '=https' --http1.1 -H 'Expect:'
+    --connect-timeout 20 --max-time 180 --user "$LUMINA_USER:$LUMINA_PASSWORD"
+    --output /dev/null --write-out '%{http_code} (%{size_upload} bytes, %{time_total}s)')
+  for method in POST PUT PUT; do
+    if [[ $method == POST ]]; then
+      response=$(curl -q "${options[@]}" --form-string "raw.directory=/$dir" \
+        --form "raw.asset1=@$source" --form-string "raw.asset1.filename=$name" \
+        "$upload_root/service/rest/v1/components?repository=github-krose") || true
+    else
+      response=$(curl -q "${options[@]}" --upload-file "$source" \
+        "$upload_root/repository/github-krose/$dir/$name") || true
+    fi
+    code=${response%% *}
+    echo "$method $dir/$name: ${response:-network error}"
+    case $code in
+      2??) return 0 ;;
+      401|403|413) return 1 ;;
+      *) sleep 5 ;;
+    esac
+  done
+  return 1
+}
+
+sync_file() {
+  local source=$1 dir=$2 name=$3 expected
+  expected=$(sha256sum "$source")
+  expected=${expected%% *}
+  if public_matches "$dir/$name" "$expected"; then
+    echo "Verified existing $dir/$name"
+    return
+  fi
+
+  # A gateway timeout can occur after the origin stored the file.
+  upload "$source" "$dir" "$name" || true
+  for delay in 0 5 15; do
+    sleep "$delay"
+    if public_matches "$dir/$name" "$expected"; then
+      echo "Verified $dir/$name"
+      return
+    fi
+  done
+  echo "Public download missing or SHA-256 mismatch: $dir/$name" >&2
+  return 1
+}
+
+for name in "${assets[@]}" SHA256SUMS.txt; do
+  sync_file "$name" "$tag" "$name"
+done
+
+latest=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.tag_name')
+if [[ $tag == "$latest" ]]; then
+  for index in "${!assets[@]}"; do
+    sync_file "${assets[index]}" latest "${aliases[index]}"
+  done
+fi

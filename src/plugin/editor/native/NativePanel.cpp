@@ -535,7 +535,7 @@ void NativePanel::UpdatePopup(IGraphics &g) {
     HitBox(rect, action);
   };
   button("LATER", R(529, 356, 106, 34), "update-later");
-  button("OPEN MIRROR", R(647, 356, 142, 34), "update-mirror");
+  button("MIRROR", R(647, 356, 142, 34), "update-mirror");
   button("OPEN GITHUB", R(801, 356, 142, 34), "update-open");
 }
 void NativePanel::ProgramRow(IGraphics &g) {

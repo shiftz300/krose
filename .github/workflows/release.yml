@@ -5,6 +5,10 @@ on:
     tags: ['v*']
     paths: ['src/**', 'cmake/**', 'tests/**', 'assets/**', 'packaging/**', 'controllers/**', 'tools/**', 'CMakeLists.txt', '.github/workflows/**']
   workflow_dispatch:
+    inputs:
+      mirror_tag:
+        description: 'Sync an existing release to Lumina (e.g. v0.5.3)'
+        type: string
 permissions:
   contents: read
 concurrency:
@@ -12,7 +16,7 @@ concurrency:
   cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 jobs:
   build:
-    if: vars.KROSE_RELEASE_ASSETS_READY == 'true' || startsWith(github.ref, 'refs/tags/v')
+    if: inputs.mirror_tag == '' && (vars.KROSE_RELEASE_ASSETS_READY == 'true' || startsWith(github.ref, 'refs/tags/v'))
     # GitHub draft releases are visible only to identities with push access.
     permissions:
       contents: write
@@ -263,57 +267,22 @@ jobs:
               "${assets[@]}" SHA256SUMS.txt
           fi
 
-          
-      - name: Mirror release to Lumina
-        shell: bash
+  mirror:
+    needs: publish
+    if: ${{ !cancelled() && (needs.publish.result == 'success' || inputs.mirror_tag != '') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: lumina-release
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Sync and verify public downloads
         env:
           LUMINA_URL: ${{ secrets.LUMINA_URL }}
           LUMINA_USER: ${{ secrets.LUMINA_USER }}
           LUMINA_PASSWORD: ${{ secrets.LUMINA_PASSWORD }}
           GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-
-          : "${LUMINA_URL:?Missing LUMINA_URL}"
-          : "${LUMINA_USER:?Missing LUMINA_USER}"
-          : "${LUMINA_PASSWORD:?Missing LUMINA_PASSWORD}"
-
-          BASE="${LUMINA_URL%/}/repository/github-krose"
-          TAG="$GITHUB_REF_NAME"
-          VERSION="${TAG#v}"
-
-          # Upload versioned release assets
-          for file in dist/*; do
-            [ -f "$file" ] || continue
-            name="${file##*/}"
-
-            echo "Uploading $TAG/$name"
-            curl -fsS --retry 3 --retry-delay 5 \
-              --connect-timeout 30 --max-time 1800 \
-              -u "$LUMINA_USER:$LUMINA_PASSWORD" \
-              -T "$file" "$BASE/$TAG/$name"
-          done
-
-          # Update latest aliases for newest release
-          LATEST=$(gh api \
-            "repos/$GITHUB_REPOSITORY/releases/latest" \
-            --jq '.tag_name')
-
-          if [ "$TAG" = "$LATEST" ]; then
-            for spec in \
-              "windows-x64-setup.exe:windows-setup.exe" \
-              "windows-x64-portable.zip:windows-portable.zip" \
-              "macos-universal.pkg:macos-universal.pkg" \
-              "macos-universal-app.zip:macos-universal-app.zip"
-            do
-              source="${spec%%:*}"
-              target="${spec#*:}"
-
-              curl -fsS --retry 3 --retry-delay 5 \
-                --connect-timeout 30 --max-time 1800 \
-                -u "$LUMINA_USER:$LUMINA_PASSWORD" \
-                -T "dist/Krose-$VERSION-$source" \
-                "$BASE/latest/$target"
-            done
-          fi
-
+          MIRROR_TAG: ${{ inputs.mirror_tag || github.ref_name }}
+        run: bash tools/release/mirror_lumina.sh "$MIRROR_TAG"
