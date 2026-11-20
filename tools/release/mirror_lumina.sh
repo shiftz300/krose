@@ -60,7 +60,8 @@ upload() {
     --connect-timeout 30 --max-time 180 --user "$LUMINA_USER:$LUMINA_PASSWORD"
     --output /dev/null --write-out '%{http_code} (%{size_upload} bytes, %{time_total}s, %{speed_upload} B/s, HTTP/%{http_version})')
   local put_url="$upload_root/repository/github-krose/$dir/$name"
-  for method in PUT POST PUT-HTTP1; do
+  # The upload gateway is substantially faster over HTTP/1.1 for large files.
+  for method in PUT-HTTP1 PUT POST; do
     if [[ $method == PUT ]]; then
       response=$(curl -q "${options[@]}" --upload-file "$source" "$put_url") || true
     elif [[ $method == POST ]]; then
