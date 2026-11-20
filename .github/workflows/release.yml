@@ -12,7 +12,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: installers-${{ github.ref }}
+  group: installers-${{ inputs.mirror_tag && format('mirror-{0}', inputs.mirror_tag) || github.ref }}
   cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 jobs:
   build:
